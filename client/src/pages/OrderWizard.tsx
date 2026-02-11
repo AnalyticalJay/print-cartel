@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { PreviewCanvas } from "@/components/PreviewCanvas";
+import { FileUploadZone } from "@/components/FileUploadZone";
 import { toast } from "sonner";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
@@ -211,7 +212,6 @@ export default function OrderWizard() {
             {currentStep === 2 && (
               <div className="space-y-4">
                 <p className="text-gray-300">Add print placements for your design</p>
-                {/* Placeholder for print options */}
                 <Button
                   onClick={() => {
                     if (orderData.prints) {
@@ -241,11 +241,37 @@ export default function OrderWizard() {
             {/* Step 3: Upload Design */}
             {currentStep === 3 && (
               <div className="space-y-4">
-                <p className="text-gray-300">Upload your design file (PNG, JPG, or PDF)</p>
-                <Input
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.pdf"
-                  className="bg-gray-700 border-gray-600 text-white"
+                <FileUploadZone
+                  maxFiles={1}
+                  onFileUpload={(file) => {
+                    if (orderData.prints) {
+                      const updatedPrints = [...orderData.prints];
+                      if (updatedPrints.length === 0) {
+                        updatedPrints.push({
+                          printSizeId: 1,
+                          placementId: 1,
+                          uploadedFilePath: file.url,
+                          uploadedFileName: file.name,
+                          fileSize: file.fileSize,
+                          mimeType: file.mimeType,
+                        });
+                      } else {
+                        updatedPrints[0] = {
+                          ...updatedPrints[0],
+                          uploadedFilePath: file.url,
+                          uploadedFileName: file.name,
+                          fileSize: file.fileSize,
+                          mimeType: file.mimeType,
+                        };
+                      }
+                      setOrderData({ ...orderData, prints: updatedPrints });
+                    }
+                  }}
+                  onValidationWarnings={(warnings) => {
+                    if (warnings.length > 0) {
+                      toast.warning(`${warnings.length} quality warning(s) detected`);
+                    }
+                  }}
                 />
               </div>
             )}

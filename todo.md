@@ -43,8 +43,8 @@
 - [ ] Handle multiple placements with visual indicators
 
 ## Frontend - File Upload & Validation
-- [ ] Create file upload component with drag-and-drop support
-- [ ] Implement client-side file validation (format, size)
+- [x] Create file upload component with drag-and-drop support
+- [x] Implement client-side file validation (format, size)
 - [ ] Add DPI and dimension validation using image metadata
 - [ ] Display validation warnings for low-quality files
 - [ ] Show upload progress indicator
@@ -109,3 +109,13 @@
 - [ ] Add deployment guide for Manus hosting
 - [ ] Create user guide for admin dashboard
 - [ ] Document email configuration requirements
+
+
+## Current Sprint - File Upload Workflow
+- [x] Create file upload component with drag-and-drop support
+- [x] Implement client-side file validation (format, size, dimensions)
+- [x] Add validation warning system for low-quality files
+- [x] Integrate file upload into Step 3 of order wizard
+- [x] Test S3 file storage integration
+- [x] Test validation warnings and error handling
+- [x] Write and run vitest tests for file upload (13 tests passing)
