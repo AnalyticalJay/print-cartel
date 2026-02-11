@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
-import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints } from "../db";
+import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail } from "../db";
 import { sendOrderNotificationEmail } from "../email";
 
 const CreateOrderInput = z.object({
@@ -97,5 +97,18 @@ export const ordersRouter = router({
       }
       await updateOrderStatus(input.orderId, input.status);
       return { success: true };
+    }),
+
+  getByEmail: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .query(async ({ input }) => {
+      const customerOrders = await getOrdersByCustomerEmail(input.email);
+      const ordersWithPrints = await Promise.all(
+        customerOrders.map(async (order) => {
+          const prints = await getOrderPrints(order.id);
+          return { ...order, prints };
+        })
+      );
+      return ordersWithPrints;
     }),
 });

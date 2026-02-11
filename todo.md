@@ -153,3 +153,15 @@
 - [x] Write tests for pricing calculations (12 tests passing)
 - [x] Test with various product and placement combinations
 - [x] All 53 tests passing (auth, admin, files, email, pricing)
+
+
+## Current Sprint - Customer Order Tracking Portal
+- [x] Create backend procedures for order lookup by email
+- [x] Build order tracking page with email input form
+- [x] Implement order list display with status badges
+- [x] Create order detail view with file downloads
+- [x] Add status update notifications via email
+- [x] Implement mockup preview in order details
+- [x] Write tests for order tracking functionality (11 tests passing)
+- [x] Test email lookup and status filtering
+- [x] All 64 tests passing (auth, admin, files, email, pricing, tracking)

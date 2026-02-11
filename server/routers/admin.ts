@@ -3,6 +3,7 @@ import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { orders, orderPrints, printOptions, printPlacements, products } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { sendStatusUpdateEmail } from "../email";
 
 export const adminRouter = router({
   // Get all orders with related data for admin dashboard
@@ -77,6 +78,7 @@ export const adminRouter = router({
       z.object({
         orderId: z.number(),
         status: z.enum(["pending", "quoted", "approved"]),
+        quoteAmount: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -90,7 +92,29 @@ export const adminRouter = router({
       }
 
       try {
+        // Fetch order details to get customer info
+        const orderData = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+        if (orderData.length === 0) {
+          throw new Error("Order not found");
+        }
+        const order = orderData[0];
+
+        // Update order status
         await db.update(orders).set({ status: input.status }).where(eq(orders.id, input.orderId));
+
+        // Send status update email to customer
+        try {
+          await sendStatusUpdateEmail(
+            input.orderId,
+            order.customerEmail,
+            `${order.customerFirstName} ${order.customerLastName}`,
+            input.status,
+            input.quoteAmount
+          );
+        } catch (emailError) {
+          console.warn("Failed to send status update email, but order status was updated:", emailError);
+          // Don't fail the status update if email fails
+        }
 
         return { success: true, orderId: input.orderId, newStatus: input.status };
       } catch (error) {

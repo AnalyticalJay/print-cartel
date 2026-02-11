@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import OrderWizard from "./pages/OrderWizard";
 import AdminDashboard from "./pages/AdminDashboard";
+import OrderTracking from "./pages/OrderTracking";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -14,6 +15,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/order"} component={OrderWizard} />
+      <Route path={"/track"} component={OrderTracking} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

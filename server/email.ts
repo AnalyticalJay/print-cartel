@@ -239,3 +239,103 @@ This is an automated email from Print Cartel. Please do not reply to this email.
     throw error;
   }
 }
+
+export async function sendStatusUpdateEmail(
+  orderId: number,
+  customerEmail: string,
+  customerName: string,
+  newStatus: "pending" | "quoted" | "approved",
+  quoteAmount?: number
+) {
+  if (!SMTP_USER || !SMTP_PASS) {
+    console.warn("Email service not configured - skipping email send");
+    return;
+  }
+
+  try {
+    const statusMessages: Record<string, string> = {
+      pending: "Your order is being reviewed by our team.",
+      quoted: "A quote has been prepared for your order. Please review and confirm to proceed.",
+      approved: "Your order has been approved and is now in production.",
+    };
+
+    const statusColors: Record<string, string> = {
+      pending: "#fff3cd",
+      quoted: "#cfe2ff",
+      approved: "#d1e7dd",
+    };
+
+    const statusTextColors: Record<string, string> = {
+      pending: "#856404",
+      quoted: "#084298",
+      approved: "#0f5132",
+    };
+
+    const htmlContent = `
+      <html>
+        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <div style="max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #000; border-bottom: 3px solid #000; padding-bottom: 10px;">Order Status Update</h2>
+            
+            <p>Hi ${customerName},</p>
+            
+            <p style="font-size: 16px; margin: 20px 0;">
+              ${statusMessages[newStatus]}
+            </p>
+
+            <div style="background-color: ${statusColors[newStatus]}; color: ${statusTextColors[newStatus]}; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <strong>Order #${orderId}</strong><br/>
+              Status: <strong>${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}</strong>
+              ${quoteAmount ? `<br/>Quote Amount: <strong>R${quoteAmount.toFixed(2)}</strong>` : ""}
+            </div>
+
+            <p style="margin-top: 20px;">
+              You can track your order status anytime by visiting our order tracking page.
+            </p>
+
+            <p style="margin-top: 30px; color: #666;">
+              If you have any questions about your order, please do not hesitate to contact us.
+            </p>
+
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;"/>
+            <p style="color: #999; font-size: 11px; text-align: center;">
+              This is an automated email from Print Cartel. Please do not reply to this email.
+            </p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const textContent = `
+ORDER STATUS UPDATE
+
+Hi ${customerName},
+
+${statusMessages[newStatus]}
+
+Order #${orderId}
+Status: ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}
+${quoteAmount ? `Quote Amount: R${quoteAmount.toFixed(2)}` : ""}
+
+If you have any questions, please contact us.
+
+---
+This is an automated email from Print Cartel. Please do not reply to this email.
+    `;
+
+    const transporter = getTransporter();
+
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: `Order #${orderId} Status Update - ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+      text: textContent,
+      html: htmlContent,
+    });
+
+    console.log(`Status update email sent for order #${orderId} to ${customerEmail}`);
+  } catch (error) {
+    console.error("Failed to send status update email:", error);
+    throw error;
+  }
+}

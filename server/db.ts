@@ -176,3 +176,9 @@ export async function getOrderPrints(orderId: number) {
   if (!db) return [];
   return db.select().from(orderPrints).where(eq(orderPrints.orderId, orderId));
 }
+
+export async function getOrdersByCustomerEmail(email: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orders).where(eq(orders.customerEmail, email)).orderBy(orders.createdAt);
+}
