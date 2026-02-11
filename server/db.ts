@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -35,7 +35,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     };
     const updateSet: Record<string, unknown> = {};
 
-    const textFields = ["name", "email", "loginMethod"] as const;
+    const textFields = ["firstName", "lastName", "email", "loginMethod"] as const;
     type TextField = (typeof textFields)[number];
 
     const assignNullable = (field: TextField) => {
@@ -47,6 +47,16 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     };
 
     textFields.forEach(assignNullable);
+
+    if (user.phone !== undefined) {
+      values.phone = user.phone ?? null;
+      updateSet.phone = user.phone ?? null;
+    }
+
+    if (user.companyName !== undefined) {
+      values.companyName = user.companyName ?? null;
+      updateSet.companyName = user.companyName ?? null;
+    }
 
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
@@ -89,4 +99,80 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Product queries
+export async function getAllProducts() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(products);
+}
+
+export async function getProductById(productId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  return result[0];
+}
+
+export async function getProductColors(productId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(productColors).where(eq(productColors.productId, productId));
+}
+
+export async function getProductSizes(productId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(productSizes).where(eq(productSizes.productId, productId));
+}
+
+export async function getAllPrintOptions() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(printOptions);
+}
+
+export async function getAllPrintPlacements() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(printPlacements);
+}
+
+// Order queries
+export async function createOrder(orderData: InsertOrder) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(orders).values(orderData);
+  return result[0].insertId;
+}
+
+export async function getOrderById(orderId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  return result[0];
+}
+
+export async function getAllOrders() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orders).orderBy(orders.createdAt);
+}
+
+export async function updateOrderStatus(orderId: number, status: "pending" | "quoted" | "approved") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(orders).set({ status }).where(eq(orders.id, orderId));
+}
+
+export async function createOrderPrint(printData: InsertOrderPrint) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(orderPrints).values(printData);
+  return result[0].insertId;
+}
+
+export async function getOrderPrints(orderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orderPrints).where(eq(orderPrints.orderId, orderId));
+}

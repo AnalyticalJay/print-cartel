@@ -28,9 +28,14 @@ export function registerOAuthRoutes(app: Express) {
         return;
       }
 
+      const nameParts = (userInfo.name || "").split(" ");
+      const firstName = nameParts[0] || null;
+      const lastName = nameParts.slice(1).join(" ") || null;
+
       await db.upsertUser({
         openId: userInfo.openId,
-        name: userInfo.name || null,
+        firstName: firstName,
+        lastName: lastName,
         email: userInfo.email ?? null,
         loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
         lastSignedIn: new Date(),
