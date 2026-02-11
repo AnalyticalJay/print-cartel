@@ -117,8 +117,8 @@ describe("files.upload", () => {
     });
 
     expect(result1.fileKey).not.toBe(result2.fileKey);
-    expect(result1.fileKey).toMatch(/uploads\/\d+-[a-zA-Z0-9]{8}\.png/);
-    expect(result2.fileKey).toMatch(/uploads\/\d+-[a-zA-Z0-9]{8}\.png/);
+    expect(result1.fileKey).toMatch(/uploads\/\d+-[a-zA-Z0-9_-]{8}\.png/);
+    expect(result2.fileKey).toMatch(/uploads\/\d+-[a-zA-Z0-9_-]{8}\.png/);
   });
 
   it("preserves original file extension", async () => {

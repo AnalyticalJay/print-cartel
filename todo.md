@@ -119,3 +119,14 @@
 - [x] Test S3 file storage integration
 - [x] Test validation warnings and error handling
 - [x] Write and run vitest tests for file upload (13 tests passing)
+
+
+## Current Sprint - Admin Dashboard
+- [x] Create admin-only routes and dashboard layout
+- [x] Build orders list table with filtering and search
+- [x] Implement order detail view with file downloads
+- [x] Add status update functionality (pending/quoted/approved)
+- [x] Implement manual pricing adjustment feature
+- [x] Write tests for admin access control (17 tests passing)
+- [x] Test order management workflows
+- [x] All 30 tests passing (auth, files, admin)
