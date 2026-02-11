@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { PreviewCanvas } from "@/components/PreviewCanvas";
 import { FileUploadZone } from "@/components/FileUploadZone";
+import { PricingDisplay, type PricingBreakdownData } from "@/components/PricingDisplay";
 import { toast } from "sonner";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
@@ -40,15 +41,37 @@ export default function OrderWizard() {
     quantity: 1,
     prints: [],
   });
+  const [pricingData, setPricingData] = useState<PricingBreakdownData | null>(null);
 
   const productsQuery = trpc.products.list.useQuery();
   const printOptionsQuery = trpc.products.printOptions.useQuery();
   const printPlacementsQuery = trpc.products.printPlacements.useQuery();
+  const calculatePriceQuery = trpc.products.calculatePrice.useQuery(
+    {
+      productId: orderData.productId || 0,
+      quantity: orderData.quantity || 1,
+      printPlacements: orderData.prints?.map((p) => ({ printSizeId: p.printSizeId })) || [],
+    },
+    {
+      enabled: !!orderData.productId && (orderData.prints?.length || 0) > 0,
+    }
+  );
   const createOrderMutation = trpc.orders.create.useMutation();
 
   const selectedProduct = orderData.productId
     ? productsQuery.data?.find((p) => p.id === orderData.productId)
     : null;
+
+  // Update pricing when calculation query completes
+  useEffect(() => {
+    if (calculatePriceQuery.data) {
+      setPricingData(calculatePriceQuery.data);
+      setOrderData((prev) => ({
+        ...prev,
+        totalPriceEstimate: calculatePriceQuery.data.totalPrice,
+      }));
+    }
+  }, [calculatePriceQuery.data]);
 
   const handleNext = () => {
     if (currentStep < 6) {
@@ -96,6 +119,7 @@ export default function OrderWizard() {
       toast.success("Order submitted successfully!");
       setCurrentStep(1);
       setOrderData({ quantity: 1, prints: [] });
+      setPricingData(null);
     } catch (error) {
       toast.error("Failed to submit order");
       console.error(error);
@@ -131,285 +155,366 @@ export default function OrderWizard() {
           </div>
         </div>
 
-        {/* Step Content */}
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">
-              {currentStep === 1 && "Step 1: Choose Garment"}
-              {currentStep === 2 && "Step 2: Select Print Options"}
-              {currentStep === 3 && "Step 3: Upload Design"}
-              {currentStep === 4 && "Step 4: Live Preview"}
-              {currentStep === 5 && "Step 5: Contact Details"}
-              {currentStep === 6 && "Step 6: Order Summary"}
-            </CardTitle>
-            <CardDescription>
-              {currentStep === 1 && "Select your product, color, size, and quantity"}
-              {currentStep === 2 && "Choose print placements and sizes"}
-              {currentStep === 3 && "Upload your design file"}
-              {currentStep === 4 && "Preview your design on the garment"}
-              {currentStep === 5 && "Enter your contact information"}
-              {currentStep === 6 && "Review and submit your order"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Step 1: Choose Garment */}
-            {currentStep === 1 && (
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-white">Product</Label>
-                  <Select
-                    value={orderData.productId?.toString() || ""}
-                    onValueChange={(value) =>
-                      setOrderData({ ...orderData, productId: parseInt(value) })
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                      <SelectValue placeholder="Select a product" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {productsQuery.data?.map((product) => (
-                        <SelectItem key={product.id} value={product.id.toString()}>
-                          {product.name} - R{parseFloat(product.basePrice as any).toFixed(2)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedProduct && (
-                  <>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Step Content */}
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">
+                  {currentStep === 1 && "Step 1: Choose Garment"}
+                  {currentStep === 2 && "Step 2: Select Print Options"}
+                  {currentStep === 3 && "Step 3: Upload Design"}
+                  {currentStep === 4 && "Step 4: Live Preview"}
+                  {currentStep === 5 && "Step 5: Contact Details"}
+                  {currentStep === 6 && "Step 6: Order Summary"}
+                </CardTitle>
+                <CardDescription>
+                  {currentStep === 1 && "Select your product, color, size, and quantity"}
+                  {currentStep === 2 && "Choose print placements and sizes"}
+                  {currentStep === 3 && "Upload your design file"}
+                  {currentStep === 4 && "Preview your design on the garment"}
+                  {currentStep === 5 && "Enter your contact information"}
+                  {currentStep === 6 && "Review and submit your order"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Step 1: Choose Garment */}
+                {currentStep === 1 && (
+                  <div className="space-y-4">
                     <div>
-                      <Label className="text-white">Color</Label>
-                      <p className="text-gray-400 text-sm mt-2">Color selection coming soon</p>
+                      <Label className="text-white">Product</Label>
+                      <Select
+                        value={orderData.productId?.toString() || ""}
+                        onValueChange={(value) =>
+                          setOrderData({ ...orderData, productId: parseInt(value) })
+                        }
+                      >
+                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                          <SelectValue placeholder="Select a product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {productsQuery.data?.map((product) => (
+                            <SelectItem key={product.id} value={product.id.toString()}>
+                              {product.name} - R{parseFloat(product.basePrice as any).toFixed(2)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    <div>
-                      <Label className="text-white">Size</Label>
-                      <p className="text-gray-400 text-sm mt-2">Size selection coming soon</p>
-                    </div>
+                    {selectedProduct && (
+                      <>
+                        <div>
+                          <Label className="text-white">Color</Label>
+                          <p className="text-gray-400 text-sm mt-2">Color selection coming soon</p>
+                        </div>
 
-                    <div>
-                      <Label className="text-white">Quantity</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={orderData.quantity || 1}
-                        onChange={(e) =>
+                        <div>
+                          <Label className="text-white">Size</Label>
+                          <p className="text-gray-400 text-sm mt-2">Size selection coming soon</p>
+                        </div>
+
+                        <div>
+                          <Label className="text-white">Quantity</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={orderData.quantity || 1}
+                            onChange={(e) =>
+                              setOrderData({
+                                ...orderData,
+                                quantity: parseInt(e.target.value) || 1,
+                              })
+                            }
+                            className="bg-gray-700 border-gray-600 text-white"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Step 2: Select Print Options */}
+                {currentStep === 2 && (
+                  <div className="space-y-4">
+                    <p className="text-gray-300">Add print placements for your design</p>
+                    {orderData.prints && orderData.prints.length > 0 && (
+                      <div className="space-y-3">
+                        {orderData.prints.map((print, index) => (
+                          <Card key={index} className="bg-gray-700 border-gray-600">
+                            <CardContent className="pt-6 space-y-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-white text-sm">Placement</Label>
+                                  <Select
+                                    value={print.placementId?.toString() || ""}
+                                    onValueChange={(value) => {
+                                      const updated = [...(orderData.prints || [])];
+                                      updated[index].placementId = parseInt(value);
+                                      setOrderData({ ...orderData, prints: updated });
+                                    }}
+                                  >
+                                    <SelectTrigger className="bg-gray-600 border-gray-500 text-white text-sm">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {printPlacementsQuery.data?.map((placement) => (
+                                        <SelectItem key={placement.id} value={placement.id.toString()}>
+                                          {placement.placementName}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                <div>
+                                  <Label className="text-white text-sm">Print Size</Label>
+                                  <Select
+                                    value={print.printSizeId?.toString() || ""}
+                                    onValueChange={(value) => {
+                                      const updated = [...(orderData.prints || [])];
+                                      updated[index].printSizeId = parseInt(value);
+                                      setOrderData({ ...orderData, prints: updated });
+                                    }}
+                                  >
+                                    <SelectTrigger className="bg-gray-600 border-gray-500 text-white text-sm">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {printOptionsQuery.data?.map((option) => (
+                                        <SelectItem key={option.id} value={option.id.toString()}>
+                                          {option.printSize} (+R{parseFloat(option.additionalPrice as any).toFixed(2)})
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
+                              <Button
+                                onClick={() => {
+                                  const updated = orderData.prints?.filter((_, i) => i !== index) || [];
+                                  setOrderData({ ...orderData, prints: updated });
+                                }}
+                                variant="destructive"
+                                size="sm"
+                                className="w-full"
+                              >
+                                Remove
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={() => {
+                        if (orderData.prints) {
                           setOrderData({
                             ...orderData,
-                            quantity: parseInt(e.target.value) || 1,
-                          })
+                            prints: [
+                              ...orderData.prints,
+                              {
+                                printSizeId: 1,
+                                placementId: 1,
+                                uploadedFilePath: "",
+                                uploadedFileName: "",
+                                fileSize: 0,
+                                mimeType: "",
+                              },
+                            ],
+                          });
+                        }
+                      }}
+                      className="bg-white text-black hover:bg-gray-200 w-full"
+                    >
+                      + Add Print Placement
+                    </Button>
+                  </div>
+                )}
+
+                {/* Step 3: Upload Design */}
+                {currentStep === 3 && (
+                  <div className="space-y-4">
+                    <FileUploadZone
+                      maxFiles={1}
+                      onFileUpload={(file) => {
+                        if (orderData.prints) {
+                          const updatedPrints = [...orderData.prints];
+                          if (updatedPrints.length === 0) {
+                            updatedPrints.push({
+                              printSizeId: 1,
+                              placementId: 1,
+                              uploadedFilePath: file.url,
+                              uploadedFileName: file.name,
+                              fileSize: file.fileSize,
+                              mimeType: file.mimeType,
+                            });
+                          } else {
+                            updatedPrints[0] = {
+                              ...updatedPrints[0],
+                              uploadedFilePath: file.url,
+                              uploadedFileName: file.name,
+                              fileSize: file.fileSize,
+                              mimeType: file.mimeType,
+                            };
+                          }
+                          setOrderData({ ...orderData, prints: updatedPrints });
+                        }
+                      }}
+                      onValidationWarnings={(warnings) => {
+                        if (warnings.length > 0) {
+                          toast.warning(`${warnings.length} quality warning(s) detected`);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Step 4: Live Preview */}
+                {currentStep === 4 && selectedProduct && (
+                  <div className="space-y-4">
+                    <PreviewCanvas
+                      garmentColor="#000000"
+                      placementCoordinates={{ x: 50, y: 100, width: 150, height: 150 }}
+                      printSize="A4"
+                    />
+                  </div>
+                )}
+
+                {/* Step 5: Contact Details */}
+                {currentStep === 5 && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-white">First Name</Label>
+                        <Input
+                          value={orderData.customerFirstName || ""}
+                          onChange={(e) =>
+                            setOrderData({ ...orderData, customerFirstName: e.target.value })
+                          }
+                          className="bg-gray-700 border-gray-600 text-white"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-white">Last Name</Label>
+                        <Input
+                          value={orderData.customerLastName || ""}
+                          onChange={(e) =>
+                            setOrderData({ ...orderData, customerLastName: e.target.value })
+                          }
+                          className="bg-gray-700 border-gray-600 text-white"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-white">Email</Label>
+                      <Input
+                        type="email"
+                        value={orderData.customerEmail || ""}
+                        onChange={(e) =>
+                          setOrderData({ ...orderData, customerEmail: e.target.value })
                         }
                         className="bg-gray-700 border-gray-600 text-white"
                       />
                     </div>
-                  </>
+                    <div>
+                      <Label className="text-white">Phone</Label>
+                      <Input
+                        value={orderData.customerPhone || ""}
+                        onChange={(e) =>
+                          setOrderData({ ...orderData, customerPhone: e.target.value })
+                        }
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white">Company (Optional)</Label>
+                      <Input
+                        value={orderData.customerCompany || ""}
+                        onChange={(e) =>
+                          setOrderData({ ...orderData, customerCompany: e.target.value })
+                        }
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white">Additional Notes</Label>
+                      <Textarea
+                        value={orderData.additionalNotes || ""}
+                        onChange={(e) =>
+                          setOrderData({ ...orderData, additionalNotes: e.target.value })
+                        }
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                  </div>
                 )}
-              </div>
-            )}
 
-            {/* Step 2: Select Print Options */}
-            {currentStep === 2 && (
-              <div className="space-y-4">
-                <p className="text-gray-300">Add print placements for your design</p>
-                <Button
-                  onClick={() => {
-                    if (orderData.prints) {
-                      setOrderData({
-                        ...orderData,
-                        prints: [
-                          ...orderData.prints,
-                          {
-                            printSizeId: 1,
-                            placementId: 1,
-                            uploadedFilePath: "",
-                            uploadedFileName: "",
-                            fileSize: 0,
-                            mimeType: "",
-                          },
-                        ],
-                      });
-                    }
-                  }}
-                  className="bg-white text-black hover:bg-gray-200"
-                >
-                  + Add Print Placement
-                </Button>
-              </div>
-            )}
-
-            {/* Step 3: Upload Design */}
-            {currentStep === 3 && (
-              <div className="space-y-4">
-                <FileUploadZone
-                  maxFiles={1}
-                  onFileUpload={(file) => {
-                    if (orderData.prints) {
-                      const updatedPrints = [...orderData.prints];
-                      if (updatedPrints.length === 0) {
-                        updatedPrints.push({
-                          printSizeId: 1,
-                          placementId: 1,
-                          uploadedFilePath: file.url,
-                          uploadedFileName: file.name,
-                          fileSize: file.fileSize,
-                          mimeType: file.mimeType,
-                        });
-                      } else {
-                        updatedPrints[0] = {
-                          ...updatedPrints[0],
-                          uploadedFilePath: file.url,
-                          uploadedFileName: file.name,
-                          fileSize: file.fileSize,
-                          mimeType: file.mimeType,
-                        };
-                      }
-                      setOrderData({ ...orderData, prints: updatedPrints });
-                    }
-                  }}
-                  onValidationWarnings={(warnings) => {
-                    if (warnings.length > 0) {
-                      toast.warning(`${warnings.length} quality warning(s) detected`);
-                    }
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Step 4: Live Preview */}
-            {currentStep === 4 && selectedProduct && (
-              <div className="space-y-4">
-                <PreviewCanvas
-                  garmentColor="#000000"
-                  placementCoordinates={{ x: 50, y: 100, width: 150, height: 150 }}
-                  printSize="A4"
-                />
-              </div>
-            )}
-
-            {/* Step 5: Contact Details */}
-            {currentStep === 5 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-white">First Name</Label>
-                    <Input
-                      value={orderData.customerFirstName || ""}
-                      onChange={(e) =>
-                        setOrderData({ ...orderData, customerFirstName: e.target.value })
-                      }
-                      className="bg-gray-700 border-gray-600 text-white"
-                    />
+                {/* Step 6: Order Summary */}
+                {currentStep === 6 && (
+                  <div className="space-y-4">
+                    <div className="bg-gray-700 p-4 rounded-lg space-y-2">
+                      <p className="text-white">
+                        <strong>Product:</strong> {selectedProduct?.name}
+                      </p>
+                      <p className="text-white">
+                        <strong>Quantity:</strong> {orderData.quantity}
+                      </p>
+                      <p className="text-white">
+                        <strong>Customer:</strong> {orderData.customerFirstName} {orderData.customerLastName}
+                      </p>
+                      <p className="text-white">
+                        <strong>Email:</strong> {orderData.customerEmail}
+                      </p>
+                      <p className="text-white">
+                        <strong>Print Placements:</strong> {orderData.prints?.length || 0}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <Label className="text-white">Last Name</Label>
-                    <Input
-                      value={orderData.customerLastName || ""}
-                      onChange={(e) =>
-                        setOrderData({ ...orderData, customerLastName: e.target.value })
-                      }
-                      className="bg-gray-700 border-gray-600 text-white"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-white">Email</Label>
-                  <Input
-                    type="email"
-                    value={orderData.customerEmail || ""}
-                    onChange={(e) =>
-                      setOrderData({ ...orderData, customerEmail: e.target.value })
-                    }
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-white">Phone</Label>
-                  <Input
-                    value={orderData.customerPhone || ""}
-                    onChange={(e) =>
-                      setOrderData({ ...orderData, customerPhone: e.target.value })
-                    }
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-white">Company (Optional)</Label>
-                  <Input
-                    value={orderData.customerCompany || ""}
-                    onChange={(e) =>
-                      setOrderData({ ...orderData, customerCompany: e.target.value })
-                    }
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-white">Additional Notes</Label>
-                  <Textarea
-                    value={orderData.additionalNotes || ""}
-                    onChange={(e) =>
-                      setOrderData({ ...orderData, additionalNotes: e.target.value })
-                    }
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
-                </div>
-              </div>
-            )}
+                )}
 
-            {/* Step 6: Order Summary */}
-            {currentStep === 6 && (
-              <div className="space-y-4">
-                <div className="bg-gray-700 p-4 rounded-lg space-y-2">
-                  <p className="text-white">
-                    <strong>Product:</strong> {selectedProduct?.name}
-                  </p>
-                  <p className="text-white">
-                    <strong>Quantity:</strong> {orderData.quantity}
-                  </p>
-                  <p className="text-white">
-                    <strong>Customer:</strong> {orderData.customerFirstName}{" "}
-                    {orderData.customerLastName}
-                  </p>
-                  <p className="text-white">
-                    <strong>Email:</strong> {orderData.customerEmail}
-                  </p>
-                  <p className="text-white">
-                    <strong>Estimated Total:</strong> R
-                    {(orderData.totalPriceEstimate || 0).toFixed(2)}
-                  </p>
+                {/* Navigation Buttons */}
+                <div className="flex justify-between pt-6">
+                  <Button
+                    onClick={handlePrevious}
+                    disabled={currentStep === 1}
+                    variant="outline"
+                    className="text-white border-gray-600 hover:bg-gray-700"
+                  >
+                    Previous
+                  </Button>
+                  {currentStep === 6 ? (
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={createOrderMutation.isPending}
+                      className="bg-white text-black hover:bg-gray-200"
+                    >
+                      {createOrderMutation.isPending ? "Submitting..." : "Submit Order"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleNext}
+                      className="bg-white text-black hover:bg-gray-200"
+                    >
+                      Next
+                    </Button>
+                  )}
                 </div>
-              </div>
-            )}
+              </CardContent>
+            </Card>
+          </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-6">
-              <Button
-                onClick={handlePrevious}
-                disabled={currentStep === 1}
-                variant="outline"
-                className="text-white border-gray-600 hover:bg-gray-700"
-              >
-                Previous
-              </Button>
-              {currentStep === 6 ? (
-                <Button
-                  onClick={handleSubmit}
-                  disabled={createOrderMutation.isPending}
-                  className="bg-white text-black hover:bg-gray-200"
-                >
-                  {createOrderMutation.isPending ? "Submitting..." : "Submit Order"}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  className="bg-white text-black hover:bg-gray-200"
-                >
-                  Next
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+          {/* Pricing Sidebar */}
+          <div className="lg:col-span-1">
+            <PricingDisplay
+              pricing={pricingData}
+              isLoading={calculatePriceQuery.isLoading}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

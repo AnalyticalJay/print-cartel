@@ -141,3 +141,15 @@
 - [x] Test email notifications (11 tests passing)
 - [x] Verify emails sent to sales@printcartel.co.za
 - [x] All 41 tests passing (auth, admin, files, email)
+
+
+## Current Sprint - Dynamic Pricing Calculator
+- [x] Create pricing calculation service with product, quantity, and placement logic
+- [x] Add pricing tiers for print sizes (A6, A5, A4, A3)
+- [x] Create backend procedure to calculate order total
+- [x] Integrate pricing calculator into order wizard
+- [x] Add real-time price updates as user changes selections
+- [x] Display price breakdown in order summary
+- [x] Write tests for pricing calculations (12 tests passing)
+- [x] Test with various product and placement combinations
+- [x] All 53 tests passing (auth, admin, files, email, pricing)

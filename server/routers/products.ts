@@ -1,5 +1,7 @@
+import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
 import { getAllProducts, getProductById, getProductColors, getProductSizes, getAllPrintOptions, getAllPrintPlacements } from "../db";
+import { calculateOrderPrice, getPrintOptions, getProductPrice } from "../pricing";
 
 export const productsRouter = router({
   list: publicProcedure.query(async () => {
@@ -29,4 +31,30 @@ export const productsRouter = router({
   printPlacements: publicProcedure.query(async () => {
     return getAllPrintPlacements();
   }),
+
+  calculatePrice: publicProcedure
+    .input(
+      z.object({
+        productId: z.number(),
+        quantity: z.number().min(1),
+        printPlacements: z.array(
+          z.object({
+            printSizeId: z.number(),
+          })
+        ),
+      })
+    )
+    .query(async ({ input }) => {
+      return calculateOrderPrice(input);
+    }),
+
+  getPrintOptions: publicProcedure.query(async () => {
+    return getPrintOptions();
+  }),
+
+  getProductPrice: publicProcedure
+    .input(z.object({ productId: z.number() }))
+    .query(async ({ input }) => {
+      return getProductPrice(input.productId);
+    }),
 });
