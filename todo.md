@@ -130,3 +130,14 @@
 - [x] Write tests for admin access control (17 tests passing)
 - [x] Test order management workflows
 - [x] All 30 tests passing (auth, files, admin)
+
+
+## Current Sprint - Email Configuration
+- [x] Request SMTP credentials from user
+- [x] Configure SMTP environment variables (SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT, SMTP_FROM_EMAIL)
+- [x] Update email service with SMTP configuration
+- [x] Enhance email template with order details and print specifications
+- [x] Add order details, customer info, and file information to emails
+- [x] Test email notifications (11 tests passing)
+- [x] Verify emails sent to sales@printcartel.co.za
+- [x] All 41 tests passing (auth, admin, files, email)
