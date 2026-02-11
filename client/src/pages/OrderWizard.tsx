@@ -9,7 +9,10 @@ import { trpc } from "@/lib/trpc";
 import { PreviewCanvas } from "@/components/PreviewCanvas";
 import { FileUploadZone } from "@/components/FileUploadZone";
 import { PricingDisplay, type PricingBreakdownData } from "@/components/PricingDisplay";
+import { ColorSelector } from "@/components/ColorSelector";
+import { SizeSelector } from "@/components/SizeSelector";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -46,6 +49,10 @@ export default function OrderWizard() {
   const productsQuery = trpc.products.list.useQuery();
   const printOptionsQuery = trpc.products.printOptions.useQuery();
   const printPlacementsQuery = trpc.products.printPlacements.useQuery();
+  const productDetailsQuery = trpc.products.getById.useQuery(
+    { id: orderData.productId || 0 },
+    { enabled: !!orderData.productId }
+  );
   const calculatePriceQuery = trpc.products.calculatePrice.useQuery(
     {
       productId: orderData.productId || 0,
@@ -61,6 +68,9 @@ export default function OrderWizard() {
   const selectedProduct = orderData.productId
     ? productsQuery.data?.find((p) => p.id === orderData.productId)
     : null;
+
+  const productColors = productDetailsQuery.data?.colors || [];
+  const productSizes = productDetailsQuery.data?.sizes || [];
 
   // Update pricing when calculation query completes
   useEffect(() => {
@@ -205,15 +215,29 @@ export default function OrderWizard() {
 
                     {selectedProduct && (
                       <>
-                        <div>
-                          <Label className="text-white">Color</Label>
-                          <p className="text-gray-400 text-sm mt-2">Color selection coming soon</p>
-                        </div>
+                        {productDetailsQuery.isLoading ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader2 className="w-6 h-6 animate-spin text-white" />
+                          </div>
+                        ) : (
+                          <>
+                            <ColorSelector
+                              colors={productColors}
+                              selectedColorId={orderData.colorId || null}
+                              onColorSelect={(colorId) =>
+                                setOrderData({ ...orderData, colorId })
+                              }
+                            />
 
-                        <div>
-                          <Label className="text-white">Size</Label>
-                          <p className="text-gray-400 text-sm mt-2">Size selection coming soon</p>
-                        </div>
+                            <SizeSelector
+                              sizes={productSizes}
+                              selectedSizeId={orderData.sizeId || null}
+                              onSizeSelect={(sizeId) =>
+                                setOrderData({ ...orderData, sizeId })
+                              }
+                            />
+                          </>
+                        )}
 
                         <div>
                           <Label className="text-white">Quantity</Label>
