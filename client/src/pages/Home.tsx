@@ -83,17 +83,17 @@ export default function Home() {
         <h2 className="text-4xl font-bold mb-12 text-center">Our Products</h2>
         <div className="grid md:grid-cols-4 gap-8">
           {[
-            { name: "Lightweight T-Shirt", price: "R70" },
-            { name: "Men's Polo", price: "R120" },
-            { name: "Men's Dry Fit Polo", price: "R120" },
-            { name: "Hoodie", price: "R300" },
+            { name: "Lightweight T-Shirt", price: "R70", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/QrNKXFFoVGiiiKvY.jpg" },
+            { name: "Men's Polo", price: "R120", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/xzpYUzlxNlKgrbZq.jpg" },
+            { name: "Men's Dry Fit Polo", price: "R120", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/HKHbQAkhneUpgQWZ.jpg" },
+            { name: "Hoodie", price: "R300", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/lZQjDrMLWvZfkrzW.jpg" },
           ].map((product) => (
             <div
               key={product.name}
               className="bg-gray-900 p-6 rounded-lg text-center border border-gray-800 hover:border-white transition"
             >
-              <div className="w-full h-48 bg-gray-800 rounded mb-4 flex items-center justify-center">
-                <span className="text-gray-600">Product Image</span>
+              <div className="w-full h-48 bg-gray-800 rounded mb-4 flex items-center justify-center overflow-hidden">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
               </div>
               <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
               <p className="text-white text-2xl font-bold">{product.price}</p>

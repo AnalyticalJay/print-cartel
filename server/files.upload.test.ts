@@ -38,7 +38,7 @@ describe("files.upload", () => {
   });
 
   it("rejects files exceeding 25MB size limit", async () => {
-    const oversizedBuffer = Buffer.alloc(26 * 1024 * 1024); // 26MB
+    const oversizedBuffer = Buffer.alloc(51 * 1024 * 1024); // 51MB
 
     await expect(
       caller.files.upload({
@@ -46,7 +46,7 @@ describe("files.upload", () => {
         fileData: oversizedBuffer,
         mimeType: "image/png",
       })
-    ).rejects.toThrow("exceeds 25MB limit");
+    ).rejects.toThrow("exceeds 50MB limit");
   });
 
   it("accepts valid PNG files", async () => {
@@ -165,7 +165,7 @@ describe("files.validateFile", () => {
     });
 
     expect(result.warnings.length).toBeGreaterThan(0);
-    expect(result.warnings[0]).toContain("too small");
+    expect(result.warnings[0]).toContain("quite small");
   });
 
   it("warns about JPG format", async () => {
@@ -178,7 +178,7 @@ describe("files.validateFile", () => {
     });
 
     expect(result.warnings.length).toBeGreaterThan(0);
-    expect(result.warnings[0]).toContain("PNG format");
+    expect(result.warnings[0]).toContain("PNG");
   });
 
   it("rejects invalid file types", async () => {
@@ -195,7 +195,7 @@ describe("files.validateFile", () => {
   });
 
   it("rejects oversized files", async () => {
-    const oversizedBuffer = Buffer.alloc(26 * 1024 * 1024);
+    const oversizedBuffer = Buffer.alloc(51 * 1024 * 1024);
 
     const result = await caller.files.validateFile({
       fileData: oversizedBuffer,
@@ -204,6 +204,6 @@ describe("files.validateFile", () => {
     });
 
     expect(result.valid).toBe(false);
-    expect(result.errors[0]).toContain("exceeds 25MB");
+    expect(result.errors[0]).toContain("exceeds 50MB");
   });
 });

@@ -62,24 +62,24 @@ export function FileUploadZone({
     }
 
     // Check file size
-    const maxFileSize = 25 * 1024 * 1024; // 25MB
+    const maxFileSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxFileSize) {
-      errors.push("File size exceeds 25MB limit");
+      errors.push("File size exceeds 50MB limit");
     }
 
     // Check minimum file size
-    if (file.size < 1024) {
-      errors.push("File is too small");
+    if (file.size < 100) {
+      errors.push("File is too small or empty");
     }
 
     // For images, check basic properties
     if (file.type.startsWith("image/")) {
-      if (file.size < 50000) {
-        warnings.push("File may be too small for high-quality DTF printing. Recommended minimum: 2000px width at 300 DPI");
+      if (file.size < 10000) {
+        warnings.push("File is quite small. For best quality, consider using a larger design file (ideally 500KB+)");
       }
 
       if (file.type === "image/jpeg") {
-        warnings.push("PNG format with transparent background is preferred for best results");
+        warnings.push("Tip: PNG format with transparent background often produces better results for DTF printing");
       }
     }
 

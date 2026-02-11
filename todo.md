@@ -176,3 +176,25 @@
 - [x] Write tests for color and size selection (11 tests passing)
 - [x] Test database population and option loading
 - [x] All 75 tests passing (auth, admin, files, email, pricing, tracking, color-size)
+
+
+## Bug Fix - File Upload Validation Too Strict
+- [x] Review current validation parameters (DPI, dimensions, file size)
+- [x] Relax minimum file size from 1KB to 100 bytes
+- [x] Relax warning threshold from 50KB to 10KB
+- [x] Increase maximum file size from 25MB to 50MB
+- [x] Update backend validation in files router
+- [x] Update frontend validation warnings
+- [x] Test with various design file types and sizes
+- [x] Verify uploads work with relaxed parameters (all 75 tests passing)
+
+
+## Current Sprint - Product Images & Upload Fix
+- [x] Generate product images for Lightweight T-Shirt
+- [x] Generate product images for Men's Polo
+- [x] Generate product images for Men's Dry Fit Polo
+- [x] Generate product images for Hoodie
+- [x] Upload all product images to S3 and get CDN URLs
+- [x] Update landing page with product image URLs
+- [x] Test file upload with relaxed validation
+- [x] Verify all 75 tests pass with new parameters

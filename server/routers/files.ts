@@ -17,10 +17,10 @@ export const filesRouter = router({
       throw new Error("Invalid file type. Only PNG, JPG, and PDF are allowed.");
     }
 
-    // Validate file size (25MB max)
-    const maxFileSize = 25 * 1024 * 1024; // 25MB
+    // Validate file size (50MB max)
+    const maxFileSize = 50 * 1024 * 1024; // 50MB
     if (input.fileData.length > maxFileSize) {
-      throw new Error("File size exceeds 25MB limit");
+      throw new Error("File size exceeds 50MB limit");
     }
 
     // Generate secure file key with random suffix
@@ -60,27 +60,26 @@ export const filesRouter = router({
     }
 
     // Check file size
-    const maxFileSize = 25 * 1024 * 1024; // 25MB
+    const maxFileSize = 50 * 1024 * 1024; // 50MB
     if (input.fileData.length > maxFileSize) {
-      errors.push("File size exceeds 25MB limit");
+      errors.push("File size exceeds 50MB limit");
     }
 
-    // Check minimum file size (at least 1KB)
-    if (input.fileData.length < 1024) {
-      errors.push("File is too small");
+    // Check minimum file size (at least 100 bytes)
+    if (input.fileData.length < 100) {
+      errors.push("File is too small or empty");
     }
 
-    // For images, check basic properties
+    // For images, provide helpful suggestions (not hard requirements)
     if (input.mimeType.startsWith("image/")) {
-      // Check if file has minimum width (basic validation)
-      // This is a simplified check - in production, you'd use image processing library
-      if (input.fileData.length < 50000) {
-        warnings.push("File may be too small for high-quality DTF printing. Recommended minimum: 2000px width at 300 DPI");
+      // Only warn if file is very small (less than 10KB)
+      if (input.fileData.length < 10000) {
+        warnings.push("File is quite small. For best quality, consider using a larger design file (ideally 500KB+)");
       }
 
       // PNG preferred warning for JPG
       if (input.mimeType === "image/jpeg") {
-        warnings.push("PNG format with transparent background is preferred for best results");
+        warnings.push("Tip: PNG format with transparent background often produces better results for DTF printing");
       }
     }
 
