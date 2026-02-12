@@ -5,7 +5,7 @@ import { nanoid } from "nanoid";
 
 const FileUploadInput = z.object({
   fileName: z.string(),
-  fileData: z.instanceof(Buffer),
+  fileData: z.instanceof(Uint8Array),
   mimeType: z.string(),
 });
 
@@ -45,7 +45,7 @@ export const filesRouter = router({
   }),
 
   validateFile: publicProcedure.input(z.object({
-    fileData: z.instanceof(Buffer),
+    fileData: z.instanceof(Uint8Array),
     fileName: z.string(),
     mimeType: z.string(),
   })).query(async ({ input }) => {

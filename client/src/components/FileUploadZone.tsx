@@ -91,6 +91,7 @@ export function FileUploadZone({
       setUploadProgress(0);
 
       const buffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(buffer);
 
       // Simulate progress
       const progressInterval = setInterval(() => {
@@ -99,7 +100,7 @@ export function FileUploadZone({
 
       const result = await uploadMutation.mutateAsync({
         fileName: file.name,
-        fileData: Buffer.from(buffer),
+        fileData: uint8Array,
         mimeType: file.type || "application/octet-stream",
       });
 
