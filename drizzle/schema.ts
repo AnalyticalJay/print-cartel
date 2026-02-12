@@ -120,3 +120,22 @@ export const orderPrints = mysqlTable("orderPrints", {
 
 export type OrderPrint = typeof orderPrints.$inferSelect;
 export type InsertOrderPrint = typeof orderPrints.$inferInsert;
+// Quotes table (for custom quotes on orders)
+export const quotes = mysqlTable("quotes", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  adminId: int("adminId").notNull(),
+  basePrice: decimal("basePrice", { precision: 10, scale: 2 }).notNull(),
+  adjustedPrice: decimal("adjustedPrice", { precision: 10, scale: 2 }).notNull(),
+  priceAdjustmentReason: text("priceAdjustmentReason"),
+  adminNotes: text("adminNotes"),
+  status: mysqlEnum("status", ["draft", "sent", "accepted", "rejected", "expired"]).default("draft").notNull(),
+  expiresAt: timestamp("expiresAt"),
+  sentAt: timestamp("sentAt"),
+  respondedAt: timestamp("respondedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Quote = typeof quotes.$inferSelect;
+export type InsertQuote = typeof quotes.$inferInsert;
