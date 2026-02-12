@@ -322,3 +322,14 @@
 - [x] Test preview with different products and colors
 - [x] Ensure responsive design on all screen sizes
 - [x] All 92 tests passing - design preview mockup complete
+
+
+## Current Task - Design Rotation & Hero Styling
+- [x] Add rotation control buttons (0°, 90°, 180°, 270°) to PreviewCanvas
+- [x] Implement canvas rotation transformation for design
+- [x] Update OrderWizard to pass rotation state to PreviewCanvas
+- [x] Reduce hero headline font size by 20% on home page (text-6xl/7xl → text-5xl)
+- [x] Enlarge Print Cartel logo by 20% in hero section (max-h-80/w-80 → max-h-96/w-96)
+- [x] Test rotation with different designs and colors
+- [x] Verify hero section styling on all screen sizes
+- [x] All 92 tests passing - design rotation and hero styling complete

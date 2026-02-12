@@ -97,7 +97,7 @@ export default function Home() {
           {/* Hero Content */}
           <div className="space-y-8">
             <div>
-              <h1 className="text-6xl md:text-7xl font-black mb-4 leading-tight">
+              <h1 className="text-5xl md:text-5xl font-black mb-4 leading-tight">
                 Custom DTF
                 <br />
                 <span className="text-accent">Printing</span>
@@ -132,7 +132,7 @@ export default function Home() {
             <img
               src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
               alt="Print Cartel Logo"
-              className="max-h-80 max-w-80 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
+              className="max-h-96 max-w-96 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
             />
           </div>
         </div>
