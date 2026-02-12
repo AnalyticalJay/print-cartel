@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Zap, Eye, Truck, Lightbulb, Headphones, DollarSign } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Home() {
@@ -98,12 +98,12 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Hero Image */}
+          {/* Hero Image - Print Cartel Logo */}
           <div className="relative h-96 md:h-full min-h-96 flex items-center justify-center">
             <img
-              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/WMQWBecfVLUsVEHM.png"
-              alt="Premium DTF Apparel"
-              className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-500"
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
+              alt="Print Cartel Logo"
+              className="max-h-80 max-w-80 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
             />
           </div>
         </div>
@@ -148,70 +148,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEW: Real DTF Prints in Action Gallery */}
-      <section className="bg-black py-24 relative overflow-hidden">
-        {/* Subtle spotlight effect */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/20 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="max-w-6xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-black mb-4 text-white">Real DTF Prints in Action</h2>
-            <p className="text-xl text-gray-400">See the quality before you order.</p>
-          </div>
-
-          {/* Carousel */}
-          <div className="relative">
-            <div className="relative h-96 md:h-[500px] rounded-xl overflow-hidden shadow-2xl">
-              {/* Current Image */}
-              <div className="absolute inset-0">
-                <img
-                  src={galleryImages[currentSlide].src}
-                  alt={galleryImages[currentSlide].alt}
-                  className="w-full h-full object-cover transition-opacity duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-              </div>
-
-              {/* Navigation Buttons */}
-              <button
-                onClick={prevSlide}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full transition-all"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full transition-all"
-                aria-label="Next slide"
-              >
-                <ChevronRight size={24} />
-              </button>
-
-              {/* Slide Indicators */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
-                {galleryImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      index === currentSlide ? "bg-accent w-8" : "bg-white/50 hover:bg-white/75"
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Gallery Info */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-400 text-sm">
-              Slide {currentSlide + 1} of {galleryImages.length}
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* Product Showcase */}
       <section className="max-w-6xl mx-auto px-4 py-20">
@@ -225,7 +162,7 @@ export default function Home() {
           ].map((product) => (
             <div
               key={product.name}
-              className="bg-soft-grey p-6 rounded-lg text-center border-2 border-border hover:border-accent transition-all duration-300 hover:shadow-lg"
+              className="bg-white p-6 rounded-xl text-center border-3 border-gray-200 shadow-md hover:shadow-2xl hover:border-accent transition-all duration-300 transform hover:-translate-y-2"
             >
               <div className="w-full h-48 bg-gray-300 rounded mb-4 flex items-center justify-center overflow-hidden">
                 <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
@@ -267,12 +204,19 @@ export default function Home() {
                 title: "Competitive Pricing",
                 description: "Great prices without compromising on quality",
               },
-            ].map((feature) => (
-              <div key={feature.title} className="border-2 border-accent/30 p-6 rounded-lg hover:border-accent hover:bg-accent/5 transition-all duration-300">
-                <h3 className="text-xl font-bold mb-2 text-accent">{feature.title}</h3>
-                <p className="text-gray-300">{feature.description}</p>
-              </div>
-            ))}
+            ].map((feature, index) => {
+              const icons = [Zap, Eye, Truck, Lightbulb, Headphones, DollarSign];
+              const Icon = icons[index];
+              return (
+                <div key={feature.title} className="bg-gradient-to-br from-accent/10 to-transparent border-2 border-accent/40 p-8 rounded-xl hover:border-accent hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                  <div className="w-16 h-16 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
+                    <Icon size={32} className="text-accent" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-white">{feature.title}</h3>
+                  <p className="text-gray-300 leading-relaxed">{feature.description}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

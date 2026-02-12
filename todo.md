@@ -250,3 +250,13 @@
 - [x] Test hero section rendering with transparent background
 - [x] Verify image displays correctly on all screen sizes
 - [x] All 92 tests passing - hero image successfully replaced
+
+
+## Current Task - Landing Page Redesign
+- [x] Upload Print Cartel logo to S3 CDN
+- [x] Replace hero image with Print Cartel logo
+- [x] Remove gallery carousel section (Real DTF Prints in Action)
+- [x] Add borders and shadow effects to product cards
+- [x] Redesign Why Choose Us section with icon boxes
+- [x] Test responsive design across all screen sizes
+- [x] All 92 tests passing - landing page redesign complete
