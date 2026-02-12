@@ -401,7 +401,8 @@ export default function OrderWizard() {
                 {currentStep === 4 && selectedProduct && (
                   <div className="space-y-4">
                     <PreviewCanvas
-                      garmentColor="#000000"
+                      garmentColor={productColors.find((c) => c.id === orderData.colorId)?.colorHex || "#000000"}
+                      uploadedImageUrl={orderData.prints?.[0]?.uploadedFilePath}
                       placementCoordinates={{ x: 50, y: 100, width: 150, height: 150 }}
                       printSize="A4"
                     />
