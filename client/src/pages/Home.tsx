@@ -202,9 +202,9 @@ export default function Home() {
       </section>
 
       {/* Why Choose Print Cartel */}
-      <section className="bg-deep-charcoal text-white py-20">
+      <section className="bg-white py-20">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-5xl font-black mb-12 text-center">Why Choose Print Cartel</h2>
+          <h2 className="text-5xl font-black mb-12 text-center text-foreground">Why Choose Print Cartel</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -235,12 +235,12 @@ export default function Home() {
               const icons = [Zap, Eye, Truck, Lightbulb, Headphones, DollarSign];
               const Icon = icons[index];
               return (
-                <div key={feature.title} className="bg-gradient-to-br from-accent/10 to-transparent border-2 border-accent/40 p-8 rounded-xl hover:border-accent hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                  <div className="w-16 h-16 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
+                <div key={feature.title} className="border-2 border-accent/40 p-8 rounded-xl hover:border-accent hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                  <div className="w-16 h-16 rounded-lg flex items-center justify-center mb-4">
                     <Icon size={32} className="text-accent" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-white">{feature.title}</h3>
-                  <p className="text-gray-300 leading-relaxed">{feature.description}</p>
+                  <h3 className="text-xl font-bold mb-3 text-foreground">{feature.title}</h3>
+                  <p className="text-gray-700 leading-relaxed">{feature.description}</p>
                 </div>
               );
             })}

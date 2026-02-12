@@ -282,3 +282,12 @@
 - [x] Test authentication flow
 - [x] Test role-based access control
 - [x] All 92 tests passing - authentication and role-based access complete
+
+
+## Current Task - Why Choose Print Cartel Styling Update
+- [x] Update section heading to match other heading colors
+- [x] Remove background colors from feature blocks
+- [x] Change text color in blocks to dark
+- [x] Keep border lines on blocks
+- [x] Test styling consistency
+- [x] All 92 tests passing - styling update complete
