@@ -198,3 +198,15 @@
 - [x] Update landing page with product image URLs
 - [x] Test file upload with relaxed validation
 - [x] Verify all 75 tests pass with new parameters
+
+
+## Current Sprint - Customer Portal Enhancements
+- [x] Add order history timeline to tracking page showing submitted/quoted/approved milestones
+- [x] Implement mockup preview component for tracking page displaying design on garment
+- [x] Build customer account dashboard with order history and profile management
+- [x] Add customer authentication and account creation flow (uses existing Manus OAuth)
+- [x] Link customer accounts to their orders via email lookup
+- [x] Write tests for customer portal features (18 tests passing)
+- [x] Test timeline display with various order statuses
+- [x] Verify mockup preview renders correctly in tracking page
+- [x] All 93 tests passing (auth, admin, files, email, pricing, tracking, color-size, customer-portal)
