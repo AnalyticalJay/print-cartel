@@ -1,0 +1,1 @@
+ALTER TABLE `printOptions` MODIFY COLUMN `printSize` varchar(50) NOT NULL;

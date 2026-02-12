@@ -333,3 +333,14 @@
 - [x] Test rotation with different designs and colors
 - [x] Verify hero section styling on all screen sizes
 - [x] All 92 tests passing - design rotation and hero styling complete
+
+
+## Current Task - Bulk Discount Tiers & DTF Pricing
+- [x] Update print sizes in database (Pocket: R25, A5: R45, A4: R55, A3: R75)
+- [x] Remove or hide non-approved print sizes from selection (only 4 approved sizes)
+- [x] Create BulkDiscountTable component showing discount tiers (10+, 50+, 100+)
+- [x] Add bulk pricing table to home page
+- [x] Integrate bulk discount calculation into order pricing (10%/20%/30% discounts)
+- [x] Test pricing accuracy for all sizes and quantities
+- [x] Verify bulk discounts apply correctly in order summary
+- [x] All 92 tests passing - bulk pricing implementation complete

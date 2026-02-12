@@ -21,6 +21,7 @@ describe("pricing service", () => {
     expect(pricing.productSubtotal).toBe(pricing.basePrice * 2);
     expect(pricing.placementCost).toBe(0);
     expect(pricing.printSizeCosts).toBe(0);
+    expect(pricing.bulkDiscountPercentage).toBe(0); // No bulk discount for 2 units
     expect(pricing.totalPrice).toBe(pricing.productSubtotal);
   });
 
@@ -128,7 +129,7 @@ describe("pricing service", () => {
     expect(pricing.details.printSizeDetails.length).toBe(3);
   });
 
-  it("calculates price correctly for large quantities", async () => {
+  it("applies bulk discount for large quantities", async () => {
     const pricing = await calculateOrderPrice({
       productId: 1,
       quantity: 100,
@@ -136,7 +137,11 @@ describe("pricing service", () => {
     });
 
     expect(pricing.productSubtotal).toBe(pricing.basePrice * 100);
-    expect(pricing.totalPrice).toBeGreaterThan(pricing.productSubtotal);
+    expect(pricing.bulkDiscountPercentage).toBe(30); // 100+ units = 30% discount
+    expect(pricing.bulkDiscount).toBeGreaterThan(0);
+    // Total price should be less than subtotal + placement + print size costs due to discount
+    const subtotalBeforeDiscount = pricing.productSubtotal + pricing.placementCost + pricing.printSizeCosts;
+    expect(pricing.totalPrice).toBeLessThan(subtotalBeforeDiscount);
   });
 
   it("pricing breakdown includes all components", async () => {

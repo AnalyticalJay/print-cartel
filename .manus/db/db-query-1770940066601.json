@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, printSize, additionalPrice FROM printOptions ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, printSize, additionalPrice FROM printOptions ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "printSize": "A6",
+      "additionalPrice": "25.00"
+    },
+    {
+      "id": "2",
+      "printSize": "A5",
+      "additionalPrice": "50.00"
+    },
+    {
+      "id": "3",
+      "printSize": "A4",
+      "additionalPrice": "75.00"
+    },
+    {
+      "id": "4",
+      "printSize": "A3",
+      "additionalPrice": "100.00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tprintSize\tadditionalPrice\n1\tA6\t25.00\n2\tA5\t50.00\n3\tA4\t75.00\n4\tA3\t100.00\n",
+  "stderr": "",
+  "execution_time_ms": 362
+}

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Zap, Eye, Truck, Lightbulb, Headphones, DollarSign } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { BulkDiscountTable } from "@/components/BulkDiscountTable";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -245,6 +246,19 @@ export default function Home() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* Bulk Discount Pricing Section */}
+      <section className="bg-white py-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl font-black mb-4 text-foreground">Bulk Order Pricing</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Save more when you order in bulk. Get up to 30% discount on orders of 100+ units.
+            </p>
+          </div>
+          <BulkDiscountTable />
         </div>
       </section>
 

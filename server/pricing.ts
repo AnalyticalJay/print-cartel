@@ -8,8 +8,9 @@ import { eq } from "drizzle-orm";
  * - Quantity multiplier (1x for any quantity)
  * - Print placement cost: R50 per placement
  * - Print size additional cost (from printOptions table)
+ * - Bulk discount: 10% for 10+, 20% for 50+, 30% for 100+
  *
- * Formula: (basePrice * quantity) + (numPlacements * 50) + (sum of print size costs)
+ * Formula: ((basePrice * quantity) + (numPlacements * 50) + (sum of print size costs)) - bulk discount
  */
 
 export interface PricingInput {
@@ -25,6 +26,8 @@ export interface PricingBreakdown {
   productSubtotal: number;
   placementCost: number;
   printSizeCosts: number;
+  bulkDiscount: number;
+  bulkDiscountPercentage: number;
   totalPrice: number;
   details: {
     productName: string;
@@ -38,6 +41,14 @@ export interface PricingBreakdown {
 }
 
 const PLACEMENT_COST_PER_UNIT = 50; // R50 per placement
+
+// Bulk discount tiers
+function getBulkDiscountPercentage(quantity: number): number {
+  if (quantity >= 100) return 30;
+  if (quantity >= 50) return 20;
+  if (quantity >= 10) return 10;
+  return 0;
+}
 
 export async function calculateOrderPrice(input: PricingInput): Promise<PricingBreakdown> {
   const db = await getDb();
@@ -85,14 +96,19 @@ export async function calculateOrderPrice(input: PricingInput): Promise<PricingB
     }
   }
 
-  // Calculate total
-  const totalPrice = productSubtotal + placementCost + printSizeCosts;
+  // Calculate bulk discount
+  const bulkDiscountPercentage = getBulkDiscountPercentage(input.quantity);
+  const subtotalBeforeDiscount = productSubtotal + placementCost + printSizeCosts;
+  const bulkDiscount = (subtotalBeforeDiscount * bulkDiscountPercentage) / 100;
+  const totalPrice = subtotalBeforeDiscount - bulkDiscount;
 
   return {
     basePrice,
     productSubtotal,
     placementCost,
     printSizeCosts,
+    bulkDiscount,
+    bulkDiscountPercentage,
     totalPrice,
     details: {
       productName: product.name,

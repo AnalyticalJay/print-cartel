@@ -66,7 +66,7 @@ export type InsertProductSize = typeof productSizes.$inferInsert;
 // Print options table (for different print sizes)
 export const printOptions = mysqlTable("printOptions", {
   id: int("id").autoincrement().primaryKey(),
-  printSize: varchar("printSize", { length: 10 }).notNull(), // A6, A5, A4, A3
+  printSize: varchar("printSize", { length: 50 }).notNull(), // Pocket Size, A5, A4, A3
   additionalPrice: decimal("additionalPrice", { precision: 10, scale: 2 }).notNull(),
 });
 
