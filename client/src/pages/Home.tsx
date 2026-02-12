@@ -46,13 +46,38 @@ export default function Home() {
       {/* Navigation */}
       <nav className="border-b border-border bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-foreground">Print Cartel</div>
-          <Button
-            onClick={() => setLocation("/order")}
-            className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
-          >
-            Order Now
-          </Button>
+          <div className="text-2xl font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation("/")}>
+            Print Cartel
+          </div>
+          <div className="flex gap-2 items-center">
+            <Button
+              variant="ghost"
+              onClick={() => setLocation("/track")}
+              className="text-foreground hover:bg-gray-100 font-semibold"
+            >
+              Track Order
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setLocation("/dashboard")}
+              className="text-foreground hover:bg-gray-100 font-semibold"
+            >
+              My Account
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setLocation("/admin")}
+              className="text-foreground hover:bg-gray-100 font-semibold"
+            >
+              Admin
+            </Button>
+            <Button
+              onClick={() => setLocation("/order")}
+              className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+            >
+              Order Now
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -147,8 +172,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-
 
       {/* Product Showcase */}
       <section className="max-w-6xl mx-auto px-4 py-20">
