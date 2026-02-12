@@ -210,3 +210,17 @@
 - [x] Test timeline display with various order statuses
 - [x] Verify mockup preview renders correctly in tracking page
 - [x] All 93 tests passing (auth, admin, files, email, pricing, tracking, color-size, customer-portal)
+
+
+## Bug Fix - File Upload Validation Blocking All Uploads
+- [x] Remove minimum width pixel requirement (was 2000px)
+- [x] Remove DPI validation checks
+- [x] Remove dimension validation checks
+- [x] Accept any image format (PNG, JPG, PDF, WebP, etc.)
+- [x] Keep only file size limit (50MB max)
+- [x] Update backend validation in files router
+- [x] Update frontend validation warnings
+- [x] Remove all validation error messages that block uploads
+- [x] Test uploads with various image formats and sizes (92 tests passing)
+- [x] Verify uploads work without restrictions
+- [x] All 92 tests passing - file upload now accepts any format

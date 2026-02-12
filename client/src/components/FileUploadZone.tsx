@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, AlertCircle, CheckCircle } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -29,7 +29,6 @@ export function FileUploadZone({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadMutation = trpc.files.upload.useMutation();
@@ -51,41 +50,23 @@ export function FileUploadZone({
     e.stopPropagation();
   };
 
-  const performClientValidation = (file: File): { valid: boolean; warnings: string[] } => {
-    const warnings: string[] = [];
+  const performClientValidation = (file: File): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    // Check file type
-    const allowedMimeTypes = ["image/png", "image/jpeg", "application/pdf"];
-    if (!allowedMimeTypes.includes(file.type)) {
-      errors.push("Invalid file type. Only PNG, JPG, and PDF are allowed.");
-    }
-
-    // Check file size
+    // Only check file size - that's the only hard requirement
     const maxFileSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxFileSize) {
       errors.push("File size exceeds 50MB limit");
     }
 
-    // Check minimum file size
-    if (file.size < 100) {
-      errors.push("File is too small or empty");
-    }
-
-    // For images, check basic properties
-    if (file.type.startsWith("image/")) {
-      if (file.size < 10000) {
-        warnings.push("File is quite small. For best quality, consider using a larger design file (ideally 500KB+)");
-      }
-
-      if (file.type === "image/jpeg") {
-        warnings.push("Tip: PNG format with transparent background often produces better results for DTF printing");
-      }
+    // Reject only completely empty files
+    if (file.size === 0) {
+      errors.push("File is empty");
     }
 
     return {
       valid: errors.length === 0,
-      warnings,
+      errors,
     };
   };
 
@@ -98,13 +79,10 @@ export function FileUploadZone({
     const validation = performClientValidation(file);
 
     if (!validation.valid) {
-      toast.error("File validation failed. Please check the requirements.");
+      validation.errors.forEach(error => {
+        toast.error(error);
+      });
       return;
-    }
-
-    if (validation.warnings.length > 0) {
-      setValidationWarnings(validation.warnings);
-      onValidationWarnings?.(validation.warnings);
     }
 
     // Upload file
@@ -122,7 +100,7 @@ export function FileUploadZone({
       const result = await uploadMutation.mutateAsync({
         fileName: file.name,
         fileData: Buffer.from(buffer),
-        mimeType: file.type,
+        mimeType: file.type || "application/octet-stream",
       });
 
       clearInterval(progressInterval);
@@ -149,7 +127,8 @@ export function FileUploadZone({
     } catch (error) {
       setIsUploading(false);
       setUploadProgress(0);
-      toast.error("Failed to upload file. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload file";
+      toast.error(errorMessage);
       console.error("Upload error:", error);
     }
   };
@@ -178,7 +157,6 @@ export function FileUploadZone({
   const removeFile = (index: number) => {
     const newFiles = uploadedFiles.filter((_, i) => i !== index);
     setUploadedFiles(newFiles);
-    setValidationWarnings([]);
   };
 
   return (
@@ -199,77 +177,46 @@ export function FileUploadZone({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".png,.jpg,.jpeg,.pdf"
             onChange={handleInputChange}
             className="hidden"
-            disabled={isUploading}
+            accept="*/*"
           />
-
           <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-
-          <h3 className="text-lg font-semibold text-white mb-2">
-            {isUploading ? "Uploading..." : "Drop your design file here"}
-          </h3>
-
-          <p className="text-gray-400 mb-4">
-            or{" "}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="text-white hover:underline disabled:opacity-50"
-            >
-              click to browse
-            </button>
-          </p>
-
-          <p className="text-sm text-gray-500">
-            PNG, JPG, or PDF • Max 25MB • Minimum 2000px width recommended
-          </p>
-
-          {isUploading && (
-            <div className="mt-4 space-y-2">
-              <Progress value={uploadProgress} className="h-2" />
-              <p className="text-sm text-gray-400">{uploadProgress}%</p>
-            </div>
-          )}
+          <p className="text-white font-semibold mb-2">Drag and drop your design file</p>
+          <p className="text-gray-400 text-sm mb-4">or click to browse (Max 50MB)</p>
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            variant="outline"
+            className="border-gray-600 text-gray-400 hover:text-white"
+            disabled={isUploading}
+          >
+            Choose File
+          </Button>
         </div>
       )}
 
-      {/* Validation Warnings */}
-      {validationWarnings.length > 0 && (
-        <Alert className="bg-yellow-900/20 border-yellow-700">
-          <AlertCircle className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-600 ml-2">
-            <div className="font-semibold mb-2">File Quality Warning:</div>
-            <ul className="list-disc list-inside space-y-1">
-              {validationWarnings.map((warning, index) => (
-                <li key={index} className="text-sm">
-                  {warning}
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs mt-2 text-yellow-500">
-              ⚠ Uploaded file may not be suitable for high quality DTF printing.
-            </p>
-          </AlertDescription>
-        </Alert>
+      {/* Upload Progress */}
+      {isUploading && (
+        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+          <p className="text-white text-sm mb-2">Uploading...</p>
+          <Progress value={uploadProgress} className="h-2" />
+        </div>
       )}
 
-      {/* Uploaded Files List */}
+      {/* Uploaded Files */}
       {uploadedFiles.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-white font-semibold">Uploaded Files:</h4>
           {uploadedFiles.map((file, index) => (
             <div
               key={index}
-              className="flex items-center justify-between bg-gray-700 p-4 rounded-lg"
+              className="bg-gray-800 p-4 rounded-lg border border-gray-700 flex items-center justify-between"
             >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="flex items-center gap-3 flex-1">
                 <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-white truncate font-medium">{file.name}</p>
-                  <p className="text-gray-400 text-sm">
-                    {(file.fileSize / 1024 / 1024).toFixed(2)} MB
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-semibold truncate">{file.name}</p>
+                  <p className="text-gray-400 text-xs">
+                    {(file.fileSize / 1024).toFixed(2)} KB
                   </p>
                 </div>
               </div>
@@ -277,25 +224,22 @@ export function FileUploadZone({
                 onClick={() => removeFile(index)}
                 variant="ghost"
                 size="sm"
-                className="text-red-400 hover:text-red-300 hover:bg-red-900/20 flex-shrink-0"
+                className="text-gray-400 hover:text-red-400"
               >
-                Remove
+                <X className="w-4 h-4" />
               </Button>
             </div>
           ))}
         </div>
       )}
 
-      {/* File Requirements */}
-      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-        <h4 className="text-white font-semibold mb-2">File Requirements:</h4>
-        <ul className="text-gray-300 text-sm space-y-1">
-          <li>✓ Format: PNG (preferred with transparent background), JPG, or PDF</li>
-          <li>✓ Minimum width: 2000 pixels</li>
-          <li>✓ Minimum DPI: 300</li>
-          <li>✓ Maximum file size: 25MB</li>
-        </ul>
-      </div>
+      {/* Info Message */}
+      <Alert className="bg-blue-900 border-blue-700">
+        <AlertCircle className="h-4 w-4 text-blue-400" />
+        <AlertDescription className="text-blue-200 text-sm">
+          Upload any image format (PNG, JPG, PDF, WebP, etc.). We'll review the artwork quality when processing your order.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }

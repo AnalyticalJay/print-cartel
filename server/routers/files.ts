@@ -11,16 +11,15 @@ const FileUploadInput = z.object({
 
 export const filesRouter = router({
   upload: publicProcedure.input(FileUploadInput).mutation(async ({ input }) => {
-    // Validate file type
-    const allowedMimeTypes = ["image/png", "image/jpeg", "application/pdf"];
-    if (!allowedMimeTypes.includes(input.mimeType)) {
-      throw new Error("Invalid file type. Only PNG, JPG, and PDF are allowed.");
-    }
-
-    // Validate file size (50MB max)
+    // Only validate file size - accept any image format
     const maxFileSize = 50 * 1024 * 1024; // 50MB
     if (input.fileData.length > maxFileSize) {
       throw new Error("File size exceeds 50MB limit");
+    }
+
+    // Reject empty files
+    if (input.fileData.length === 0) {
+      throw new Error("File is empty");
     }
 
     // Generate secure file key with random suffix
@@ -41,7 +40,7 @@ export const filesRouter = router({
       };
     } catch (error) {
       console.error("File upload failed:", error);
-      throw new Error("Failed to upload file");
+      throw new Error("Failed to upload file to storage");
     }
   }),
 
@@ -53,35 +52,19 @@ export const filesRouter = router({
     const warnings: string[] = [];
     const errors: string[] = [];
 
-    // Check file type
-    const allowedMimeTypes = ["image/png", "image/jpeg", "application/pdf"];
-    if (!allowedMimeTypes.includes(input.mimeType)) {
-      errors.push("Invalid file type. Only PNG, JPG, and PDF are allowed.");
-    }
-
-    // Check file size
+    // Only check file size - that's the only hard requirement
     const maxFileSize = 50 * 1024 * 1024; // 50MB
     if (input.fileData.length > maxFileSize) {
       errors.push("File size exceeds 50MB limit");
     }
 
-    // Check minimum file size (at least 100 bytes)
-    if (input.fileData.length < 100) {
-      errors.push("File is too small or empty");
+    // Reject only completely empty files
+    if (input.fileData.length === 0) {
+      errors.push("File is empty");
     }
 
-    // For images, provide helpful suggestions (not hard requirements)
-    if (input.mimeType.startsWith("image/")) {
-      // Only warn if file is very small (less than 10KB)
-      if (input.fileData.length < 10000) {
-        warnings.push("File is quite small. For best quality, consider using a larger design file (ideally 500KB+)");
-      }
-
-      // PNG preferred warning for JPG
-      if (input.mimeType === "image/jpeg") {
-        warnings.push("Tip: PNG format with transparent background often produces better results for DTF printing");
-      }
-    }
+    // No warnings - accept any file format as-is
+    // Quality check happens on admin side when reviewing orders
 
     return {
       valid: errors.length === 0,
