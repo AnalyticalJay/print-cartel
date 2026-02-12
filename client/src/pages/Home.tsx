@@ -2,10 +2,12 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Zap, Eye, Truck, Lightbulb, Headphones, DollarSign } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { user } = useAuth();
 
   const galleryImages = [
     {
@@ -64,13 +66,15 @@ export default function Home() {
             >
               My Account
             </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setLocation("/admin")}
-              className="text-foreground hover:bg-gray-100 font-semibold"
-            >
-              Admin
-            </Button>
+            {user?.role === 'admin' && (
+              <Button
+                variant="ghost"
+                onClick={() => setLocation("/admin")}
+                className="text-foreground hover:bg-gray-100 font-semibold"
+              >
+                Admin
+              </Button>
+            )}
             <Button
               onClick={() => setLocation("/order")}
               className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"

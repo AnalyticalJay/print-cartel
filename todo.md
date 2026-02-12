@@ -269,3 +269,16 @@
 - [x] Test navigation links work correctly
 - [x] Verify access to both portals
 - [x] All 92 tests passing - navigation menu complete
+
+
+## Current Task - Customer Authentication & Role-Based Access Control
+- [x] Review current authentication implementation
+- [x] Implement customer signup and account creation (via Manus OAuth)
+- [x] Add login/logout functionality (already implemented)
+- [x] Set up role-based access control (admin vs customer)
+- [x] Designate Jamie Woodhead (jayanalytics101@gmail.com) as admin
+- [x] Designate Brendon Fletcher (fletcherbrendon4@gmail.com) as admin
+- [x] Hide Admin button for non-admin users
+- [x] Test authentication flow
+- [x] Test role-based access control
+- [x] All 92 tests passing - authentication and role-based access complete
