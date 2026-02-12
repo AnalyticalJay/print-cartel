@@ -99,14 +99,12 @@ export default function Home() {
           </div>
 
           {/* Hero Image */}
-          <div className="relative h-96 md:h-full min-h-96">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg overflow-hidden">
-              <img
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/QrNKXFFoVGiiiKvY.jpg"
-                alt="Premium DTF Apparel"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+          <div className="relative h-96 md:h-full min-h-96 flex items-center justify-center">
+            <img
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/WMQWBecfVLUsVEHM.png"
+              alt="Premium DTF Apparel"
+              className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-500"
+            />
           </div>
         </div>
       </section>
