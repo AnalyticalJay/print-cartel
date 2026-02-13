@@ -13,6 +13,8 @@ const CreateOrderInput = z.object({
   customerEmail: z.string().email(),
   customerPhone: z.string().min(1),
   customerCompany: z.string().optional(),
+  deliveryMethod: z.enum(["collection", "delivery"]),
+  deliveryAddress: z.string().optional(),
   additionalNotes: z.string().optional(),
   prints: z.array(z.object({
     printSizeId: z.number(),
@@ -37,6 +39,9 @@ export const ordersRouter = router({
       customerEmail: input.customerEmail,
       customerPhone: input.customerPhone,
       customerCompany: input.customerCompany || null,
+      deliveryMethod: input.deliveryMethod,
+      deliveryAddress: input.deliveryAddress || null,
+      deliveryCharge: input.deliveryMethod === "delivery" ? "150" : "0",
       additionalNotes: input.additionalNotes || null,
       totalPriceEstimate: input.totalPriceEstimate.toString(),
       status: "pending",

@@ -98,6 +98,9 @@ export const orders = mysqlTable("orders", {
   customerEmail: varchar("customerEmail", { length: 320 }).notNull(),
   customerPhone: varchar("customerPhone", { length: 20 }).notNull(),
   customerCompany: varchar("customerCompany", { length: 255 }),
+  deliveryMethod: mysqlEnum("deliveryMethod", ["collection", "delivery"]).notNull(),
+  deliveryAddress: text("deliveryAddress"),
+  deliveryCharge: decimal("deliveryCharge", { precision: 10, scale: 2 }).default("0"),
   additionalNotes: text("additionalNotes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -105,6 +108,11 @@ export const orders = mysqlTable("orders", {
 
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = typeof orders.$inferInsert;
+
+// Type for order creation (excludes auto-generated fields)
+export type CreateOrderInput = Omit<InsertOrder, 'createdAt' | 'updatedAt' | 'status'> & {
+  deliveryMethod: 'collection' | 'delivery';
+};
 
 // Order prints table (for multiple placements per order)
 export const orderPrints = mysqlTable("orderPrints", {

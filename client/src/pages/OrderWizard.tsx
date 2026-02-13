@@ -11,10 +11,11 @@ import { FileUploadZone } from "@/components/FileUploadZone";
 import { PricingDisplay, type PricingBreakdownData } from "@/components/PricingDisplay";
 import { ColorSelector } from "@/components/ColorSelector";
 import { SizeSelector } from "@/components/SizeSelector";
+import { DeliveryMethodSelector } from "@/components/DeliveryMethodSelector";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6;
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 interface OrderData {
   productId: number;
@@ -34,6 +35,8 @@ interface OrderData {
   customerEmail: string;
   customerPhone: string;
   customerCompany?: string;
+  deliveryMethod?: 'collection' | 'delivery';
+  deliveryAddress?: string;
   additionalNotes?: string;
   totalPriceEstimate: number;
 }
@@ -105,6 +108,7 @@ export default function OrderWizard() {
         !orderData.customerLastName ||
         !orderData.customerEmail ||
         !orderData.customerPhone ||
+        !orderData.deliveryMethod ||
         !orderData.totalPriceEstimate
       ) {
         toast.error("Please fill in all required fields");
@@ -122,6 +126,8 @@ export default function OrderWizard() {
         customerEmail: orderData.customerEmail,
         customerPhone: orderData.customerPhone,
         customerCompany: orderData.customerCompany,
+        deliveryMethod: orderData.deliveryMethod,
+        deliveryAddress: orderData.deliveryAddress,
         additionalNotes: orderData.additionalNotes,
         totalPriceEstimate: orderData.totalPriceEstimate,
       });
@@ -142,7 +148,7 @@ export default function OrderWizard() {
         {/* Step Indicator */}
         <div className="mb-8">
           <div className="flex justify-between mb-4">
-            {[1, 2, 3, 4, 5, 6].map((step) => (
+            {[1, 2, 3, 4, 5, 6, 7].map((step) => (
               <div
                 key={step}
                 className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
@@ -160,7 +166,7 @@ export default function OrderWizard() {
           <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-white transition-all duration-300"
-              style={{ width: `${(currentStep / 6) * 100}%` }}
+              style={{ width: `${(currentStep / 7) * 100}%` }}
             />
           </div>
         </div>
@@ -177,7 +183,8 @@ export default function OrderWizard() {
                   {currentStep === 3 && "Step 3: Upload Design"}
                   {currentStep === 4 && "Step 4: Live Preview"}
                   {currentStep === 5 && "Step 5: Contact Details"}
-                  {currentStep === 6 && "Step 6: Order Summary"}
+                  {currentStep === 6 && "Step 6: Delivery Method"}
+                  {currentStep === 7 && "Step 7: Order Summary"}
                 </CardTitle>
                 <CardDescription>
                   {currentStep === 1 && "Select your product, color, size, and quantity"}
@@ -185,7 +192,8 @@ export default function OrderWizard() {
                   {currentStep === 3 && "Upload your design file"}
                   {currentStep === 4 && "Preview your design on the garment"}
                   {currentStep === 5 && "Enter your contact information"}
-                  {currentStep === 6 && "Review and submit your order"}
+                  {currentStep === 6 && "Choose collection or delivery"}
+                  {currentStep === 7 && "Review and submit your order"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -478,8 +486,36 @@ export default function OrderWizard() {
                   </div>
                 )}
 
-                {/* Step 6: Order Summary */}
+                {/* Step 6: Delivery Method */}
                 {currentStep === 6 && (
+                  <div className="space-y-4">
+                    <DeliveryMethodSelector
+                      selectedMethod={orderData.deliveryMethod as 'collection' | 'delivery' | null}
+                      onSelect={(method) => {
+                        setOrderData({ ...orderData, deliveryMethod: method });
+                        if (method === 'delivery') {
+                          setOrderData((prev) => ({ ...prev, deliveryAddress: '' }));
+                        }
+                      }}
+                    />
+                    {orderData.deliveryMethod === 'delivery' && (
+                      <div>
+                        <Label className="text-white">Delivery Address</Label>
+                        <Textarea
+                          value={orderData.deliveryAddress || ''}
+                          onChange={(e) =>
+                            setOrderData({ ...orderData, deliveryAddress: e.target.value })
+                          }
+                          placeholder="Enter your full delivery address"
+                          className="bg-gray-700 border-gray-600 text-white"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Step 7: Order Summary */}
+                {currentStep === 7 && (
                   <div className="space-y-4">
                     <div className="bg-gray-700 p-4 rounded-lg space-y-2">
                       <p className="text-white">
@@ -511,7 +547,7 @@ export default function OrderWizard() {
                   >
                     Previous
                   </Button>
-                  {currentStep === 6 ? (
+                  {currentStep === 7 ? (
                     <Button
                       onClick={handleSubmit}
                       disabled={createOrderMutation.isPending}

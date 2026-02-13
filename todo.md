@@ -344,3 +344,17 @@
 - [x] Test pricing accuracy for all sizes and quantities
 - [x] Verify bulk discounts apply correctly in order summary
 - [x] All 92 tests passing - bulk pricing implementation complete
+
+
+## Current Task - Collection & Nationwide Delivery
+- [x] Add deliveryMethod field to orders table (collection/delivery)
+- [x] Add deliveryAddress field to orders table for delivery addresses
+- [x] Create DeliveryMethodSelector component with two options
+- [x] Show Port Elizabeth address for collection option (308 Cape Road, Newton Park, Gqeberha, 6045)
+- [x] Display delivery timeframe (2-4 business days) for delivery option
+- [x] Integrate delivery method into OrderWizard step 6 (new step added)
+- [x] Update pricing to add R150 delivery charge if delivery selected
+- [x] Add delivery details to order summary (step 7)
+- [x] Test collection and delivery selection
+- [x] Verify pricing includes delivery charge correctly
+- [x] All 92 tests passing - delivery method implementation complete
