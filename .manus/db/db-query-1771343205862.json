@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, name FROM products LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, name FROM products LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Lightweight T-Shirt"
+    },
+    {
+      "id": "2",
+      "name": "Men's Polo"
+    },
+    {
+      "id": "3",
+      "name": "Men's Dry Fit Polo"
+    },
+    {
+      "id": "4",
+      "name": "Hoodie"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n1\tLightweight T-Shirt\n2\tMen's Polo\n3\tMen's Dry Fit Polo\n4\tHoodie\n",
+  "stderr": "",
+  "execution_time_ms": 412
+}

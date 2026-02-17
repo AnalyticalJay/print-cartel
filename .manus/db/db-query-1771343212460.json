@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/QrNKXFFoVGiiiKvY.jpg' WHERE name = 'Lightweight T-Shirt';\nUPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/xzpYUzlxNlKgrbZq.jpg' WHERE name = 'Men''s Polo';\nUPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/HKHbQAkhneUpgQWZ.jpg' WHERE name = 'Men''s Dry Fit Polo';\nUPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/lZQjDrMLWvZfkrzW.jpg' WHERE name = 'Hoodie';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/QrNKXFFoVGiiiKvY.jpg' WHERE name = 'Lightweight T-Shirt';\nUPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/xzpYUzlxNlKgrbZq.jpg' WHERE name = 'Men''s Polo';\nUPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/HKHbQAkhneUpgQWZ.jpg' WHERE name = 'Men''s Dry Fit Polo';\nUPDATE products SET imageUrl = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/lZQjDrMLWvZfkrzW.jpg' WHERE name = 'Hoodie';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 544
+}

@@ -415,6 +415,7 @@ export default function OrderWizard() {
                   <div className="space-y-4">
                     <PreviewCanvas
                       productName={selectedProduct.name}
+                      productImageUrl={selectedProduct.imageUrl}
                       garmentColor={productColors.find((c) => c.id === orderData.colorId)?.colorHex || "#000000"}
                       prints={(orderData.prints || []).map((print) => ({
                         placement: placements.find((p) => p.id === print.placementId)?.placementName || "front",

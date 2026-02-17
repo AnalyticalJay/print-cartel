@@ -9,6 +9,7 @@ interface PrintPlacement {
 
 interface PreviewCanvasProps {
   productName?: string;
+  productImageUrl?: string | null;
   garmentColor: string;
   prints: PrintPlacement[];
   onImageReposition?: (placement: string, x: number, y: number) => void;
@@ -17,6 +18,7 @@ interface PreviewCanvasProps {
 
 export function PreviewCanvas({
   productName = "T-Shirt",
+  productImageUrl,
   garmentColor,
   prints,
   onImageReposition,
@@ -28,6 +30,8 @@ export function PreviewCanvas({
   const [selectedPlacement, setSelectedPlacement] = useState<string | null>(null);
   const [imagePositions, setImagePositions] = useState<Record<string, { x: number; y: number }>>({});
   const [rotations, setRotations] = useState<Record<string, number>>({});
+  const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
+  const [productImageLoaded, setProductImageLoaded] = useState(false);
 
   const canvasWidth = 400;
   const canvasHeight = 500;
@@ -39,7 +43,173 @@ export function PreviewCanvas({
     sleeve: { x: 50, y: 150, width: 80, height: 120 },
   };
 
-  // Draw the garment and designs on canvas
+  // Preload all images
+  useEffect(() => {
+    const loadedImages: Record<string, HTMLImageElement> = {};
+    let loadedCount = 0;
+    let totalToLoad = prints.filter(p => p.uploadedFilePath).length;
+
+    if (productImageUrl) {
+      totalToLoad += 1;
+      const productImg = new Image();
+      productImg.onload = () => {
+        loadedImages['product'] = productImg;
+        setProductImageLoaded(true);
+        loadedCount++;
+        if (loadedCount === totalToLoad) {
+          redrawCanvas(loadedImages);
+        }
+      };
+      productImg.onerror = () => {
+        console.error('Failed to load product image:', productImageUrl);
+        setProductImageLoaded(true);
+        loadedCount++;
+        if (loadedCount === totalToLoad) {
+          redrawCanvas(loadedImages);
+        }
+      };
+      productImg.src = productImageUrl;
+    }
+
+    prints.forEach((print, index) => {
+      if (print.uploadedFilePath) {
+        const img = new Image();
+        img.onload = () => {
+          loadedImages[print.placement] = img;
+          setImagesLoaded(prev => ({ ...prev, [print.placement]: true }));
+          loadedCount++;
+          if (loadedCount === totalToLoad) {
+            redrawCanvas(loadedImages);
+          }
+        };
+        img.onerror = () => {
+          console.error('Failed to load design image:', print.uploadedFilePath);
+          loadedCount++;
+          if (loadedCount === totalToLoad) {
+            redrawCanvas(loadedImages);
+          }
+        };
+        img.src = print.uploadedFilePath;
+      }
+    });
+
+    if (totalToLoad === 0) {
+      redrawCanvas(loadedImages);
+    }
+  }, [productImageUrl, prints]);
+
+  const redrawCanvas = (loadedImages: Record<string, HTMLImageElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Clear canvas with gradient background
+    const gradient = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+    gradient.addColorStop(0, "#f5f5f5");
+    gradient.addColorStop(1, "#e0e0e0");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    // Draw product image if available
+    if (loadedImages['product']) {
+      ctx.drawImage(loadedImages['product'], 0, 0, canvasWidth, canvasHeight);
+      
+      // Apply color overlay if product image is loaded
+      if (garmentColor && garmentColor !== '#000000') {
+        ctx.fillStyle = garmentColor;
+        ctx.globalAlpha = 0.3;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        ctx.globalAlpha = 1.0;
+      }
+    } else {
+      // Fallback: Draw garment body (T-shirt shape) with color
+      ctx.fillStyle = garmentColor;
+      
+      // Main body
+      ctx.beginPath();
+      ctx.moveTo(80, 80);
+      ctx.lineTo(320, 80);
+      ctx.lineTo(320, 400);
+      ctx.lineTo(80, 400);
+      ctx.closePath();
+      ctx.fill();
+
+      // Left sleeve
+      ctx.beginPath();
+      ctx.moveTo(80, 100);
+      ctx.lineTo(30, 120);
+      ctx.lineTo(30, 200);
+      ctx.lineTo(80, 180);
+      ctx.closePath();
+      ctx.fill();
+
+      // Right sleeve
+      ctx.beginPath();
+      ctx.moveTo(320, 100);
+      ctx.lineTo(370, 120);
+      ctx.lineTo(370, 200);
+      ctx.lineTo(320, 180);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Draw placement areas
+    prints.forEach((print) => {
+      const placement = print.placement as keyof typeof placementAreas;
+      const coords = placementAreas[placement];
+      
+      if (coords) {
+        ctx.strokeStyle = selectedPlacement === print.placement ? "#FFD700" : "#999";
+        ctx.lineWidth = selectedPlacement === print.placement ? 3 : 2;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(coords.x, coords.y, coords.width, coords.height);
+        ctx.setLineDash([]);
+
+        // Draw placement label
+        ctx.fillStyle = "#666";
+        ctx.font = "12px Arial";
+        ctx.fillText(print.placement.toUpperCase(), coords.x + 5, coords.y - 5);
+      }
+    });
+
+    // Draw uploaded images
+    prints.forEach((print) => {
+      if (print.uploadedFilePath && loadedImages[print.placement]) {
+        const placement = print.placement as keyof typeof placementAreas;
+        const coords = placementAreas[placement];
+        const position = imagePositions[print.placement] || { x: 0, y: 0 };
+        const rotation = rotations[print.placement] || 0;
+
+        if (coords) {
+          const img = loadedImages[print.placement];
+          
+          ctx.save();
+
+          // Calculate center for rotation
+          const centerX = coords.x + coords.width / 2 + position.x;
+          const centerY = coords.y + coords.height / 2 + position.y;
+
+          ctx.translate(centerX, centerY);
+          ctx.rotate((rotation * Math.PI) / 180);
+          ctx.translate(-centerX, -centerY);
+
+          ctx.drawImage(
+            img,
+            coords.x + position.x,
+            coords.y + position.y,
+            coords.width,
+            coords.height
+          );
+
+          ctx.restore();
+        }
+      }
+    });
+  };
+
+  // Redraw when state changes
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -54,36 +224,59 @@ export function PreviewCanvas({
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // Draw garment body (T-shirt shape)
-    ctx.fillStyle = garmentColor;
-    
-    // Main body
-    ctx.beginPath();
-    ctx.moveTo(80, 80);
-    ctx.lineTo(320, 80);
-    ctx.lineTo(320, 400);
-    ctx.lineTo(80, 400);
-    ctx.closePath();
-    ctx.fill();
+    // Draw product image if available and loaded
+    if (productImageUrl && productImageLoaded) {
+      const productImg = new Image();
+      productImg.onload = () => {
+        ctx.drawImage(productImg, 0, 0, canvasWidth, canvasHeight);
+        
+        // Apply color overlay
+        if (garmentColor && garmentColor !== '#000000') {
+          ctx.fillStyle = garmentColor;
+          ctx.globalAlpha = 0.3;
+          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+          ctx.globalAlpha = 1.0;
+        }
+        
+        drawPlacementsAndDesigns(ctx);
+      };
+      productImg.src = productImageUrl;
+    } else {
+      // Fallback: Draw garment body (T-shirt shape) with color
+      ctx.fillStyle = garmentColor;
+      
+      // Main body
+      ctx.beginPath();
+      ctx.moveTo(80, 80);
+      ctx.lineTo(320, 80);
+      ctx.lineTo(320, 400);
+      ctx.lineTo(80, 400);
+      ctx.closePath();
+      ctx.fill();
 
-    // Left sleeve
-    ctx.beginPath();
-    ctx.moveTo(80, 100);
-    ctx.lineTo(30, 120);
-    ctx.lineTo(30, 200);
-    ctx.lineTo(80, 180);
-    ctx.closePath();
-    ctx.fill();
+      // Left sleeve
+      ctx.beginPath();
+      ctx.moveTo(80, 100);
+      ctx.lineTo(30, 120);
+      ctx.lineTo(30, 200);
+      ctx.lineTo(80, 180);
+      ctx.closePath();
+      ctx.fill();
 
-    // Right sleeve
-    ctx.beginPath();
-    ctx.moveTo(320, 100);
-    ctx.lineTo(370, 120);
-    ctx.lineTo(370, 200);
-    ctx.lineTo(320, 180);
-    ctx.closePath();
-    ctx.fill();
+      // Right sleeve
+      ctx.beginPath();
+      ctx.moveTo(320, 100);
+      ctx.lineTo(370, 120);
+      ctx.lineTo(370, 200);
+      ctx.lineTo(320, 180);
+      ctx.closePath();
+      ctx.fill();
 
+      drawPlacementsAndDesigns(ctx);
+    }
+  }, [garmentColor, productImageUrl, productImageLoaded, imagePositions, rotations, selectedPlacement, prints]);
+
+  const drawPlacementsAndDesigns = (ctx: CanvasRenderingContext2D) => {
     // Draw placement areas
     prints.forEach((print) => {
       const placement = print.placement as keyof typeof placementAreas;
@@ -111,7 +304,7 @@ export function PreviewCanvas({
         const position = imagePositions[print.placement] || { x: 0, y: 0 };
         const rotation = rotations[print.placement] || 0;
 
-        if (coords) {
+        if (coords && imagesLoaded[print.placement]) {
           const img = new Image();
           img.onload = () => {
             ctx.save();
@@ -138,7 +331,7 @@ export function PreviewCanvas({
         }
       }
     });
-  }, [garmentColor, prints, imagePositions, rotations, selectedPlacement]);
+  };
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect();

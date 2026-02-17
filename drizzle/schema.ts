@@ -36,6 +36,7 @@ export const products = mysqlTable("products", {
   description: text("description"),
   fabricType: varchar("fabricType", { length: 255 }),
   productType: varchar("productType", { length: 100 }).notNull(),
+  imageUrl: varchar("imageUrl", { length: 500 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

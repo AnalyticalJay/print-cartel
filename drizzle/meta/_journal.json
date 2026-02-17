@@ -36,6 +36,13 @@
       "when": 1770940742593,
       "tag": "0004_past_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1771343183071,
+      "tag": "0005_redundant_scalphunter",
+      "breakpoints": true
     }
   ]
 }
