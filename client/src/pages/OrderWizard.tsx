@@ -74,6 +74,7 @@ export default function OrderWizard() {
 
   const productColors = productDetailsQuery.data?.colors || [];
   const productSizes = productDetailsQuery.data?.sizes || [];
+  const placements = printPlacementsQuery.data || [];
 
   // Update pricing when calculation query completes
   useEffect(() => {
@@ -370,38 +371,42 @@ export default function OrderWizard() {
                 {/* Step 3: Upload Design */}
                 {currentStep === 3 && (
                   <div className="space-y-4">
-                    <FileUploadZone
-                      maxFiles={1}
-                      onFileUpload={(file) => {
-                        if (orderData.prints) {
-                          const updatedPrints = [...orderData.prints];
-                          if (updatedPrints.length === 0) {
-                            updatedPrints.push({
-                              printSizeId: 1,
-                              placementId: 1,
-                              uploadedFilePath: file.url,
-                              uploadedFileName: file.name,
-                              fileSize: file.fileSize,
-                              mimeType: file.mimeType,
-                            });
-                          } else {
-                            updatedPrints[0] = {
-                              ...updatedPrints[0],
-                              uploadedFilePath: file.url,
-                              uploadedFileName: file.name,
-                              fileSize: file.fileSize,
-                              mimeType: file.mimeType,
-                            };
-                          }
-                          setOrderData({ ...orderData, prints: updatedPrints });
-                        }
-                      }}
-                      onValidationWarnings={(warnings) => {
-                        if (warnings.length > 0) {
-                          toast.warning(`${warnings.length} quality warning(s) detected`);
-                        }
-                      }}
-                    />
+                    <p className="text-gray-300">Upload artwork for each placement</p>
+                    {orderData.prints && orderData.prints.length > 0 ? (
+                      <div className="space-y-4">
+                        {orderData.prints.map((print, index) => (
+                          <div key={index} className="bg-gray-700 p-4 rounded-lg space-y-2">
+                            <p className="text-white font-semibold">
+                              {placements.find((p) => p.id === print.placementId)?.placementName || "Placement"}
+                            </p>
+                            <FileUploadZone
+                              maxFiles={1}
+                              onFileUpload={(file) => {
+                                const updatedPrints = [...(orderData.prints || [])];
+                                updatedPrints[index] = {
+                                  ...updatedPrints[index],
+                                  uploadedFilePath: file.url,
+                                  uploadedFileName: file.name,
+                                  fileSize: file.fileSize,
+                                  mimeType: file.mimeType,
+                                };
+                                setOrderData({ ...orderData, prints: updatedPrints });
+                              }}
+                              onValidationWarnings={(warnings) => {
+                                if (warnings.length > 0) {
+                                  toast.warning(`${warnings.length} quality warning(s) detected`);
+                                }
+                              }}
+                            />
+                            {print.uploadedFilePath && (
+                              <p className="text-sm text-green-400">✓ {print.uploadedFileName}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-400">Add print placements in Step 2 first</p>
+                    )}
                   </div>
                 )}
 
@@ -409,10 +414,12 @@ export default function OrderWizard() {
                 {currentStep === 4 && selectedProduct && (
                   <div className="space-y-4">
                     <PreviewCanvas
+                      productName={selectedProduct.name}
                       garmentColor={productColors.find((c) => c.id === orderData.colorId)?.colorHex || "#000000"}
-                      uploadedImageUrl={orderData.prints?.[0]?.uploadedFilePath}
-                      placementCoordinates={{ x: 50, y: 100, width: 150, height: 150 }}
-                      printSize="A4"
+                      prints={(orderData.prints || []).map((print) => ({
+                        placement: placements.find((p) => p.id === print.placementId)?.placementName || "front",
+                        uploadedFilePath: print.uploadedFilePath,
+                      }))}
                     />
                   </div>
                 )}

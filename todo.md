@@ -358,3 +358,13 @@
 - [x] Test collection and delivery selection
 - [x] Verify pricing includes delivery charge correctly
 - [x] All 92 tests passing - delivery method implementation complete
+
+
+## Current Task - Live Preview Fix
+- [x] Display selected t-shirt product in preview (not placeholder) - shows actual t-shirt shape
+- [x] Show correct color of selected t-shirt - uses selected color hex code
+- [x] Support multiple image uploads for different placements (front, back, sleeve) - one upload per placement
+- [x] Position artwork correctly on each selected placement - placement-specific areas
+- [x] Update FileUploadZone to handle multiple uploads per placement - step 3 shows upload for each placement
+- [x] Fix PreviewCanvas to render all uploaded images - renders all prints with correct placement
+- [x] Test preview with various product/color/placement combinations - all 92 tests passing

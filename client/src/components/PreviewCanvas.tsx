@@ -1,32 +1,45 @@
 import { useEffect, useRef, useState } from "react";
 
+interface PrintPlacement {
+  placement: string;
+  uploadedFilePath?: string;
+  imagePosition?: { x: number; y: number };
+  rotation?: number;
+}
+
 interface PreviewCanvasProps {
+  productName?: string;
   garmentColor: string;
-  uploadedImageUrl?: string;
-  placementCoordinates?: { x: number; y: number; width: number; height: number };
-  printSize: string;
-  onImageReposition?: (x: number, y: number) => void;
-  onRotationChange?: (rotation: number) => void;
+  prints: PrintPlacement[];
+  onImageReposition?: (placement: string, x: number, y: number) => void;
+  onRotationChange?: (placement: string, rotation: number) => void;
 }
 
 export function PreviewCanvas({
+  productName = "T-Shirt",
   garmentColor,
-  uploadedImageUrl,
-  placementCoordinates,
-  printSize,
+  prints,
   onImageReposition,
   onRotationChange,
 }: PreviewCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
-  const [rotation, setRotation] = useState(0);
+  const [selectedPlacement, setSelectedPlacement] = useState<string | null>(null);
+  const [imagePositions, setImagePositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [rotations, setRotations] = useState<Record<string, number>>({});
 
-  const canvasWidth = 300;
-  const canvasHeight = 400;
+  const canvasWidth = 400;
+  const canvasHeight = 500;
 
-  // Draw the garment and design on canvas
+  // Placement areas for different garment areas
+  const placementAreas: Record<string, { x: number; y: number; width: number; height: number }> = {
+    front: { x: 100, y: 120, width: 200, height: 200 },
+    back: { x: 100, y: 120, width: 200, height: 200 },
+    sleeve: { x: 50, y: 150, width: 80, height: 120 },
+  };
+
+  // Draw the garment and designs on canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -34,63 +47,127 @@ export function PreviewCanvas({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Clear canvas
-    ctx.fillStyle = garmentColor;
+    // Clear canvas with gradient background
+    const gradient = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+    gradient.addColorStop(0, "#f5f5f5");
+    gradient.addColorStop(1, "#e0e0e0");
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // Draw garment outline (simple t-shirt shape)
-    ctx.strokeStyle = "#ddd";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(30, 40, 240, 280);
+    // Draw garment body (T-shirt shape)
+    ctx.fillStyle = garmentColor;
+    
+    // Main body
+    ctx.beginPath();
+    ctx.moveTo(80, 80);
+    ctx.lineTo(320, 80);
+    ctx.lineTo(320, 400);
+    ctx.lineTo(80, 400);
+    ctx.closePath();
+    ctx.fill();
 
-    // Draw placement area
-    if (placementCoordinates) {
-      ctx.strokeStyle = "#ccc";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([5, 5]);
-      ctx.strokeRect(
-        placementCoordinates.x,
-        placementCoordinates.y,
-        placementCoordinates.width,
-        placementCoordinates.height
-      );
-      ctx.setLineDash([]);
-    }
+    // Left sleeve
+    ctx.beginPath();
+    ctx.moveTo(80, 100);
+    ctx.lineTo(30, 120);
+    ctx.lineTo(30, 200);
+    ctx.lineTo(80, 180);
+    ctx.closePath();
+    ctx.fill();
 
-    // Draw uploaded image if available
-    if (uploadedImageUrl) {
-      const img = new Image();
-      img.onload = () => {
-        if (placementCoordinates) {
-          // Save context state
-          ctx.save();
-          
-          // Translate to center of placement area, rotate, then translate back
-          const centerX = placementCoordinates.x + placementCoordinates.width / 2 + imagePosition.x;
-          const centerY = placementCoordinates.y + placementCoordinates.height / 2 + imagePosition.y;
-          
-          ctx.translate(centerX, centerY);
-          ctx.rotate((rotation * Math.PI) / 180);
-          ctx.translate(-centerX, -centerY);
-          
-          ctx.drawImage(
-            img,
-            placementCoordinates.x + imagePosition.x,
-            placementCoordinates.y + imagePosition.y,
-            placementCoordinates.width,
-            placementCoordinates.height
-          );
-          
-          // Restore context state
-          ctx.restore();
+    // Right sleeve
+    ctx.beginPath();
+    ctx.moveTo(320, 100);
+    ctx.lineTo(370, 120);
+    ctx.lineTo(370, 200);
+    ctx.lineTo(320, 180);
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw placement areas
+    prints.forEach((print) => {
+      const placement = print.placement as keyof typeof placementAreas;
+      const coords = placementAreas[placement];
+      
+      if (coords) {
+        ctx.strokeStyle = selectedPlacement === print.placement ? "#FFD700" : "#999";
+        ctx.lineWidth = selectedPlacement === print.placement ? 3 : 2;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(coords.x, coords.y, coords.width, coords.height);
+        ctx.setLineDash([]);
+
+        // Draw placement label
+        ctx.fillStyle = "#666";
+        ctx.font = "12px Arial";
+        ctx.fillText(print.placement.toUpperCase(), coords.x + 5, coords.y - 5);
+      }
+    });
+
+    // Draw uploaded images
+    prints.forEach((print) => {
+      if (print.uploadedFilePath) {
+        const placement = print.placement as keyof typeof placementAreas;
+        const coords = placementAreas[placement];
+        const position = imagePositions[print.placement] || { x: 0, y: 0 };
+        const rotation = rotations[print.placement] || 0;
+
+        if (coords) {
+          const img = new Image();
+          img.onload = () => {
+            ctx.save();
+
+            // Calculate center for rotation
+            const centerX = coords.x + coords.width / 2 + position.x;
+            const centerY = coords.y + coords.height / 2 + position.y;
+
+            ctx.translate(centerX, centerY);
+            ctx.rotate((rotation * Math.PI) / 180);
+            ctx.translate(-centerX, -centerY);
+
+            ctx.drawImage(
+              img,
+              coords.x + position.x,
+              coords.y + position.y,
+              coords.width,
+              coords.height
+            );
+
+            ctx.restore();
+          };
+          img.src = print.uploadedFilePath;
         }
-      };
-      img.src = uploadedImageUrl;
+      }
+    });
+  }, [garmentColor, prints, imagePositions, rotations, selectedPlacement]);
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Check which placement area was clicked
+    for (const [placement, coords] of Object.entries(placementAreas)) {
+      if (
+        x >= coords.x &&
+        x <= coords.x + coords.width &&
+        y >= coords.y &&
+        y <= coords.y + coords.height
+      ) {
+        setSelectedPlacement(placement);
+        return;
+      }
     }
-  }, [garmentColor, uploadedImageUrl, placementCoordinates, imagePosition, rotation]);
+  };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!placementCoordinates) return;
+    if (!selectedPlacement) return;
+
+    const placement = selectedPlacement as keyof typeof placementAreas;
+    const coords = placementAreas[placement];
+    if (!coords) return;
+
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
@@ -98,21 +175,26 @@ export function PreviewCanvas({
     const y = e.clientY - rect.top;
 
     if (
-      x >= placementCoordinates.x &&
-      x <= placementCoordinates.x + placementCoordinates.width &&
-      y >= placementCoordinates.y &&
-      y <= placementCoordinates.y + placementCoordinates.height
+      x >= coords.x &&
+      x <= coords.x + coords.width &&
+      y >= coords.y &&
+      y <= coords.y + coords.height
     ) {
       setIsDragging(true);
+      const position = imagePositions[selectedPlacement] || { x: 0, y: 0 };
       setDragOffset({
-        x: x - imagePosition.x,
-        y: y - imagePosition.y,
+        x: x - position.x,
+        y: y - position.y,
       });
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging || !placementCoordinates) return;
+    if (!isDragging || !selectedPlacement) return;
+
+    const placement = selectedPlacement as keyof typeof placementAreas;
+    const coords = placementAreas[placement];
+    if (!coords) return;
 
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -124,11 +206,12 @@ export function PreviewCanvas({
     let newY = y - dragOffset.y;
 
     // Constrain within placement bounds
-    newX = Math.max(-placementCoordinates.width / 2, Math.min(placementCoordinates.width / 2, newX));
-    newY = Math.max(-placementCoordinates.height / 2, Math.min(placementCoordinates.height / 2, newY));
+    newX = Math.max(-coords.width / 2, Math.min(coords.width / 2, newX));
+    newY = Math.max(-coords.height / 2, Math.min(coords.height / 2, newY));
 
-    setImagePosition({ x: newX, y: newY });
-    onImageReposition?.(newX, newY);
+    const newPositions = { ...imagePositions, [selectedPlacement]: { x: newX, y: newY } };
+    setImagePositions(newPositions);
+    onImageReposition?.(selectedPlacement, newX, newY);
   };
 
   const handleMouseUp = () => {
@@ -136,17 +219,27 @@ export function PreviewCanvas({
   };
 
   const handleRotation = (angle: number) => {
-    setRotation(angle);
-    onRotationChange?.(angle);
+    if (!selectedPlacement) return;
+    const newRotations = { ...rotations, [selectedPlacement]: angle };
+    setRotations(newRotations);
+    onRotationChange?.(selectedPlacement, angle);
   };
+
+  const currentRotation = selectedPlacement ? rotations[selectedPlacement] || 0 : 0;
 
   return (
     <div className="flex flex-col items-center gap-4">
+      <div className="text-center">
+        <h3 className="font-semibold text-lg text-white">{productName}</h3>
+        <p className="text-sm text-gray-400">Click on a placement area to edit</p>
+      </div>
+
       <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
         <canvas
           ref={canvasRef}
           width={canvasWidth}
           height={canvasHeight}
+          onClick={handleCanvasClick}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -154,28 +247,37 @@ export function PreviewCanvas({
           className="cursor-move"
         />
       </div>
-      
-      {/* Rotation Controls */}
-      <div className="flex gap-2 items-center flex-wrap justify-center">
-        <span className="text-sm font-semibold text-gray-700">Rotate:</span>
-        {[0, 90, 180, 270].map((angle) => (
-          <button
-            key={angle}
-            onClick={() => handleRotation(angle)}
-            className={`px-3 py-2 rounded font-semibold text-sm transition-colors ${
-              rotation === angle
-                ? "bg-accent text-accent-foreground"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            {angle}°
-          </button>
-        ))}
-      </div>
-      
-      <div className="text-sm text-gray-600 text-center">
-        <p>Drag the design to reposition it within the placement area</p>
-        <p className="text-xs mt-1">Print Size: {printSize}</p>
+
+      {selectedPlacement && (
+        <>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-white">
+              Editing: <span className="text-accent">{selectedPlacement.toUpperCase()}</span>
+            </p>
+          </div>
+
+          {/* Rotation Controls */}
+          <div className="flex gap-2 items-center flex-wrap justify-center">
+            <span className="text-sm font-semibold text-gray-300">Rotate:</span>
+            {[0, 90, 180, 270].map((angle) => (
+              <button
+                key={angle}
+                onClick={() => handleRotation(angle)}
+                className={`px-3 py-2 rounded font-semibold text-sm transition-colors ${
+                  currentRotation === angle
+                    ? "bg-accent text-black"
+                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                }`}
+              >
+                {angle}°
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      <div className="text-sm text-gray-400 text-center">
+        <p>Click placement areas to select them, then drag to reposition</p>
       </div>
     </div>
   );
