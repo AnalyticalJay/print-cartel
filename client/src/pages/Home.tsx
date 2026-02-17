@@ -140,10 +140,10 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="bg-soft-grey py-20">
+      <section className="bg-soft-grey py-12 sm:py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-5xl font-black mb-12 text-center text-foreground">How It Works</h2>
-          <div className="grid md:grid-cols-4 gap-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-8 sm:mb-12 text-center text-foreground">How It Works</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {[
               {
                 step: 1,
@@ -167,11 +167,11 @@ export default function Home() {
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="w-16 h-16 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-black text-2xl mx-auto mb-4">
+                <div className="w-12 sm:w-16 h-12 sm:h-16 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-black text-lg sm:text-2xl mx-auto mb-3 sm:mb-4">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-foreground">{item.title}</h3>
-                <p className="text-muted-foreground">{item.description}</p>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 text-foreground">{item.title}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
@@ -179,9 +179,9 @@ export default function Home() {
       </section>
 
       {/* Product Showcase */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
-        <h2 className="text-5xl font-black mb-12 text-center text-foreground">Our Products</h2>
-        <div className="grid md:grid-cols-4 gap-8">
+      <section className="max-w-6xl mx-auto px-4 py-12 sm:py-16 md:py-20">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-8 sm:mb-12 text-center text-foreground">Our Products</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
           {[
             { name: "Lightweight T-Shirt", price: "R70", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/QrNKXFFoVGiiiKvY.jpg" },
             { name: "Men's Polo", price: "R120", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/xzpYUzlxNlKgrbZq.jpg" },
@@ -190,23 +190,25 @@ export default function Home() {
           ].map((product) => (
             <div
               key={product.name}
-              className="bg-white p-6 rounded-xl text-center border-3 border-gray-200 shadow-md hover:shadow-2xl hover:border-accent transition-all duration-300 transform hover:-translate-y-2"
+              className="bg-white p-4 sm:p-6 rounded-xl text-center shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full"
             >
-              <div className="w-full h-48 bg-gray-300 rounded mb-4 flex items-center justify-center overflow-hidden">
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+              <div className="w-full h-64 sm:h-80 bg-gray-300 rounded mb-4 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img src={product.image} alt={product.name} className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-foreground">{product.name}</h3>
-              <p className="text-accent text-2xl font-black">{product.price}</p>
+              <div className="flex-grow flex flex-col justify-end">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 text-foreground">{product.name}</h3>
+                <p className="text-accent text-xl sm:text-2xl font-black">{product.price}</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Why Choose Print Cartel */}
-      <section className="bg-white py-20">
+      <section className="bg-white py-12 sm:py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-5xl font-black mb-12 text-center text-foreground">Why Choose Print Cartel</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-8 sm:mb-12 text-center text-foreground">Why Choose Print Cartel</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {[
               {
                 title: "Premium Quality",
@@ -236,12 +238,12 @@ export default function Home() {
               const icons = [Zap, Eye, Truck, Lightbulb, Headphones, DollarSign];
               const Icon = icons[index];
               return (
-                <div key={feature.title} className="border-2 border-accent/40 p-8 rounded-xl hover:border-accent hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                  <div className="w-16 h-16 rounded-lg flex items-center justify-center mb-4">
-                    <Icon size={32} className="text-accent" />
+                <div key={feature.title} className="border-2 border-accent/40 p-4 sm:p-6 md:p-8 rounded-xl hover:border-accent hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                  <div className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
+                    <Icon size={24} className="text-accent sm:w-8 sm:h-8" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-foreground">{feature.title}</h3>
-                  <p className="text-gray-700 leading-relaxed">{feature.description}</p>
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-foreground">{feature.title}</h3>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{feature.description}</p>
                 </div>
               );
             })}
@@ -250,11 +252,11 @@ export default function Home() {
       </section>
 
       {/* Bulk Discount Pricing Section */}
-      <section className="bg-white py-20">
+      <section className="bg-white py-12 sm:py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl font-black mb-4 text-foreground">Bulk Order Pricing</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-3 sm:mb-4 text-foreground">Bulk Order Pricing</h2>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
               Save more when you order in bulk. Get up to 30% discount on orders of 100+ units.
             </p>
           </div>
@@ -263,13 +265,13 @@ export default function Home() {
       </section>
 
       {/* Bold CTA Section */}
-      <section className="bg-gradient-to-r from-black to-deep-charcoal text-white py-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
+      <section className="bg-gradient-to-r from-black to-deep-charcoal text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-accent/10 rounded-full blur-3xl"></div>
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h2 className="text-6xl font-black mb-6 leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 leading-tight">
             Ready to Print Your Design?
           </h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8">
             Create your first custom order today and see the difference quality makes.
           </p>
           <Button
