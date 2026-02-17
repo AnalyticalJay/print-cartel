@@ -2,6 +2,7 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail } from "../db";
 import { sendOrderNotificationEmail } from "../email";
+import { sendOrderConfirmationEmail } from "../email-confirmation";
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -60,7 +61,7 @@ export const ordersRouter = router({
       });
     }
 
-    // Send email notification
+    // Send admin notification email
     try {
       await sendOrderNotificationEmail({
         orderId,
@@ -72,6 +73,20 @@ export const ordersRouter = router({
       });
     } catch (error) {
       console.error("Failed to send order notification email:", error);
+      // Don't fail the order creation if email fails
+    }
+
+    // Send customer confirmation email
+    try {
+      await sendOrderConfirmationEmail(
+        orderId,
+        `${input.customerFirstName} ${input.customerLastName}`,
+        input.customerEmail,
+        input.deliveryMethod,
+        input.totalPriceEstimate
+      );
+    } catch (error) {
+      console.error("Failed to send order confirmation email:", error);
       // Don't fail the order creation if email fails
     }
 

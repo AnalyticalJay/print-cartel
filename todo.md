@@ -451,3 +451,18 @@
 - [x] Verify templates work with uploaded designs
 - [x] Write tests for design templates feature (DesignTemplates.test.ts - 33 tests)
 - [x] Ensure all tests pass after implementation (all 92 tests passing)
+
+
+## Current Task - Order Confirmation Emails
+- [x] Review current order submission flow and email service
+- [x] Create order confirmation email template with order details
+- [x] Implement automatic email sending on order submission
+- [x] Add estimated delivery date calculation (collection: next day, delivery: 2-4 business days)
+- [x] Include order ID, product details, and pricing in email
+- [x] Add payment instructions and bank details to email
+- [x] Include estimated delivery date in confirmation email
+- [x] Test order confirmation emails with collection option
+- [x] Test order confirmation emails with delivery option
+- [x] Write tests for order confirmation email functionality (12 tests added)
+- [x] Verify emails sent to customer and sales email
+- [x] Ensure all tests pass after implementation (104 tests passing)
