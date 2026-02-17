@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronUp, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
 
 interface PrintPlacement {
   placement: string;
   uploadedFilePath?: string;
   imagePosition?: { x: number; y: number };
   rotation?: number;
+  scale?: number;
 }
 
 interface PreviewCanvasProps {
@@ -14,6 +16,7 @@ interface PreviewCanvasProps {
   prints: PrintPlacement[];
   onImageReposition?: (placement: string, x: number, y: number) => void;
   onRotationChange?: (placement: string, rotation: number) => void;
+  onScaleChange?: (placement: string, scale: number) => void;
 }
 
 export function PreviewCanvas({
@@ -23,6 +26,7 @@ export function PreviewCanvas({
   prints,
   onImageReposition,
   onRotationChange,
+  onScaleChange,
 }: PreviewCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -30,8 +34,10 @@ export function PreviewCanvas({
   const [selectedPlacement, setSelectedPlacement] = useState<string | null>(null);
   const [imagePositions, setImagePositions] = useState<Record<string, { x: number; y: number }>>({});
   const [rotations, setRotations] = useState<Record<string, number>>({});
+  const [scales, setScales] = useState<Record<string, number>>({});
   const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
   const [productImageLoaded, setProductImageLoaded] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number } | null>(null);
 
   const canvasWidth = 400;
   const canvasHeight = 500;
@@ -71,7 +77,7 @@ export function PreviewCanvas({
       productImg.src = productImageUrl;
     }
 
-    prints.forEach((print, index) => {
+    prints.forEach((print) => {
       if (print.uploadedFilePath) {
         const img = new Image();
         img.onload = () => {
@@ -161,16 +167,31 @@ export function PreviewCanvas({
       const coords = placementAreas[placement];
       
       if (coords) {
-        ctx.strokeStyle = selectedPlacement === print.placement ? "#FFD700" : "#999";
-        ctx.lineWidth = selectedPlacement === print.placement ? 3 : 2;
+        const isSelected = selectedPlacement === print.placement;
+        ctx.strokeStyle = isSelected ? "#FFD700" : "#999";
+        ctx.lineWidth = isSelected ? 3 : 2;
         ctx.setLineDash([5, 5]);
         ctx.strokeRect(coords.x, coords.y, coords.width, coords.height);
         ctx.setLineDash([]);
 
         // Draw placement label
-        ctx.fillStyle = "#666";
-        ctx.font = "12px Arial";
-        ctx.fillText(print.placement.toUpperCase(), coords.x + 5, coords.y - 5);
+        ctx.fillStyle = isSelected ? "#FFD700" : "#666";
+        ctx.font = "bold 12px Arial";
+        ctx.fillText(print.placement.toUpperCase(), coords.x + 5, coords.y - 8);
+
+        // Draw corner handles if selected
+        if (isSelected) {
+          const handleSize = 6;
+          ctx.fillStyle = "#FFD700";
+          // Top-left
+          ctx.fillRect(coords.x - handleSize / 2, coords.y - handleSize / 2, handleSize, handleSize);
+          // Top-right
+          ctx.fillRect(coords.x + coords.width - handleSize / 2, coords.y - handleSize / 2, handleSize, handleSize);
+          // Bottom-left
+          ctx.fillRect(coords.x - handleSize / 2, coords.y + coords.height - handleSize / 2, handleSize, handleSize);
+          // Bottom-right
+          ctx.fillRect(coords.x + coords.width - handleSize / 2, coords.y + coords.height - handleSize / 2, handleSize, handleSize);
+        }
       }
     });
 
@@ -181,6 +202,7 @@ export function PreviewCanvas({
         const coords = placementAreas[placement];
         const position = imagePositions[print.placement] || { x: 0, y: 0 };
         const rotation = rotations[print.placement] || 0;
+        const scale = scales[print.placement] || 1;
 
         if (coords) {
           const img = loadedImages[print.placement];
@@ -193,6 +215,7 @@ export function PreviewCanvas({
 
           ctx.translate(centerX, centerY);
           ctx.rotate((rotation * Math.PI) / 180);
+          ctx.scale(scale, scale);
           ctx.translate(-centerX, -centerY);
 
           ctx.drawImage(
@@ -204,6 +227,20 @@ export function PreviewCanvas({
           );
 
           ctx.restore();
+
+          // Draw selection indicator if selected
+          if (selectedPlacement === print.placement) {
+            ctx.strokeStyle = "#FFD700";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.strokeRect(
+              coords.x + position.x,
+              coords.y + position.y,
+              coords.width,
+              coords.height
+            );
+            ctx.setLineDash([]);
+          }
         }
       }
     });
@@ -274,7 +311,7 @@ export function PreviewCanvas({
 
       drawPlacementsAndDesigns(ctx);
     }
-  }, [garmentColor, productImageUrl, productImageLoaded, imagePositions, rotations, selectedPlacement, prints]);
+  }, [garmentColor, productImageUrl, productImageLoaded, imagePositions, rotations, scales, selectedPlacement, prints]);
 
   const drawPlacementsAndDesigns = (ctx: CanvasRenderingContext2D) => {
     // Draw placement areas
@@ -283,16 +320,31 @@ export function PreviewCanvas({
       const coords = placementAreas[placement];
       
       if (coords) {
-        ctx.strokeStyle = selectedPlacement === print.placement ? "#FFD700" : "#999";
-        ctx.lineWidth = selectedPlacement === print.placement ? 3 : 2;
+        const isSelected = selectedPlacement === print.placement;
+        ctx.strokeStyle = isSelected ? "#FFD700" : "#999";
+        ctx.lineWidth = isSelected ? 3 : 2;
         ctx.setLineDash([5, 5]);
         ctx.strokeRect(coords.x, coords.y, coords.width, coords.height);
         ctx.setLineDash([]);
 
         // Draw placement label
-        ctx.fillStyle = "#666";
-        ctx.font = "12px Arial";
-        ctx.fillText(print.placement.toUpperCase(), coords.x + 5, coords.y - 5);
+        ctx.fillStyle = isSelected ? "#FFD700" : "#666";
+        ctx.font = "bold 12px Arial";
+        ctx.fillText(print.placement.toUpperCase(), coords.x + 5, coords.y - 8);
+
+        // Draw corner handles if selected
+        if (isSelected) {
+          const handleSize = 6;
+          ctx.fillStyle = "#FFD700";
+          // Top-left
+          ctx.fillRect(coords.x - handleSize / 2, coords.y - handleSize / 2, handleSize, handleSize);
+          // Top-right
+          ctx.fillRect(coords.x + coords.width - handleSize / 2, coords.y - handleSize / 2, handleSize, handleSize);
+          // Bottom-left
+          ctx.fillRect(coords.x - handleSize / 2, coords.y + coords.height - handleSize / 2, handleSize, handleSize);
+          // Bottom-right
+          ctx.fillRect(coords.x + coords.width - handleSize / 2, coords.y + coords.height - handleSize / 2, handleSize, handleSize);
+        }
       }
     });
 
@@ -303,6 +355,7 @@ export function PreviewCanvas({
         const coords = placementAreas[placement];
         const position = imagePositions[print.placement] || { x: 0, y: 0 };
         const rotation = rotations[print.placement] || 0;
+        const scale = scales[print.placement] || 1;
 
         if (coords && imagesLoaded[print.placement]) {
           const img = new Image();
@@ -315,6 +368,7 @@ export function PreviewCanvas({
 
             ctx.translate(centerX, centerY);
             ctx.rotate((rotation * Math.PI) / 180);
+            ctx.scale(scale, scale);
             ctx.translate(-centerX, -centerY);
 
             ctx.drawImage(
@@ -326,6 +380,20 @@ export function PreviewCanvas({
             );
 
             ctx.restore();
+
+            // Draw selection indicator if selected
+            if (selectedPlacement === print.placement) {
+              ctx.strokeStyle = "#FFD700";
+              ctx.lineWidth = 2;
+              ctx.setLineDash([3, 3]);
+              ctx.strokeRect(
+                coords.x + position.x,
+                coords.y + position.y,
+                coords.width,
+                coords.height
+              );
+              ctx.setLineDash([]);
+            }
           };
           img.src = print.uploadedFilePath;
         }
@@ -383,17 +451,19 @@ export function PreviewCanvas({
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging || !selectedPlacement) return;
-
-    const placement = selectedPlacement as keyof typeof placementAreas;
-    const coords = placementAreas[placement];
-    if (!coords) return;
-
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    setCursorPosition({ x, y });
+
+    if (!isDragging || !selectedPlacement) return;
+
+    const placement = selectedPlacement as keyof typeof placementAreas;
+    const coords = placementAreas[placement];
+    if (!coords) return;
 
     let newX = x - dragOffset.x;
     let newY = y - dragOffset.y;
@@ -411,6 +481,30 @@ export function PreviewCanvas({
     setIsDragging(false);
   };
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent('mousedown', {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+    });
+    handleMouseDown(mouseEvent as any);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent('mousemove', {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+    });
+    handleMouseMove(mouseEvent as any);
+  };
+
+  const handleTouchEnd = () => {
+    handleMouseUp();
+  };
+
   const handleRotation = (angle: number) => {
     if (!selectedPlacement) return;
     const newRotations = { ...rotations, [selectedPlacement]: angle };
@@ -418,7 +512,16 @@ export function PreviewCanvas({
     onRotationChange?.(selectedPlacement, angle);
   };
 
+  const handleScale = (newScale: number) => {
+    if (!selectedPlacement) return;
+    const scale = Math.max(0.5, Math.min(2, newScale));
+    const newScales = { ...scales, [selectedPlacement]: scale };
+    setScales(newScales);
+    onScaleChange?.(selectedPlacement, scale);
+  };
+
   const currentRotation = selectedPlacement ? rotations[selectedPlacement] || 0 : 0;
+  const currentScale = selectedPlacement ? scales[selectedPlacement] || 1 : 1;
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -427,7 +530,7 @@ export function PreviewCanvas({
         <p className="text-sm text-gray-400">Click on a placement area to edit</p>
       </div>
 
-      <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
+      <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white shadow-lg">
         <canvas
           ref={canvasRef}
           width={canvasWidth}
@@ -437,7 +540,10 @@ export function PreviewCanvas({
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          className="cursor-move"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className={`${isDragging ? "cursor-grabbing" : "cursor-move"} block`}
         />
       </div>
 
@@ -447,6 +553,11 @@ export function PreviewCanvas({
             <p className="text-sm font-semibold text-white">
               Editing: <span className="text-accent">{selectedPlacement.toUpperCase()}</span>
             </p>
+            {cursorPosition && (
+              <p className="text-xs text-gray-400 mt-1">
+                Position: ({Math.round(cursorPosition.x)}, {Math.round(cursorPosition.y)})
+              </p>
+            )}
           </div>
 
           {/* Rotation Controls */}
@@ -466,11 +577,35 @@ export function PreviewCanvas({
               </button>
             ))}
           </div>
+
+          {/* Scale Controls */}
+          <div className="flex gap-2 items-center justify-center">
+            <span className="text-sm font-semibold text-gray-300">Scale:</span>
+            <button
+              onClick={() => handleScale(currentScale - 0.1)}
+              disabled={currentScale <= 0.5}
+              className="p-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Decrease size"
+            >
+              <Minimize2 className="w-4 h-4" />
+            </button>
+            <span className="text-sm text-gray-300 w-12 text-center">
+              {(currentScale * 100).toFixed(0)}%
+            </span>
+            <button
+              onClick={() => handleScale(currentScale + 0.1)}
+              disabled={currentScale >= 2}
+              className="p-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Increase size"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          </div>
         </>
       )}
 
-      <div className="text-sm text-gray-400 text-center">
-        <p>Click placement areas to select them, then drag to reposition</p>
+      <div className="text-sm text-gray-400 text-center max-w-sm">
+        <p>Click placement areas to select them, then drag to reposition. Use rotation and scale controls to adjust your design.</p>
       </div>
     </div>
   );

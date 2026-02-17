@@ -399,3 +399,17 @@
 - [x] Fix uploaded designs not rendering on correct placements
 - [x] Test preview with different products and placements
 - [x] Ensure all 92 tests still pass after fixes
+
+
+## Current Task - Placement Controls (Drag & Rotation)
+- [x] Review PreviewCanvas component for current placement handling
+- [x] Implement drag-to-reposition functionality for designs within placement areas
+- [x] Add boundary constraints to prevent designs from moving outside placement areas
+- [x] Add rotation control buttons (0°, 90°, 180°, 270°) for each placement
+- [x] Implement visual feedback for selected placements (highlight/border)
+- [x] Add visual indicators showing drag handles and rotation controls
+- [x] Test drag repositioning with various designs and placements
+- [x] Test rotation with different placement areas
+- [x] Verify controls work on mobile and desktop
+- [x] Write tests for placement control functionality (37 tests added)
+- [x] Ensure all tests pass after implementation (all 92 tests passing)
