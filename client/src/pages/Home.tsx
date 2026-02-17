@@ -48,22 +48,22 @@ export default function Home() {
     <div className="min-h-screen bg-white text-foreground">
       {/* Navigation */}
       <nav className="border-b border-border bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation("/")}>
+        <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
+          <div className="text-xl sm:text-2xl font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation("/")}>
             Print Cartel
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-1 sm:gap-2 items-center flex-wrap justify-end">
             <Button
               variant="ghost"
               onClick={() => setLocation("/track")}
-              className="text-foreground hover:bg-gray-100 font-semibold"
+              className="text-xs sm:text-sm text-foreground hover:bg-gray-100 font-semibold px-2 sm:px-4 py-1 sm:py-2"
             >
               Track Order
             </Button>
             <Button
               variant="ghost"
               onClick={() => setLocation("/dashboard")}
-              className="text-foreground hover:bg-gray-100 font-semibold"
+              className="text-xs sm:text-sm text-foreground hover:bg-gray-100 font-semibold px-2 sm:px-4 py-1 sm:py-2 hidden sm:inline-flex"
             >
               My Account
             </Button>
@@ -71,14 +71,14 @@ export default function Home() {
               <Button
                 variant="ghost"
                 onClick={() => setLocation("/admin")}
-                className="text-foreground hover:bg-gray-100 font-semibold"
+                className="text-xs sm:text-sm text-foreground hover:bg-gray-100 font-semibold px-2 sm:px-4 py-1 sm:py-2 hidden md:inline-flex"
               >
                 Admin
               </Button>
             )}
             <Button
               onClick={() => setLocation("/order")}
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+              className="text-xs sm:text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-3 sm:px-6 py-1 sm:py-2"
             >
               Order Now
             </Button>
@@ -87,41 +87,41 @@ export default function Home() {
       </nav>
 
       {/* Enhanced Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-black via-deep-charcoal to-black text-white py-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-black via-deep-charcoal to-black text-white py-16 sm:py-24 md:py-32">
         {/* Animated gradient background */}
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"></div>
+          <div className="absolute top-0 left-0 w-48 sm:w-96 h-48 sm:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Hero Content */}
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             <div>
-              <h1 className="text-5xl md:text-5xl font-black mb-4 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-3 sm:mb-4 leading-tight">
                 Custom DTF
                 <br />
                 <span className="text-accent">Printing</span>
                 <br />
                 Made Simple
               </h1>
-              <p className="text-xl text-gray-300 mb-8 max-w-lg">
+              <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8 max-w-lg">
                 Design, preview, and order custom-printed apparel with our intuitive platform. Premium quality DTF printing for your brand.
               </p>
             </div>
 
-            <div className="flex gap-4 flex-wrap">
+            <div className="flex gap-3 sm:gap-4 flex-wrap">
               <Button
                 onClick={() => setLocation("/order")}
                 size="lg"
-                className="bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-8 py-6 font-bold"
+                className="bg-accent text-accent-foreground hover:bg-accent/90 text-sm sm:text-base md:text-lg px-4 sm:px-8 py-2 sm:py-6 font-bold"
               >
                 Start Your Order
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 font-bold"
+                className="border-2 border-white text-white hover:bg-white/10 text-sm sm:text-base md:text-lg px-4 sm:px-8 py-2 sm:py-6 font-bold"
               >
                 View Our Work
               </Button>
@@ -129,11 +129,11 @@ export default function Home() {
           </div>
 
           {/* Hero Image - Print Cartel Logo */}
-          <div className="relative h-96 md:h-full min-h-96 flex items-center justify-center">
+          <div className="relative h-64 sm:h-80 md:h-full md:min-h-96 flex items-center justify-center">
             <img
               src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
               alt="Print Cartel Logo"
-              className="max-h-96 max-w-96 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
+              className="max-h-64 sm:max-h-80 md:max-h-96 max-w-64 sm:max-w-80 md:max-w-96 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
             />
           </div>
         </div>
