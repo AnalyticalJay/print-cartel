@@ -88,7 +88,7 @@ export default function OrderWizard() {
   }, [calculatePriceQuery.data]);
 
   const handleNext = () => {
-    if (currentStep < 6) {
+    if (currentStep < 7) {
       setCurrentStep((currentStep + 1) as Step);
     }
   };

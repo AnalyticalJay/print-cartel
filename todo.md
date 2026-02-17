@@ -413,3 +413,14 @@
 - [x] Verify controls work on mobile and desktop
 - [x] Write tests for placement control functionality (37 tests added)
 - [x] Ensure all tests pass after implementation (all 92 tests passing)
+
+
+## Current Task - Fix Collection/Delivery Step Navigation Bug
+- [x] Investigate why collection/delivery step doesn't proceed to final step
+- [x] Review OrderWizard step navigation logic
+- [x] Check validation conditions for next button
+- [x] Verify delivery method state is being saved correctly
+- [x] Test with collection selection
+- [x] Test with delivery selection
+- [x] Ensure all steps navigate correctly
+- [x] Verify all 92 tests still pass after fix
