@@ -17,13 +17,17 @@ interface UploadedFile {
 interface FileUploadZoneProps {
   onFileUpload?: (file: UploadedFile) => void;
   onValidationWarnings?: (warnings: string[]) => void;
+  onPreviewReady?: (imageUrl: string, fileName: string) => void;
   maxFiles?: number;
+  placementId?: number;
 }
 
 export function FileUploadZone({
   onFileUpload,
   onValidationWarnings,
+  onPreviewReady,
   maxFiles = 1,
+  placementId,
 }: FileUploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -117,6 +121,11 @@ export function FileUploadZone({
 
       setUploadedFiles([...uploadedFiles, uploadedFile]);
       onFileUpload?.(uploadedFile);
+      
+      // Emit preview ready callback for real-time preview
+      if (onPreviewReady) {
+        onPreviewReady(result.url, result.fileName);
+      }
 
       toast.success("File uploaded successfully!");
 

@@ -48,6 +48,7 @@ export default function OrderWizard() {
     prints: [],
   });
   const [pricingData, setPricingData] = useState<PricingBreakdownData | null>(null);
+  const [previewDesigns, setPreviewDesigns] = useState<Record<number, { url: string; fileName: string }>>({});
 
   const productsQuery = trpc.products.list.useQuery();
   const printOptionsQuery = trpc.products.printOptions.useQuery();
@@ -381,6 +382,7 @@ export default function OrderWizard() {
                             </p>
                             <FileUploadZone
                               maxFiles={1}
+                              placementId={print.placementId}
                               onFileUpload={(file) => {
                                 const updatedPrints = [...(orderData.prints || [])];
                                 updatedPrints[index] = {
@@ -391,6 +393,12 @@ export default function OrderWizard() {
                                   mimeType: file.mimeType,
                                 };
                                 setOrderData({ ...orderData, prints: updatedPrints });
+                              }}
+                              onPreviewReady={(imageUrl, fileName) => {
+                                setPreviewDesigns((prev) => ({
+                                  ...prev,
+                                  [print.placementId]: { url: imageUrl, fileName },
+                                }));
                               }}
                               onValidationWarnings={(warnings) => {
                                 if (warnings.length > 0) {
@@ -413,15 +421,25 @@ export default function OrderWizard() {
                 {/* Step 4: Live Preview */}
                 {currentStep === 4 && selectedProduct && (
                   <div className="space-y-4">
+                    <p className="text-gray-300">Preview your design on the garment</p>
                     <PreviewCanvas
                       productName={selectedProduct.name}
                       productImageUrl={selectedProduct.imageUrl}
                       garmentColor={productColors.find((c) => c.id === orderData.colorId)?.colorHex || "#000000"}
-                      prints={(orderData.prints || []).map((print) => ({
-                        placement: placements.find((p) => p.id === print.placementId)?.placementName || "front",
-                        uploadedFilePath: print.uploadedFilePath,
-                      }))}
+                      prints={(orderData.prints || []).map((print) => {
+                        const placementName = placements.find((p) => p.id === print.placementId)?.placementName || "front";
+                        const previewDesign = previewDesigns[print.placementId];
+                        return {
+                          placement: placementName,
+                          uploadedFilePath: previewDesign?.url || print.uploadedFilePath || "",
+                        };
+                      })}
                     />
+                    {Object.keys(previewDesigns).length > 0 && (
+                      <div className="bg-green-900 border border-green-700 p-3 rounded-lg">
+                        <p className="text-green-200 text-sm">Designs uploaded and ready for preview</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
