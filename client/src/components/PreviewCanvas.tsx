@@ -17,6 +17,7 @@ interface PreviewCanvasProps {
   onImageReposition?: (placement: string, x: number, y: number) => void;
   onRotationChange?: (placement: string, rotation: number) => void;
   onScaleChange?: (placement: string, scale: number) => void;
+  onApplyTemplate?: (placement: string, position: { x: number; y: number }, scale: number, rotation: number) => void;
 }
 
 export function PreviewCanvas({
@@ -27,6 +28,7 @@ export function PreviewCanvas({
   onImageReposition,
   onRotationChange,
   onScaleChange,
+  onApplyTemplate,
 }: PreviewCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDragging, setIsDragging] = useState(false);

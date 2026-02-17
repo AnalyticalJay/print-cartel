@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { PreviewCanvas } from "@/components/PreviewCanvas";
 import { FileUploadZone } from "@/components/FileUploadZone";
+import { DesignTemplates, type DesignTemplate } from "@/components/DesignTemplates";
 import { PricingDisplay, type PricingBreakdownData } from "@/components/PricingDisplay";
 import { ColorSelector } from "@/components/ColorSelector";
 import { SizeSelector } from "@/components/SizeSelector";
@@ -434,6 +435,12 @@ export default function OrderWizard() {
                           uploadedFilePath: previewDesign?.url || print.uploadedFilePath || "",
                         };
                       })}
+                    />
+                    <DesignTemplates
+                      selectedPlacement={null}
+                      onApplyTemplate={(template) => {
+                        toast.info(`Applied ${template.name} template`);
+                      }}
                     />
                     {Object.keys(previewDesigns).length > 0 && (
                       <div className="bg-green-900 border border-green-700 p-3 rounded-lg">

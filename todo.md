@@ -438,3 +438,16 @@
 - [x] Ensure automatic positioning works correctly for all placement types
 - [x] Write tests for design upload integration (FileUploadZone.test.ts - 19 tests)
 - [x] Verify all tests pass after implementation (all 92 tests passing)
+
+
+## Current Task - Design Templates & Presets
+- [x] Define preset positioning templates (centered, corner, full-bleed)
+- [x] Create DesignTemplates component with preset buttons
+- [x] Implement template application logic in PreviewCanvas
+- [x] Add template parameters (position, scale, rotation for each preset)
+- [x] Integrate templates into OrderWizard Step 4
+- [x] Test template application with different placements (front, back, sleeve)
+- [x] Test template application with different product sizes
+- [x] Verify templates work with uploaded designs
+- [x] Write tests for design templates feature (DesignTemplates.test.ts - 33 tests)
+- [x] Ensure all tests pass after implementation (all 92 tests passing)
