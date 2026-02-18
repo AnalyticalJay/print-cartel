@@ -244,7 +244,7 @@ export async function sendStatusUpdateEmail(
   orderId: number,
   customerEmail: string,
   customerName: string,
-  newStatus: "pending" | "quoted" | "approved",
+  newStatus: "pending" | "quoted" | "approved" | "in-production" | "completed",
   quoteAmount?: number
 ) {
   if (!SMTP_USER || !SMTP_PASS) {
@@ -257,6 +257,8 @@ export async function sendStatusUpdateEmail(
       pending: "Your order is being reviewed by our team.",
       quoted: "A quote has been prepared for your order. Please review and confirm to proceed.",
       approved: "Your order has been approved and is now in production.",
+      "in-production": "Your order is currently in production. We'll notify you when it's ready.",
+      completed: "Your order is complete! It's ready for collection or delivery.",
     };
 
     const statusColors: Record<string, string> = {

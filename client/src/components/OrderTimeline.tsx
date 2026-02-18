@@ -1,14 +1,14 @@
 import { Check, Clock } from "lucide-react";
 
 interface TimelineEvent {
-  status: "pending" | "quoted" | "approved";
+  status: "pending" | "quoted" | "approved" | "in-production" | "completed";
   label: string;
   date: Date;
   completed: boolean;
 }
 
 interface OrderTimelineProps {
-  currentStatus: "pending" | "quoted" | "approved";
+  currentStatus: "pending" | "quoted" | "approved" | "in-production" | "completed";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,13 +25,25 @@ export function OrderTimeline({ currentStatus, createdAt, updatedAt }: OrderTime
       status: "quoted",
       label: "Quote Sent",
       date: updatedAt,
-      completed: ["quoted", "approved"].includes(currentStatus),
+      completed: ["quoted", "approved", "in-production", "completed"].includes(currentStatus),
     },
     {
       status: "approved",
       label: "Approved",
       date: updatedAt,
-      completed: currentStatus === "approved",
+      completed: ["approved", "in-production", "completed"].includes(currentStatus),
+    },
+    {
+      status: "in-production",
+      label: "In Production",
+      date: updatedAt,
+      completed: ["in-production", "completed"].includes(currentStatus),
+    },
+    {
+      status: "completed",
+      label: "Completed",
+      date: updatedAt,
+      completed: currentStatus === "completed",
     },
   ];
 
@@ -43,6 +55,10 @@ export function OrderTimeline({ currentStatus, createdAt, updatedAt }: OrderTime
       case "quoted":
         return "bg-blue-500";
       case "approved":
+        return "bg-purple-500";
+      case "in-production":
+        return "bg-orange-500";
+      case "completed":
         return "bg-green-500";
       default:
         return "bg-gray-500";

@@ -1,16 +1,20 @@
+"use client";
+
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download, Eye, Edit2, TrendingUp } from "lucide-react";
+import { Download, Eye, Edit2, TrendingUp, Trash2, Mail, Calendar, MessageSquare } from "lucide-react";
 import { useLocation } from "wouter";
 
-type OrderStatus = "pending" | "quoted" | "approved";
+type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed";
 
 interface OrderWithDetails {
   id: number;
@@ -24,6 +28,7 @@ interface OrderWithDetails {
   quantity: number;
   createdAt: Date;
   updatedAt: Date;
+  product?: { name: string };
 }
 
 export default function AdminDashboard() {
@@ -32,6 +37,10 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [selectedOrders, setSelectedOrders] = useState<Set<number>>(new Set());
+  const [bulkStatusUpdate, setBulkStatusUpdate] = useState<OrderStatus | "">();
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const ordersQuery = trpc.admin.getAllOrders.useQuery(undefined, {
     enabled: user?.role === "admin",
@@ -40,6 +49,8 @@ export default function AdminDashboard() {
   const statsQuery = trpc.admin.getOrderStats.useQuery(undefined, {
     enabled: user?.role === "admin",
   });
+
+  const bulkUpdateMutation = trpc.admin.bulkUpdateOrderStatus.useMutation();
 
   // Redirect non-admin users
   if (user && user.role !== "admin") {
@@ -58,6 +69,17 @@ export default function AdminDashboard() {
       filtered = filtered.filter((order) => order.status === statusFilter);
     }
 
+    // Apply date range filter
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      filtered = filtered.filter((order) => new Date(order.createdAt) >= fromDate);
+    }
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((order) => new Date(order.createdAt) <= toDate);
+    }
+
     // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -65,13 +87,14 @@ export default function AdminDashboard() {
         const fullName = `${order.customerFirstName} ${order.customerLastName}`.toLowerCase();
         const email = order.customerEmail?.toLowerCase() || "";
         const company = order.customerCompany?.toLowerCase() || "";
+        const orderId = order.id.toString();
 
-        return fullName.includes(query) || email.includes(query) || company.includes(query);
+        return fullName.includes(query) || email.includes(query) || company.includes(query) || orderId.includes(query);
       });
     }
 
     return filtered;
-  }, [ordersQuery.data, searchQuery, statusFilter]);
+  }, [ordersQuery.data, searchQuery, statusFilter, dateFrom, dateTo]);
 
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
@@ -80,9 +103,54 @@ export default function AdminDashboard() {
       case "quoted":
         return "bg-blue-100 text-blue-800";
       case "approved":
+        return "bg-purple-100 text-purple-800";
+      case "in-production":
+        return "bg-orange-100 text-orange-800";
+      case "completed":
         return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleSelectOrder = (orderId: number) => {
+    const newSelected = new Set(selectedOrders);
+    if (newSelected.has(orderId)) {
+      newSelected.delete(orderId);
+    } else {
+      newSelected.add(orderId);
+    }
+    setSelectedOrders(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedOrders.size === filteredOrders.length) {
+      setSelectedOrders(new Set());
+    } else {
+      setSelectedOrders(new Set(filteredOrders.map((o) => o.id)));
+    }
+  };
+
+  const handleBulkUpdate = async () => {
+    if (!bulkStatusUpdate || selectedOrders.size === 0) {
+      toast.error("Select orders and a status to update");
+      return;
+    }
+
+    try {
+      await bulkUpdateMutation.mutateAsync({
+        orderIds: Array.from(selectedOrders),
+        status: bulkStatusUpdate as OrderStatus,
+      });
+
+      toast.success(`Updated ${selectedOrders.size} orders`);
+      setSelectedOrders(new Set());
+      setBulkStatusUpdate("");
+      ordersQuery.refetch();
+      statsQuery.refetch();
+    } catch (error) {
+      toast.error("Failed to update orders");
+      console.error(error);
     }
   };
 
@@ -164,14 +232,14 @@ export default function AdminDashboard() {
         {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>Filters</CardTitle>
+            <CardTitle>Filters & Search</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
                 <Input
-                  placeholder="Search by name, email, or company..."
+                  placeholder="Name, email, order ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full"
@@ -188,12 +256,70 @@ export default function AdminDashboard() {
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="quoted">Quoted</SelectItem>
                     <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="in-production">In Production</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="w-full"
+                />
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Bulk Operations */}
+        {selectedOrders.size > 0 && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4 flex-wrap">
+                <span className="text-sm font-medium text-gray-700">
+                  {selectedOrders.size} order{selectedOrders.size !== 1 ? "s" : ""} selected
+                </span>
+                <Select value={bulkStatusUpdate || ""} onValueChange={(value) => setBulkStatusUpdate(value as OrderStatus)}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="quoted">Quoted</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="in-production">In Production</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={handleBulkUpdate}
+                  disabled={!bulkStatusUpdate || bulkUpdateMutation.isPending}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {bulkUpdateMutation.isPending ? "Updating..." : "Update Selected"}
+                </Button>
+                <Button
+                  onClick={() => setSelectedOrders(new Set())}
+                  variant="outline"
+                >
+                  Clear Selection
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Orders Table */}
         <Card>
@@ -211,6 +337,12 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead className="bg-gray-100 border-b">
                     <tr>
+                      <th className="px-4 py-3 text-left">
+                        <Checkbox
+                          checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
+                          onCheckedChange={handleSelectAll}
+                        />
+                      </th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Order ID</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
@@ -224,6 +356,12 @@ export default function AdminDashboard() {
                   <tbody className="divide-y">
                     {filteredOrders.map((order) => (
                       <tr key={order.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <Checkbox
+                            checked={selectedOrders.has(order.id)}
+                            onCheckedChange={() => handleSelectOrder(order.id)}
+                          />
+                        </td>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">#{order.id}</td>
                         <td className="px-4 py-3 text-sm text-gray-700">
                           {order.customerFirstName} {order.customerLastName}
@@ -282,8 +420,9 @@ interface OrderDetailModalProps {
 }
 
 function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModalProps) {
-  const [newStatus, setNewStatus] = useState<OrderStatus | "">("");
+  const [newStatus, setNewStatus] = useState<OrderStatus | "">();
   const [newPrice, setNewPrice] = useState("");
+  const [adminNotes, setAdminNotes] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isUpdatingPrice, setIsUpdatingPrice] = useState(false);
 
@@ -421,7 +560,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
               </div>
               <div>
                 <p className="text-gray-600">Status</p>
-                <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "quoted" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>
+                <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "quoted" ? "bg-blue-100 text-blue-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
                   {order.status}
                 </Badge>
               </div>
@@ -457,11 +596,25 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
             </div>
           )}
 
+          {/* Admin Notes */}
+          <div className="space-y-2 border-t pt-4">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Admin Notes
+            </h3>
+            <Textarea
+              placeholder="Add internal notes about this order..."
+              value={adminNotes}
+              onChange={(e) => setAdminNotes(e.target.value)}
+              className="min-h-24"
+            />
+          </div>
+
           {/* Update Status */}
           <div className="space-y-2 border-t pt-4">
             <h3 className="font-semibold text-gray-900">Update Status</h3>
             <div className="flex gap-2">
-              <Select value={newStatus} onValueChange={(value) => setNewStatus(value as OrderStatus)}>
+              <Select value={newStatus || ""} onValueChange={(value) => setNewStatus(value as OrderStatus)}>
                 <SelectTrigger className="flex-1">
                   <SelectValue placeholder="Select new status" />
                 </SelectTrigger>
@@ -469,6 +622,8 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="quoted">Quoted</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="in-production">In Production</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={handleUpdateStatus} disabled={isUpdatingStatus || !newStatus} className="bg-blue-600 hover:bg-blue-700">

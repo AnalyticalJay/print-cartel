@@ -72,12 +72,42 @@ export const adminRouter = router({
       }
     }),
 
+  // Bulk update order status
+  bulkUpdateOrderStatus: protectedProcedure
+    .input(
+      z.object({
+        orderIds: z.array(z.number()),
+        status: z.enum(["pending", "quoted", "approved", "in-production", "completed"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        for (const orderId of input.orderIds) {
+          await db.update(orders).set({ status: input.status }).where(eq(orders.id, orderId));
+        }
+
+        return { success: true, updatedCount: input.orderIds.length, newStatus: input.status };
+      } catch (error) {
+        console.error("Failed to bulk update order status:", error);
+        throw new Error("Failed to bulk update order status");
+      }
+    }),
+
   // Update order status
   updateOrderStatus: protectedProcedure
     .input(
       z.object({
         orderId: z.number(),
-        status: z.enum(["pending", "quoted", "approved"]),
+        status: z.enum(["pending", "quoted", "approved", "in-production", "completed"]),
         quoteAmount: z.number().optional(),
       })
     )

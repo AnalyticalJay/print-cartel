@@ -21,7 +21,7 @@ interface OrderWithPrints {
   customerCompany: string | null;
   additionalNotes: string | null;
   totalPriceEstimate: string;
-  status: "pending" | "quoted" | "approved";
+  status: "pending" | "quoted" | "approved" | "in-production" | "completed";
   createdAt: Date;
   updatedAt: Date;
   prints: Array<{

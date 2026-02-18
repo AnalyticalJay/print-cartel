@@ -43,6 +43,13 @@
       "when": 1771343183071,
       "tag": "0005_redundant_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1771376420435,
+      "tag": "0006_complete_scalphunter",
+      "breakpoints": true
     }
   ]
 }

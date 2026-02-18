@@ -25,7 +25,7 @@ interface OrderWithPrints {
   customerCompany: string | null;
   additionalNotes: string | null;
   totalPriceEstimate: string;
-  status: "pending" | "quoted" | "approved";
+  status: "pending" | "quoted" | "approved" | "in-production" | "completed";
   createdAt: Date;
   updatedAt: Date;
   prints: Array<{
@@ -63,6 +63,10 @@ export default function CustomerDashboard() {
       case "quoted":
         return "bg-blue-500 text-white";
       case "approved":
+        return "bg-purple-500 text-white";
+      case "in-production":
+        return "bg-orange-500 text-white";
+      case "completed":
         return "bg-green-500 text-white";
       default:
         return "bg-gray-500 text-white";
@@ -77,6 +81,10 @@ export default function CustomerDashboard() {
         return "Quote Sent";
       case "approved":
         return "Approved";
+      case "in-production":
+        return "In Production";
+      case "completed":
+        return "Completed";
       default:
         return status;
     }
