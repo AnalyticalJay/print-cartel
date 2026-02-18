@@ -192,8 +192,8 @@ export default function Home() {
               key={product.name}
               className="bg-white p-4 sm:p-6 rounded-xl text-center shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full"
             >
-              <div className="w-full h-64 sm:h-80 bg-gray-300 rounded mb-4 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img src={product.image} alt={product.name} className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
+              <div className="w-full h-64 sm:h-80 bg-gray-300 rounded mb-4 flex items-center justify-center overflow-hidden flex-shrink-0" style={{display: 'inline'}}>
+                <img src={product.image} alt={product.name} className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" style={{display: 'none', borderStyle: 'none'}} />
               </div>
               <div className="flex-grow flex flex-col justify-end">
                 <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 text-foreground">{product.name}</h3>
