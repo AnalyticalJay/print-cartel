@@ -57,4 +57,16 @@ export const productsRouter = router({
     .query(async ({ input }) => {
       return getProductPrice(input.productId);
     }),
+
+  getColors: publicProcedure
+    .input(z.object({ productId: z.number() }))
+    .query(async ({ input }) => {
+      return getProductColors(input.productId);
+    }),
+
+  getSizes: publicProcedure
+    .input(z.object({ productId: z.number() }))
+    .query(async ({ input }) => {
+      return getProductSizes(input.productId);
+    }),
 });
