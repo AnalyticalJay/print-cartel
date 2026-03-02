@@ -520,3 +520,11 @@
 - [x] Display newly submitted order in customer account dashboard
 - [x] Show order status, details, and tracking information
 - [x] Test redirect flow end-to-end
+
+
+## Current Sprint - Home Page Product Slider
+- [x] Fix blank product item blocks on home page
+- [x] Create product slider widget component
+- [x] Add product model images to database
+- [x] Display products with images on carousel/slider
+- [x] Test slider functionality and responsiveness

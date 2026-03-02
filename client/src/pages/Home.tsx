@@ -1,9 +1,29 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Zap, Eye, Truck, Lightbulb, Headphones, DollarSign } from "lucide-react";
+import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { BulkDiscountTable } from "@/components/BulkDiscountTable";
+import { ProductSlider } from "@/components/ProductSlider";
+import { trpc } from "@/lib/trpc";
+
+function ProductShowcase() {
+  const productsQuery = trpc.products.list.useQuery();
+
+  if (productsQuery.isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (!productsQuery.data || productsQuery.data.length === 0) {
+    return <div className="text-center py-12 text-muted-foreground">No products available</div>;
+  }
+
+  return <ProductSlider products={productsQuery.data} />;
+}
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -181,27 +201,7 @@ export default function Home() {
       {/* Product Showcase */}
       <section className="max-w-6xl mx-auto px-4 py-12 sm:py-16 md:py-20">
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-8 sm:mb-12 text-center text-foreground">Our Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-          {[
-            { name: "Lightweight T-Shirt", price: "R70", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/QrNKXFFoVGiiiKvY.jpg" },
-            { name: "Men's Polo", price: "R120", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/xzpYUzlxNlKgrbZq.jpg" },
-            { name: "Men's Dry Fit Polo", price: "R120", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/HKHbQAkhneUpgQWZ.jpg" },
-            { name: "Hoodie", price: "R300", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/lZQjDrMLWvZfkrzW.jpg" },
-          ].map((product) => (
-            <div
-              key={product.name}
-              className="bg-white p-4 sm:p-6 rounded-xl text-center shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full"
-            >
-              <div className="w-full h-64 sm:h-80 bg-gray-300 rounded mb-4 flex items-center justify-center overflow-hidden flex-shrink-0" style={{display: 'inline'}}>
-                <img src={product.image} alt={product.name} className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" style={{display: 'none', borderStyle: 'none'}} />
-              </div>
-              <div className="flex-grow flex flex-col justify-end">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 text-foreground">{product.name}</h3>
-                <p className="text-accent text-xl sm:text-2xl font-black">{product.price}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProductShowcase />
       </section>
 
       {/* Why Choose Print Cartel */}
