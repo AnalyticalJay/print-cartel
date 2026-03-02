@@ -205,51 +205,66 @@ export default function Home() {
       </section>
 
       {/* Why Choose Print Cartel */}
-      <section className="bg-white py-12 sm:py-16 md:py-20">
+      <section className="bg-gradient-to-b from-soft-grey to-white py-16 sm:py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-8 sm:mb-12 text-center text-foreground">Why Choose Print Cartel</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          <div className="text-center mb-12 sm:mb-16 md:mb-20">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 text-foreground">Why Choose Print Cartel</h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">We deliver exceptional quality and service that sets us apart from the competition</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
                 title: "Premium Quality",
-                description: "High-quality DTF printing with vibrant colors and durability",
-              },
-              {
-                title: "Live Preview",
-                description: "See exactly how your design looks on the garment before ordering",
+                description: "High-quality DTF printing with vibrant colors and exceptional durability",
+                icon: Zap,
               },
               {
                 title: "Fast Turnaround",
-                description: "Quick processing and delivery of your custom orders",
+                description: "Quick processing and reliable delivery of your custom orders",
+                icon: Truck,
               },
               {
                 title: "Easy to Use",
                 description: "Intuitive interface makes ordering simple and hassle-free",
+                icon: Lightbulb,
               },
               {
                 title: "Expert Support",
-                description: "Our team is ready to help with any questions or custom requests",
+                description: "Our dedicated team is ready to help with any questions",
+                icon: Headphones,
               },
               {
                 title: "Competitive Pricing",
                 description: "Great prices without compromising on quality",
+                icon: DollarSign,
               },
-            ].map((feature, index) => {
-              const icons = [Zap, Eye, Truck, Lightbulb, Headphones, DollarSign];
-              const Icon = icons[index];
+              {
+                title: "Trusted Partner",
+                description: "Serving hundreds of satisfied customers with consistent excellence",
+                icon: Eye,
+              },
+            ].map((feature) => {
+              const Icon = feature.icon;
               return (
-                <div key={feature.title} className="border-2 border-accent/40 p-4 sm:p-6 md:p-8 rounded-xl hover:border-accent hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                  <div className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
-                    <Icon size={24} className="text-accent sm:w-8 sm:h-8" />
+                <div key={feature.title} className="group relative bg-white p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border hover:border-accent/50">
+                  {/* Icon Background */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full -mr-12 -mt-12 group-hover:bg-accent/10 transition-colors duration-300" />
+                  
+                  {/* Icon */}
+                  <div className="relative mb-4 inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-accent/10 rounded-xl group-hover:bg-accent group-hover:text-accent-foreground transition-all duration-300">
+                    <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-accent group-hover:text-accent-foreground" />
                   </div>
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-foreground">{feature.title}</h3>
-                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{feature.description}</p>
+                  
+                  {/* Content */}
+                  <h3 className="text-lg sm:text-xl font-bold mb-2 text-foreground">{feature.title}</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{feature.description}</p>
                 </div>
               );
             })}
           </div>
         </div>
       </section>
+
 
       {/* Bulk Discount Pricing Section */}
       <section className="bg-white py-12 sm:py-16 md:py-20">
