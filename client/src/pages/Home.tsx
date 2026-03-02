@@ -106,58 +106,66 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Enhanced Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-black via-deep-charcoal to-black text-white py-16 sm:py-24 md:py-32">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-0 w-48 sm:w-96 h-48 sm:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"></div>
-        </div>
+      {/* Enhanced Hero Section - Center Aligned with Colorful Text */}
+      <section className="relative overflow-hidden bg-black text-white py-20 sm:py-28 md:py-40">
+        {/* DTF Artwork Background */}
+        <div 
+          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/dtf-hero-bg-NKCpFvYJN8Px8Z4DtsZHz8.webp)',
+          }}
+        />
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/50" />
 
-        <div className="relative max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-          {/* Hero Content */}
-          <div className="space-y-6 sm:space-y-8">
+        <div className="relative max-w-5xl mx-auto px-4 text-center">
+          {/* Hero Content - Center Aligned */}
+          <div className="space-y-6 sm:space-y-8 md:space-y-10">
+            {/* Main Heading with Bold Colorful Text */}
             <div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-3 sm:mb-4 leading-tight">
-                Custom DTF
-                <br />
-                <span className="text-accent">Printing</span>
-                <br />
-                Made Simple
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4 sm:mb-6">
+                <span className="block text-white">Custom DTF</span>
+                <span className="block bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+                  Printing
+                </span>
+                <span className="block text-white">Made Simple</span>
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8 max-w-lg">
+              <p className="text-base sm:text-lg md:text-xl text-gray-200 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
                 Design, preview, and order custom-printed apparel with our intuitive platform. Premium quality DTF printing for your brand.
               </p>
             </div>
 
-            <div className="flex gap-3 sm:gap-4 flex-wrap">
+            {/* CTA Buttons */}
+            <div className="flex gap-3 sm:gap-4 flex-wrap justify-center">
               <Button
                 onClick={() => setLocation("/order")}
                 size="lg"
-                className="bg-accent text-accent-foreground hover:bg-accent/90 text-sm sm:text-base md:text-lg px-4 sm:px-8 py-2 sm:py-6 font-bold"
+                className="bg-accent text-accent-foreground hover:bg-accent/90 text-sm sm:text-base md:text-lg px-6 sm:px-10 py-3 sm:py-6 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Start Your Order
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white/10 text-sm sm:text-base md:text-lg px-4 sm:px-8 py-2 sm:py-6 font-bold"
+                className="border-2 border-white text-white hover:bg-white/10 text-sm sm:text-base md:text-lg px-6 sm:px-10 py-3 sm:py-6 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 View Our Work
               </Button>
             </div>
-          </div>
 
-          {/* Hero Image - Print Cartel Logo */}
-          <div className="relative h-64 sm:h-80 md:h-full md:min-h-96 flex items-center justify-center">
-            <img
-              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
-              alt="Print Cartel Logo"
-              className="max-h-64 sm:max-h-80 md:max-h-96 max-w-64 sm:max-w-80 md:max-w-96 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
-            />
+            {/* Print Cartel Logo */}
+            <div className="mt-12 sm:mt-16 md:mt-20 flex justify-center">
+              <img
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
+                alt="Print Cartel Logo"
+                className="max-h-48 sm:max-h-64 md:max-h-80 max-w-48 sm:max-w-64 md:max-w-80 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
+              />
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* How It Works */}
       <section className="bg-soft-grey py-12 sm:py-16 md:py-20">
