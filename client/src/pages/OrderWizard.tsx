@@ -6,9 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { PreviewCanvas } from "@/components/PreviewCanvas";
 import { FileUploadZone } from "@/components/FileUploadZone";
-import { DesignTemplates, type DesignTemplate } from "@/components/DesignTemplates";
 import { PricingDisplay, type PricingBreakdownData } from "@/components/PricingDisplay";
 import { ColorSelector } from "@/components/ColorSelector";
 import { SizeSelector } from "@/components/SizeSelector";
@@ -16,7 +14,7 @@ import { DeliveryMethodSelector } from "@/components/DeliveryMethodSelector";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 interface OrderData {
   productId: number;
@@ -49,7 +47,6 @@ export default function OrderWizard() {
     prints: [],
   });
   const [pricingData, setPricingData] = useState<PricingBreakdownData | null>(null);
-  const [previewDesigns, setPreviewDesigns] = useState<Record<number, { url: string; fileName: string }>>({});
 
   const productsQuery = trpc.products.list.useQuery();
   const printOptionsQuery = trpc.products.printOptions.useQuery();
@@ -90,7 +87,7 @@ export default function OrderWizard() {
   }, [calculatePriceQuery.data]);
 
   const handleNext = () => {
-    if (currentStep < 7) {
+    if (currentStep < 6) {
       setCurrentStep((currentStep + 1) as Step);
     }
   };
@@ -151,7 +148,7 @@ export default function OrderWizard() {
         {/* Step Indicator */}
         <div className="mb-8">
           <div className="flex justify-between mb-4">
-            {[1, 2, 3, 4, 5, 6, 7].map((step) => (
+            {[1, 2, 3, 4, 5, 6].map((step) => (
               <div
                 key={step}
                 className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
@@ -169,7 +166,7 @@ export default function OrderWizard() {
           <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-white transition-all duration-300"
-              style={{ width: `${(currentStep / 7) * 100}%` }}
+              style={{ width: `${(currentStep / 6) * 100}%` }}
             />
           </div>
         </div>
@@ -182,21 +179,19 @@ export default function OrderWizard() {
               <CardHeader>
                 <CardTitle className="text-white">
                   {currentStep === 1 && "Step 1: Choose Garment"}
-                  {currentStep === 2 && "Step 2: Select Print Options"}
-                  {currentStep === 3 && "Step 3: Upload Design"}
-                  {currentStep === 4 && "Step 4: Live Preview"}
-                  {currentStep === 5 && "Step 5: Contact Details"}
-                  {currentStep === 6 && "Step 6: Delivery Method"}
-                  {currentStep === 7 && "Step 7: Order Summary"}
+                  {currentStep === 2 && "Step 2: Select Placements & Upload Design"}
+                  {currentStep === 3 && "Step 3: Contact Details"}
+                  {currentStep === 4 && "Step 4: Delivery Method"}
+                  {currentStep === 5 && "Step 5: Order Summary"}
+                  {currentStep === 6 && "Step 6: Confirmation"}
                 </CardTitle>
                 <CardDescription>
                   {currentStep === 1 && "Select your product, color, size, and quantity"}
-                  {currentStep === 2 && "Choose print placements and sizes"}
-                  {currentStep === 3 && "Upload your design file"}
-                  {currentStep === 4 && "Preview your design on the garment"}
-                  {currentStep === 5 && "Enter your contact information"}
-                  {currentStep === 6 && "Choose collection or delivery"}
-                  {currentStep === 7 && "Review and submit your order"}
+                  {currentStep === 2 && "Choose print placements and upload your design"}
+                  {currentStep === 3 && "Enter your contact information"}
+                  {currentStep === 4 && "Choose collection or delivery"}
+                  {currentStep === 5 && "Review your order details"}
+                  {currentStep === 6 && "Your order has been submitted"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -270,213 +265,161 @@ export default function OrderWizard() {
                   </div>
                 )}
 
-                {/* Step 2: Select Print Options */}
+                {/* Step 2: Select Placements & Upload Design */}
                 {currentStep === 2 && (
                   <div className="space-y-4">
-                    <p className="text-gray-300">Add print placements for your design</p>
-                    {orderData.prints && orderData.prints.length > 0 && (
-                      <div className="space-y-3">
-                        {orderData.prints.map((print, index) => (
-                          <Card key={index} className="bg-gray-700 border-gray-600">
-                            <CardContent className="pt-6 space-y-3">
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <Label className="text-white text-sm">Placement</Label>
-                                  <Select
-                                    value={print.placementId?.toString() || ""}
-                                    onValueChange={(value) => {
-                                      const updated = [...(orderData.prints || [])];
-                                      updated[index].placementId = parseInt(value);
-                                      setOrderData({ ...orderData, prints: updated });
-                                    }}
-                                  >
-                                    <SelectTrigger className="bg-gray-600 border-gray-500 text-white text-sm">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {printPlacementsQuery.data?.map((placement) => (
-                                        <SelectItem key={placement.id} value={placement.id.toString()}>
-                                          {placement.placementName}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                    <div>
+                      <h3 className="text-white font-semibold mb-3">Print Placements</h3>
+                      {orderData.prints && orderData.prints.length > 0 && (
+                        <div className="space-y-3 mb-4">
+                          {orderData.prints.map((print, index) => (
+                            <Card key={index} className="bg-gray-700 border-gray-600">
+                              <CardContent className="pt-6 space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-white text-sm">Placement</Label>
+                                    <Select
+                                      value={print.placementId?.toString() || ""}
+                                      onValueChange={(value) => {
+                                        const updated = [...(orderData.prints || [])];
+                                        updated[index].placementId = parseInt(value);
+                                        setOrderData({ ...orderData, prints: updated });
+                                      }}
+                                    >
+                                      <SelectTrigger className="bg-gray-600 border-gray-500 text-white text-sm">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {printPlacementsQuery.data?.map((placement) => (
+                                          <SelectItem key={placement.id} value={placement.id.toString()}>
+                                            {placement.placementName}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-white text-sm">Print Size</Label>
+                                    <Select
+                                      value={print.printSizeId?.toString() || ""}
+                                      onValueChange={(value) => {
+                                        const updated = [...(orderData.prints || [])];
+                                        updated[index].printSizeId = parseInt(value);
+                                        setOrderData({ ...orderData, prints: updated });
+                                      }}
+                                    >
+                                      <SelectTrigger className="bg-gray-600 border-gray-500 text-white text-sm">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {printOptionsQuery.data?.map((option) => (
+                                          <SelectItem key={option.id} value={option.id.toString()}>
+                                            {option.printSize} (+R{parseFloat(option.additionalPrice as any).toFixed(2)})
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
                                 </div>
 
                                 <div>
-                                  <Label className="text-white text-sm">Print Size</Label>
-                                  <Select
-                                    value={print.printSizeId?.toString() || ""}
-                                    onValueChange={(value) => {
-                                      const updated = [...(orderData.prints || [])];
-                                      updated[index].printSizeId = parseInt(value);
-                                      setOrderData({ ...orderData, prints: updated });
+                                  <Label className="text-white text-sm">Upload Design</Label>
+                                  <FileUploadZone
+                                    maxFiles={1}
+                                    placementId={print.placementId}
+                                    onFileUpload={(file) => {
+                                      const updatedPrints = [...(orderData.prints || [])];
+                                      updatedPrints[index] = {
+                                        ...updatedPrints[index],
+                                        uploadedFilePath: file.url,
+                                        uploadedFileName: file.name,
+                                        fileSize: file.fileSize,
+                                        mimeType: file.mimeType,
+                                      };
+                                      setOrderData({ ...orderData, prints: updatedPrints });
                                     }}
-                                  >
-                                    <SelectTrigger className="bg-gray-600 border-gray-500 text-white text-sm">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {printOptionsQuery.data?.map((option) => (
-                                        <SelectItem key={option.id} value={option.id.toString()}>
-                                          {option.printSize} (+R{parseFloat(option.additionalPrice as any).toFixed(2)})
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                    onValidationWarnings={(warnings) => {
+                                      if (warnings.length > 0) {
+                                        toast.warning(`${warnings.length} quality warning(s) detected`);
+                                      }
+                                    }}
+                                  />
                                 </div>
-                              </div>
 
-                              <Button
-                                onClick={() => {
-                                  const updated = orderData.prints?.filter((_, i) => i !== index) || [];
-                                  setOrderData({ ...orderData, prints: updated });
-                                }}
-                                variant="destructive"
-                                size="sm"
-                                className="w-full"
-                              >
-                                Remove
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
+                                {print.uploadedFilePath && (
+                                  <p className="text-sm text-green-400">✓ {print.uploadedFileName}</p>
+                                )}
 
-                    <Button
-                      onClick={() => {
-                        if (orderData.prints) {
-                          setOrderData({
-                            ...orderData,
-                            prints: [
-                              ...orderData.prints,
-                              {
-                                printSizeId: 1,
-                                placementId: 1,
-                                uploadedFilePath: "",
-                                uploadedFileName: "",
-                                fileSize: 0,
-                                mimeType: "",
-                              },
-                            ],
-                          });
-                        }
-                      }}
-                      className="bg-white text-black hover:bg-gray-200 w-full"
-                    >
-                      + Add Print Placement
-                    </Button>
+                                <Button
+                                  onClick={() => {
+                                    const updated = orderData.prints?.filter((_, i) => i !== index) || [];
+                                    setOrderData({ ...orderData, prints: updated });
+                                  }}
+                                  variant="destructive"
+                                  size="sm"
+                                  className="w-full"
+                                >
+                                  Remove
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      <Button
+                        onClick={() => {
+                          if (orderData.prints) {
+                            setOrderData({
+                              ...orderData,
+                              prints: [
+                                ...orderData.prints,
+                                {
+                                  printSizeId: 1,
+                                  placementId: 1,
+                                  uploadedFilePath: "",
+                                  uploadedFileName: "",
+                                  fileSize: 0,
+                                  mimeType: "",
+                                },
+                              ],
+                            });
+                          }
+                        }}
+                        className="bg-white text-black hover:bg-gray-200 w-full"
+                      >
+                        + Add Print Placement
+                      </Button>
+                    </div>
                   </div>
                 )}
 
-                {/* Step 3: Upload Design */}
+                {/* Step 3: Contact Details */}
                 {currentStep === 3 && (
                   <div className="space-y-4">
-                    <p className="text-gray-300">Upload artwork for each placement</p>
-                    {orderData.prints && orderData.prints.length > 0 ? (
-                      <div className="space-y-4">
-                        {orderData.prints.map((print, index) => (
-                          <div key={index} className="bg-gray-700 p-4 rounded-lg space-y-2">
-                            <p className="text-white font-semibold">
-                              {placements.find((p) => p.id === print.placementId)?.placementName || "Placement"}
-                            </p>
-                            <FileUploadZone
-                              maxFiles={1}
-                              placementId={print.placementId}
-                              onFileUpload={(file) => {
-                                const updatedPrints = [...(orderData.prints || [])];
-                                updatedPrints[index] = {
-                                  ...updatedPrints[index],
-                                  uploadedFilePath: file.url,
-                                  uploadedFileName: file.name,
-                                  fileSize: file.fileSize,
-                                  mimeType: file.mimeType,
-                                };
-                                setOrderData({ ...orderData, prints: updatedPrints });
-                              }}
-                              onPreviewReady={(imageUrl, fileName) => {
-                                setPreviewDesigns((prev) => ({
-                                  ...prev,
-                                  [print.placementId]: { url: imageUrl, fileName },
-                                }));
-                              }}
-                              onValidationWarnings={(warnings) => {
-                                if (warnings.length > 0) {
-                                  toast.warning(`${warnings.length} quality warning(s) detected`);
-                                }
-                              }}
-                            />
-                            {print.uploadedFilePath && (
-                              <p className="text-sm text-green-400">✓ {print.uploadedFileName}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-400">Add print placements in Step 2 first</p>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 4: Live Preview */}
-                {currentStep === 4 && selectedProduct && (
-                  <div className="space-y-4">
-                    <p className="text-gray-300">Preview your design on the garment</p>
-                    <PreviewCanvas
-                      productName={selectedProduct.name}
-                      productImageUrl={selectedProduct.imageUrl}
-                      garmentColor={productColors.find((c) => c.id === orderData.colorId)?.colorHex || "#000000"}
-                      prints={(orderData.prints || []).map((print) => {
-                        const placementName = placements.find((p) => p.id === print.placementId)?.placementName || "front";
-                        const previewDesign = previewDesigns[print.placementId];
-                        return {
-                          placement: placementName,
-                          uploadedFilePath: previewDesign?.url || print.uploadedFilePath || "",
-                        };
-                      })}
-                    />
-                    <DesignTemplates
-                      selectedPlacement={null}
-                      onApplyTemplate={(template) => {
-                        toast.info(`Applied ${template.name} template`);
-                      }}
-                    />
-                    {Object.keys(previewDesigns).length > 0 && (
-                      <div className="bg-green-900 border border-green-700 p-3 rounded-lg">
-                        <p className="text-green-200 text-sm">Designs uploaded and ready for preview</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 5: Contact Details */}
-                {currentStep === 5 && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-white">First Name</Label>
-                        <Input
-                          value={orderData.customerFirstName || ""}
-                          onChange={(e) =>
-                            setOrderData({ ...orderData, customerFirstName: e.target.value })
-                          }
-                          className="bg-gray-700 border-gray-600 text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white">Last Name</Label>
-                        <Input
-                          value={orderData.customerLastName || ""}
-                          onChange={(e) =>
-                            setOrderData({ ...orderData, customerLastName: e.target.value })
-                          }
-                          className="bg-gray-700 border-gray-600 text-white"
-                        />
-                      </div>
+                    <div>
+                      <Label className="text-white">First Name *</Label>
+                      <Input
+                        value={orderData.customerFirstName || ""}
+                        onChange={(e) =>
+                          setOrderData({ ...orderData, customerFirstName: e.target.value })
+                        }
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
                     </div>
                     <div>
-                      <Label className="text-white">Email</Label>
+                      <Label className="text-white">Last Name *</Label>
+                      <Input
+                        value={orderData.customerLastName || ""}
+                        onChange={(e) =>
+                          setOrderData({ ...orderData, customerLastName: e.target.value })
+                        }
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white">Email *</Label>
                       <Input
                         type="email"
                         value={orderData.customerEmail || ""}
@@ -487,7 +430,7 @@ export default function OrderWizard() {
                       />
                     </div>
                     <div>
-                      <Label className="text-white">Phone</Label>
+                      <Label className="text-white">Phone *</Label>
                       <Input
                         value={orderData.customerPhone || ""}
                         onChange={(e) =>
@@ -497,7 +440,7 @@ export default function OrderWizard() {
                       />
                     </div>
                     <div>
-                      <Label className="text-white">Company (Optional)</Label>
+                      <Label className="text-white">Company</Label>
                       <Input
                         value={orderData.customerCompany || ""}
                         onChange={(e) =>
@@ -519,8 +462,8 @@ export default function OrderWizard() {
                   </div>
                 )}
 
-                {/* Step 6: Delivery Method */}
-                {currentStep === 6 && (
+                {/* Step 4: Delivery Method */}
+                {currentStep === 4 && (
                   <div className="space-y-4">
                     <DeliveryMethodSelector
                       selectedMethod={orderData.deliveryMethod as 'collection' | 'delivery' | null}
@@ -547,8 +490,8 @@ export default function OrderWizard() {
                   </div>
                 )}
 
-                {/* Step 7: Order Summary */}
-                {currentStep === 7 && (
+                {/* Step 5: Order Summary */}
+                {currentStep === 5 && (
                   <div className="space-y-4">
                     <div className="bg-gray-700 p-4 rounded-lg space-y-2">
                       <p className="text-white">
@@ -564,39 +507,67 @@ export default function OrderWizard() {
                         <strong>Email:</strong> {orderData.customerEmail}
                       </p>
                       <p className="text-white">
+                        <strong>Phone:</strong> {orderData.customerPhone}
+                      </p>
+                      <p className="text-white">
                         <strong>Print Placements:</strong> {orderData.prints?.length || 0}
+                      </p>
+                      <p className="text-white">
+                        <strong>Delivery:</strong> {orderData.deliveryMethod === 'collection' ? 'Collection (Port Elizabeth)' : 'Nationwide Delivery'}
                       </p>
                     </div>
                   </div>
                 )}
 
+                {/* Step 6: Confirmation */}
+                {currentStep === 6 && (
+                  <div className="space-y-4 text-center">
+                    <div className="bg-green-900 border border-green-700 p-6 rounded-lg">
+                      <p className="text-green-200 text-lg font-semibold">✓ Order Submitted Successfully!</p>
+                      <p className="text-green-300 mt-2">A confirmation email has been sent to {orderData.customerEmail}</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setCurrentStep(1);
+                        setOrderData({ quantity: 1, prints: [] });
+                        setPricingData(null);
+                      }}
+                      className="bg-white text-black hover:bg-gray-200 w-full"
+                    >
+                      Place Another Order
+                    </Button>
+                  </div>
+                )}
+
                 {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6">
-                  <Button
-                    onClick={handlePrevious}
-                    disabled={currentStep === 1}
-                    variant="outline"
-                    className="text-white border-gray-600 hover:bg-gray-700"
-                  >
-                    Previous
-                  </Button>
-                  {currentStep === 7 ? (
+                {currentStep !== 6 && (
+                  <div className="flex justify-between pt-6">
                     <Button
-                      onClick={handleSubmit}
-                      disabled={createOrderMutation.isPending}
-                      className="bg-white text-black hover:bg-gray-200"
+                      onClick={handlePrevious}
+                      disabled={currentStep === 1}
+                      variant="outline"
+                      className="text-white border-gray-600 hover:bg-gray-700"
                     >
-                      {createOrderMutation.isPending ? "Submitting..." : "Submit Order"}
+                      Previous
                     </Button>
-                  ) : (
-                    <Button
-                      onClick={handleNext}
-                      className="bg-white text-black hover:bg-gray-200"
-                    >
-                      Next
-                    </Button>
-                  )}
-                </div>
+                    {currentStep === 5 ? (
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={createOrderMutation.isPending}
+                        className="bg-white text-black hover:bg-gray-200"
+                      >
+                        {createOrderMutation.isPending ? "Submitting..." : "Submit Order"}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleNext}
+                        className="bg-white text-black hover:bg-gray-200"
+                      >
+                        Next
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

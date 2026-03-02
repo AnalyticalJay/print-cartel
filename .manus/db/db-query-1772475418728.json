@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET basePrice = 85 WHERE name = 'Lightweight T-Shirt';\nINSERT INTO products (name, basePrice, description, fabricType, productType, imageUrl) \nVALUES ('Dry Fit Polo Golfer', 150, 'Premium Dry Fit Polo Golfer', 'Polyester', 'Polo', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE products SET basePrice = 85 WHERE name = 'Lightweight T-Shirt';\nINSERT INTO products (name, basePrice, description, fabricType, productType, imageUrl) \nVALUES ('Dry Fit Polo Golfer', 150, 'Premium Dry Fit Polo Golfer', 'Polyester', 'Polo', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 424
+}

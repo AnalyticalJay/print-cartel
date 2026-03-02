@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, name, basePrice FROM products;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, name, basePrice FROM products;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Lightweight T-Shirt",
+      "basePrice": "70.00"
+    },
+    {
+      "id": "2",
+      "name": "Men's Polo",
+      "basePrice": "120.00"
+    },
+    {
+      "id": "3",
+      "name": "Men's Dry Fit Polo",
+      "basePrice": "120.00"
+    },
+    {
+      "id": "4",
+      "name": "Hoodie",
+      "basePrice": "300.00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tbasePrice\n1\tLightweight T-Shirt\t70.00\n2\tMen's Polo\t120.00\n3\tMen's Dry Fit Polo\t120.00\n4\tHoodie\t300.00\n",
+  "stderr": "",
+  "execution_time_ms": 463
+}

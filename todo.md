@@ -500,3 +500,16 @@
 - [x] Added new order statuses (in-production, completed)
 - [x] Updated all components to support new statuses
 - [x] Updated email notifications for status changes
+
+
+## Current Sprint - Order Process Simplification & Pricing Update
+- [x] Remove Step 4 (Live Preview) from order wizard
+- [x] Combine Steps 2 & 3: Move design upload right after placement selection
+- [x] Simplify to 6-step process (Product → Placements+Upload → Contact → Delivery → Summary → Confirmation)
+- [x] Update T-Shirt price from R50 to R85
+- [x] Add Dry Fit Polo Golfer product with R150 price
+- [x] Update database with new pricing
+- [x] Test simplified order flow end-to-end
+- [x] Update admin dashboard to reflect new process
+- [x] Update email notifications with new step flow
+- [x] Run all tests and verify 104+ tests passing
