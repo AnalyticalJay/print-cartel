@@ -1,4 +1,5 @@
 import { useLocation } from "wouter";
+import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -66,45 +67,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-foreground">
-      {/* Navigation */}
-      <nav className="border-b border-border bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
-          <div className="text-xl sm:text-2xl font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation("/")}>
-            Print Cartel
-          </div>
-          <div className="flex gap-1 sm:gap-2 items-center flex-wrap justify-end">
-            <Button
-              variant="ghost"
-              onClick={() => setLocation("/track")}
-              className="text-xs sm:text-sm text-foreground hover:bg-gray-100 font-semibold px-2 sm:px-4 py-1 sm:py-2"
-            >
-              Track Order
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setLocation("/dashboard")}
-              className="text-xs sm:text-sm text-foreground hover:bg-gray-100 font-semibold px-2 sm:px-4 py-1 sm:py-2 hidden sm:inline-flex"
-            >
-              My Account
-            </Button>
-            {user?.role === 'admin' && (
-              <Button
-                variant="ghost"
-                onClick={() => setLocation("/admin")}
-                className="text-xs sm:text-sm text-foreground hover:bg-gray-100 font-semibold px-2 sm:px-4 py-1 sm:py-2 hidden md:inline-flex"
-              >
-                Admin
-              </Button>
-            )}
-            <Button
-              onClick={() => setLocation("/order")}
-              className="text-xs sm:text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-3 sm:px-6 py-1 sm:py-2"
-            >
-              Order Now
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Enhanced Hero Section - Center Aligned with Colorful Text */}
       <section className="relative overflow-hidden bg-black text-white py-20 sm:py-28 md:py-40">
@@ -154,14 +117,6 @@ export default function Home() {
               </Button>
             </div>
 
-            {/* Print Cartel Logo */}
-            <div className="mt-12 sm:mt-16 md:mt-20 flex justify-center">
-              <img
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
-                alt="Print Cartel Logo"
-                className="max-h-48 sm:max-h-64 md:max-h-80 max-w-48 sm:max-w-64 md:max-w-80 object-contain hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
-              />
-            </div>
           </div>
         </div>
       </section>

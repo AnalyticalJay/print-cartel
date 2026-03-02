@@ -558,3 +558,12 @@
 - [x] Add bold colorful text styling
 - [x] Integrate artwork and optimize responsive design
 - [x] Test hero section on all breakpoints
+
+
+## Current Sprint - Navigation Redesign
+- [x] Remove Print Cartel logo from hero section
+- [x] Add logo to header inline with menu
+- [x] Create responsive mobile navigation with hamburger menu
+- [x] Add dropdown menus for all subpages
+- [x] Test responsive design on mobile/tablet/desktop
+- [x] Verify menu functionality and accessibility
