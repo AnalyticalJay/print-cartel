@@ -13,6 +13,7 @@ import { SizeSelector } from "@/components/SizeSelector";
 import { DeliveryMethodSelector } from "@/components/DeliveryMethodSelector";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -41,6 +42,7 @@ interface OrderData {
 }
 
 export default function OrderWizard() {
+  const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [orderData, setOrderData] = useState<Partial<OrderData>>({
     quantity: 1,
@@ -133,9 +135,8 @@ export default function OrderWizard() {
       });
 
       toast.success("Order submitted successfully!");
-      setCurrentStep(1);
-      setOrderData({ quantity: 1, prints: [] });
-      setPricingData(null);
+      // Redirect to My Account page after order submission
+      setLocation("/dashboard");
     } catch (error) {
       toast.error("Failed to submit order");
       console.error(error);

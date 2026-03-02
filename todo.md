@@ -513,3 +513,10 @@
 - [x] Update admin dashboard to reflect new process
 - [x] Update email notifications with new step flow
 - [x] Run all tests and verify 104+ tests passing
+
+
+## Current Sprint - Post-Order Redirect
+- [x] Redirect to My Account page after successful order submission
+- [x] Display newly submitted order in customer account dashboard
+- [x] Show order status, details, and tracking information
+- [x] Test redirect flow end-to-end
