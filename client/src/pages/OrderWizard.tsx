@@ -14,6 +14,8 @@ import { DeliveryMethodSelector } from "@/components/DeliveryMethodSelector";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -43,7 +45,29 @@ interface OrderData {
 
 export default function OrderWizard() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>(1);
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-3xl font-bold text-foreground mb-4">Login Required</h1>
+          <p className="text-muted-foreground mb-8">
+            You need to create an account or login to place an order.
+          </p>
+          <Button
+            onClick={() => window.location.href = getLoginUrl()}
+            className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-8 py-3"
+            size="lg"
+          >
+            Login / Register
+          </Button>
+        </div>
+      </div>
+    );
+  }
   const [orderData, setOrderData] = useState<Partial<OrderData>>({
     quantity: 1,
     prints: [],

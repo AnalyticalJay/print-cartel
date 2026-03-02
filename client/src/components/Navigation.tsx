@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 export function Navigation() {
   const [, setLocation] = useLocation();
@@ -47,35 +48,46 @@ export function Navigation() {
 
           {/* Desktop Menu */}
           <div className="flex gap-1 sm:gap-2 items-center">
-            <Button
-              variant="ghost"
-              onClick={() => handleNavigation("/track")}
-              className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
-            >
-              Track Order
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => handleNavigation("/dashboard")}
-              className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
-            >
-              My Account
-            </Button>
-            {user?.role === 'admin' && (
+            {user ? (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavigation("/track")}
+                  className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                >
+                  Track Order
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavigation("/dashboard")}
+                  className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                >
+                  My Account
+                </Button>
+                {user?.role === 'admin' && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleNavigation("/admin")}
+                    className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                  >
+                    Admin
+                  </Button>
+                )}
+                <Button
+                  onClick={() => handleNavigation("/order")}
+                  className="text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-6 py-2"
+                >
+                  Order Now
+                </Button>
+              </>
+            ) : (
               <Button
-                variant="ghost"
-                onClick={() => handleNavigation("/admin")}
-                className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                onClick={() => window.location.href = getLoginUrl()}
+                className="text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-6 py-2"
               >
-                Admin
+                Login / Register
               </Button>
             )}
-            <Button
-              onClick={() => handleNavigation("/order")}
-              className="text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-6 py-2"
-            >
-              Order Now
-            </Button>
           </div>
         </div>
 

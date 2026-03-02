@@ -576,3 +576,12 @@
 - [x] Add dismissible/close functionality
 - [x] Test countdown timer functionality
 - [x] Test responsive design on all breakpoints
+
+
+## Current Sprint - Authentication & Navigation Updates
+- [x] Replace "View Our Work" button with "Contact Us" on hero section
+- [x] Add login/register button to navigation header
+- [x] Implement account requirement for order placement
+- [x] Redirect unauthenticated users to login when accessing order page
+- [x] Test authentication flow and button functionality
+- [x] Verify all navigation links work correctly

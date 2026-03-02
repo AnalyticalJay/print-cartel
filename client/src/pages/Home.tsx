@@ -115,7 +115,7 @@ export default function Home() {
                 size="lg"
                 className="border-2 border-white text-white hover:bg-white/10 text-sm sm:text-base md:text-lg px-6 sm:px-10 py-3 sm:py-6 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                View Our Work
+                Contact Us
               </Button>
             </div>
 
