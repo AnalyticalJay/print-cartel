@@ -567,3 +567,12 @@
 - [x] Add dropdown menus for all subpages
 - [x] Test responsive design on mobile/tablet/desktop
 - [x] Verify menu functionality and accessibility
+
+
+## Current Sprint - Limited-Time Promo Banner
+- [x] Create PromoBar component with countdown timer
+- [x] Add banner styling with gradient background and icons
+- [x] Integrate PromoBar into Home page at top
+- [x] Add dismissible/close functionality
+- [x] Test countdown timer functionality
+- [x] Test responsive design on all breakpoints
