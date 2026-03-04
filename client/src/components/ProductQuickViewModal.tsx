@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
-import { X, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { X, ShoppingCart, Ruler } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
+import { SizeGuideModal } from "./SizeGuideModal";
 
 interface Product {
   id: number;
@@ -28,6 +29,7 @@ export function ProductQuickViewModal({
   onClose,
 }: ProductQuickViewModalProps) {
   const [, setLocation] = useLocation();
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
   const colorsQuery = trpc.products.getColors.useQuery(
     { productId: product?.id || 0 },
     { enabled: !!product?.id }
@@ -165,14 +167,31 @@ export function ProductQuickViewModal({
               )}
             </div>
 
-            {/* Action Button */}
-            <Button
-              onClick={handleOrderNow}
-              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-base py-6 font-bold flex items-center justify-center gap-2"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              Order Now
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowSizeGuide(true)}
+                variant="outline"
+                className="flex-1 py-6 font-bold flex items-center justify-center gap-2"
+              >
+                <Ruler className="w-5 h-5" />
+                Size Guide
+              </Button>
+              <Button
+                onClick={handleOrderNow}
+                className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 text-base py-6 font-bold flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Order Now
+              </Button>
+            </div>
+
+            {/* Size Guide Modal */}
+            <SizeGuideModal
+              isOpen={showSizeGuide}
+              onClose={() => setShowSizeGuide(false)}
+              productType={product.productType as "T-Shirt" | "Polo" | "Hoodie"}
+            />
           </div>
         </div>
       </DialogContent>

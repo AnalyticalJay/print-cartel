@@ -611,3 +611,15 @@
 - [x] Update product display on home page with correct images
 - [x] Test product slider with new garments
 - [x] Verify quick-view modal displays correct information
+
+
+## Current Sprint - Size Guide Modal
+- [x] Create SizeGuideModal component with size chart data
+- [x] Add size measurements for T-Shirts (Chest, Length, Sleeve)
+- [x] Add size measurements for Polo shirts (Chest, Length, Sleeve)
+- [x] Add size measurements for Hoodies (Chest, Length, Sleeve)
+- [x] Integrate size guide button into ProductQuickViewModal
+- [x] Style size guide with responsive table layout
+- [x] Add measurement units toggle (cm/inches)
+- [x] Test size guide modal on mobile/tablet/desktop
+- [x] Verify all measurements are accurate and clear
