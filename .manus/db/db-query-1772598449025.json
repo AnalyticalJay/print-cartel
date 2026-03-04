@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO productSizes (productId, sizeName) VALUES\n-- 100% Cotton Plain T-Shirt (Crew Cut) - ID 1\n(1, 'XS'), (1, 'S'), (1, 'M'), (1, 'L'), (1, 'XL'), (1, '2XL'), (1, '3XL'), (1, '4XL'), (1, '5XL'), (1, '6XL'),\n-- Dry Fit Polo Golf T-Shirt - ID 2\n(2, 'S'), (2, 'M'), (2, 'L'), (2, 'XL'), (2, '2XL'), (2, '3XL'), (2, '5XL'),\n-- V-Neck Unisex T-Shirt - ID 3\n(3, 'S'), (3, 'M'), (3, 'L'), (3, 'XL'), (3, '2XL'), (3, '3XL'),\n-- 100% Cotton Unisex Hoodies - ID 4\n(4, 'XS'), (4, 'S'), (4, 'M'), (4, 'L'), (4, 'XL'), (4, '2XL'), (4, '3XL');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute INSERT INTO productSizes (productId, sizeName) VALUES\n-- 100% Cotton Plain T-Shirt (Crew Cut) - ID 1\n(1, 'XS'), (1, 'S'), (1, 'M'), (1, 'L'), (1, 'XL'), (1, '2XL'), (1, '3XL'), (1, '4XL'), (1, '5XL'), (1, '6XL'),\n-- Dry Fit Polo Golf T-Shirt - ID 2\n(2, 'S'), (2, 'M'), (2, 'L'), (2, 'XL'), (2, '2XL'), (2, '3XL'), (2, '5XL'),\n-- V-Neck Unisex T-Shirt - ID 3\n(3, 'S'), (3, 'M'), (3, 'L'), (3, 'XL'), (3, '2XL'), (3, '3XL'),\n-- 100% Cotton Unisex Hoodies - ID 4\n(4, 'XS'), (4, 'S'), (4, 'M'), (4, 'L'), (4, 'XL'), (4, '2XL'), (4, '3XL');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 368
+}

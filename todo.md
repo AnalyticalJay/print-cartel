@@ -633,3 +633,13 @@
 - [x] Verify color swatches display correctly for each garment
 - [x] Verify sizes display correctly for each garment
 - [x] Test complete order flow with new garments
+
+
+## Current Sprint - Add Colors and Sizes to Garments
+- [x] Add color options to productColors table for all garments
+- [x] Add size options to productSizes table for all garments
+- [x] Verify colors display in quick-view modal
+- [x] Verify sizes display in quick-view modal
+- [x] Test color swatches with correct hex codes
+- [x] Test size selection in order wizard
+- [x] Verify order process shows all options correctly
