@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_heavyweight_tshirt_crew_3f6fb7ec.webp' WHERE name = '100% Cotton Plain T-Shirt (Crew Cut)';\n\nUPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_dryfit_polo_1516a2ff.webp' WHERE name = 'Dry Fit Polo Golf T-Shirt';\n\nUPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_vneck_tshirt_b75916df.webp' WHERE name = 'V-Neck Unisex T-Shirt';\n\nUPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_hoodie_unisex_645c5841.webp' WHERE name = '100% Cotton Unisex Hoodies';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_heavyweight_tshirt_crew_3f6fb7ec.webp' WHERE name = '100% Cotton Plain T-Shirt (Crew Cut)';\n\nUPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_dryfit_polo_1516a2ff.webp' WHERE name = 'Dry Fit Polo Golf T-Shirt';\n\nUPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_vneck_tshirt_b75916df.webp' WHERE name = 'V-Neck Unisex T-Shirt';\n\nUPDATE products SET imageUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_hoodie_unisex_645c5841.webp' WHERE name = '100% Cotton Unisex Hoodies';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 513
+}

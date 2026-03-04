@@ -597,3 +597,17 @@
 - [x] Verify email formatting on different email clients
 - [x] Add fallback text version of email
 - [x] Test with multiple order scenarios
+
+
+## Current Sprint - Garment Catalog Update
+- [x] Remove specials/promo banner from home page
+- [x] Research Vic Bay Clothing garment specifications and images
+- [x] Update database with 4 garment products:
+  * 100% Cotton Plain T-Shirt (Crew Cut) R85
+  * Dry Fit Polo Golf T-Shirt R150
+  * V-Neck Unisex T-Shirt R100
+  * 100% Cotton Unisex Hoodies R300
+- [x] Download and upload garment images from Vic Bay Clothing
+- [x] Update product display on home page with correct images
+- [x] Test product slider with new garments
+- [x] Verify quick-view modal displays correct information

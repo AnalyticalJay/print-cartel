@@ -1,6 +1,5 @@
 import { useLocation } from "wouter";
 import { Navigation } from "@/components/Navigation";
-import { PromoBar } from "@/components/PromoBar";
 import { Button } from "@/components/ui/button";
 import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -68,7 +67,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-foreground">
-      <PromoBar />
       <Navigation />
 
       {/* Enhanced Hero Section - Center Aligned with Colorful Text */}
