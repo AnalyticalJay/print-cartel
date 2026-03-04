@@ -77,9 +77,14 @@ export default function OrderWizard() {
   const productsQuery = trpc.products.list.useQuery();
   const printOptionsQuery = trpc.products.printOptions.useQuery();
   const printPlacementsQuery = trpc.products.printPlacements.useQuery();
-  const productDetailsQuery = trpc.products.getById.useQuery(
-    { id: orderData.productId || 0 },
-    { enabled: !!orderData.productId }
+  const colorsQuery = trpc.products.getColors.useQuery(
+    { productId: orderData.productId || 0 },
+    { enabled: !!orderData.productId && orderData.productId > 0 }
+  );
+  
+  const sizesQuery = trpc.products.getSizes.useQuery(
+    { productId: orderData.productId || 0 },
+    { enabled: !!orderData.productId && orderData.productId > 0 }
   );
   const calculatePriceQuery = trpc.products.calculatePrice.useQuery(
     {
@@ -97,8 +102,8 @@ export default function OrderWizard() {
     ? productsQuery.data?.find((p) => p.id === orderData.productId)
     : null;
 
-  const productColors = productDetailsQuery.data?.colors || [];
-  const productSizes = productDetailsQuery.data?.sizes || [];
+  const productColors = colorsQuery.data || [];
+  const productSizes = sizesQuery.data || [];
   const placements = printPlacementsQuery.data || [];
 
   // Update pricing when calculation query completes
@@ -246,7 +251,7 @@ export default function OrderWizard() {
 
                     {selectedProduct && (
                       <>
-                        {productDetailsQuery.isLoading ? (
+                        {colorsQuery.isLoading || sizesQuery.isLoading ? (
                           <div className="flex items-center justify-center py-8">
                             <Loader2 className="w-6 h-6 animate-spin text-white" />
                           </div>

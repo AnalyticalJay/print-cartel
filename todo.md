@@ -643,3 +643,11 @@
 - [x] Test color swatches with correct hex codes
 - [x] Test size selection in order wizard
 - [x] Verify order process shows all options correctly
+
+
+## Current Sprint - Fix Garment Selection Colors/Sizes
+- [x] Debug why colors not showing in order wizard
+- [x] Debug why sizes not showing in order wizard
+- [x] Verify API calls to getColors and getSizes
+- [x] Fix data binding in OrderWizard component
+- [x] Test complete garment selection flow
