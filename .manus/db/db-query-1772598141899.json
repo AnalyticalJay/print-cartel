@@ -1,0 +1,52 @@
+{
+  "query": "SELECT id, name, basePrice, productType FROM products ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, name, basePrice, productType FROM products ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Lightweight T-Shirt",
+      "basePrice": "85.00",
+      "productType": "T-Shirt"
+    },
+    {
+      "id": "2",
+      "name": "Men's Polo",
+      "basePrice": "120.00",
+      "productType": "Polo"
+    },
+    {
+      "id": "3",
+      "name": "Men's Dry Fit Polo",
+      "basePrice": "120.00",
+      "productType": "Polo"
+    },
+    {
+      "id": "60001",
+      "name": "100% Cotton Plain T-Shirt (Crew Cut)",
+      "basePrice": "85.00",
+      "productType": "T-Shirt"
+    },
+    {
+      "id": "60002",
+      "name": "Dry Fit Polo Golf T-Shirt",
+      "basePrice": "150.00",
+      "productType": "Polo"
+    },
+    {
+      "id": "60003",
+      "name": "V-Neck Unisex T-Shirt",
+      "basePrice": "100.00",
+      "productType": "T-Shirt"
+    },
+    {
+      "id": "60004",
+      "name": "100% Cotton Unisex Hoodies",
+      "basePrice": "300.00",
+      "productType": "Hoodie"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tbasePrice\tproductType\n1\tLightweight T-Shirt\t85.00\tT-Shirt\n2\tMen's Polo\t120.00\tPolo\n3\tMen's Dry Fit Polo\t120.00\tPolo\n60001\t100% Cotton Plain T-Shirt (Crew Cut)\t85.00\tT-Shirt\n60002\tDry Fit Polo Golf T-Shirt\t150.00\tPolo\n60003\tV-Neck Unisex T-Shirt\t100.00\tT-Shirt\n60004\t100% Cotton Unisex Hoodies\t300.00\tHoodie\n",
+  "stderr": "",
+  "execution_time_ms": 362
+}

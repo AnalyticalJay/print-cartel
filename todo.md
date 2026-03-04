@@ -623,3 +623,13 @@
 - [x] Add measurement units toggle (cm/inches)
 - [x] Test size guide modal on mobile/tablet/desktop
 - [x] Verify all measurements are accurate and clear
+
+
+## Current Sprint - Clean Up Old Garment Options
+- [x] Remove old/duplicate garment options from database
+- [x] Verify only 4 new Vic Bay garments are available
+- [x] Ensure all new garments have correct colors and sizes
+- [x] Test order process garment selection dropdown
+- [x] Verify color swatches display correctly for each garment
+- [x] Verify sizes display correctly for each garment
+- [x] Test complete order flow with new garments

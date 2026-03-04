@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM products WHERE name NOT IN ('100% Cotton Plain T-Shirt (Crew Cut)', 'Dry Fit Polo Golf T-Shirt', 'V-Neck Unisex T-Shirt', '100% Cotton Unisex Hoodies');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute DELETE FROM products WHERE name NOT IN ('100% Cotton Plain T-Shirt (Crew Cut)', 'Dry Fit Polo Golf T-Shirt', 'V-Neck Unisex T-Shirt', '100% Cotton Unisex Hoodies');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 357
+}
