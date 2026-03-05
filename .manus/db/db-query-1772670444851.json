@@ -1,0 +1,34 @@
+{
+  "query": "SELECT p.id, p.name, pc.colorName, pc.colorHex FROM products p LEFT JOIN productColors pc ON p.id = pc.productId LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT p.id, p.name, pc.colorName, pc.colorHex FROM products p LEFT JOIN productColors pc ON p.id = pc.productId LIMIT 15;",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "100% Cotton Plain T-Shirt (Crew Cut)",
+      "colorName": "NULL",
+      "colorHex": "NULL"
+    },
+    {
+      "id": "60002",
+      "name": "Dry Fit Polo Golf T-Shirt",
+      "colorName": "NULL",
+      "colorHex": "NULL"
+    },
+    {
+      "id": "60003",
+      "name": "V-Neck Unisex T-Shirt",
+      "colorName": "NULL",
+      "colorHex": "NULL"
+    },
+    {
+      "id": "60004",
+      "name": "100% Cotton Unisex Hoodies",
+      "colorName": "NULL",
+      "colorHex": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcolorName\tcolorHex\n60001\t100% Cotton Plain T-Shirt (Crew Cut)\tNULL\tNULL\n60002\tDry Fit Polo Golf T-Shirt\tNULL\tNULL\n60003\tV-Neck Unisex T-Shirt\tNULL\tNULL\n60004\t100% Cotton Unisex Hoodies\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 374
+}

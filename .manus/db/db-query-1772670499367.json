@@ -1,0 +1,320 @@
+{
+  "query": "SELECT id, productId, colorName FROM productColors ORDER BY productId, id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, productId, colorName FROM productColors ORDER BY productId, id;",
+  "rows": [
+    {
+      "id": "1",
+      "productId": "1",
+      "colorName": "Black"
+    },
+    {
+      "id": "2",
+      "productId": "1",
+      "colorName": "White"
+    },
+    {
+      "id": "3",
+      "productId": "1",
+      "colorName": "Navy"
+    },
+    {
+      "id": "4",
+      "productId": "1",
+      "colorName": "Royal Blue"
+    },
+    {
+      "id": "5",
+      "productId": "1",
+      "colorName": "Sky Blue"
+    },
+    {
+      "id": "6",
+      "productId": "1",
+      "colorName": "Grey Melange"
+    },
+    {
+      "id": "7",
+      "productId": "1",
+      "colorName": "Bottle Green"
+    },
+    {
+      "id": "8",
+      "productId": "1",
+      "colorName": "Lime Green"
+    },
+    {
+      "id": "9",
+      "productId": "1",
+      "colorName": "Red"
+    },
+    {
+      "id": "10",
+      "productId": "1",
+      "colorName": "Orange"
+    },
+    {
+      "id": "11",
+      "productId": "1",
+      "colorName": "Yellow"
+    },
+    {
+      "id": "30001",
+      "productId": "1",
+      "colorName": "Black"
+    },
+    {
+      "id": "30002",
+      "productId": "1",
+      "colorName": "Green"
+    },
+    {
+      "id": "30003",
+      "productId": "1",
+      "colorName": "Yellow"
+    },
+    {
+      "id": "30004",
+      "productId": "1",
+      "colorName": "Navy"
+    },
+    {
+      "id": "30005",
+      "productId": "1",
+      "colorName": "Red"
+    },
+    {
+      "id": "30006",
+      "productId": "1",
+      "colorName": "White"
+    },
+    {
+      "id": "30007",
+      "productId": "1",
+      "colorName": "Gray"
+    },
+    {
+      "id": "12",
+      "productId": "2",
+      "colorName": "Black"
+    },
+    {
+      "id": "13",
+      "productId": "2",
+      "colorName": "White"
+    },
+    {
+      "id": "14",
+      "productId": "2",
+      "colorName": "Navy Blue"
+    },
+    {
+      "id": "15",
+      "productId": "2",
+      "colorName": "Royal Blue"
+    },
+    {
+      "id": "16",
+      "productId": "2",
+      "colorName": "Sky Blue"
+    },
+    {
+      "id": "17",
+      "productId": "2",
+      "colorName": "Khaki"
+    },
+    {
+      "id": "18",
+      "productId": "2",
+      "colorName": "Grey Melange"
+    },
+    {
+      "id": "19",
+      "productId": "2",
+      "colorName": "Charcoal"
+    },
+    {
+      "id": "20",
+      "productId": "2",
+      "colorName": "Bottle Green"
+    },
+    {
+      "id": "21",
+      "productId": "2",
+      "colorName": "Lime Green"
+    },
+    {
+      "id": "22",
+      "productId": "2",
+      "colorName": "Yellow"
+    },
+    {
+      "id": "23",
+      "productId": "2",
+      "colorName": "Pink"
+    },
+    {
+      "id": "24",
+      "productId": "2",
+      "colorName": "Red"
+    },
+    {
+      "id": "25",
+      "productId": "2",
+      "colorName": "Orange"
+    },
+    {
+      "id": "26",
+      "productId": "2",
+      "colorName": "Gold"
+    },
+    {
+      "id": "30008",
+      "productId": "2",
+      "colorName": "Black"
+    },
+    {
+      "id": "30009",
+      "productId": "2",
+      "colorName": "Blue"
+    },
+    {
+      "id": "30010",
+      "productId": "2",
+      "colorName": "Red"
+    },
+    {
+      "id": "30011",
+      "productId": "2",
+      "colorName": "White"
+    },
+    {
+      "id": "30012",
+      "productId": "2",
+      "colorName": "Navy"
+    },
+    {
+      "id": "30013",
+      "productId": "2",
+      "colorName": "Gray"
+    },
+    {
+      "id": "27",
+      "productId": "3",
+      "colorName": "Black"
+    },
+    {
+      "id": "28",
+      "productId": "3",
+      "colorName": "White"
+    },
+    {
+      "id": "29",
+      "productId": "3",
+      "colorName": "Navy"
+    },
+    {
+      "id": "30",
+      "productId": "3",
+      "colorName": "Royal Blue"
+    },
+    {
+      "id": "31",
+      "productId": "3",
+      "colorName": "Red"
+    },
+    {
+      "id": "30014",
+      "productId": "3",
+      "colorName": "Black"
+    },
+    {
+      "id": "30015",
+      "productId": "3",
+      "colorName": "Gray"
+    },
+    {
+      "id": "30016",
+      "productId": "3",
+      "colorName": "Blue"
+    },
+    {
+      "id": "30017",
+      "productId": "3",
+      "colorName": "Red"
+    },
+    {
+      "id": "30018",
+      "productId": "3",
+      "colorName": "White"
+    },
+    {
+      "id": "30019",
+      "productId": "3",
+      "colorName": "Navy"
+    },
+    {
+      "id": "32",
+      "productId": "4",
+      "colorName": "Black"
+    },
+    {
+      "id": "33",
+      "productId": "4",
+      "colorName": "White"
+    },
+    {
+      "id": "34",
+      "productId": "4",
+      "colorName": "Navy"
+    },
+    {
+      "id": "35",
+      "productId": "4",
+      "colorName": "Grey Melange"
+    },
+    {
+      "id": "36",
+      "productId": "4",
+      "colorName": "Charcoal"
+    },
+    {
+      "id": "30020",
+      "productId": "4",
+      "colorName": "Black"
+    },
+    {
+      "id": "30021",
+      "productId": "4",
+      "colorName": "Gray"
+    },
+    {
+      "id": "30022",
+      "productId": "4",
+      "colorName": "Blue"
+    },
+    {
+      "id": "30023",
+      "productId": "4",
+      "colorName": "Yellow"
+    },
+    {
+      "id": "30024",
+      "productId": "4",
+      "colorName": "Navy"
+    },
+    {
+      "id": "30025",
+      "productId": "4",
+      "colorName": "Red"
+    },
+    {
+      "id": "30026",
+      "productId": "4",
+      "colorName": "White"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tproductId\tcolorName\n1\t1\tBlack\n2\t1\tWhite\n3\t1\tNavy\n4\t1\tRoyal Blue\n5\t1\tSky Blue\n6\t1\tGrey Melange\n7\t1\tBottle Green\n8\t1\tLime Green\n9\t1\tRed\n10\t1\tOrange\n11\t1\tYellow\n30001\t1\tBlack\n30002\t1\tGreen\n30003\t1\tYellow\n30004\t1\tNavy\n30005\t1\tRed\n30006\t1\tWhite\n30007\t1\tGray\n12\t2\tBlack\n13\t2\tWhite\n14\t2\tNavy Blue\n15\t2\tRoyal Blue\n16\t2\tSky Blue\n17\t2\tKhaki\n18\t2\tGrey Melange\n19\t2\tCharcoal\n20\t2\tBottle Green\n21\t2\tLime Green\n22\t2\tYellow\n23\t2\tPink\n24\t2\tRed\n25\t2\tOrange\n26\t2\tGold\n30008\t2\tBlack\n30009\t2\tBlue\n30010\t2\tRed\n30011\t2\tWhite\n30012\t2\tNavy\n30013\t2\tGray\n27\t3\tBlack\n28\t3\tWhite\n29\t3\tNavy\n30\t3\tRoyal Blue\n31\t3\tRed\n30014\t3\tBlack\n30015\t3\tGray\n30016\t3\tBlue\n30017\t3\tRed\n30018\t3\tWhite\n30019\t3\tNavy\n32\t4\tBlack\n33\t4\tWhite\n34\t4\tNavy\n35\t4\tGrey Melange\n36\t4\tCharcoal\n30020\t4\tBlack\n30021\t4\tGray\n30022\t4\tBlue\n30023\t4\tYellow\n30024\t4\tNavy\n30025\t4\tRed\n30026\t4\tWhite\n",
+  "stderr": "",
+  "execution_time_ms": 366
+}

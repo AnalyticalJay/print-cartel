@@ -102,8 +102,8 @@ export default function OrderWizard() {
     ? productsQuery.data?.find((p) => p.id === orderData.productId)
     : null;
 
-  const productColors = colorsQuery.data || [];
-  const productSizes = sizesQuery.data || [];
+  const productColors = Array.isArray(colorsQuery.data) ? colorsQuery.data : [];
+  const productSizes = Array.isArray(sizesQuery.data) ? sizesQuery.data : [];
   const placements = printPlacementsQuery.data || [];
 
   // Update pricing when calculation query completes

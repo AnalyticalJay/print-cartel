@@ -11,7 +11,7 @@ describe("pricing service", () => {
 
   it("calculates order price with product and quantity", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 2,
       printPlacements: [],
     });
@@ -27,7 +27,7 @@ describe("pricing service", () => {
 
   it("includes placement costs in total price", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 1,
       printPlacements: [
         { printSizeId: 1 },
@@ -41,7 +41,7 @@ describe("pricing service", () => {
 
   it("includes print size costs in total price", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 1,
       printPlacements: [{ printSizeId: 1 }],
     });
@@ -52,7 +52,7 @@ describe("pricing service", () => {
 
   it("calculates correct total with all components", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 3,
       printPlacements: [
         { printSizeId: 1 },
@@ -66,7 +66,7 @@ describe("pricing service", () => {
 
   it("returns detailed breakdown information", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 2,
       printPlacements: [{ printSizeId: 1 }],
     });
@@ -96,7 +96,7 @@ describe("pricing service", () => {
   });
 
   it("retrieves product base price", async () => {
-    const price = await getProductPrice(1);
+    const price = await getProductPrice(60001);
     expect(price).toBeGreaterThan(0);
   });
 
@@ -115,7 +115,7 @@ describe("pricing service", () => {
 
   it("handles multiple placements with different sizes", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 1,
       printPlacements: [
         { printSizeId: 1 },
@@ -131,7 +131,7 @@ describe("pricing service", () => {
 
   it("applies bulk discount for large quantities", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 100,
       printPlacements: [{ printSizeId: 1 }],
     });
@@ -146,7 +146,7 @@ describe("pricing service", () => {
 
   it("pricing breakdown includes all components", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 1,
+      productId: 60001,
       quantity: 2,
       printPlacements: [
         { printSizeId: 1 },

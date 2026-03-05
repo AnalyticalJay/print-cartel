@@ -1,0 +1,70 @@
+{
+  "query": "SELECT * FROM productColors LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT * FROM productColors LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "productId": "1",
+      "colorName": "Black",
+      "colorHex": "#000000"
+    },
+    {
+      "id": "2",
+      "productId": "1",
+      "colorName": "White",
+      "colorHex": "#FFFFFF"
+    },
+    {
+      "id": "3",
+      "productId": "1",
+      "colorName": "Navy",
+      "colorHex": "#001F3F"
+    },
+    {
+      "id": "4",
+      "productId": "1",
+      "colorName": "Royal Blue",
+      "colorHex": "#4169E1"
+    },
+    {
+      "id": "5",
+      "productId": "1",
+      "colorName": "Sky Blue",
+      "colorHex": "#87CEEB"
+    },
+    {
+      "id": "6",
+      "productId": "1",
+      "colorName": "Grey Melange",
+      "colorHex": "#A9A9A9"
+    },
+    {
+      "id": "7",
+      "productId": "1",
+      "colorName": "Bottle Green",
+      "colorHex": "#006B3F"
+    },
+    {
+      "id": "8",
+      "productId": "1",
+      "colorName": "Lime Green",
+      "colorHex": "#32CD32"
+    },
+    {
+      "id": "9",
+      "productId": "1",
+      "colorName": "Red",
+      "colorHex": "#FF0000"
+    },
+    {
+      "id": "10",
+      "productId": "1",
+      "colorName": "Orange",
+      "colorHex": "#FFA500"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tproductId\tcolorName\tcolorHex\n1\t1\tBlack\t#000000\n2\t1\tWhite\t#FFFFFF\n3\t1\tNavy\t#001F3F\n4\t1\tRoyal Blue\t#4169E1\n5\t1\tSky Blue\t#87CEEB\n6\t1\tGrey Melange\t#A9A9A9\n7\t1\tBottle Green\t#006B3F\n8\t1\tLime Green\t#32CD32\n9\t1\tRed\t#FF0000\n10\t1\tOrange\t#FFA500\n",
+  "stderr": "",
+  "execution_time_ms": 366
+}

@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, name FROM products;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, name FROM products;",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "100% Cotton Plain T-Shirt (Crew Cut)"
+    },
+    {
+      "id": "60002",
+      "name": "Dry Fit Polo Golf T-Shirt"
+    },
+    {
+      "id": "60003",
+      "name": "V-Neck Unisex T-Shirt"
+    },
+    {
+      "id": "60004",
+      "name": "100% Cotton Unisex Hoodies"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n60001\t100% Cotton Plain T-Shirt (Crew Cut)\n60002\tDry Fit Polo Golf T-Shirt\n60003\tV-Neck Unisex T-Shirt\n60004\t100% Cotton Unisex Hoodies\n",
+  "stderr": "",
+  "execution_time_ms": 362
+}

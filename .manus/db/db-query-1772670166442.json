@@ -1,0 +1,34 @@
+{
+  "query": "SELECT p.id, p.name, COUNT(DISTINCT pc.id) as color_count, COUNT(DISTINCT ps.id) as size_count FROM products p LEFT JOIN productColors pc ON p.id = pc.productId LEFT JOIN productSizes ps ON p.id = ps.productId GROUP BY p.id, p.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT p.id, p.name, COUNT(DISTINCT pc.id) as color_count, COUNT(DISTINCT ps.id) as size_count FROM products p LEFT JOIN productColors pc ON p.id = pc.productId LEFT JOIN productSizes ps ON p.id = ps.productId GROUP BY p.id, p.name;",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "100% Cotton Plain T-Shirt (Crew Cut)",
+      "color_count": "0",
+      "size_count": "0"
+    },
+    {
+      "id": "60002",
+      "name": "Dry Fit Polo Golf T-Shirt",
+      "color_count": "0",
+      "size_count": "0"
+    },
+    {
+      "id": "60003",
+      "name": "V-Neck Unisex T-Shirt",
+      "color_count": "0",
+      "size_count": "0"
+    },
+    {
+      "id": "60004",
+      "name": "100% Cotton Unisex Hoodies",
+      "color_count": "0",
+      "size_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcolor_count\tsize_count\n60001\t100% Cotton Plain T-Shirt (Crew Cut)\t0\t0\n60002\tDry Fit Polo Golf T-Shirt\t0\t0\n60003\tV-Neck Unisex T-Shirt\t0\t0\n60004\t100% Cotton Unisex Hoodies\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1133
+}

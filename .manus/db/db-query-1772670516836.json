@@ -1,0 +1,26 @@
+{
+  "query": "SELECT productId, COUNT(*) as colorCount FROM productColors GROUP BY productId ORDER BY productId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT productId, COUNT(*) as colorCount FROM productColors GROUP BY productId ORDER BY productId;",
+  "rows": [
+    {
+      "productId": "1",
+      "colorCount": "18"
+    },
+    {
+      "productId": "2",
+      "colorCount": "21"
+    },
+    {
+      "productId": "3",
+      "colorCount": "11"
+    },
+    {
+      "productId": "4",
+      "colorCount": "12"
+    }
+  ],
+  "messages": [],
+  "stdout": "productId\tcolorCount\n1\t18\n2\t21\n3\t11\n4\t12\n",
+  "stderr": "",
+  "execution_time_ms": 363
+}

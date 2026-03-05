@@ -1,0 +1,50 @@
+{
+  "query": "SELECT * FROM products LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT * FROM products LIMIT 5;",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "100% Cotton Plain T-Shirt (Crew Cut)",
+      "basePrice": "85.00",
+      "description": "Crew neck, 180gm, 100% Carded Cotton. Neck ribbing, Tubular knit, Neck tape, double stitching on sleeves and hems. Unisex fit based on men's sizes.",
+      "fabricType": "100% Carded Cotton",
+      "productType": "T-Shirt",
+      "createdAt": "2026-03-04 04:12:45",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_heavyweight_tshirt_crew_3f6fb7ec.webp"
+    },
+    {
+      "id": "60002",
+      "name": "Dry Fit Polo Golf T-Shirt",
+      "basePrice": "150.00",
+      "description": "Semi-fitted, 140gm, 100% bird mesh polyester. Raglan sleeves, 2 button placket, tonal buttons. Side seamed, double stitching. Unisex fit based on men's sizes.",
+      "fabricType": "100% Polyester",
+      "productType": "Polo",
+      "createdAt": "2026-03-04 04:12:45",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_dryfit_polo_1516a2ff.webp"
+    },
+    {
+      "id": "60003",
+      "name": "V-Neck Unisex T-Shirt",
+      "basePrice": "100.00",
+      "description": "Semi-fitted, 160gm, 100% carded cotton. Self-fabric neckline, side seamed, double stitching on sleeves and hems. Unisex fit based on men's sizes.",
+      "fabricType": "100% Carded Cotton",
+      "productType": "T-Shirt",
+      "createdAt": "2026-03-04 04:12:45",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_vneck_tshirt_b75916df.webp"
+    },
+    {
+      "id": "60004",
+      "name": "100% Cotton Unisex Hoodies",
+      "basePrice": "300.00",
+      "description": "Crew neck, Classic fit, 260gm, 100% brushed cotton anti-pill fleece. Pullover hood, set-in sleeves, kangaroo pocket. Lined hood, tonal fabric drawcord, ribbed waistband and sleeve cuffs. Unisex fit based on men's sizes.",
+      "fabricType": "100% Cotton Fleece",
+      "productType": "Hoodie",
+      "createdAt": "2026-03-04 04:12:45",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_hoodie_unisex_645c5841.webp"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tbasePrice\tdescription\tfabricType\tproductType\tcreatedAt\timageUrl\n60001\t100% Cotton Plain T-Shirt (Crew Cut)\t85.00\tCrew neck, 180gm, 100% Carded Cotton. Neck ribbing, Tubular knit, Neck tape, double stitching on sleeves and hems. Unisex fit based on men's sizes.\t100% Carded Cotton\tT-Shirt\t2026-03-04 04:12:45\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_heavyweight_tshirt_crew_3f6fb7ec.webp\n60002\tDry Fit Polo Golf T-Shirt\t150.00\tSemi-fitted, 140gm, 100% bird mesh polyester. Raglan sleeves, 2 button placket, tonal buttons. Side seamed, double stitching. Unisex fit based on men's sizes.\t100% Polyester\tPolo\t2026-03-04 04:12:45\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_dryfit_polo_1516a2ff.webp\n60003\tV-Neck Unisex T-Shirt\t100.00\tSemi-fitted, 160gm, 100% carded cotton. Self-fabric neckline, side seamed, double stitching on sleeves and hems. Unisex fit based on men's sizes.\t100% Carded Cotton\tT-Shirt\t2026-03-04 04:12:45\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_vneck_tshirt_b75916df.webp\n60004\t100% Cotton Unisex Hoodies\t300.00\tCrew neck, Classic fit, 260gm, 100% brushed cotton anti-pill fleece. Pullover hood, set-in sleeves, kangaroo pocket. Lined hood, tonal fabric drawcord, ribbed waistband and sleeve cuffs. Unisex fit based on men's sizes.\t100% Cotton Fleece\tHoodie\t2026-03-04 04:12:45\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/vicbay_hoodie_unisex_645c5841.webp\n",
+  "stderr": "",
+  "execution_time_ms": 365
+}

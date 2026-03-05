@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE productColors SET productId = 60001 WHERE productId = 1;\nUPDATE productColors SET productId = 60002 WHERE productId = 2;\nUPDATE productColors SET productId = 60003 WHERE productId = 3;\nUPDATE productColors SET productId = 60004 WHERE productId = 4;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE productColors SET productId = 60001 WHERE productId = 1;\nUPDATE productColors SET productId = 60002 WHERE productId = 2;\nUPDATE productColors SET productId = 60003 WHERE productId = 3;\nUPDATE productColors SET productId = 60004 WHERE productId = 4;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 560
+}
