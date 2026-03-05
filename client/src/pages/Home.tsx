@@ -71,28 +71,28 @@ export default function Home() {
 
       {/* Enhanced Hero Section - Center Aligned with Colorful Text */}
       <section className="relative overflow-hidden bg-black text-white py-20 sm:py-28 md:py-40">
-        {/* DTF Artwork Background */}
+        {/* Vibrant DTF Color Burst Background */}
         <div 
-          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 opacity-100 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/dtf-hero-bg-NKCpFvYJN8Px8Z4DtsZHz8.webp)',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/dtf-hero-burst-vibrant-BtV4UzdFpe4ZMjCdnwQTMN.webp)',
           }}
         />
         
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/50" />
+        {/* Subtle overlay for text readability */}
+        <div className="absolute inset-0 bg-black/30" />
 
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           {/* Hero Content - Center Aligned */}
           <div className="space-y-6 sm:space-y-8 md:space-y-10">
             {/* Main Heading with Bold Colorful Text */}
             <div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4 sm:mb-6">
-                <span className="block text-white">Custom DTF</span>
-                <span className="block bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-graffiti leading-tight mb-4 sm:mb-6 tracking-tight" style={{ fontFamily: '"Fredoka One", sans-serif', letterSpacing: '-0.02em' }}>
+                <span className="block text-white drop-shadow-lg">Custom DTF</span>
+                <span className="block bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse drop-shadow-lg">
                   Printing
                 </span>
-                <span className="block text-white">Made Simple</span>
+                <span className="block text-white drop-shadow-lg">Made Simple</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-gray-200 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
                 Design, preview, and order custom-printed apparel with our intuitive platform. Premium quality DTF printing for your brand.
