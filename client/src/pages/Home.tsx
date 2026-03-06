@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2 } from "lucide-react";
+import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2, Palette, Settings, Upload, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -126,37 +126,50 @@ export default function Home() {
       <section className="bg-soft-grey py-12 sm:py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-8 sm:mb-12 text-center text-foreground">How It Works</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
               {
-                step: 1,
+                icon: Palette,
                 title: "Choose Garment",
-                description: "Select from our premium apparel collection",
+                description: "Select from our premium collection",
+                color: "text-pink-500",
+                bgColor: "bg-pink-100",
               },
               {
-                step: 2,
+                icon: Settings,
                 title: "Select Print Options",
-                description: "Pick placement and size for your design",
+                description: "Pick placement and size",
+                color: "text-blue-500",
+                bgColor: "bg-blue-100",
               },
               {
-                step: 3,
+                icon: Upload,
                 title: "Upload Design",
-                description: "Upload your artwork in any format",
+                description: "Upload your artwork",
+                color: "text-purple-500",
+                bgColor: "bg-purple-100",
               },
               {
-                step: 4,
+                icon: CheckCircle,
                 title: "Preview & Order",
-                description: "See your design on the garment and submit",
+                description: "See your design and submit",
+                color: "text-green-500",
+                bgColor: "bg-green-100",
               },
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-12 sm:w-16 h-12 sm:h-16 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-black text-lg sm:text-2xl mx-auto mb-3 sm:mb-4">
-                  {item.step}
+            ].map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <div key={index} className="flex md:flex-col md:text-center gap-4 md:gap-0">
+                  <div className={`${item.bgColor} ${item.color} rounded-lg p-3 md:p-4 flex-shrink-0 md:mx-auto md:mb-4 w-fit md:w-auto`}>
+                    <IconComponent className="w-6 h-6 md:w-8 md:h-8" />
+                  </div>
+                  <div className="flex-1 md:flex-none">
+                    <h3 className="text-base sm:text-lg md:text-lg font-bold mb-1 text-foreground">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </div>
                 </div>
-                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 text-foreground">{item.title}</h3>
-                <p className="text-sm sm:text-base text-muted-foreground">{item.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -231,20 +244,23 @@ export default function Home() {
 
 
 
-      {/* Bold CTA Section */}
-      <section className="bg-gradient-to-r from-black to-deep-charcoal text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-accent/10 rounded-full blur-3xl"></div>
+      {/* Bold CTA Section with DTF Designs Background */}
+      <section className="text-white py-16 sm:py-20 md:py-24 relative overflow-hidden bg-cover bg-center" style={{
+        backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/dtf-cta-designs-background-X3wLnvasjvnYHrTRPkkvDQ.webp)',
+      }}>
+        {/* Slight dark overlay */}
+        <div className="absolute inset-0 bg-black/35" />
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 leading-tight drop-shadow-lg">
             Ready to Print Your Design?
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-gray-100 mb-6 sm:mb-8 drop-shadow-md">
             Create your first custom order today and see the difference quality makes.
           </p>
           <Button
             onClick={() => setLocation("/order")}
             size="lg"
-            className="bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-12 py-7 font-bold group"
+            className="bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-12 py-7 font-bold group shadow-lg"
           >
             Start Your Order
             <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
