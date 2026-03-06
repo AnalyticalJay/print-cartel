@@ -694,3 +694,11 @@
 - [x] Test responsive design on mobile and desktop
 - [x] Verify all changes work correctly
 - [x] All 108 tests passing - layout and design updates complete
+
+
+## Current Task - Center-Align Mobile Sections
+- [x] Center-align How it Works section on mobile view
+- [x] Center-align Why Choose Print Cartel section on mobile view
+- [x] Verify responsive design on all breakpoints
+- [x] Test on mobile, tablet, and desktop
+- [x] All 108 tests passing - center alignment complete

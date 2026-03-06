@@ -159,7 +159,7 @@ export default function Home() {
             ].map((item, index) => {
               const IconComponent = item.icon;
               return (
-                <div key={index} className="flex md:flex-col md:text-center gap-4 md:gap-0">
+                <div key={index} className="flex flex-col items-center text-center md:flex-col md:text-center gap-4 md:gap-0">
                   <div className={`${item.bgColor} ${item.color} rounded-lg p-3 md:p-4 flex-shrink-0 md:mx-auto md:mb-4 w-fit md:w-auto`}>
                     <IconComponent className="w-6 h-6 md:w-8 md:h-8" />
                   </div>
@@ -222,7 +222,7 @@ export default function Home() {
             ].map((feature) => {
               const Icon = feature.icon;
               return (
-                <div key={feature.title} className="group relative bg-white p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border hover:border-accent/50">
+                <div key={feature.title} className="group relative bg-white p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-border hover:border-accent/50 flex flex-col items-center text-center sm:text-left sm:items-start">
                   {/* Icon Background */}
                   <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full -mr-12 -mt-12 group-hover:bg-accent/10 transition-colors duration-300" />
                   
