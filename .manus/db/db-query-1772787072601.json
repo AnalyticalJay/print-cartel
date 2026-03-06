@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM productSizes WHERE id NOT IN (SELECT MIN(id) FROM (SELECT id FROM productSizes WHERE productId = 60001 ORDER BY sizeName) AS temp GROUP BY sizeName) AND productId = 60001",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute DELETE FROM productSizes WHERE id NOT IN (SELECT MIN(id) FROM (SELECT id FROM productSizes WHERE productId = 60001 ORDER BY sizeName) AS temp GROUP BY sizeName) AND productId = 60001",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 364
+}

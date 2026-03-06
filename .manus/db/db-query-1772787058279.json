@@ -1,0 +1,82 @@
+{
+  "query": "SELECT id, colorName FROM productColors WHERE productId = 60001 ORDER BY colorName",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, colorName FROM productColors WHERE productId = 60001 ORDER BY colorName",
+  "rows": [
+    {
+      "id": "30001",
+      "colorName": "Black"
+    },
+    {
+      "id": "1",
+      "colorName": "Black"
+    },
+    {
+      "id": "7",
+      "colorName": "Bottle Green"
+    },
+    {
+      "id": "30007",
+      "colorName": "Gray"
+    },
+    {
+      "id": "30002",
+      "colorName": "Green"
+    },
+    {
+      "id": "6",
+      "colorName": "Grey Melange"
+    },
+    {
+      "id": "8",
+      "colorName": "Lime Green"
+    },
+    {
+      "id": "3",
+      "colorName": "Navy"
+    },
+    {
+      "id": "30004",
+      "colorName": "Navy"
+    },
+    {
+      "id": "10",
+      "colorName": "Orange"
+    },
+    {
+      "id": "9",
+      "colorName": "Red"
+    },
+    {
+      "id": "30005",
+      "colorName": "Red"
+    },
+    {
+      "id": "4",
+      "colorName": "Royal Blue"
+    },
+    {
+      "id": "5",
+      "colorName": "Sky Blue"
+    },
+    {
+      "id": "30006",
+      "colorName": "White"
+    },
+    {
+      "id": "2",
+      "colorName": "White"
+    },
+    {
+      "id": "11",
+      "colorName": "Yellow"
+    },
+    {
+      "id": "30003",
+      "colorName": "Yellow"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcolorName\n30001\tBlack\n1\tBlack\n7\tBottle Green\n30007\tGray\n30002\tGreen\n6\tGrey Melange\n8\tLime Green\n3\tNavy\n30004\tNavy\n10\tOrange\n9\tRed\n30005\tRed\n4\tRoyal Blue\n5\tSky Blue\n30006\tWhite\n2\tWhite\n11\tYellow\n30003\tYellow\n",
+  "stderr": "",
+  "execution_time_ms": 423
+}

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { BulkDiscountTable } from "@/components/BulkDiscountTable";
+
 import { ProductSlider } from "@/components/ProductSlider";
 import { trpc } from "@/lib/trpc";
 
@@ -71,16 +71,16 @@ export default function Home() {
 
       {/* Enhanced Hero Section - Center Aligned with Colorful Text */}
       <section className="relative overflow-hidden bg-black text-white py-20 sm:py-28 md:py-40">
-        {/* Vibrant DTF Color Burst Background */}
+        {/* T-Shirt Mockup Background */}
         <div 
           className="absolute inset-0 opacity-100 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/dtf-hero-burst-vibrant-BtV4UzdFpe4ZMjCdnwQTMN.webp)',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/tshirt-hero-splash-czPtMi7tbbazyVqaoGTspp.webp)',
           }}
         />
         
-        {/* Subtle overlay for text readability */}
-        <div className="absolute inset-0 bg-black/30" />
+        {/* Light overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40" />
 
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           {/* Hero Content - Center Aligned */}
@@ -89,7 +89,7 @@ export default function Home() {
             <div>
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-graffiti leading-tight mb-4 sm:mb-6 tracking-tight" style={{ fontFamily: '"Fredoka One", sans-serif', letterSpacing: '-0.02em' }}>
                 <span className="block text-white drop-shadow-lg">Custom DTF</span>
-                <span className="block bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400 bg-clip-text text-transparent animate-pulse drop-shadow-lg">
+                <span className="block text-yellow-300 drop-shadow-lg font-bold">
                   Printing
                 </span>
                 <span className="block text-white drop-shadow-lg">Made Simple</span>
@@ -229,18 +229,7 @@ export default function Home() {
       </section>
 
 
-      {/* Bulk Discount Pricing Section */}
-      <section className="bg-white py-12 sm:py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-3 sm:mb-4 text-foreground">Bulk Order Pricing</h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Save more when you order in bulk. Get up to 30% discount on orders of 100+ units.
-            </p>
-          </div>
-          <BulkDiscountTable />
-        </div>
-      </section>
+
 
       {/* Bold CTA Section */}
       <section className="bg-gradient-to-r from-black to-deep-charcoal text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">

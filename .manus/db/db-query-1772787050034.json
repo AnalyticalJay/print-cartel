@@ -1,0 +1,30 @@
+{
+  "query": "SELECT colorName, COUNT(*) as count FROM productColors WHERE productId = 60001 GROUP BY colorName HAVING count > 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT colorName, COUNT(*) as count FROM productColors WHERE productId = 60001 GROUP BY colorName HAVING count > 1",
+  "rows": [
+    {
+      "colorName": "Black",
+      "count": "2"
+    },
+    {
+      "colorName": "White",
+      "count": "2"
+    },
+    {
+      "colorName": "Navy",
+      "count": "2"
+    },
+    {
+      "colorName": "Yellow",
+      "count": "2"
+    },
+    {
+      "colorName": "Red",
+      "count": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "colorName\tcount\nBlack\t2\nWhite\t2\nNavy\t2\nYellow\t2\nRed\t2\n",
+  "stderr": "",
+  "execution_time_ms": 360
+}

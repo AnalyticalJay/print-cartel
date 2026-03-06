@@ -669,3 +669,15 @@
 - [x] Verify text remains readable with lighter overlay
 - [x] Ensure design appeals to both individual and business customers
 - [x] All 108 tests passing - hero section enhancement complete
+
+
+## Current Task - Fix Hero Section & OrderWizard Issues
+- [x] Debug duplicate size/color options in OrderWizard
+- [x] Fix the query or data binding causing duplicates
+- [x] Remove bulk pricing table from home page
+- [x] Generate new hero background with T-shirt and subtle color splash
+- [x] Update hero section with new background
+- [x] Fix "Printing" text readability (remove pulsing, change color)
+- [x] Test OrderWizard with fixed options
+- [x] Verify hero section on all screen sizes
+- [x] All 108 tests passing - fixes complete
