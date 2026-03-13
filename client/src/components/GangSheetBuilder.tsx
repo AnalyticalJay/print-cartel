@@ -74,7 +74,8 @@ export function GangSheetBuilder({ gangSheetId }: { gangSheetId: number }) {
     const files = e.target.files;
     if (!files) return;
 
-    for (const file of files) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       if (file.size > 25 * 1024 * 1024) {
         toast.error(`File ${file.name} exceeds 25MB limit`);
         continue;
@@ -128,7 +129,7 @@ export function GangSheetBuilder({ gangSheetId }: { gangSheetId: number }) {
   const handleDelete = (id: string) => {
     setArtwork(artwork.filter((a) => a.id !== id));
     if (fabricCanvasRef.current) {
-      const obj = fabricCanvasRef.current.getObjects().find((o) => o.id === id);
+      const obj = fabricCanvasRef.current.getObjects().find((o) => (o as any).id === id);
       if (obj) {
         fabricCanvasRef.current.remove(obj);
         fabricCanvasRef.current.renderAll();
@@ -140,7 +141,7 @@ export function GangSheetBuilder({ gangSheetId }: { gangSheetId: number }) {
     if (!fabricCanvasRef.current) return;
 
     try {
-      const dataUrl = fabricCanvasRef.current.toDataURL({ format: 'png' });
+      const dataUrl = fabricCanvasRef.current.toDataURL({ format: 'png', multiplier: 1 });
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = `gang-sheet-${gangSheetId}.png`;

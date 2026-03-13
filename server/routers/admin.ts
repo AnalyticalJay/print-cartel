@@ -77,7 +77,7 @@ export const adminRouter = router({
     .input(
       z.object({
         orderIds: z.array(z.number()),
-        status: z.enum(["pending", "quoted", "approved", "in-production", "completed"]),
+        status: z.enum(["pending", "quoted", "approved", "in-production", "completed", "shipped", "cancelled"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -107,7 +107,7 @@ export const adminRouter = router({
     .input(
       z.object({
         orderId: z.number(),
-        status: z.enum(["pending", "quoted", "approved", "in-production", "completed"]),
+        status: z.enum(["pending", "quoted", "approved", "in-production", "completed", "shipped", "cancelled"]),
         quoteAmount: z.number().optional(),
       })
     )

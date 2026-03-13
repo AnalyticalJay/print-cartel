@@ -20,20 +20,20 @@ const AddArtworkInput = z.object({
   dpi: z.number().default(300),
   positionX: z.number().default(0),
   positionY: z.number().default(0),
-  width: z.number(),
-  height: z.number(),
+  width: z.number().positive(),
+  height: z.number().positive(),
   rotation: z.number().default(0),
-  zIndex: z.number().default(0),
+  zIndex: z.number().int().default(0),
 });
 
 const UpdateArtworkInput = z.object({
   id: z.number(),
-  positionX: z.number().optional(),
-  positionY: z.number().optional(),
-  width: z.number().optional(),
-  height: z.number().optional(),
+  positionX: z.number().int().optional(),
+  positionY: z.number().int().optional(),
+  width: z.number().positive().optional(),
+  height: z.number().positive().optional(),
   rotation: z.number().optional(),
-  zIndex: z.number().optional(),
+  zIndex: z.number().int().optional(),
 });
 
 const SubmitGangSheetInput = z.object({
@@ -52,14 +52,15 @@ export const gangSheets = router({
   create: protectedProcedure
     .input(CreateGangSheetInput)
     .mutation(async ({ input, ctx }) => {
-      const gangSheet = await createGangSheet({
+      const gangSheetId = await createGangSheet({
         userId: ctx.user!.id,
         name: input.name,
         description: input.description,
         quantity: input.quantity,
         status: "draft",
       });
-      return gangSheet;
+      const gangSheet = await getGangSheetById(gangSheetId);
+      return gangSheet || { id: gangSheetId };
     }),
 
   getById: protectedProcedure
@@ -112,12 +113,12 @@ export const gangSheets = router({
         originalWidth: input.originalWidth,
         originalHeight: input.originalHeight,
         dpi: input.dpi,
-        positionX: input.positionX,
-        positionY: input.positionY,
+        positionX: input.positionX.toString(),
+        positionY: input.positionY.toString(),
         width: input.width.toString(),
         height: input.height.toString(),
         rotation: input.rotation.toString(),
-        zIndex: input.zIndex?.toString(),
+        zIndex: input.zIndex,
       });
       return artwork;
     }),
@@ -136,14 +137,14 @@ export const gangSheets = router({
   updateArtwork: protectedProcedure
     .input(UpdateArtworkInput)
     .mutation(async ({ input }) => {
-      return updateGangSheetArtwork(input.id, {
-        positionX: input.positionX,
-        positionY: input.positionY,
-        width: input.width.toString(),
-        height: input.height.toString(),
-        rotation: input.rotation.toString(),
-        zIndex: input.zIndex?.toString(),
-      });
+      const updateData: Partial<Record<string, any>> = {};
+      if (input.positionX !== undefined) updateData.positionX = input.positionX.toString();
+      if (input.positionY !== undefined) updateData.positionY = input.positionY.toString();
+      if (input.width !== undefined) updateData.width = input.width.toString();
+      if (input.height !== undefined) updateData.height = input.height.toString();
+      if (input.rotation !== undefined) updateData.rotation = input.rotation.toString();
+      if (input.zIndex !== undefined) updateData.zIndex = input.zIndex;
+      return updateGangSheetArtwork(input.id, updateData);
     }),
 
   deleteArtwork: protectedProcedure

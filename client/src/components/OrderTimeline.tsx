@@ -1,14 +1,14 @@
 import { Check, Clock } from "lucide-react";
 
 interface TimelineEvent {
-  status: "pending" | "quoted" | "approved" | "in-production" | "completed";
+  status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
   label: string;
   date: Date;
   completed: boolean;
 }
 
 interface OrderTimelineProps {
-  currentStatus: "pending" | "quoted" | "approved" | "in-production" | "completed";
+  currentStatus: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
   createdAt: Date;
   updatedAt: Date;
 }

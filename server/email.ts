@@ -244,7 +244,7 @@ export async function sendStatusUpdateEmail(
   orderId: number,
   customerEmail: string,
   customerName: string,
-  newStatus: "pending" | "quoted" | "approved" | "in-production" | "completed",
+  newStatus: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled",
   quoteAmount?: number
 ) {
   if (!SMTP_USER || !SMTP_PASS) {
