@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET imageUrl = CASE \n  WHEN id = 1 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/MrMlciaIpWPTCAnd.jpg'\n  WHEN id = 2 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/DrUCUkSHOeqSsCZH.jpg'\n  WHEN id = 3 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/jEQLrLKFBjYduUCG.png'\n  WHEN id = 4 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/NrojTyrlevQgsIvJ.jpg'\nEND WHERE id IN (1, 2, 3, 4);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE products SET imageUrl = CASE \n  WHEN id = 1 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/MrMlciaIpWPTCAnd.jpg'\n  WHEN id = 2 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/DrUCUkSHOeqSsCZH.jpg'\n  WHEN id = 3 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/jEQLrLKFBjYduUCG.png'\n  WHEN id = 4 THEN 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/NrojTyrlevQgsIvJ.jpg'\nEND WHERE id IN (1, 2, 3, 4);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 350
+}
