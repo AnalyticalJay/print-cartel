@@ -1,0 +1,60 @@
+{
+  "query": "SELECT productId, colorName, colorHex FROM productColors LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT productId, colorName, colorHex FROM productColors LIMIT 10;",
+  "rows": [
+    {
+      "productId": "1",
+      "colorName": "Black",
+      "colorHex": "#000000"
+    },
+    {
+      "productId": "1",
+      "colorName": "White",
+      "colorHex": "#FFFFFF"
+    },
+    {
+      "productId": "1",
+      "colorName": "Navy Blue",
+      "colorHex": "#001F3F"
+    },
+    {
+      "productId": "1",
+      "colorName": "Royal Blue",
+      "colorHex": "#0066CC"
+    },
+    {
+      "productId": "1",
+      "colorName": "Light Blue",
+      "colorHex": "#87CEEB"
+    },
+    {
+      "productId": "1",
+      "colorName": "Gray",
+      "colorHex": "#808080"
+    },
+    {
+      "productId": "1",
+      "colorName": "Green",
+      "colorHex": "#008000"
+    },
+    {
+      "productId": "1",
+      "colorName": "Lime Green",
+      "colorHex": "#32CD32"
+    },
+    {
+      "productId": "1",
+      "colorName": "Pink",
+      "colorHex": "#FFC0CB"
+    },
+    {
+      "productId": "1",
+      "colorName": "Red",
+      "colorHex": "#FF0000"
+    }
+  ],
+  "messages": [],
+  "stdout": "productId\tcolorName\tcolorHex\n1\tBlack\t#000000\n1\tWhite\t#FFFFFF\n1\tNavy Blue\t#001F3F\n1\tRoyal Blue\t#0066CC\n1\tLight Blue\t#87CEEB\n1\tGray\t#808080\n1\tGreen\t#008000\n1\tLime Green\t#32CD32\n1\tPink\t#FFC0CB\n1\tRed\t#FF0000\n",
+  "stderr": "",
+  "execution_time_ms": 366
+}

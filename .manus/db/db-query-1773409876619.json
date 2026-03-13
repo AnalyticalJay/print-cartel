@@ -1,0 +1,22 @@
+{
+  "query": "SELECT DISTINCT productId FROM productColors;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT DISTINCT productId FROM productColors;",
+  "rows": [
+    {
+      "productId": "2"
+    },
+    {
+      "productId": "3"
+    },
+    {
+      "productId": "4"
+    },
+    {
+      "productId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "productId\n2\n3\n4\n1\n",
+  "stderr": "",
+  "execution_time_ms": 350
+}
