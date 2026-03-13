@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO products (name, basePrice, description, fabricType, productType) VALUES \n('140g Unisex T-shirt (Crew Neck)', 85.00, '100% Carded Cotton, 140gm crew neck unisex t-shirt', '100% Carded Cotton, 140gm', 'Crew Neck'),\n('145g Adults Unisex Dri-Fit Golfer', 150.00, '100% bird mesh polyester, 140gm dry fit golfer shirt', '100% bird mesh polyester, 140gm', 'Semi-fitted Dry Fit'),\n('160g V-neck Adults Unisex T-shirt', 100.00, '100% carded cotton, 160gm v-neck t-shirt', '100% carded cotton, 160gm', 'V-Neck'),\n('260g Adults Unisex Hoodie', 300.00, '100% brushed cotton anti-pill fleece, 260gm hoodie', '100% brushed cotton anti-pill fleece, 260gm', 'Crew Neck Hoodie');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute INSERT INTO products (name, basePrice, description, fabricType, productType) VALUES \n('140g Unisex T-shirt (Crew Neck)', 85.00, '100% Carded Cotton, 140gm crew neck unisex t-shirt', '100% Carded Cotton, 140gm', 'Crew Neck'),\n('145g Adults Unisex Dri-Fit Golfer', 150.00, '100% bird mesh polyester, 140gm dry fit golfer shirt', '100% bird mesh polyester, 140gm', 'Semi-fitted Dry Fit'),\n('160g V-neck Adults Unisex T-shirt', 100.00, '100% carded cotton, 160gm v-neck t-shirt', '100% carded cotton, 160gm', 'V-Neck'),\n('260g Adults Unisex Hoodie', 300.00, '100% brushed cotton anti-pill fleece, 260gm hoodie', '100% brushed cotton anti-pill fleece, 260gm', 'Crew Neck Hoodie');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 356
+}

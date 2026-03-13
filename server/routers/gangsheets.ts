@@ -114,10 +114,10 @@ export const gangSheets = router({
         dpi: input.dpi,
         positionX: input.positionX,
         positionY: input.positionY,
-        width: input.width,
-        height: input.height,
-        rotation: input.rotation,
-        zIndex: input.zIndex,
+        width: input.width.toString(),
+        height: input.height.toString(),
+        rotation: input.rotation.toString(),
+        zIndex: input.zIndex?.toString(),
       });
       return artwork;
     }),
@@ -139,10 +139,10 @@ export const gangSheets = router({
       return updateGangSheetArtwork(input.id, {
         positionX: input.positionX,
         positionY: input.positionY,
-        width: input.width,
-        height: input.height,
-        rotation: input.rotation,
-        zIndex: input.zIndex,
+        width: input.width.toString(),
+        height: input.height.toString(),
+        rotation: input.rotation.toString(),
+        zIndex: input.zIndex?.toString(),
       });
     }),
 

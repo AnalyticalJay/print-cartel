@@ -988,3 +988,24 @@ Future enhancements (Phase 2):
 - [x] Added fit guide image with measurement instructions
 - [x] Tested responsive design on mobile and desktop
 - [x] All 141 tests passing
+
+
+## Current Task - Restructure Products with Vicbay Data
+- [ ] Visit Vicbay product pages and extract product data (images, colors, sizes, pricing)
+- [ ] Restructure database with correct product titles and information
+- [ ] Add accurate color options with hex codes for each product
+- [ ] Add accurate size options for each product
+- [ ] Update Order Wizard with correct garment options and pricing
+- [ ] Implement color swatch selection for each garment
+- [ ] Test all garment selections and save checkpoint
+
+
+## Current Task - Restructure Order Wizard with Correct Vicbay Products
+- [x] Extracted product data from 4 Vicbay URLs (140g T-shirt, 145g Dri-Fit Golfer, 160g V-neck, 260g Hoodie)
+- [x] Restructured database with correct products, colors, and sizes
+- [x] Added pricing: R85, R150, R100, R300 respectively
+- [x] Created simplified OrderWizard component with 5-step flow
+- [x] Display products with pricing and bulk discounts (5% at 50+, 10% at 100+, custom at 500+)
+- [x] Implemented color and size selection for each product
+- [x] Updated tests to use new product IDs (1-4)
+- [x] Database contains all 4 Vicbay products with correct color and size attributes

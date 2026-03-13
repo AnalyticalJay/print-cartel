@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO productColors (productId, colorName, colorHex) VALUES \n(1, 'Black', '#000000'), (1, 'White', '#FFFFFF'), (1, 'Navy Blue', '#001F3F'), (1, 'Royal Blue', '#0066CC'), (1, 'Light Blue', '#87CEEB'), (1, 'Gray', '#808080'), (1, 'Green', '#008000'), (1, 'Lime Green', '#32CD32'), (1, 'Pink', '#FFC0CB'), (1, 'Red', '#FF0000'), (1, 'Orange', '#FFA500'), (1, 'Yellow', '#FFFF00'),\n(2, 'Black', '#000000'), (2, 'White', '#FFFFFF'), (2, 'Navy Blue', '#001F3F'), (2, 'Royal Blue', '#0066CC'), (2, 'Red', '#FF0000'),\n(3, 'Black', '#000000'), (3, 'Navy Blue', '#001F3F'), (3, 'Gray', '#808080'),\n(4, 'Black', '#000000'), (4, 'Navy Blue', '#001F3F'), (4, 'Gray', '#808080'), (4, 'Dark Gray', '#A9A9A9');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute INSERT INTO productColors (productId, colorName, colorHex) VALUES \n(1, 'Black', '#000000'), (1, 'White', '#FFFFFF'), (1, 'Navy Blue', '#001F3F'), (1, 'Royal Blue', '#0066CC'), (1, 'Light Blue', '#87CEEB'), (1, 'Gray', '#808080'), (1, 'Green', '#008000'), (1, 'Lime Green', '#32CD32'), (1, 'Pink', '#FFC0CB'), (1, 'Red', '#FF0000'), (1, 'Orange', '#FFA500'), (1, 'Yellow', '#FFFF00'),\n(2, 'Black', '#000000'), (2, 'White', '#FFFFFF'), (2, 'Navy Blue', '#001F3F'), (2, 'Royal Blue', '#0066CC'), (2, 'Red', '#FF0000'),\n(3, 'Black', '#000000'), (3, 'Navy Blue', '#001F3F'), (3, 'Gray', '#808080'),\n(4, 'Black', '#000000'), (4, 'Navy Blue', '#001F3F'), (4, 'Gray', '#808080'), (4, 'Dark Gray', '#A9A9A9');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 448
+}

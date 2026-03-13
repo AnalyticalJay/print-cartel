@@ -11,7 +11,7 @@ describe("pricing service", () => {
 
   it("calculates order price with product and quantity", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 2,
       printPlacements: [],
     });
@@ -27,7 +27,7 @@ describe("pricing service", () => {
 
   it("does not include placement costs in total price", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 1,
       printPlacements: [
         { printSizeId: 1 },
@@ -41,7 +41,7 @@ describe("pricing service", () => {
 
   it("includes print size costs in total price", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 1,
       printPlacements: [{ printSizeId: 1 }],
     });
@@ -52,7 +52,7 @@ describe("pricing service", () => {
 
   it("calculates correct total with all components", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 3,
       printPlacements: [
         { printSizeId: 1 },
@@ -66,7 +66,7 @@ describe("pricing service", () => {
 
   it("returns detailed breakdown information", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 2,
       printPlacements: [{ printSizeId: 1 }],
     });
@@ -80,7 +80,7 @@ describe("pricing service", () => {
 
   it("applies bulk discount for 10+ units", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 10,
       printPlacements: [],
     });
@@ -92,7 +92,7 @@ describe("pricing service", () => {
 
   it("applies bulk discount for 50+ units", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 50,
       printPlacements: [],
     });
@@ -104,7 +104,7 @@ describe("pricing service", () => {
 
   it("applies bulk discount for 100+ units", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 100,
       printPlacements: [],
     });
@@ -129,7 +129,7 @@ describe("pricing service", () => {
 
   it("handles multiple placements with different sizes", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 1,
       printPlacements: [
         { printSizeId: 1 },
@@ -145,7 +145,7 @@ describe("pricing service", () => {
 
   it("applies bulk discount for large quantities", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 100,
       printPlacements: [{ printSizeId: 1 }],
     });
@@ -159,7 +159,7 @@ describe("pricing service", () => {
 
   it("pricing breakdown includes all components", async () => {
     const pricing = await calculateOrderPrice({
-      productId: 60001,
+      productId: 1,
       quantity: 5,
       printPlacements: [{ printSizeId: 1 }],
     });
@@ -181,7 +181,7 @@ describe("pricing service", () => {
   });
 
   it("gets product price", async () => {
-    const price = await getProductPrice(60001);
+    const price = await getProductPrice(1);
     expect(price).toBeGreaterThan(0);
   });
 });

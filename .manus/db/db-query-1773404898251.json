@@ -1,0 +1,34 @@
+{
+  "query": "SELECT p.id, p.name, COUNT(DISTINCT pc.id) as color_count, COUNT(DISTINCT ps.id) as size_count FROM products p LEFT JOIN productColors pc ON p.id = pc.productId LEFT JOIN productSizes ps ON p.id = ps.productId GROUP BY p.id, p.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT p.id, p.name, COUNT(DISTINCT pc.id) as color_count, COUNT(DISTINCT ps.id) as size_count FROM products p LEFT JOIN productColors pc ON p.id = pc.productId LEFT JOIN productSizes ps ON p.id = ps.productId GROUP BY p.id, p.name;",
+  "rows": [
+    {
+      "id": "90001",
+      "name": "140g Unisex T-shirt (Crew Neck)",
+      "color_count": "0",
+      "size_count": "0"
+    },
+    {
+      "id": "90002",
+      "name": "145g Adults Unisex Dri-Fit Golfer",
+      "color_count": "0",
+      "size_count": "0"
+    },
+    {
+      "id": "90003",
+      "name": "160g V-neck Adults Unisex T-shirt",
+      "color_count": "0",
+      "size_count": "0"
+    },
+    {
+      "id": "90004",
+      "name": "260g Adults Unisex Hoodie",
+      "color_count": "0",
+      "size_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcolor_count\tsize_count\n90001\t140g Unisex T-shirt (Crew Neck)\t0\t0\n90002\t145g Adults Unisex Dri-Fit Golfer\t0\t0\n90003\t160g V-neck Adults Unisex T-shirt\t0\t0\n90004\t260g Adults Unisex Hoodie\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 369
+}
