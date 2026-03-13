@@ -1053,3 +1053,10 @@ Future enhancements (Phase 2):
 - [x] Add file upload UI to admin chat
 - [x] Display file attachments with download/preview
 - [x] Test file sharing functionality
+
+
+## Current Task - Chat Widget & Communications Tab
+- [x] Adjust chat widget mobile positioning to avoid overlapping next button
+- [x] Create chat section component for Communications tab
+- [x] Integrate chat section into Communications tab with active conversations
+- [x] Test mobile and desktop layouts

@@ -177,7 +177,7 @@ export function CustomerChatBox({
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 rounded-full w-14 h-14 bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg"
+        className="fixed bottom-6 right-4 md:right-6 rounded-full w-14 h-14 bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg z-40"
         size="icon"
       >
         <MessageCircle className="w-6 h-6" />
@@ -186,7 +186,7 @@ export function CustomerChatBox({
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 max-h-[600px] bg-gray-800 border-gray-700 shadow-xl flex flex-col">
+    <Card className="fixed bottom-6 right-4 md:right-6 w-96 max-h-[600px] bg-gray-800 border-gray-700 shadow-xl flex flex-col z-40">
       <CardHeader className="border-b border-gray-700 pb-3">
         <div className="flex justify-between items-center">
           <CardTitle className="text-white text-lg">Chat with Admin</CardTitle>

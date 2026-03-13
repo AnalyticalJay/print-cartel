@@ -11,6 +11,7 @@ import { Download, Eye, LogOut, ArrowLeft, MessageSquare } from "lucide-react";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderMockupPreview } from "@/components/OrderMockupPreview";
 import { CommunicationHistory } from "@/components/CommunicationHistory";
+import { ChatSection } from "@/components/ChatSection";
 import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { toast } from "sonner";
 
@@ -268,7 +269,12 @@ export default function CustomerDashboard() {
 
         {/* Communications Section */}
         {activeTab === 'communications' && (
-          <CommunicationHistory />
+          <div className="space-y-8">
+            <ChatSection />
+            <div className="border-t border-gray-800 pt-8">
+              <CommunicationHistory />
+            </div>
+          </div>
         )}
 
         {/* Order Details Modal */}
