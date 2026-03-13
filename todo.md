@@ -977,3 +977,14 @@ Future enhancements (Phase 2):
 - [x] Added hover effects, selection indicators, and color name labels
 - [x] Tested color selection with visual feedback - all 141 tests passing
 - [x] Responsive design verified on all screen sizes
+
+
+## Current Task - Add Size Chart and Fit Guide to Order Wizard
+- [x] Generated professional size chart image with measurements in centimetres (XS to 5XL)
+- [x] Created fit guide infographic showing how to measure garment fit
+- [x] Created SizeChartDisplay component with expandable/collapsible chart
+- [x] Integrated size chart into Order Wizard Step 1 below size selector
+- [x] Added detailed size measurements table with chest width, length, sleeve length
+- [x] Added fit guide image with measurement instructions
+- [x] Tested responsive design on mobile and desktop
+- [x] All 141 tests passing

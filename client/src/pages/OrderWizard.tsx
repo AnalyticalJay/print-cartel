@@ -10,6 +10,7 @@ import { FileUploadZone } from "@/components/FileUploadZone";
 import { PricingDisplay, type PricingBreakdownData } from "@/components/PricingDisplay";
 import { ColorSwatchSelector } from "@/components/ColorSwatchSelector";
 import { SizeSelector } from "@/components/SizeSelector";
+import { SizeChartDisplay } from "@/components/SizeChartDisplay";
 import { DeliveryMethodSelector } from "@/components/DeliveryMethodSelector";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -279,6 +280,8 @@ export default function OrderWizard() {
                                 setOrderData({ ...orderData, sizeId })
                               }
                             />
+
+                            <SizeChartDisplay />
                           </>
                         )}
 
