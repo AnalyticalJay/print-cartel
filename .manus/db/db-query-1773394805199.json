@@ -1,0 +1,62 @@
+{
+  "query": "SELECT id, sizeName FROM productSizes WHERE productId = 60002 ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, sizeName FROM productSizes WHERE productId = 60002 ORDER BY id;",
+  "rows": [
+    {
+      "id": "7",
+      "sizeName": "S"
+    },
+    {
+      "id": "8",
+      "sizeName": "M"
+    },
+    {
+      "id": "9",
+      "sizeName": "L"
+    },
+    {
+      "id": "10",
+      "sizeName": "XL"
+    },
+    {
+      "id": "11",
+      "sizeName": "2XL"
+    },
+    {
+      "id": "12",
+      "sizeName": "3XL"
+    },
+    {
+      "id": "30011",
+      "sizeName": "S"
+    },
+    {
+      "id": "30012",
+      "sizeName": "M"
+    },
+    {
+      "id": "30013",
+      "sizeName": "L"
+    },
+    {
+      "id": "30014",
+      "sizeName": "XL"
+    },
+    {
+      "id": "30015",
+      "sizeName": "2XL"
+    },
+    {
+      "id": "30016",
+      "sizeName": "3XL"
+    },
+    {
+      "id": "30017",
+      "sizeName": "5XL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsizeName\n7\tS\n8\tM\n9\tL\n10\tXL\n11\t2XL\n12\t3XL\n30011\tS\n30012\tM\n30013\tL\n30014\tXL\n30015\t2XL\n30016\t3XL\n30017\t5XL\n",
+  "stderr": "",
+  "execution_time_ms": 350
+}

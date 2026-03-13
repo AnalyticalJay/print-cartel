@@ -1,0 +1,115 @@
+{
+  "query": "SELECT id, colorName, colorHex FROM productColors WHERE productId = 60002 ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, colorName, colorHex FROM productColors WHERE productId = 60002 ORDER BY id;",
+  "rows": [
+    {
+      "id": "12",
+      "colorName": "Black",
+      "colorHex": "#000000"
+    },
+    {
+      "id": "13",
+      "colorName": "White",
+      "colorHex": "#FFFFFF"
+    },
+    {
+      "id": "14",
+      "colorName": "Navy Blue",
+      "colorHex": "#001F3F"
+    },
+    {
+      "id": "15",
+      "colorName": "Royal Blue",
+      "colorHex": "#4169E1"
+    },
+    {
+      "id": "16",
+      "colorName": "Sky Blue",
+      "colorHex": "#87CEEB"
+    },
+    {
+      "id": "17",
+      "colorName": "Khaki",
+      "colorHex": "#F0E68C"
+    },
+    {
+      "id": "18",
+      "colorName": "Grey Melange",
+      "colorHex": "#A9A9A9"
+    },
+    {
+      "id": "19",
+      "colorName": "Charcoal",
+      "colorHex": "#36454F"
+    },
+    {
+      "id": "20",
+      "colorName": "Bottle Green",
+      "colorHex": "#006B3F"
+    },
+    {
+      "id": "21",
+      "colorName": "Lime Green",
+      "colorHex": "#32CD32"
+    },
+    {
+      "id": "22",
+      "colorName": "Yellow",
+      "colorHex": "#FFFF00"
+    },
+    {
+      "id": "23",
+      "colorName": "Pink",
+      "colorHex": "#FFC0CB"
+    },
+    {
+      "id": "24",
+      "colorName": "Red",
+      "colorHex": "#FF0000"
+    },
+    {
+      "id": "25",
+      "colorName": "Orange",
+      "colorHex": "#FFA500"
+    },
+    {
+      "id": "26",
+      "colorName": "Gold",
+      "colorHex": "#FFD700"
+    },
+    {
+      "id": "30008",
+      "colorName": "Black",
+      "colorHex": "#000000"
+    },
+    {
+      "id": "30009",
+      "colorName": "Blue",
+      "colorHex": "#0000FF"
+    },
+    {
+      "id": "30010",
+      "colorName": "Red",
+      "colorHex": "#FF0000"
+    },
+    {
+      "id": "30011",
+      "colorName": "White",
+      "colorHex": "#FFFFFF"
+    },
+    {
+      "id": "30012",
+      "colorName": "Navy",
+      "colorHex": "#000080"
+    },
+    {
+      "id": "30013",
+      "colorName": "Gray",
+      "colorHex": "#808080"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcolorName\tcolorHex\n12\tBlack\t#000000\n13\tWhite\t#FFFFFF\n14\tNavy Blue\t#001F3F\n15\tRoyal Blue\t#4169E1\n16\tSky Blue\t#87CEEB\n17\tKhaki\t#F0E68C\n18\tGrey Melange\t#A9A9A9\n19\tCharcoal\t#36454F\n20\tBottle Green\t#006B3F\n21\tLime Green\t#32CD32\n22\tYellow\t#FFFF00\n23\tPink\t#FFC0CB\n24\tRed\t#FF0000\n25\tOrange\t#FFA500\n26\tGold\t#FFD700\n30008\tBlack\t#000000\n30009\tBlue\t#0000FF\n30010\tRed\t#FF0000\n30011\tWhite\t#FFFFFF\n30012\tNavy\t#000080\n30013\tGray\t#808080\n",
+  "stderr": "",
+  "execution_time_ms": 347
+}
