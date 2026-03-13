@@ -60,7 +60,7 @@ export function SizeGuideModal({ isOpen, onClose, productType = "T-Shirt" }: Siz
     return `${(min * 2.54).toFixed(1)}-${(max * 2.54).toFixed(1)}`;
   };
 
-  const currentSizes = sizeData[productType];
+  const currentSizes = sizeData[productType] || sizeData["T-Shirt"];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -103,7 +103,7 @@ export function SizeGuideModal({ isOpen, onClose, productType = "T-Shirt" }: Siz
                 </tr>
               </thead>
               <tbody>
-                {currentSizes.map((row, idx) => (
+                {currentSizes && currentSizes.map((row, idx) => (
                   <tr key={idx} className={idx % 2 === 0 ? "bg-background" : "bg-muted/30"}>
                     <td className="px-4 py-3 font-semibold text-accent">{row.size}</td>
                     <td className="px-4 py-3">{convertRange(row.chest)}</td>
