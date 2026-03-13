@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { FileUploadZone } from "@/components/FileUploadZone";
 import { PricingDisplay, type PricingBreakdownData } from "@/components/PricingDisplay";
-import { ColorSelector } from "@/components/ColorSelector";
+import { ColorSwatchSelector } from "@/components/ColorSwatchSelector";
 import { SizeSelector } from "@/components/SizeSelector";
 import { DeliveryMethodSelector } from "@/components/DeliveryMethodSelector";
 import { toast } from "sonner";
@@ -264,7 +264,7 @@ export default function OrderWizard() {
                           </div>
                         ) : (
                           <>
-                            <ColorSelector
+                            <ColorSwatchSelector
                               colors={productColors}
                               selectedColorId={orderData.colorId || null}
                               onColorSelect={(colorId) =>
