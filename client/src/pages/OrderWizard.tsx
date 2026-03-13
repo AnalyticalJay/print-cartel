@@ -101,7 +101,9 @@ export default function OrderWizard() {
   const productColors = colorsQuery.data || [];
   const productSizes = sizesQuery.data || [];
   const placements = placementsQuery.data || [];
-  const printOptions = printOptionsQuery.data || [];
+  // Filter print options to show only first 4 (without brackets)
+  const allPrintOptions = printOptionsQuery.data || [];
+  const printOptions = allPrintOptions.filter((opt: any) => !opt.printSize.includes('(') && !opt.printSize.includes(')')).slice(0, 4);
 
   // Redirect to login if not authenticated
   if (!user) {

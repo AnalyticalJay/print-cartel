@@ -1060,3 +1060,9 @@ Future enhancements (Phase 2):
 - [x] Create chat section component for Communications tab
 - [x] Integrate chat section into Communications tab with active conversations
 - [x] Test mobile and desktop layouts
+
+
+## Current Task - Remove Duplicate DTF Size Options
+- [x] Identify and remove A4 duplicate options from placement selections
+- [x] Ensure only first 4 DTF size options display per placement
+- [x] Test placement selection UI
