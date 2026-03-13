@@ -288,25 +288,13 @@ export default function Home() {
               </Button>
             </div>
 
-            {/* Second Column - Admin Dashboard with Analytics Background */}
-            <div className="relative">
-              {/* Analytics Line Graph Background */}
-              <div className="absolute inset-0 rounded-2xl overflow-hidden opacity-40 -z-10 blur-sm">
-                <img 
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/analytics-line-graph-A39QWVj4aoCekS4vSfrcAn.webp" 
-                  alt="Analytics Growth Graph" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              {/* Admin Dashboard Mockup - Positioned on top */}
-              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
-                <img 
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/admin-dashboard-mockup-dZoMtcVxTqbzSTN9TmfbA4.webp" 
-                  alt="Admin Dashboard - Mobile and Desktop" 
-                  className="w-full h-auto object-cover"
-                />
-              </div>
+            {/* Second Column - Admin Dashboard Mockup */}
+            <div className="flex justify-center">
+              <img 
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/admin-dashboard-mockup-clean-V4bQck5GZ8aDbfWXbYNyxZ.webp" 
+                alt="Admin Dashboard - Mobile and Desktop" 
+                className="w-full max-w-2xl h-auto object-contain"
+              />
             </div>
           </div>
         </div>
