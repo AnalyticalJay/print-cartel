@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download, Eye, Edit2, TrendingUp, Trash2, Mail, Calendar, MessageSquare } from "lucide-react";
+import { Download, Eye, Edit2, TrendingUp, Trash2, Mail, Calendar, MessageSquare, MessageCircle } from "lucide-react";
 import { useLocation } from "wouter";
-import { AdminChatManager } from "@/components/AdminChatManager";
-import { AdminMessageBadge } from "@/components/AdminMessageBadge";
+import { AdminChatPanel } from "@/components/AdminChatPanel";
+import { ChatNotificationHandler } from "@/components/ChatNotificationHandler";
+
 
 type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
 
@@ -36,7 +37,24 @@ interface OrderWithDetails {
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'orders' | 'chat'>('orders');
+
+  // Notification handler for new chat messages
+  if (user?.role === "admin") {
+    return (
+      <>
+        <ChatNotificationHandler />
+        <AdminDashboardContent />
+      </>
+    );
+  }
+
+  return null;
+}
+
+function AdminDashboardContent() {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications'>('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -44,6 +62,7 @@ export default function AdminDashboard() {
   const [bulkStatusUpdate, setBulkStatusUpdate] = useState<OrderStatus | "">();
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const ordersQuery = trpc.admin.getAllOrders.useQuery(undefined, {
     enabled: user?.role === "admin",
@@ -54,6 +73,20 @@ export default function AdminDashboard() {
   });
 
   const bulkUpdateMutation = trpc.admin.bulkUpdateOrderStatus.useMutation();
+  const conversationsQuery = trpc.chat.getAllConversations.useQuery(undefined, {
+    refetchInterval: 3000,
+  });
+
+  // Update unread count when conversations change
+  useEffect(() => {
+    if (conversationsQuery.data) {
+      const total = conversationsQuery.data.reduce(
+        (sum, conv) => sum + (conv.unreadCount || 0),
+        0
+      );
+      setUnreadCount(total);
+    }
+  }, [conversationsQuery.data]);
 
   // Redirect non-admin users
   if (user && user.role !== "admin") {
@@ -174,7 +207,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4" id="admin-dashboard">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -182,7 +215,11 @@ export default function AdminDashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
             <p className="text-gray-600 mt-2">Manage orders, update statuses, and adjust pricing</p>
           </div>
-          <AdminMessageBadge />
+          {unreadCount > 0 && (
+            <Badge className="bg-red-500 text-white">
+              {unreadCount} new message{unreadCount !== 1 ? 's' : ''}
+            </Badge>
+          )}
         </div>
 
         {/* Tab Navigation */}
@@ -212,7 +249,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Chat Tab */}
-        {activeTab === 'chat' && <AdminChatManager />}
+        {activeTab === 'chat' && <AdminChatPanel />}
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (

@@ -11,6 +11,7 @@ import { Download, Eye, LogOut, ArrowLeft, MessageSquare } from "lucide-react";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderMockupPreview } from "@/components/OrderMockupPreview";
 import { CommunicationHistory } from "@/components/CommunicationHistory";
+import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -46,6 +47,7 @@ export default function CustomerDashboard() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<'orders' | 'communications'>('orders');
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
+  const [showChat, setShowChat] = useState(false);
 
   // Fetch orders for authenticated user
   const ordersQuery = trpc.orders.getByEmail.useQuery(
@@ -387,11 +389,29 @@ export default function CustomerDashboard() {
                     </p>
                   </div>
                 )}
+
+                {/* Chat Support Button */}
+                <Button
+                  onClick={() => setShowChat(true)}
+                  className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Chat with Admin
+                </Button>
               </CardContent>
             </Card>
           </div>
         )}
       </div>
+
+      {/* Chat Component */}
+      {showChat && selectedOrder && (
+        <CustomerChatBox
+          orderId={selectedOrder.id}
+          customerEmail={selectedOrder.customerEmail}
+          customerName={`${selectedOrder.customerFirstName} ${selectedOrder.customerLastName}`}
+        />
+      )}
     </div>
   );
 }
