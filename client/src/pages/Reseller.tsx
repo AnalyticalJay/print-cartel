@@ -117,7 +117,7 @@ export default function Reseller() {
       <Navigation />
       {/* Enhanced Hero Section */}
       <section className="relative py-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-cover bg-center" style={{
-        backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/reseller-hero-colorful-bg-86G9QHyavE8Yvb3brdngcX.webp)',
+        backgroundImage: 'url(https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/rvYLNMxzumWlhecG.png)',
       }}>
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 opacity-20">
