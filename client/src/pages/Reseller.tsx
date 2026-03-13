@@ -130,11 +130,11 @@ export default function Reseller() {
             <span className="text-primary font-semibold text-sm">Wholesale Opportunity</span>
           </div>
           
-          <h1 className="text-5xl sm:text-6xl font-bold mb-6 text-foreground leading-tight">
+          <h1 className="text-5xl sm:text-6xl font-bold mb-6 text-white leading-tight">
             Grow Your Business with <span className="text-primary">Print Cartel</span>
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-white font-semibold mb-8 max-w-2xl mx-auto">
             Access competitive wholesale pricing, dedicated support, and premium quality to scale your business with our reseller program.
           </p>
           

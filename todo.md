@@ -1108,3 +1108,13 @@ Future enhancements (Phase 2):
 - [x] Integrate NotificationCenter into Customer Dashboard
 - [x] Integrate NotificationCenter into Admin Dashboard
 - [x] Write and run notification system tests (11 tests passing)
+
+
+## Current Task - UI Styling & Mobile Responsive Fixes
+- [x] Change reseller page hero main text "Grow Your Business with" to white color
+- [x] Change reseller page subtext to white and increase font weight
+- [x] Restructure My Account page header for mobile responsiveness
+- [x] Left-align back button and logout button on mobile
+- [x] Center Print Cartel logo between buttons and user details
+- [x] Display user name and surname on right side of header
+- [x] Test mobile responsiveness on various screen sizes

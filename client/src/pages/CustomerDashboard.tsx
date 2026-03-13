@@ -143,40 +143,71 @@ export default function CustomerDashboard() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <nav className="border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={() => setLocation("/")}
-              variant="outline"
-              size="sm"
-              className="text-white border-gray-700 hover:bg-gray-900"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Print Cartel</h1>
-              <p className="text-gray-400 text-sm">Customer Dashboard</p>
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          {/* Mobile Layout */}
+          <div className="flex md:hidden items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setLocation("/")}
+                variant="outline"
+                size="sm"
+                className="text-white border-gray-700 hover:bg-gray-900 p-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                className="border-gray-700 text-gray-400 hover:text-white p-2"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <NotificationCenter />
+            <div className="flex-1 text-center">
+              <h1 className="text-lg font-bold">Print Cartel</h1>
+            </div>
             <div className="text-right">
-              <p className="font-semibold">{user.firstName} {user.lastName}</p>
-              <p className="text-gray-400 text-sm">{user.email}</p>
+              <p className="font-semibold text-sm">{user.firstName} {user.lastName}</p>
             </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              size="sm"
-              className="border-gray-700 text-gray-400 hover:text-white"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
           </div>
-          <PushNotificationManager />
+          
+          {/* Desktop Layout */}
+          <div className="hidden md:flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => setLocation("/")}
+                variant="outline"
+                size="sm"
+                className="text-white border-gray-700 hover:bg-gray-900"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Home
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold">Print Cartel</h1>
+                <p className="text-gray-400 text-sm">Customer Dashboard</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <NotificationCenter />
+              <div className="text-right">
+                <p className="font-semibold">{user.firstName} {user.lastName}</p>
+                <p className="text-gray-400 text-sm">{user.email}</p>
+              </div>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                className="border-gray-700 text-gray-400 hover:text-white"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
         </div>
+        <PushNotificationManager />
       </nav>
 
       <div className="max-w-6xl mx-auto px-4 py-12">
