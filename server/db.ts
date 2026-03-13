@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, resellerInquiries, InsertResellerInquiry, bulkPricingTiers } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -267,4 +267,25 @@ export async function getAllBulkPricingTiers() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(bulkPricingTiers).orderBy(bulkPricingTiers.productId, bulkPricingTiers.minQuantity);
+}
+
+// Reseller response functions
+export async function createResellerResponse(data: InsertResellerResponse) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(resellerResponses).values(data);
+  return result[0].insertId;
+}
+
+export async function getResellerResponses(inquiryId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(resellerResponses).where(eq(resellerResponses.inquiryId, inquiryId)).orderBy(resellerResponses.sentAt);
+}
+
+export async function getResellerResponseCount(inquiryId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select().from(resellerResponses).where(eq(resellerResponses.inquiryId, inquiryId));
+  return result.length;
 }

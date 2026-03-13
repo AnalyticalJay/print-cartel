@@ -211,3 +211,18 @@ export const bulkPricingTiers = mysqlTable("bulkPricingTiers", {
 
 export type BulkPricingTier = typeof bulkPricingTiers.$inferSelect;
 export type InsertBulkPricingTier = typeof bulkPricingTiers.$inferInsert;
+
+
+// Reseller responses table for admin communications
+export const resellerResponses = mysqlTable("resellerResponses", {
+  id: int("id").autoincrement().primaryKey(),
+  inquiryId: int("inquiryId").notNull(),
+  adminId: int("adminId").notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ResellerResponse = typeof resellerResponses.$inferSelect;
+export type InsertResellerResponse = typeof resellerResponses.$inferInsert;

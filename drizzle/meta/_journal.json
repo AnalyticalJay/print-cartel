@@ -64,6 +64,13 @@
       "when": 1773384882423,
       "tag": "0008_workable_rocket_racer",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1773385169321,
+      "tag": "0009_curly_madame_web",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,8 @@ import {
   getAllBulkPricingTiers,
 } from "../db";
 import { notifyOwner } from "../_core/notification";
+import { protectedProcedure } from "../_core/trpc";
+import { createResellerResponse, getResellerResponses } from "../db";
 
 export const resellerRouter = router({
   // Submit a reseller inquiry
@@ -111,4 +113,59 @@ export const resellerRouter = router({
       return [];
     }
   }),
+
+  // Admin: Send response to reseller inquiry
+  sendResponse: protectedProcedure
+    .input(
+      z.object({
+        inquiryId: z.number(),
+        subject: z.string().min(1, "Subject is required"),
+        message: z.string().min(1, "Message is required"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        if (ctx.user?.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        const inquiry = await getResellerInquiry(input.inquiryId);
+        if (!inquiry) {
+          throw new Error("Inquiry not found");
+        }
+
+        const responseId = await createResellerResponse({
+          inquiryId: input.inquiryId,
+          adminId: ctx.user.id,
+          subject: input.subject,
+          message: input.message,
+        });
+
+        // Notify the reseller about the response
+        await notifyOwner({
+          title: `Response to Reseller Inquiry - ${inquiry.companyName}`,
+          content: `Response sent to ${inquiry.contactName} at ${inquiry.email}\n\nSubject: ${input.subject}\n\nMessage: ${input.message}`,
+        });
+
+        return { success: true, responseId };
+      } catch (error) {
+        console.error("Failed to send response:", error);
+        throw new Error("Failed to send response");
+      }
+    }),
+
+  // Admin: Get responses for an inquiry
+  getResponses: protectedProcedure
+    .input(z.object({ inquiryId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        if (ctx.user?.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+        return await getResellerResponses(input.inquiryId);
+      } catch (error) {
+        console.error("Failed to get responses:", error);
+        return [];
+      }
+    }),
 });
