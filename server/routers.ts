@@ -12,6 +12,7 @@ import { resellerRouter } from "./routers/reseller";
 import { gangSheets } from "./routers/gangsheets";
 import { productionRouter } from "./routers/production";
 import { referralRouter } from "./routers/referral";
+import { templatesRouter } from "./routers/templates";
 
 const gangSheetsRouter = gangSheets;
 
@@ -39,6 +40,7 @@ export const appRouter = router({
   gangSheets: gangSheetsRouter,
   production: productionRouter,
   referral: referralRouter,
+  templates: templatesRouter,
 });
 
 export type AppRouter = typeof appRouter;

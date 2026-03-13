@@ -1,4 +1,4 @@
-import { decimal, int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, decimal, int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -351,6 +351,41 @@ export const productionQueue = mysqlTable("productionQueue", {
 
 export type ProductionQueue = typeof productionQueue.$inferSelect;
 export type InsertProductionQueue = typeof productionQueue.$inferInsert;
+
+// Design templates table
+export const designTemplates = mysqlTable("designTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }).notNull(), // e.g., "Sports", "Business", "Event", "Casual"
+  templateImageUrl: varchar("templateImageUrl", { length: 500 }).notNull(), // Preview image
+  templateDesignUrl: varchar("templateDesignUrl", { length: 500 }).notNull(), // Actual design file (SVG/PNG)
+  defaultProductId: int("defaultProductId"), // Suggested product
+  defaultColorId: int("defaultColorId"), // Suggested color
+  defaultPlacements: json("defaultPlacements"), // Array of placement IDs
+  defaultPrintSizes: json("defaultPrintSizes"), // Array of print size IDs
+  isPopular: boolean("isPopular").default(false),
+  usageCount: int("usageCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DesignTemplate = typeof designTemplates.$inferSelect;
+export type InsertDesignTemplate = typeof designTemplates.$inferInsert;
+
+// Template customization options
+export const templateCustomizations = mysqlTable("templateCustomizations", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull(),
+  customizationType: mysqlEnum("customizationType", ["color", "text", "size", "placement"]).notNull(),
+  label: varchar("label", { length: 255 }).notNull(), // e.g., "Logo Color", "Company Name"
+  defaultValue: varchar("defaultValue", { length: 255 }),
+  allowedValues: json("allowedValues"), // Array of allowed values or constraints
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TemplateCustomization = typeof templateCustomizations.$inferSelect;
+export type InsertTemplateCustomization = typeof templateCustomizations.$inferInsert;
 
 // Foreign key constraint for chat file attachments
 // Note: Add these in a migration if not already present

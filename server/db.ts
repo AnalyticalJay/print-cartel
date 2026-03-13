@@ -1,6 +1,6 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, chatFileAttachments, InsertChatFileAttachment, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork, referralProgram, InsertReferralProgram, referralTracking, InsertReferralTracking, productionQueue, InsertProductionQueue } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, chatFileAttachments, InsertChatFileAttachment, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork, referralProgram, InsertReferralProgram, referralTracking, InsertReferralTracking, productionQueue, InsertProductionQueue, designTemplates, InsertDesignTemplate, templateCustomizations, InsertTemplateCustomization } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -677,4 +677,98 @@ export async function getProductionQueueByAdminId(adminId: number): Promise<any[
     .orderBy(desc(productionQueue.createdAt));
   
   return result;
+}
+
+
+// Design Template Functions
+export async function getAllDesignTemplates(): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(designTemplates)
+    .orderBy(desc(designTemplates.isPopular), desc(designTemplates.usageCount));
+  
+  return result;
+}
+
+export async function getDesignTemplatesByCategory(category: string): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(designTemplates)
+    .where(eq(designTemplates.category, category))
+    .orderBy(desc(designTemplates.usageCount));
+  
+  return result;
+}
+
+export async function getDesignTemplateById(templateId: number): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(designTemplates)
+    .where(eq(designTemplates.id, templateId));
+  
+  return result[0] || null;
+}
+
+export async function getTemplateCustomizations(templateId: number): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(templateCustomizations)
+    .where(eq(templateCustomizations.templateId, templateId));
+  
+  return result;
+}
+
+export async function createDesignTemplate(template: InsertDesignTemplate): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(designTemplates).values(template);
+  return result;
+}
+
+export async function createTemplateCustomization(customization: InsertTemplateCustomization): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(templateCustomizations).values(customization);
+  return result;
+}
+
+export async function incrementTemplateUsage(templateId: number): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.update(designTemplates)
+    .set({ usageCount: (await getDesignTemplateById(templateId))?.usageCount + 1 || 1 })
+    .where(eq(designTemplates.id, templateId));
+  
+  return result;
+}
+
+export async function getPopularTemplates(limit: number = 6): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(designTemplates)
+    .where(eq(designTemplates.isPopular, true))
+    .orderBy(desc(designTemplates.usageCount))
+    .limit(limit);
+  
+  return result;
+}
+
+export async function getTemplateCategories(): Promise<string[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select({ category: designTemplates.category }).from(designTemplates);
+  const categoriesSet = new Set<string>();
+  result.forEach(r => categoriesSet.add(r.category));
+  const categories = Array.from(categoriesSet);
+  
+  return categories;
 }

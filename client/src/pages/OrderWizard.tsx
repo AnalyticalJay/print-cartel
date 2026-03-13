@@ -9,12 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Loader2, ChevronRight, ChevronLeft, Upload, X, ChevronDown } from "lucide-react";
+import { Loader2, ChevronRight, ChevronLeft, Upload, X, ChevronDown, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { TemplateLibrary } from "@/components/TemplateLibrary";
+import { TemplatePreview } from "@/components/TemplatePreview";
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type Step = 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 7;
 
 interface PrintSelection {
   placementId: number;
@@ -62,6 +64,8 @@ export default function OrderWizard() {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [expandedPlacement, setExpandedPlacement] = useState<number | null>(null);
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [orderData, setOrderData] = useState<OrderData>({
     productId: null,
     colorId: null,
@@ -258,7 +262,7 @@ export default function OrderWizard() {
         {/* Step Indicator */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            {[1, 2, 3, 4, 5, 6, 7].map((step) => (
+            {[1, 1.5, 2, 3, 4, 5, 6, 7].map((step) => (
               <div
                 key={step}
                 className={`flex-1 h-2 mx-1 rounded-full transition-all ${
@@ -268,7 +272,7 @@ export default function OrderWizard() {
             ))}
           </div>
           <p className="text-center text-gray-400 text-sm">
-            Step {currentStep} of 7
+            Step {currentStep === 1.5 ? "1" : currentStep} of 7
           </p>
         </div>
 
@@ -281,6 +285,14 @@ export default function OrderWizard() {
                 <CardHeader>
                   <CardTitle className="text-white">Select Your Garment</CardTitle>
                   <CardDescription>Choose product, color, size, and quantity</CardDescription>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowTemplateLibrary(true)}
+                    className="mt-4 w-full bg-accent/20 border-accent text-accent hover:bg-accent hover:text-black"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Browse Design Templates
+                  </Button>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Product Selection */}
@@ -928,6 +940,51 @@ export default function OrderWizard() {
             </Card>
           </div>
         </div>
+
+        {/* Template Library Modal */}
+        {showTemplateLibrary && !selectedTemplateId && (
+          <div className="fixed inset-0 bg-black/80 z-50 overflow-y-auto">
+            <div className="max-w-6xl mx-auto p-4 py-12">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-white">Design Templates</h2>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowTemplateLibrary(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    X
+                  </Button>
+                </div>
+                <TemplateLibrary
+                  onTemplateSelect={(template) => {
+                    setSelectedTemplateId(template.id);
+                  }}
+                  showActions={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Template Preview Modal */}
+        {showTemplateLibrary && selectedTemplateId && (
+          <div className="fixed inset-0 bg-black/80 z-50 overflow-y-auto">
+            <div className="max-w-6xl mx-auto p-4 py-12">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                <TemplatePreview
+                  templateId={selectedTemplateId}
+                  onBack={() => setSelectedTemplateId(null)}
+                  onUseTemplate={(customizations) => {
+                    setShowTemplateLibrary(false);
+                    setSelectedTemplateId(null);
+                    toast.success("Template applied! Customize your order below.");
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
