@@ -1,6 +1,6 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, chatFileAttachments, InsertChatFileAttachment, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, chatFileAttachments, InsertChatFileAttachment, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork, referralProgram, InsertReferralProgram, referralTracking, InsertReferralTracking, productionQueue, InsertProductionQueue } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -491,4 +491,190 @@ export async function getConversationWithMessagesAndAttachments(conversationId: 
     }))
   );
   return { ...conversation, messages: messagesWithAttachments };
+}
+
+
+// ===== REFERRAL PROGRAM FUNCTIONS =====
+
+export async function createReferralProgram(userId: number, referralCode: string, discountPercentage: number = 10): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(referralProgram).values({
+    userId,
+    referralCode,
+    discountPercentage: discountPercentage.toString(),
+    totalReferrals: 0,
+    totalRewardValue: "0",
+  });
+  
+  return result;
+}
+
+export async function getReferralProgramByUserId(userId: number): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(referralProgram).where(eq(referralProgram.userId, userId));
+  return result[0] || null;
+}
+
+export async function getReferralProgramByCode(referralCode: string): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(referralProgram).where(eq(referralProgram.referralCode, referralCode));
+  return result[0] || null;
+}
+
+export async function createReferralTracking(referralId: number, referredEmail: string, referredUserId: number): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(referralTracking).values({
+    referralId,
+    referredUserId,
+    referredEmail,
+    status: "pending",
+    rewardAmount: "0",
+    rewardType: "discount",
+  });
+  
+  return result;
+}
+
+export async function completeReferralTracking(trackingId: number, firstOrderId: number, rewardAmount: number): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.update(referralTracking)
+    .set({
+      status: "completed",
+      firstOrderId,
+      firstOrderDate: new Date(),
+      rewardAmount: rewardAmount.toString(),
+      rewardClaimedDate: new Date(),
+    })
+    .where(eq(referralTracking.id, trackingId));
+  
+  return result;
+}
+
+export async function getReferralTrackingByReferralId(referralId: number): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(referralTracking).where(eq(referralTracking.referralId, referralId));
+  return result;
+}
+
+export async function getReferralTrackingByReferredEmail(referredEmail: string): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(referralTracking).where(eq(referralTracking.referredEmail, referredEmail));
+  return result[0] || null;
+}
+
+// ===== PRODUCTION QUEUE FUNCTIONS =====
+
+export async function createProductionQueueEntry(orderId: number, estimatedCompletionDate?: Date): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(productionQueue).values({
+    orderId,
+    status: "pending",
+    estimatedCompletionDate,
+    priority: "normal",
+  });
+  
+  return result;
+}
+
+export async function getProductionQueueByOrderId(orderId: number): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(productionQueue).where(eq(productionQueue.orderId, orderId));
+  return result[0] || null;
+}
+
+export async function updateProductionQueueStatus(queueId: number, status: string, notes?: string): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: Record<string, any> = {};
+  if (["pending", "quoted", "approved", "in-production", "ready", "completed", "shipped", "cancelled"].includes(status)) {
+    updateData.status = status as any;
+  }
+  if (notes) updateData.productionNotes = notes;
+  if (status === "completed" || status === "ready") {
+    updateData.actualCompletionDate = new Date();
+  }
+  
+  const result = await db.update(productionQueue)
+    .set(updateData)
+    .where(eq(productionQueue.id, queueId));
+  
+  return result;
+}
+
+export async function getProductionQueueByStatus(status: string): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(productionQueue)
+    .where(eq(productionQueue.status, status as any))
+    .orderBy(desc(productionQueue.createdAt));
+  
+  return result;
+}
+
+export async function getAllProductionQueue(): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(productionQueue)
+    .orderBy(desc(productionQueue.createdAt));
+  
+  return result;
+}
+
+export async function assignProductionQueueToAdmin(queueId: number, adminId: number): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.update(productionQueue)
+    .set({ assignedToAdminId: adminId })
+    .where(eq(productionQueue.id, queueId));
+  
+  return result;
+}
+
+export async function updateProductionQueuePriority(queueId: number, priority: string): Promise<any> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: Record<string, any> = {};
+  if (["low", "normal", "high", "urgent"].includes(priority)) {
+    updateData.priority = priority as any;
+  }
+  
+  const result = await db.update(productionQueue)
+    .set(updateData)
+    .where(eq(productionQueue.id, queueId));
+  
+  return result;
+}
+
+export async function getProductionQueueByAdminId(adminId: number): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(productionQueue)
+    .where(eq(productionQueue.assignedToAdminId, adminId))
+    .orderBy(desc(productionQueue.createdAt));
+  
+  return result;
 }

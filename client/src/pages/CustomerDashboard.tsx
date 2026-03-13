@@ -13,6 +13,7 @@ import { OrderMockupPreview } from "@/components/OrderMockupPreview";
 import { CommunicationHistory } from "@/components/CommunicationHistory";
 import { ChatSection } from "@/components/ChatSection";
 import { CustomerChatBox } from "@/components/CustomerChatBox";
+import { ReferralProgram } from "@/components/ReferralProgram";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -46,7 +47,7 @@ interface OrderWithPrints {
 export default function CustomerDashboard() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'orders' | 'communications'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'communications' | 'referral'>('orders');
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
   const [showChat, setShowChat] = useState(false);
 
@@ -199,6 +200,17 @@ export default function CustomerDashboard() {
             <MessageSquare className="w-4 h-4 inline mr-2" />
             Communications
           </button>
+          <button
+            onClick={() => setActiveTab('referral')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'referral'
+                ? 'border-white text-white'
+                : 'border-transparent text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4 inline mr-2" />
+            Referral Program
+          </button>
         </div>
 
         {/* Orders Section */}
@@ -274,6 +286,14 @@ export default function CustomerDashboard() {
             <div className="border-t border-gray-800 pt-8">
               <CommunicationHistory />
             </div>
+          </div>
+        )}
+
+        {/* Referral Program Section */}
+        {activeTab === 'referral' && (
+          <div>
+            <h2 className="text-3xl font-bold mb-6">Referral Program</h2>
+            <ReferralProgram />
           </div>
         )}
 

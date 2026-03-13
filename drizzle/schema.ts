@@ -300,6 +300,58 @@ export const gangSheetArtwork = mysqlTable("gangSheetArtwork", {
 export type GangSheetArtwork = typeof gangSheetArtwork.$inferSelect;
 export type InsertGangSheetArtwork = typeof gangSheetArtwork.$inferInsert;
 
+// Referral program table
+export const referralProgram = mysqlTable("referralProgram", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // User who is referring
+  referralCode: varchar("referralCode", { length: 50 }).notNull().unique(), // Unique code for sharing
+  discountPercentage: decimal("discountPercentage", { precision: 5, scale: 2 }).default("10").notNull(), // Discount offered to referred friends
+  totalReferrals: int("totalReferrals").default(0).notNull(), // Count of successful referrals
+  totalRewardValue: decimal("totalRewardValue", { precision: 10, scale: 2 }).default("0").notNull(), // Total value of rewards earned
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ReferralProgram = typeof referralProgram.$inferSelect;
+export type InsertReferralProgram = typeof referralProgram.$inferInsert;
+
+// Referral tracking table
+export const referralTracking = mysqlTable("referralTracking", {
+  id: int("id").autoincrement().primaryKey(),
+  referralId: int("referralId").notNull(), // FK to referralProgram
+  referredUserId: int("referredUserId").notNull(), // User who was referred
+  referredEmail: varchar("referredEmail", { length: 320 }).notNull(),
+  status: mysqlEnum("status", ["pending", "completed", "cancelled"]).default("pending").notNull(),
+  rewardAmount: decimal("rewardAmount", { precision: 10, scale: 2 }).default("0").notNull(),
+  rewardType: mysqlEnum("rewardType", ["discount", "credit", "cash"]).default("discount").notNull(),
+  firstOrderId: int("firstOrderId"), // First order placed by referred user
+  firstOrderDate: timestamp("firstOrderDate"),
+  rewardClaimedDate: timestamp("rewardClaimedDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ReferralTracking = typeof referralTracking.$inferSelect;
+export type InsertReferralTracking = typeof referralTracking.$inferInsert;
+
+// Production queue table for tracking order progress
+export const productionQueue = mysqlTable("productionQueue", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  status: mysqlEnum("status", ["pending", "quoted", "approved", "in-production", "ready", "completed", "shipped", "cancelled"]).default("pending").notNull(),
+  estimatedCompletionDate: timestamp("estimatedCompletionDate"),
+  actualCompletionDate: timestamp("actualCompletionDate"),
+  productionNotes: text("productionNotes"),
+  priority: mysqlEnum("priority", ["low", "normal", "high", "urgent"]).default("normal").notNull(),
+  assignedToAdminId: int("assignedToAdminId"), // Admin assigned to this order
+  gangSheetId: int("gangSheetId"), // Link to gang sheet if consolidated
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProductionQueue = typeof productionQueue.$inferSelect;
+export type InsertProductionQueue = typeof productionQueue.$inferInsert;
+
 // Foreign key constraint for chat file attachments
 // Note: Add these in a migration if not already present
 // ALTER TABLE chatFileAttachments ADD CONSTRAINT fk_chat_file_message FOREIGN KEY (messageId) REFERENCES chatMessages(id) ON DELETE CASCADE;

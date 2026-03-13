@@ -15,6 +15,7 @@ import { Download, Eye, Edit2, TrendingUp, Trash2, Mail, Calendar, MessageSquare
 import { useLocation } from "wouter";
 import { AdminChatPanel } from "@/components/AdminChatPanel";
 import { ChatNotificationHandler } from "@/components/ChatNotificationHandler";
+import { ProductionKanban } from "@/components/ProductionKanban";
 
 
 type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
@@ -54,7 +55,7 @@ export default function AdminDashboard() {
 function AdminDashboardContent() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'production'>('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -246,10 +247,24 @@ function AdminDashboardContent() {
             <MessageSquare className="w-4 h-4 inline mr-2" />
             Messages
           </button>
+          <button
+            onClick={() => setActiveTab('production')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'production'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 inline mr-2" />
+            Production
+          </button>
         </div>
 
         {/* Chat Tab */}
         {activeTab === 'chat' && <AdminChatPanel />}
+
+        {/* Production Tab */}
+        {activeTab === 'production' && <ProductionKanban />}
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (

@@ -1066,3 +1066,14 @@ Future enhancements (Phase 2):
 - [x] Identify and remove A4 duplicate options from placement selections
 - [x] Ensure only first 4 DTF size options display per placement
 - [x] Test placement selection UI
+
+
+## Current Task - Admin Production Dashboard & Referral Program
+- [x] Create database schema for production queue and referral tracking
+- [x] Add backend procedures for order status management and referral operations
+- [x] Build Kanban board component with drag-and-drop status updates
+- [x] Implement production queue with estimated turnaround times
+- [x] Create referral program UI with link generation
+- [x] Integrate referral tracking into customer dashboard
+- [x] Write tests for production dashboard and referral features (12 tests passing)
+- [x] Test Kanban drag-and-drop functionality

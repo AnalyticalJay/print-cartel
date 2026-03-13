@@ -10,6 +10,8 @@ import { quotesRouter } from "./routers/quotes";
 import { chatRouter } from "./routers/chat";
 import { resellerRouter } from "./routers/reseller";
 import { gangSheets } from "./routers/gangsheets";
+import { productionRouter } from "./routers/production";
+import { referralRouter } from "./routers/referral";
 
 const gangSheetsRouter = gangSheets;
 
@@ -35,6 +37,8 @@ export const appRouter = router({
   chat: chatRouter,
   reseller: resellerRouter,
   gangSheets: gangSheetsRouter,
+  production: productionRouter,
+  referral: referralRouter,
 });
 
 export type AppRouter = typeof appRouter;
