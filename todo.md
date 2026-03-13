@@ -1013,3 +1013,9 @@ Future enhancements (Phase 2):
 - [x] Fixed color and size selection display - now shows color swatches and size buttons for each product
 - [x] Improved conditional rendering - color/size sections only appear after product selection
 - [x] Fixed field names to use colorHex and sizeName for proper data display
+
+## Recent Fixes - Color/Size Display and Product Images
+- [x] Fixed missing eq import in db.ts - getProductColors and getProductSizes now work correctly
+- [x] Added product image URLs for all 4 Vicbay garments
+- [x] Product carousel on homepage now displays garment images
+- [x] Color and size selection now displays in OrderWizard for each product

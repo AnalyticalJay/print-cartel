@@ -1,0 +1,37 @@
+{
+  "query": "DESCRIBE productSizes; SELECT COUNT(*) as size_count FROM productSizes;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute DESCRIBE productSizes; SELECT COUNT(*) as size_count FROM productSizes;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "productId",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "sizeName",
+      "Type": "varchar(10)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [
+    "size_count",
+    "25"
+  ],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint\tNO\tPRI\tNULL\tauto_increment\nproductId\tint\tNO\t\tNULL\t\nsizeName\tvarchar(10)\tNO\t\tNULL\t\nsize_count\n25\n",
+  "stderr": "",
+  "execution_time_ms": 412
+}
