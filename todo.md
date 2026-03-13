@@ -1009,3 +1009,4 @@ Future enhancements (Phase 2):
 - [x] Implemented color and size selection for each product
 - [x] Updated tests to use new product IDs (1-4)
 - [x] Database contains all 4 Vicbay products with correct color and size attributes
+- [x] Updated OrderWizard to only display available sizes from database (fixed field name from sizeLabel to sizeName)

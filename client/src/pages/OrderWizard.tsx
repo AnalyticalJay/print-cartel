@@ -321,7 +321,7 @@ export default function OrderWizard() {
                                       : "border-gray-600 bg-gray-700 text-white hover:border-gray-500"
                                   }`}
                                 >
-                                  {size.sizeLabel}
+                                  {size.sizeName}
                                 </button>
                               ))}
                             </div>
