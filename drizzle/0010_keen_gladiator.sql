@@ -1,0 +1,1 @@
+ALTER TABLE `chatConversations` ADD `orderId` int;

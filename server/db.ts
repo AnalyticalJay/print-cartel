@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -227,6 +227,45 @@ export async function markChatMessagesAsRead(conversationId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(chatMessages).set({ isRead: 1 }).where(eq(chatMessages.conversationId, conversationId));
+}
+
+// Get all conversations (for admin)
+export async function getAllChatConversations() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatConversations).orderBy(desc(chatConversations.updatedAt));
+}
+
+// Get conversations by order ID
+export async function getChatConversationsByOrderId(orderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatConversations).where(eq(chatConversations.orderId, orderId)).orderBy(desc(chatConversations.updatedAt));
+}
+
+// Link conversation to order
+export async function linkConversationToOrder(conversationId: number, orderId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(chatConversations).set({ orderId }).where(eq(chatConversations.id, conversationId));
+}
+
+// Get conversation with all messages
+export async function getConversationWithMessages(conversationId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const conversation = await getChatConversation(conversationId);
+  if (!conversation) return null;
+  const messages = await getChatMessages(conversationId);
+  return { ...conversation, messages };
+}
+
+// Get unread message count for a conversation
+export async function getUnreadMessageCount(conversationId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select().from(chatMessages).where(and(eq(chatMessages.conversationId, conversationId), eq(chatMessages.isRead, 0)));
+  return result.length;
 }
 
 // Reseller inquiry functions

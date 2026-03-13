@@ -71,6 +71,13 @@
       "when": 1773385169321,
       "tag": "0009_curly_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1773391283714,
+      "tag": "0010_keen_gladiator",
+      "breakpoints": true
     }
   ]
 }

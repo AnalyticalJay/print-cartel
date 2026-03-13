@@ -8,6 +8,11 @@ import {
   addChatMessage,
   getChatMessages,
   markChatMessagesAsRead,
+  getAllChatConversations,
+  getChatConversationsByOrderId,
+  linkConversationToOrder,
+  getConversationWithMessages,
+  getUnreadMessageCount,
 } from "../db";
 
 export const chatRouter = router({
@@ -53,7 +58,9 @@ export const chatRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // In a real app, you'd check if user is admin
+      if (ctx.user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
       await updateChatConversationStatus(input.conversationId, input.status);
       return { success: true };
     }),
@@ -92,4 +99,90 @@ export const chatRouter = router({
       await markChatMessagesAsRead(input.conversationId);
       return { success: true };
     }),
+
+  // Admin: Get all conversations with unread counts
+  getAllConversations: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== 'admin') {
+      throw new Error('Unauthorized: Admin access required');
+    }
+    const conversations = await getAllChatConversations();
+    const withUnreadCounts = await Promise.all(
+      conversations.map(async (conv) => ({
+        ...conv,
+        unreadCount: await getUnreadMessageCount(conv.id),
+      }))
+    );
+    return withUnreadCounts;
+  }),
+
+  // Admin: Get conversation with full message history
+  getConversationHistory: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      return getConversationWithMessages(input.conversationId);
+    }),
+
+  // Admin: Send reply to conversation
+  sendAdminReply: protectedProcedure
+    .input(
+      z.object({
+        conversationId: z.number(),
+        message: z.string().min(1, 'Message cannot be empty'),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const messageId = await addChatMessage({
+        conversationId: input.conversationId,
+        senderId: ctx.user.id,
+        senderType: 'admin',
+        message: input.message,
+        isRead: 0,
+      });
+      await updateChatConversationStatus(input.conversationId, 'active');
+      return { messageId, success: true };
+    }),
+
+  // Admin: Link conversation to order
+  linkToOrder: protectedProcedure
+    .input(
+      z.object({
+        conversationId: z.number(),
+        orderId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      await linkConversationToOrder(input.conversationId, input.orderId);
+      return { success: true };
+    }),
+
+  // Get conversations for a specific order
+  getByOrder: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      return getChatConversationsByOrderId(input.orderId);
+    }),
+
+  // Customer: Get communication history
+  getCustomerCommunications: protectedProcedure.query(async ({ ctx }) => {
+    const conversations = await getChatConversationsByUserId(ctx.user.id);
+    const enhanced = await Promise.all(
+      conversations.map(async (conv) => ({
+        ...conv,
+        unreadCount: await getUnreadMessageCount(conv.id),
+      }))
+    );
+    return enhanced;
+  }),
 });

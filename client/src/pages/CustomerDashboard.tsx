@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { Download, Eye, LogOut, ArrowLeft } from "lucide-react";
+import { Download, Eye, LogOut, ArrowLeft, MessageSquare } from "lucide-react";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderMockupPreview } from "@/components/OrderMockupPreview";
+import { CommunicationHistory } from "@/components/CommunicationHistory";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -43,6 +44,7 @@ interface OrderWithPrints {
 export default function CustomerDashboard() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState<'orders' | 'communications'>('orders');
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
 
   // Fetch orders for authenticated user
@@ -170,7 +172,34 @@ export default function CustomerDashboard() {
       </nav>
 
       <div className="max-w-6xl mx-auto px-4 py-12">
+        {/* Tab Navigation */}
+        <div className="flex gap-4 border-b border-gray-800 mb-8">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'orders'
+                ? 'border-white text-white'
+                : 'border-transparent text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <Eye className="w-4 h-4 inline mr-2" />
+            Orders
+          </button>
+          <button
+            onClick={() => setActiveTab('communications')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'communications'
+                ? 'border-white text-white'
+                : 'border-transparent text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4 inline mr-2" />
+            Communications
+          </button>
+        </div>
+
         {/* Orders Section */}
+        {activeTab === 'orders' && (
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-6">Your Orders</h2>
 
@@ -233,6 +262,12 @@ export default function CustomerDashboard() {
             </Card>
           )}
         </div>
+        )}
+
+        {/* Communications Section */}
+        {activeTab === 'communications' && (
+          <CommunicationHistory />
+        )}
 
         {/* Order Details Modal */}
         {selectedOrder && (

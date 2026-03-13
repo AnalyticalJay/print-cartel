@@ -13,6 +13,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Download, Eye, Edit2, TrendingUp, Trash2, Mail, Calendar, MessageSquare } from "lucide-react";
 import { useLocation } from "wouter";
+import { AdminChatManager } from "@/components/AdminChatManager";
 
 type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed";
 
@@ -34,6 +35,7 @@ interface OrderWithDetails {
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState<'orders' | 'chat'>('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -179,6 +181,38 @@ export default function AdminDashboard() {
           <p className="text-gray-600 mt-2">Manage orders, update statuses, and adjust pricing</p>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="flex gap-4 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'orders'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 inline mr-2" />
+            Orders
+          </button>
+          <button
+            onClick={() => setActiveTab('chat')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'chat'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4 inline mr-2" />
+            Messages
+          </button>
+        </div>
+
+        {/* Chat Tab */}
+        {activeTab === 'chat' && <AdminChatManager />}
+
+        {/* Orders Tab */}
+        {activeTab === 'orders' && (
+          <>
         {/* Statistics Cards */}
         {statsQuery.data && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -397,16 +431,18 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Order Detail Modal */}
-        {selectedOrderId && (
-          <OrderDetailModal
-            orderId={selectedOrderId}
-            onClose={() => setSelectedOrderId(null)}
-            onOrderUpdated={() => {
-              ordersQuery.refetch();
-              statsQuery.refetch();
-            }}
-          />
+            {/* Order Detail Modal */}
+            {selectedOrderId && (
+              <OrderDetailModal
+                orderId={selectedOrderId}
+                onClose={() => setSelectedOrderId(null)}
+                onOrderUpdated={() => {
+                  ordersQuery.refetch();
+                  statsQuery.refetch();
+                }}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

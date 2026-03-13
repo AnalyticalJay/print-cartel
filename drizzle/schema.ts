@@ -154,6 +154,7 @@ export type InsertQuote = typeof quotes.$inferInsert;
 export const chatConversations = mysqlTable("chatConversations", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
+  orderId: int("orderId"), // Link to specific order if applicable
   visitorName: varchar("visitorName", { length: 255 }),
   visitorEmail: varchar("visitorEmail", { length: 320 }),
   status: mysqlEnum("status", ["active", "closed", "archived"]).default("active").notNull(),
