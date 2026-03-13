@@ -135,7 +135,7 @@ export default function Reseller() {
           </h1>
           
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Partner with us for wholesale DTF printing. Access competitive pricing, dedicated support, and premium quality to scale your business.
+            Access competitive wholesale pricing, dedicated support, and premium quality to scale your business with our reseller program.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

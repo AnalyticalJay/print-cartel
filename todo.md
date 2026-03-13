@@ -949,3 +949,11 @@ Future enhancements (Phase 2):
 - [x] Verify business partners section displays correctly with white background
 - [x] Test responsive design - displays properly on all screen sizes
 - [x] All 141 tests passing
+
+
+## Current Task - Update Reseller Page Hero Section
+- [x] Remove "Partner with us, Unlock growth and opportunities" text
+- [x] Main heading displays "Grow Your Business with Print Cartel"
+- [x] Updated subline text: "Access competitive wholesale pricing, dedicated support, and premium quality to scale your business with our reseller program."
+- [x] Test responsive design - displays correctly on all screen sizes
+- [x] All 141 tests passing
