@@ -887,3 +887,27 @@
 - [x] Test loading states and transitions
 - [x] Verify responsive design with skeleton loaders
 - [x] Run all tests - 141 tests passing with no regressions
+
+
+## Current Task - Link Order Status Changes to Chat & Real-Time Notifications
+- [ ] Update database schema to track order status in chat messages
+- [ ] Create system message generation when order status changes
+- [ ] Add tRPC procedures for order status updates with chat integration
+- [ ] Implement real-time message polling on frontend
+- [ ] Create WebSocket hook for real-time notifications
+- [ ] Integrate real-time updates into CommunicationHistory component
+- [ ] Test full workflow and save checkpoint
+
+
+## Current Task - Link Order Status Changes to Chat with Real-Time Notifications
+- [x] Update database schema with messageType and metadata fields
+- [x] Create system message generation functions
+- [x] Add tRPC procedure for order status updates with chat integration
+- [x] Implement real-time message polling on frontend
+- [x] Create WebSocket hook for real-time notifications
+- [x] Integrate polling into CommunicationHistory component
+- [x] Add notification badge to CommunicationHistory
+- [x] Create AdminMessageBadge component for admin panel
+- [x] Add AdminMessageBadge to AdminDashboard header
+- [x] Update order status enum to include shipped and cancelled
+- [x] All 141 tests passing with no regressions

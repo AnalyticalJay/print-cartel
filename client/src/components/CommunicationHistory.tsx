@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { trpc } from '@/lib/trpc';
-import { MessageCircle, Send, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageCircle, Send, ChevronDown, ChevronUp, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { CommunicationHistorySkeleton } from './CommunicationHistorySkeleton';
 
@@ -13,9 +13,25 @@ export function CommunicationHistory() {
   const [expandedConversation, setExpandedConversation] = useState<number | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch customer communications
   const { data: communications, isLoading, refetch } = trpc.chat.getCustomerCommunications.useQuery();
+
+  // Set up real-time polling for conversations
+  useEffect(() => {
+    if (!isLoading && communications) {
+      pollingIntervalRef.current = setInterval(() => {
+        refetch();
+      }, 3000);
+    }
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [isLoading, communications, refetch]);
 
   // Fetch conversation messages
   const { data: conversationData, refetch: refetchConversation } = trpc.chat.getMessages.useQuery(
@@ -62,9 +78,17 @@ export function CommunicationHistory() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-6">
-        <MessageCircle className="w-5 h-5 text-primary" />
-        <h2 className="text-2xl font-bold">Communication History</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="w-5 h-5 text-primary" />
+          <h2 className="text-2xl font-bold">Communication History</h2>
+        </div>
+        {communications && communications.some((c: any) => c.unreadCount > 0) && (
+          <Badge className="bg-red-500 text-white flex items-center gap-1">
+            <Bell className="w-3 h-3" />
+            {communications.reduce((sum: number, c: any) => sum + c.unreadCount, 0)} new
+          </Badge>
+        )}
       </div>
 
       {communications && communications.length > 0 ? (

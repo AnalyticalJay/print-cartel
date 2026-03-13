@@ -158,7 +158,7 @@ export async function getAllOrders() {
   return db.select().from(orders).orderBy(orders.createdAt);
 }
 
-export async function updateOrderStatus(orderId: number, status: "pending" | "quoted" | "approved") {
+export async function updateOrderStatus(orderId: number, status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(orders).set({ status }).where(eq(orders.id, orderId));
@@ -327,4 +327,62 @@ export async function getResellerResponseCount(inquiryId: number) {
   if (!db) return 0;
   const result = await db.select().from(resellerResponses).where(eq(resellerResponses.inquiryId, inquiryId));
   return result.length;
+}
+
+
+// Chat system message functions
+export async function createSystemMessage(
+  conversationId: number,
+  message: string,
+  messageType: "system" | "status_update" = "system",
+  metadata?: Record<string, unknown>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(chatMessages).values({
+    conversationId,
+    senderType: "admin",
+    messageType,
+    message,
+    metadata: metadata ? JSON.stringify(metadata) : null,
+  });
+  return result[0].insertId;
+}
+
+export async function createOrderStatusUpdateMessage(
+  conversationId: number,
+  orderId: number,
+  previousStatus: string,
+  newStatus: string
+) {
+  const statusMessages: Record<string, string> = {
+    pending: "Your order has been received and is pending review.",
+    quoted: "We have prepared a quote for your order.",
+    approved: "Your order has been approved and is being prepared.",
+    completed: "Your order has been completed and is ready for shipment.",
+    shipped: "Your order has been shipped.",
+    cancelled: "Your order has been cancelled.",
+  };
+
+  const message = `Order status updated: ${previousStatus.toUpperCase()} → ${newStatus.toUpperCase()}. ${statusMessages[newStatus] || ""}`;
+  
+  return createSystemMessage(
+    conversationId,
+    message,
+    "status_update",
+    {
+      orderId,
+      previousStatus,
+      newStatus,
+      timestamp: new Date().toISOString(),
+    }
+  );
+}
+
+export async function getConversationByOrderId(orderId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(chatConversations).where(eq(chatConversations.orderId, orderId));
+  return result[0] || null;
 }

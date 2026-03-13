@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
-import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail } from "../db";
+import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage } from "../db";
 import { sendOrderNotificationEmail } from "../email";
 import { sendOrderConfirmationEmail } from "../email-confirmation";
 
@@ -110,13 +110,35 @@ export const ordersRouter = router({
   }),
 
   updateStatus: protectedProcedure
-    .input(z.object({ orderId: z.number(), status: z.enum(["pending", "quoted", "approved"]) }))
+    .input(z.object({
+      orderId: z.number(),
+      newStatus: z.enum(["pending", "quoted", "approved", "in-production", "completed", "shipped", "cancelled"]),
+    }))
     .mutation(async ({ input, ctx }) => {
       if (ctx.user?.role !== "admin") {
-        throw new Error("Unauthorized");
+        throw new Error("Only admins can update order status");
       }
-      await updateOrderStatus(input.orderId, input.status);
-      return { success: true };
+
+      const order = await getOrderById(input.orderId);
+      if (!order) {
+        throw new Error("Order not found");
+      }
+
+      const previousStatus = order.status;
+      await updateOrderStatus(input.orderId, input.newStatus);
+
+      // Create system message in chat if conversation exists
+      const conversation = await getConversationByOrderId(input.orderId);
+      if (conversation) {
+        await createOrderStatusUpdateMessage(
+          conversation.id,
+          input.orderId,
+          previousStatus,
+          input.newStatus
+        );
+      }
+
+      return { success: true, previousStatus, newStatus: input.newStatus };
     }),
 
   getByEmail: publicProcedure

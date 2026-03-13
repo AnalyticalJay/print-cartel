@@ -93,7 +93,7 @@ export const orders = mysqlTable("orders", {
   sizeId: int("sizeId").notNull(),
   quantity: int("quantity").notNull(),
   totalPriceEstimate: decimal("totalPriceEstimate", { precision: 10, scale: 2 }).notNull(),
-  status: mysqlEnum("status", ["pending", "quoted", "approved", "in-production", "completed"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "quoted", "approved", "in-production", "completed", "shipped", "cancelled"]).default("pending").notNull(),
   customerFirstName: varchar("customerFirstName", { length: 255 }).notNull(),
   customerLastName: varchar("customerLastName", { length: 255 }).notNull(),
   customerEmail: varchar("customerEmail", { length: 320 }).notNull(),
@@ -172,7 +172,9 @@ export const chatMessages = mysqlTable("chatMessages", {
   conversationId: int("conversationId").notNull(),
   senderId: int("senderId"),
   senderType: mysqlEnum("senderType", ["user", "visitor", "admin"]).notNull(),
+  messageType: mysqlEnum("messageType", ["text", "system", "status_update"]).default("text").notNull(),
   message: text("message").notNull(),
+  metadata: text("metadata"), // JSON field for storing order status, previous status, etc.
   isRead: int("isRead").default(0).notNull(), // 0 = false, 1 = true
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

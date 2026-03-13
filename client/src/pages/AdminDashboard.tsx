@@ -14,8 +14,9 @@ import { toast } from "sonner";
 import { Download, Eye, Edit2, TrendingUp, Trash2, Mail, Calendar, MessageSquare } from "lucide-react";
 import { useLocation } from "wouter";
 import { AdminChatManager } from "@/components/AdminChatManager";
+import { AdminMessageBadge } from "@/components/AdminMessageBadge";
 
-type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed";
+type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
 
 interface OrderWithDetails {
   id: number;
@@ -176,9 +177,12 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Manage orders, update statuses, and adjust pricing</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-2">Manage orders, update statuses, and adjust pricing</p>
+          </div>
+          <AdminMessageBadge />
         </div>
 
         {/* Tab Navigation */}
