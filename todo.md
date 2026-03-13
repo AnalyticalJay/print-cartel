@@ -814,3 +814,13 @@
 - [x] Test responsive design on mobile and desktop
 - [x] Verify all images load correctly
 - [x] All 141 tests passing - homepage hero and reseller section updates complete
+
+
+## Current Task - Hero Background & Title Styling Updates
+- [x] Copy uploaded DTF studio image to webdev assets
+- [x] Update hero section to use uploaded image as full-width background
+- [x] Add back shadow effect to hero title for better contrast
+- [x] Change "Printing" text color to vibrant color (orange #FF6B35)
+- [x] Test responsive design on mobile and desktop
+- [x] Verify text readability with new background and shadow effects
+- [x] All 141 tests passing - hero background and title styling complete
