@@ -1,6 +1,6 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -385,4 +385,69 @@ export async function getConversationByOrderId(orderId: number) {
   if (!db) return null;
   const result = await db.select().from(chatConversations).where(eq(chatConversations.orderId, orderId));
   return result[0] || null;
+}
+
+
+// Gang sheet functions
+export async function createGangSheet(data: InsertGangSheet) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(gangSheets).values(data);
+  return result[0].insertId;
+}
+
+export async function getGangSheetById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(gangSheets).where(eq(gangSheets.id, id));
+  return result[0] || null;
+}
+
+export async function getGangSheetsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(gangSheets).where(eq(gangSheets.userId, userId)).orderBy(desc(gangSheets.createdAt));
+}
+
+export async function updateGangSheet(id: number, data: Partial<InsertGangSheet>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(gangSheets).set(data).where(eq(gangSheets.id, id));
+}
+
+export async function deleteGangSheet(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(gangSheets).where(eq(gangSheets.id, id));
+}
+
+export async function addGangSheetArtwork(data: InsertGangSheetArtwork) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(gangSheetArtwork).values(data);
+  return result[0].insertId;
+}
+
+export async function getGangSheetArtwork(gangSheetId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(gangSheetArtwork).where(eq(gangSheetArtwork.gangSheetId, gangSheetId)).orderBy(gangSheetArtwork.zIndex);
+}
+
+export async function updateGangSheetArtwork(id: number, data: Partial<InsertGangSheetArtwork>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(gangSheetArtwork).set(data).where(eq(gangSheetArtwork.id, id));
+}
+
+export async function deleteGangSheetArtwork(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(gangSheetArtwork).where(eq(gangSheetArtwork.id, id));
+}
+
+export async function getAllGangSheets() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(gangSheets).orderBy(desc(gangSheets.createdAt));
 }

@@ -12,6 +12,7 @@ import OrderTracking from "./pages/OrderTracking";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import Reseller from "./pages/Reseller";
 import ResellersManagement from "./pages/ResellersManagement";
+import GangSheetPage from "./pages/GangSheetPage";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/order"} component={OrderWizard} />
       <Route path={"/reseller"} component={Reseller} />
       <Route path={"/admin/resellers"} component={ResellersManagement} />
+      <Route path={"/gang-sheet"} component={GangSheetPage} />
       <Route path={"/track"} component={OrderTracking} />
       <Route path={"/dashboard"} component={CustomerDashboard} />
       <Route path={"/admin"} component={AdminDashboard} />

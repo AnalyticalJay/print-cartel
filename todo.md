@@ -911,3 +911,24 @@
 - [x] Add AdminMessageBadge to AdminDashboard header
 - [x] Update order status enum to include shipped and cancelled
 - [x] All 141 tests passing with no regressions
+
+
+## Current Task - Build Gang Sheet Builder MVP for Resellers
+- [x] Update database schema with gangSheets and gangSheetArtwork tables
+- [x] Create backend tRPC procedures for gang sheet operations
+- [x] Build Gang Sheet Builder UI with Fabric.js canvas (900px x 3000px)
+- [x] Implement artwork upload and library system
+- [x] Add basic artwork controls (delete, zoom)
+- [x] Create PNG export functionality
+- [x] Implement order submission with customer details
+- [x] Update Reseller page with Gang Sheet Builder section and CTA button
+- [x] Add Gang Sheet page route to App.tsx
+- [x] All 141 tests passing
+
+Future enhancements (Phase 2):
+- [ ] Background removal feature (remove.bg API)
+- [ ] Auto-arrange/packing algorithm
+- [ ] PDF export format
+- [ ] Advanced artwork controls (rotate, resize with handles)
+- [ ] Admin dashboard gang sheet management
+- [ ] Email notifications for submitted orders

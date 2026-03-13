@@ -229,3 +229,56 @@ export const resellerResponses = mysqlTable("resellerResponses", {
 
 export type ResellerResponse = typeof resellerResponses.$inferSelect;
 export type InsertResellerResponse = typeof resellerResponses.$inferInsert;
+
+
+// Gang sheets table for reseller orders
+export const gangSheets = mysqlTable("gangSheets", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  quantity: int("quantity").notNull().default(1),
+  status: mysqlEnum("status", ["draft", "submitted", "approved", "printing", "completed", "cancelled"]).default("draft").notNull(),
+  exportFileUrl: varchar("exportFileUrl", { length: 500 }), // S3 URL to exported gang sheet
+  exportFileName: varchar("exportFileName", { length: 255 }),
+  exportFormat: mysqlEnum("exportFormat", ["png", "pdf"]).default("png"),
+  previewImageUrl: varchar("previewImageUrl", { length: 500 }), // Preview thumbnail
+  canvasWidth: int("canvasWidth").default(900).notNull(), // pixels
+  canvasHeight: int("canvasHeight").default(3000).notNull(), // pixels
+  totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }),
+  customerName: varchar("customerName", { length: 255 }),
+  customerEmail: varchar("customerEmail", { length: 320 }),
+  customerPhone: varchar("customerPhone", { length: 20 }),
+  customerCompany: varchar("customerCompany", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GangSheet = typeof gangSheets.$inferSelect;
+export type InsertGangSheet = typeof gangSheets.$inferInsert;
+
+// Gang sheet artwork items
+export const gangSheetArtwork = mysqlTable("gangSheetArtwork", {
+  id: int("id").autoincrement().primaryKey(),
+  gangSheetId: int("gangSheetId").notNull(),
+  fileUrl: varchar("fileUrl", { length: 500 }).notNull(), // S3 URL
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileSize: int("fileSize"), // bytes
+  mimeType: varchar("mimeType", { length: 100 }),
+  originalWidth: int("originalWidth"), // pixels
+  originalHeight: int("originalHeight"), // pixels
+  dpi: int("dpi").default(300), // dots per inch
+  hasTransparency: int("hasTransparency").default(0), // 0 = false, 1 = true
+  backgroundRemoved: int("backgroundRemoved").default(0), // 0 = false, 1 = true
+  positionX: decimal("positionX", { precision: 10, scale: 2 }).notNull(), // mm
+  positionY: decimal("positionY", { precision: 10, scale: 2 }).notNull(), // mm
+  width: decimal("width", { precision: 10, scale: 2 }).notNull(), // mm
+  height: decimal("height", { precision: 10, scale: 2 }).notNull(), // mm
+  rotation: decimal("rotation", { precision: 5, scale: 2 }).default("0"), // degrees
+  zIndex: int("zIndex").default(0), // stacking order
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GangSheetArtwork = typeof gangSheetArtwork.$inferSelect;
+export type InsertGangSheetArtwork = typeof gangSheetArtwork.$inferInsert;
