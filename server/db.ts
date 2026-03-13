@@ -116,13 +116,13 @@ export async function getProductById(productId: number) {
 export async function getProductColors(productId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(productColors).where(eq(productColors.productId, productId));
+  return await db.select().from(productColors).where(eq(productColors.productId, productId));
 }
 
 export async function getProductSizes(productId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(productSizes).where(eq(productSizes.productId, productId));
+  return await db.select().from(productSizes).where(eq(productSizes.productId, productId));
 }
 
 export async function getAllPrintOptions() {
