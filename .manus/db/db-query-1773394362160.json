@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO productColors (productId, colorName, colorHex) VALUES \n(1, 'Black', '#000000'),\n(1, 'White', '#FFFFFF'),\n(1, 'Navy Blue', '#000080'),\n(1, 'Red', '#FF0000'),\n(1, 'Dark Gray', '#A9A9A9'),\n(1, 'Charcoal', '#36454F'),\n(1, 'Olive Green', '#808000'),\n(1, 'Burgundy', '#800020'),\n(1, 'Forest Green', '#228B22'),\n(1, 'Royal Blue', '#4169E1');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute INSERT INTO productColors (productId, colorName, colorHex) VALUES \n(1, 'Black', '#000000'),\n(1, 'White', '#FFFFFF'),\n(1, 'Navy Blue', '#000080'),\n(1, 'Red', '#FF0000'),\n(1, 'Dark Gray', '#A9A9A9'),\n(1, 'Charcoal', '#36454F'),\n(1, 'Olive Green', '#808000'),\n(1, 'Burgundy', '#800020'),\n(1, 'Forest Green', '#228B22'),\n(1, 'Royal Blue', '#4169E1');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 368
+}
