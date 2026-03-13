@@ -244,6 +244,69 @@ export default function Home() {
 
 
 
+      {/* Reseller Highlight Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary/5 via-background to-primary/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-block px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+                <span className="text-primary font-semibold text-sm">For Business Partners</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight">
+                Grow Your Business with <span className="text-primary">Print Cartel</span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Looking to expand your product offerings? Our reseller program provides wholesale pricing, dedicated support, and everything you need to scale your business.
+              </p>
+              <div className="space-y-4 pt-4">
+                <div className="flex items-start gap-4">
+                  <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Competitive Wholesale Pricing</h3>
+                    <p className="text-sm text-muted-foreground">Volume-based discounts starting at 5% and up to 15% for qualified partners</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Dedicated Account Manager</h3>
+                    <p className="text-sm text-muted-foreground">Personal support to help you succeed and grow your reseller business</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Premium Quality Guarantee</h3>
+                    <p className="text-sm text-muted-foreground">Consistent, high-quality DTF printing that keeps your customers coming back</p>
+                  </div>
+                </div>
+              </div>
+              <Button onClick={() => setLocation("/reseller")} size="lg" className="bg-primary hover:bg-primary/90 mt-6">
+                Learn About Our Reseller Program
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
+                <div className="text-4xl font-bold text-primary mb-2">500+</div>
+                <p className="text-sm text-muted-foreground font-semibold">Active Resellers</p>
+              </div>
+              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
+                <div className="text-4xl font-bold text-primary mb-2">15%</div>
+                <p className="text-sm text-muted-foreground font-semibold">Max Discount</p>
+              </div>
+              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
+                <div className="text-4xl font-bold text-primary mb-2">24/7</div>
+                <p className="text-sm text-muted-foreground font-semibold">Support Available</p>
+              </div>
+              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
+                <div className="text-4xl font-bold text-primary mb-2">2-3 Days</div>
+                <p className="text-sm text-muted-foreground font-semibold">Avg Turnaround</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Bold CTA Section with DTF Designs Background */}
       <section className="text-white py-16 sm:py-20 md:py-24 relative overflow-hidden bg-cover bg-center" style={{
         backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/dtf-cta-designs-background-X3wLnvasjvnYHrTRPkkvDQ.webp)',

@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { trpc } from '@/lib/trpc';
-import { CheckCircle, TrendingUp, Users, Award } from 'lucide-react';
+import { CheckCircle, TrendingUp, Users, Award, ArrowRight, Zap, Shield, Rocket } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Reseller() {
@@ -55,21 +55,26 @@ export default function Reseller() {
       volume: '10-50 Units',
       discount: '5%',
       description: 'Perfect for small businesses and event companies',
+      features: ['Quick setup', 'Email support', 'Standard turnaround'],
     },
     {
       volume: '51-100 Units',
       discount: '10%',
       description: 'Great for growing resellers',
+      features: ['Priority support', 'Faster turnaround', 'Bulk discounts'],
     },
     {
       volume: '101-500 Units',
       discount: '15%',
       description: 'Ideal for established retailers',
+      features: ['Dedicated manager', 'Custom pricing', 'Premium support'],
+      highlighted: true,
     },
     {
       volume: '500+ Units',
       discount: 'Custom',
       description: 'Enterprise solutions with dedicated support',
+      features: ['White-label options', 'Custom contracts', '24/7 support'],
     },
   ];
 
@@ -90,38 +95,81 @@ export default function Reseller() {
       description: 'Premium DTF printing with consistent quality',
     },
     {
-      icon: CheckCircle,
+      icon: Zap,
       title: 'Fast Turnaround',
       description: 'Quick production and reliable shipping',
+    },
+    {
+      icon: Shield,
+      title: 'Reliable Partner',
+      description: 'Trusted by hundreds of resellers nationwide',
+    },
+    {
+      icon: Rocket,
+      title: 'Growth Support',
+      description: 'Marketing materials and business guidance included',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
-      {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6 text-foreground">
-            Become a Print Cartel Reseller
+    <div className="min-h-screen bg-background">
+      {/* Enhanced Hero Section */}
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary/10 via-primary/5 to-background overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <div className="inline-block mb-4 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+            <span className="text-primary font-semibold text-sm">Wholesale Opportunity</span>
+          </div>
+          
+          <h1 className="text-5xl sm:text-6xl font-bold mb-6 text-foreground leading-tight">
+            Grow Your Business with <span className="text-primary">Print Cartel</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Partner with us for wholesale DTF printing. Grow your business with our competitive pricing and dedicated support.
+          
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Partner with us for wholesale DTF printing. Access competitive pricing, dedicated support, and premium quality to scale your business.
           </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary/90"
+              onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Start Your Partnership <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => window.location.href = '/track-order'}
+            >
+              Learn More
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-background">
+      {/* Benefits Section - Enhanced */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">Why Partner With Us?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">Why Partner With Print Cartel?</h2>
+            <p className="text-lg text-muted-foreground">Everything you need to succeed as a reseller</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => {
               const Icon = benefit.icon;
               return (
-                <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
-                  <Icon className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <h3 className="text-lg font-semibold mb-2 text-foreground">{benefit.title}</h3>
-                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                <Card key={index} className="p-8 hover:shadow-lg hover:border-primary/50 transition-all duration-300 border-2 border-transparent">
+                  <div className="mb-4 inline-block p-3 bg-primary/10 rounded-lg">
+                    <Icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">{benefit.title}</h3>
+                  <p className="text-muted-foreground">{benefit.description}</p>
                 </Card>
               );
             })}
@@ -129,30 +177,60 @@ export default function Reseller() {
         </div>
       </section>
 
-      {/* Pricing Tiers Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      {/* Pricing Tiers Section - Enhanced */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-secondary/50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">Bulk Pricing Tiers</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">Bulk Pricing Tiers</h2>
+            <p className="text-lg text-muted-foreground">Flexible pricing that grows with your business</p>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {pricingTiers.map((tier, index) => (
-              <Card key={index} className="p-6 border-2 hover:border-primary transition-colors">
-                <h3 className="text-xl font-bold text-foreground mb-2">{tier.volume}</h3>
-                <div className="text-3xl font-bold text-primary mb-4">{tier.discount} Off</div>
-                <p className="text-sm text-muted-foreground">{tier.description}</p>
+              <Card 
+                key={index} 
+                className={`p-8 border-2 transition-all duration-300 ${
+                  tier.highlighted 
+                    ? 'border-primary bg-primary/5 shadow-xl scale-105' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                {tier.highlighted && (
+                  <div className="mb-4 inline-block px-3 py-1 bg-primary text-primary-foreground rounded-full text-xs font-semibold">
+                    Most Popular
+                  </div>
+                )}
+                <h3 className="text-2xl font-bold text-foreground mb-3">{tier.volume}</h3>
+                <div className="text-4xl font-bold text-primary mb-6">{tier.discount}</div>
+                <p className="text-sm text-muted-foreground mb-6">{tier.description}</p>
+                
+                <div className="space-y-3 mb-6">
+                  {tier.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="text-sm text-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
               </Card>
             ))}
           </div>
-          <p className="text-center text-muted-foreground mt-8">
+          
+          <p className="text-center text-muted-foreground mt-12">
             * Final pricing depends on product selection and customization requirements. Contact us for a detailed quote.
           </p>
         </div>
       </section>
 
       {/* Contact Form Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-background">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">Get Started Today</h2>
-          <Card className="p-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-foreground mb-4">Get Started Today</h2>
+            <p className="text-lg text-muted-foreground">Fill out the form below and our team will contact you within 24-48 hours</p>
+          </div>
+          
+          <Card className="p-8 border-2 border-border">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -274,7 +352,7 @@ export default function Reseller() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 rounded-md transition-colors"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-md transition-colors"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
               </Button>
@@ -287,19 +365,32 @@ export default function Reseller() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-primary text-primary-foreground text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Grow Your Business?</h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto">
-          Join hundreds of resellers who trust Print Cartel for their DTF printing needs.
-        </p>
-        <Button
-          variant="secondary"
-          size="lg"
-          onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}
-        >
-          Get Started Now
-        </Button>
+      {/* Enhanced CTA Section with DTF Background */}
+      <section 
+        className="relative py-20 px-4 sm:px-6 lg:px-8 text-center overflow-hidden"
+        style={{
+          backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/reseller-dtf-cta-background-Us7opBVtM4DoWTmUyLrqE5.webp)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/40"></div>
+        
+        <div className="max-w-3xl mx-auto relative z-10">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-white leading-tight">
+            Ready to Grow Your Business?
+          </h2>
+          <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
+            Join hundreds of successful resellers who trust Print Cartel for their DTF printing needs. Start your partnership today and unlock exclusive benefits.
+          </p>
+          <Button
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+            onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Get Started Now <ArrowRight className="ml-2 w-4 h-4" />
+          </Button>
+        </div>
       </section>
     </div>
   );
