@@ -114,10 +114,13 @@ export default function Reseller() {
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Hero Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary/10 via-primary/5 to-background overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-cover bg-center" style={{
+        backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/reseller-hero-colorful-bg-86G9QHyavE8Yvb3brdngcX.webp)',
+      }}>
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
         </div>
         
         <div className="max-w-5xl mx-auto text-center relative z-10">

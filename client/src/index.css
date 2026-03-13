@@ -50,11 +50,12 @@
   --color-soft-grey: #F5F5F5;
   --color-black: #000000;
   --color-white: #FFFFFF;
+  --color-cyan-accent: #07cbd9;
   
-  --primary: #FFD400;
-  --primary-foreground: #000000;
-  --sidebar-primary: #FFD400;
-  --sidebar-primary-foreground: #000000;
+  --primary: #07cbd9;
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #07cbd9;
+  --sidebar-primary-foreground: #FFFFFF;
   --chart-1: #FFD400;
   --chart-2: #111111;
   --chart-3: #F5F5F5;
@@ -71,19 +72,19 @@
   --secondary-foreground: #111111;
   --muted: #E0E0E0;
   --muted-foreground: #666666;
-  --accent: #FFD400;
-  --accent-foreground: #000000;
+  --accent: #07cbd9;
+  --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
   --border: #E0E0E0;
   --input: #F5F5F5;
-  --ring: #FFD400;
+  --ring: #07cbd9;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #111111;
-  --sidebar-accent: #FFD400;
-  --sidebar-accent-foreground: #000000;
+  --sidebar-accent: #07cbd9;
+  --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #E0E0E0;
-  --sidebar-ring: #FFD400;
+  --sidebar-ring: #07cbd9;
 }
 
 .dark {
@@ -98,13 +99,13 @@
   --secondary-foreground: #FFFFFF;
   --muted: #333333;
   --muted-foreground: #CCCCCC;
-  --accent: #FFD400;
-  --accent-foreground: #000000;
+  --accent: #07cbd9;
+  --accent-foreground: #FFFFFF;
   --destructive: #FF6B6B;
   --destructive-foreground: #FFFFFF;
   --border: #333333;
   --input: #222222;
-  --ring: #FFD400;
+  --ring: #07cbd9;
   --chart-1: #FFD400;
   --chart-2: #FF6B6B;
   --chart-3: #4ECDC4;
@@ -112,10 +113,10 @@
   --chart-5: #F38181;
   --sidebar: #1A1A1A;
   --sidebar-foreground: #FFFFFF;
-  --sidebar-accent: #FFD400;
-  --sidebar-accent-foreground: #000000;
+  --sidebar-accent: #07cbd9;
+  --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #333333;
-  --sidebar-ring: #FFD400;
+  --sidebar-ring: #07cbd9;
 }
 
 @layer base {
@@ -178,5 +179,15 @@
       padding-right: 2rem;
       max-width: 1280px; /* Standard content width */
     }
+  }
+}
+/* Button gradient styles */
+@layer components {
+  .btn-gradient {
+    @apply bg-gradient-to-r from-[#07cbd9] to-[#00a8b5] hover:from-[#06b8c7] hover:to-[#0095a0] transition-all duration-200;
+  }
+  
+  .btn-gradient-dark {
+    @apply bg-gradient-to-r from-[#07cbd9] via-[#05a8b8] to-[#0395a0] hover:from-[#06b8c7] hover:via-[#04b5c5] hover:to-[#0395a0];
   }
 }

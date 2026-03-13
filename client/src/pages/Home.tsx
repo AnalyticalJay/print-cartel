@@ -285,23 +285,8 @@ export default function Home() {
                 Learn About Our Reseller Program
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
-                <div className="text-4xl font-bold text-primary mb-2">500+</div>
-                <p className="text-sm text-muted-foreground font-semibold">Active Resellers</p>
-              </div>
-              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
-                <div className="text-4xl font-bold text-primary mb-2">15%</div>
-                <p className="text-sm text-muted-foreground font-semibold">Max Discount</p>
-              </div>
-              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
-                <div className="text-4xl font-bold text-primary mb-2">24/7</div>
-                <p className="text-sm text-muted-foreground font-semibold">Support Available</p>
-              </div>
-              <div className="bg-white rounded-lg p-8 shadow-lg border-l-4 border-primary">
-                <div className="text-4xl font-bold text-primary mb-2">2-3 Days</div>
-                <p className="text-sm text-muted-foreground font-semibold">Avg Turnaround</p>
-              </div>
+            <div className="flex justify-center items-center">
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/reseller-highlight-artwork-U5tFVuoCDDFdyoyMwV4J8Q.webp" alt="Partnership and Growth" className="max-w-md w-full h-auto rounded-lg shadow-lg" />
             </div>
           </div>
         </div>
