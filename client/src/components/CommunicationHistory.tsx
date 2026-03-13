@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { trpc } from '@/lib/trpc';
 import { MessageCircle, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { CommunicationHistorySkeleton } from './CommunicationHistorySkeleton';
 
 export function CommunicationHistory() {
   const [expandedConversation, setExpandedConversation] = useState<number | null>(null);
@@ -56,7 +57,7 @@ export function CommunicationHistory() {
   };
 
   if (isLoading) {
-    return <div className="p-4">Loading communication history...</div>;
+    return <CommunicationHistorySkeleton />;
   }
 
   return (
