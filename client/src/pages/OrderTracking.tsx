@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Download, Eye } from "lucide-react";
+import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 
 interface OrderWithPrints {
   id: number;
@@ -136,6 +137,9 @@ export default function OrderTracking() {
             >
               ← Back to Orders
             </Button>
+
+            {/* Real-time Order Tracker */}
+            <RealtimeOrderTracker orderId={selectedOrder.id} autoRefreshInterval={5000} />
 
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader>

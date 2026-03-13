@@ -16,6 +16,7 @@ import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
+import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -358,6 +359,9 @@ export default function CustomerDashboard() {
               </CardHeader>
 
               <CardContent className="py-6 space-y-6">
+                {/* Real-time Order Tracker */}
+                <RealtimeOrderTracker orderId={selectedOrder.id} autoRefreshInterval={5000} />
+
                 {/* Timeline */}
                 <OrderTimeline
                   currentStatus={selectedOrder.status}
