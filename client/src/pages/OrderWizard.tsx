@@ -106,16 +106,23 @@ export default function OrderWizard() {
   const productSizes = Array.isArray(sizesQuery.data) ? sizesQuery.data : [];
   const placements = printPlacementsQuery.data || [];
 
-  // Update pricing when calculation query completes
+  // Update pricing when calculation query completes or delivery method changes
   useEffect(() => {
     if (calculatePriceQuery.data) {
-      setPricingData(calculatePriceQuery.data);
+      const deliveryCharge = orderData.deliveryMethod === 'delivery' ? 150 : 0;
+      const totalWithDelivery = calculatePriceQuery.data.totalPrice + deliveryCharge;
+      
+      setPricingData({
+        ...calculatePriceQuery.data,
+        deliveryCharge,
+        totalPrice: totalWithDelivery,
+      });
       setOrderData((prev) => ({
         ...prev,
-        totalPriceEstimate: calculatePriceQuery.data.totalPrice,
+        totalPriceEstimate: totalWithDelivery,
       }));
     }
-  }, [calculatePriceQuery.data]);
+  }, [calculatePriceQuery.data, orderData.deliveryMethod]);
 
   const handleNext = () => {
     if (currentStep < 6) {

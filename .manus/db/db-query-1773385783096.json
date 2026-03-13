@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, productId, colorName FROM productColors WHERE productId = 60001 LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, productId, colorName FROM productColors WHERE productId = 60001 LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "productId": "60001",
+      "colorName": "Black"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tproductId\tcolorName\n1\t60001\tBlack\n",
+  "stderr": "",
+  "execution_time_ms": 455
+}

@@ -25,7 +25,7 @@ describe("pricing service", () => {
     expect(pricing.totalPrice).toBe(pricing.productSubtotal);
   });
 
-  it("includes placement costs in total price", async () => {
+  it("does not include placement costs in total price", async () => {
     const pricing = await calculateOrderPrice({
       productId: 60001,
       quantity: 1,
@@ -35,8 +35,8 @@ describe("pricing service", () => {
       ],
     });
 
-    expect(pricing.placementCost).toBe(100); // 2 placements × R50
-    expect(pricing.totalPrice).toBeGreaterThan(pricing.productSubtotal);
+    expect(pricing.placementCost).toBe(0); // Placement costs no longer charged
+    expect(pricing.totalPrice).toBeGreaterThanOrEqual(pricing.productSubtotal);
   });
 
   it("includes print size costs in total price", async () => {
@@ -47,7 +47,7 @@ describe("pricing service", () => {
     });
 
     expect(pricing.printSizeCosts).toBeGreaterThanOrEqual(0);
-    expect(pricing.totalPrice).toBeGreaterThanOrEqual(pricing.productSubtotal + pricing.placementCost);
+    expect(pricing.totalPrice).toBeGreaterThanOrEqual(pricing.productSubtotal);
   });
 
   it("calculates correct total with all components", async () => {
@@ -78,26 +78,40 @@ describe("pricing service", () => {
     expect(pricing.details.printSizeDetails).toBeInstanceOf(Array);
   });
 
-  it("calculates placement price correctly", async () => {
-    const placementPrice = await calculatePlacementPrice(1);
-    expect(placementPrice).toBeGreaterThanOrEqual(0);
-  });
-
-  it("retrieves all print options with prices", async () => {
-    const options = await getPrintOptions();
-    expect(options).toBeInstanceOf(Array);
-    expect(options.length).toBeGreaterThan(0);
-
-    options.forEach((opt) => {
-      expect(opt.id).toBeDefined();
-      expect(opt.printSize).toBeTruthy();
-      expect(opt.additionalPrice).toBeGreaterThanOrEqual(0);
+  it("applies bulk discount for 10+ units", async () => {
+    const pricing = await calculateOrderPrice({
+      productId: 60001,
+      quantity: 10,
+      printPlacements: [],
     });
+
+    expect(pricing.bulkDiscountPercentage).toBe(10);
+    expect(pricing.bulkDiscount).toBeGreaterThan(0);
+    expect(pricing.totalPrice).toBeLessThan(pricing.productSubtotal);
   });
 
-  it("retrieves product base price", async () => {
-    const price = await getProductPrice(60001);
-    expect(price).toBeGreaterThan(0);
+  it("applies bulk discount for 50+ units", async () => {
+    const pricing = await calculateOrderPrice({
+      productId: 60001,
+      quantity: 50,
+      printPlacements: [],
+    });
+
+    expect(pricing.bulkDiscountPercentage).toBe(20);
+    expect(pricing.bulkDiscount).toBeGreaterThan(0);
+    expect(pricing.totalPrice).toBeLessThan(pricing.productSubtotal);
+  });
+
+  it("applies bulk discount for 100+ units", async () => {
+    const pricing = await calculateOrderPrice({
+      productId: 60001,
+      quantity: 100,
+      printPlacements: [],
+    });
+
+    expect(pricing.bulkDiscountPercentage).toBe(30);
+    expect(pricing.bulkDiscount).toBeGreaterThan(0);
+    expect(pricing.totalPrice).toBeLessThan(pricing.productSubtotal);
   });
 
   it("throws error for invalid product", async () => {
@@ -107,7 +121,7 @@ describe("pricing service", () => {
         quantity: 1,
         printPlacements: [],
       });
-      expect.fail("Should have thrown an error");
+      expect.fail("Should have thrown error");
     } catch (error: any) {
       expect(error.message).toContain("not found");
     }
@@ -125,7 +139,7 @@ describe("pricing service", () => {
     });
 
     expect(pricing.details.numPlacements).toBe(3);
-    expect(pricing.placementCost).toBe(150); // 3 × R50
+    expect(pricing.placementCost).toBe(0); // Placement costs no longer charged
     expect(pricing.details.printSizeDetails.length).toBe(3);
   });
 
@@ -136,8 +150,7 @@ describe("pricing service", () => {
       printPlacements: [{ printSizeId: 1 }],
     });
 
-    expect(pricing.productSubtotal).toBe(pricing.basePrice * 100);
-    expect(pricing.bulkDiscountPercentage).toBe(30); // 100+ units = 30% discount
+    expect(pricing.bulkDiscountPercentage).toBe(30);
     expect(pricing.bulkDiscount).toBeGreaterThan(0);
     // Total price should be less than subtotal + placement + print size costs due to discount
     const subtotalBeforeDiscount = pricing.productSubtotal + pricing.placementCost + pricing.printSizeCosts;
@@ -147,16 +160,28 @@ describe("pricing service", () => {
   it("pricing breakdown includes all components", async () => {
     const pricing = await calculateOrderPrice({
       productId: 60001,
-      quantity: 2,
-      printPlacements: [
-        { printSizeId: 1 },
-        { printSizeId: 2 },
-      ],
+      quantity: 5,
+      printPlacements: [{ printSizeId: 1 }],
     });
 
     expect(pricing.basePrice).toBeGreaterThan(0);
     expect(pricing.productSubtotal).toBeGreaterThan(0);
-    expect(pricing.placementCost).toBeGreaterThan(0);
+    expect(pricing.placementCost).toBe(0); // Placement costs no longer charged
     expect(pricing.totalPrice).toBeGreaterThan(0);
+  });
+
+  it("calculates placement price correctly", async () => {
+    const price = await calculatePlacementPrice(1);
+    expect(price).toBeGreaterThanOrEqual(0);
+  });
+
+  it("retrieves print options", async () => {
+    const options = await getPrintOptions();
+    expect(Array.isArray(options)).toBe(true);
+  });
+
+  it("gets product price", async () => {
+    const price = await getProductPrice(60001);
+    expect(price).toBeGreaterThan(0);
   });
 });

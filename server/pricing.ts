@@ -69,9 +69,9 @@ export async function calculateOrderPrice(input: PricingInput): Promise<PricingB
   // Calculate product subtotal
   const productSubtotal = basePrice * input.quantity;
 
-  // Calculate placement cost
+  // Placement cost is no longer charged separately
   const numPlacements = input.printPlacements.length;
-  const placementCost = numPlacements * PLACEMENT_COST_PER_UNIT;
+  const placementCost = 0;
 
   // Fetch print size costs
   let printSizeCosts = 0;

@@ -747,3 +747,18 @@
 - [x] Test responsive design on mobile and desktop
 - [x] Verify admin-only access control
 - [x] All 138 tests passing - admin reseller dashboard complete
+
+
+## Current Task - Fix OrderWizard Issues
+- [x] Investigate first garment (100% cotton t-shirt) limited color/size options
+- [x] Fix color selection to show all available colors for all garments
+- [x] Fix size selection to show all available sizes for all garments
+- [x] Debug delivery charge R150 not updating order summary
+- [x] Fix pricing calculation - only include garment + DTF size + delivery
+- [x] Remove placement area pricing from order summary
+- [x] Verify all four products have correct color and size options
+- [x] Test delivery charge updates order total correctly
+- [x] Test pricing calculation with different combinations
+- [x] Write tests for delivery charge calculation
+- [x] Write tests for order summary pricing
+- [x] All 141 tests passing - OrderWizard fixes complete

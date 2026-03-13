@@ -5,6 +5,7 @@ export interface PricingBreakdownData {
   productSubtotal: number;
   placementCost: number;
   printSizeCosts: number;
+  deliveryCharge?: number;
   totalPrice: number;
   details: {
     productName: string;
@@ -61,12 +62,7 @@ export function PricingDisplay({ pricing, isLoading }: PricingDisplayProps) {
             <span>R{pricing.productSubtotal.toFixed(2)}</span>
           </div>
 
-          {pricing.details.numPlacements > 0 && (
-            <div className="flex justify-between text-gray-300">
-              <span>Print Placements ({pricing.details.numPlacements} × R50):</span>
-              <span>R{pricing.placementCost.toFixed(2)}</span>
-            </div>
-          )}
+
 
           {pricing.printSizeCosts > 0 && (
             <>
@@ -86,6 +82,13 @@ export function PricingDisplay({ pricing, isLoading }: PricingDisplayProps) {
                 </div>
               )}
             </>
+          )}
+
+          {pricing.deliveryCharge && pricing.deliveryCharge > 0 && (
+            <div className="flex justify-between text-gray-300">
+              <span>Delivery Charge:</span>
+              <span>R{pricing.deliveryCharge.toFixed(2)}</span>
+            </div>
           )}
         </div>
 
