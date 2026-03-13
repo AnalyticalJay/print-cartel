@@ -1,0 +1,42 @@
+{
+  "query": "SELECT id, name, basePrice, imageUrl, fabricType, productType FROM products ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, name, basePrice, imageUrl, fabricType, productType FROM products ORDER BY id;",
+  "rows": [
+    {
+      "id": "90001",
+      "name": "140g Unisex T-shirt (Crew Neck)",
+      "basePrice": "85.00",
+      "imageUrl": "NULL",
+      "fabricType": "100% Carded Cotton, 140gm",
+      "productType": "Crew Neck"
+    },
+    {
+      "id": "90002",
+      "name": "145g Adults Unisex Dri-Fit Golfer",
+      "basePrice": "150.00",
+      "imageUrl": "NULL",
+      "fabricType": "100% bird mesh polyester, 140gm",
+      "productType": "Semi-fitted Dry Fit"
+    },
+    {
+      "id": "90003",
+      "name": "160g V-neck Adults Unisex T-shirt",
+      "basePrice": "100.00",
+      "imageUrl": "NULL",
+      "fabricType": "100% carded cotton, 160gm",
+      "productType": "V-Neck"
+    },
+    {
+      "id": "90004",
+      "name": "260g Adults Unisex Hoodie",
+      "basePrice": "300.00",
+      "imageUrl": "NULL",
+      "fabricType": "100% brushed cotton anti-pill fleece, 260gm",
+      "productType": "Crew Neck Hoodie"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tbasePrice\timageUrl\tfabricType\tproductType\n90001\t140g Unisex T-shirt (Crew Neck)\t85.00\tNULL\t100% Carded Cotton, 140gm\tCrew Neck\n90002\t145g Adults Unisex Dri-Fit Golfer\t150.00\tNULL\t100% bird mesh polyester, 140gm\tSemi-fitted Dry Fit\n90003\t160g V-neck Adults Unisex T-shirt\t100.00\tNULL\t100% carded cotton, 160gm\tV-Neck\n90004\t260g Adults Unisex Hoodie\t300.00\tNULL\t100% brushed cotton anti-pill fleece, 260gm\tCrew Neck Hoodie\n",
+  "stderr": "",
+  "execution_time_ms": 374
+}

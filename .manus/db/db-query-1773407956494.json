@@ -1,0 +1,46 @@
+{
+  "query": "SELECT productId, COUNT(*) as count FROM productColors GROUP BY productId ORDER BY productId;\nSELECT productId, COUNT(*) as count FROM productSizes GROUP BY productId ORDER BY productId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT productId, COUNT(*) as count FROM productColors GROUP BY productId ORDER BY productId;\nSELECT productId, COUNT(*) as count FROM productSizes GROUP BY productId ORDER BY productId;",
+  "rows": [
+    {
+      "productId": "1",
+      "count": "12"
+    },
+    {
+      "productId": "2",
+      "count": "5"
+    },
+    {
+      "productId": "3",
+      "count": "3"
+    },
+    {
+      "productId": "4",
+      "count": "4"
+    },
+    {
+      "productId": "productId",
+      "count": "count"
+    },
+    {
+      "productId": "1",
+      "count": "6"
+    },
+    {
+      "productId": "2",
+      "count": "6"
+    },
+    {
+      "productId": "3",
+      "count": "6"
+    },
+    {
+      "productId": "4",
+      "count": "7"
+    }
+  ],
+  "messages": [],
+  "stdout": "productId\tcount\n1\t12\n2\t5\n3\t3\n4\t4\nproductId\tcount\n1\t6\n2\t6\n3\t6\n4\t7\n",
+  "stderr": "",
+  "execution_time_ms": 411
+}

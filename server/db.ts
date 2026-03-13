@@ -103,7 +103,7 @@ export async function getUserByOpenId(openId: string) {
 export async function getAllProducts() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(products);
+  return await db.select().from(products);
 }
 
 export async function getProductById(productId: number) {
@@ -128,13 +128,13 @@ export async function getProductSizes(productId: number) {
 export async function getAllPrintOptions() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(printOptions);
+  return await db.select().from(printOptions);
 }
 
 export async function getAllPrintPlacements() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(printPlacements);
+  return await db.select().from(printPlacements);
 }
 
 // Order queries
