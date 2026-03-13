@@ -1,6 +1,6 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, chatFileAttachments, InsertChatFileAttachment, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork, referralProgram, InsertReferralProgram, referralTracking, InsertReferralTracking, productionQueue, InsertProductionQueue, designTemplates, InsertDesignTemplate, templateCustomizations, InsertTemplateCustomization } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, chatFileAttachments, InsertChatFileAttachment, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork, referralProgram, InsertReferralProgram, referralTracking, InsertReferralTracking, productionQueue, InsertProductionQueue, designTemplates, InsertDesignTemplate, templateCustomizations, InsertTemplateCustomization, notifications, InsertNotification, pushSubscriptions, InsertPushSubscription } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -771,4 +771,107 @@ export async function getTemplateCategories(): Promise<string[]> {
   const categories = Array.from(categoriesSet);
   
   return categories;
+}
+
+
+// Notification functions
+export async function createNotification(data: InsertNotification): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.insert(notifications).values(data);
+  return result;
+}
+
+export async function getUserNotifications(userId: number, limit: number = 50): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId))
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit);
+
+  return result;
+}
+
+export async function getUnreadNotificationCount(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select()
+    .from(notifications)
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+
+  return result.length;
+}
+
+export async function markNotificationAsRead(notificationId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(notifications)
+    .set({ isRead: true, readAt: new Date() })
+    .where(eq(notifications.id, notificationId));
+}
+
+export async function markAllNotificationsAsRead(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(notifications)
+    .set({ isRead: true, readAt: new Date() })
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+}
+
+export async function deleteNotification(notificationId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(notifications).where(eq(notifications.id, notificationId));
+}
+
+// Push subscription functions
+export async function savePushSubscription(data: InsertPushSubscription): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.insert(pushSubscriptions).values(data);
+  return result;
+}
+
+export async function getUserPushSubscriptions(userId: number): Promise<any[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select()
+    .from(pushSubscriptions)
+    .where(and(eq(pushSubscriptions.userId, userId), eq(pushSubscriptions.isActive, true)));
+
+  return result;
+}
+
+export async function deletePushSubscription(subscriptionId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, subscriptionId));
+}
+
+export async function getPushSubscriptionByEndpoint(endpoint: string): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(pushSubscriptions)
+    .where(eq(pushSubscriptions.endpoint, endpoint));
+
+  return result[0] || null;
 }

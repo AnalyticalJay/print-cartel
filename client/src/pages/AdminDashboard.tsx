@@ -16,6 +16,8 @@ import { useLocation } from "wouter";
 import { AdminChatPanel } from "@/components/AdminChatPanel";
 import { ChatNotificationHandler } from "@/components/ChatNotificationHandler";
 import { ProductionKanban } from "@/components/ProductionKanban";
+import { NotificationCenter } from "@/components/NotificationCenter";
+import { PushNotificationManager } from "@/components/PushNotificationManager";
 
 
 type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
@@ -216,12 +218,16 @@ function AdminDashboardContent() {
             <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
             <p className="text-gray-600 mt-2">Manage orders, update statuses, and adjust pricing</p>
           </div>
-          {unreadCount > 0 && (
-            <Badge className="bg-red-500 text-white">
-              {unreadCount} new message{unreadCount !== 1 ? 's' : ''}
-            </Badge>
-          )}
+          <div className="flex items-center gap-4">
+            <NotificationCenter />
+            {unreadCount > 0 && (
+              <Badge className="bg-red-500 text-white">
+                {unreadCount} new message{unreadCount !== 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
         </div>
+        <PushNotificationManager />
 
         {/* Tab Navigation */}
         <div className="flex gap-4 border-b border-gray-200">

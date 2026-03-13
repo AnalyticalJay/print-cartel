@@ -14,6 +14,8 @@ import { CommunicationHistory } from "@/components/CommunicationHistory";
 import { ChatSection } from "@/components/ChatSection";
 import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { ReferralProgram } from "@/components/ReferralProgram";
+import { NotificationCenter } from "@/components/NotificationCenter";
+import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -158,6 +160,7 @@ export default function CustomerDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <NotificationCenter />
             <div className="text-right">
               <p className="font-semibold">{user.firstName} {user.lastName}</p>
               <p className="text-gray-400 text-sm">{user.email}</p>
@@ -172,6 +175,7 @@ export default function CustomerDashboard() {
               Logout
             </Button>
           </div>
+          <PushNotificationManager />
         </div>
       </nav>
 

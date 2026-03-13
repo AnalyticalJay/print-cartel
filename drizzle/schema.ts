@@ -387,6 +387,38 @@ export const templateCustomizations = mysqlTable("templateCustomizations", {
 export type TemplateCustomization = typeof templateCustomizations.$inferSelect;
 export type InsertTemplateCustomization = typeof templateCustomizations.$inferInsert;
 
+// Notifications table
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: mysqlEnum("type", ["order_status", "admin_alert", "system", "promotion"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  relatedOrderId: int("relatedOrderId"), // Link to order if applicable
+  relatedChatId: int("relatedChatId"), // Link to chat conversation if applicable
+  isRead: boolean("isRead").default(false).notNull(),
+  actionUrl: varchar("actionUrl", { length: 500 }), // URL to navigate to when clicked
+  metadata: json("metadata"), // Additional data (order status, etc.)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  readAt: timestamp("readAt"),
+});
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+// Push subscription table for browser push notifications
+export const pushSubscriptions = mysqlTable("pushSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  endpoint: varchar("endpoint", { length: 500 }).notNull(),
+  auth: varchar("auth", { length: 255 }).notNull(),
+  p256dh: varchar("p256dh", { length: 255 }).notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+
 // Foreign key constraint for chat file attachments
 // Note: Add these in a migration if not already present
 // ALTER TABLE chatFileAttachments ADD CONSTRAINT fk_chat_file_message FOREIGN KEY (messageId) REFERENCES chatMessages(id) ON DELETE CASCADE;
