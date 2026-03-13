@@ -5,13 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Send, Loader2, MessageCircle, X } from "lucide-react";
+import { Send, Loader2, MessageCircle, X, Paperclip, Download, FileIcon, Trash2 } from "lucide-react";
 
 export function AdminChatPanel() {
   const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
   const [message, setMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch all conversations with unread counts
   const conversationsQuery = trpc.chat.getAllConversations.useQuery(undefined, {
@@ -24,35 +27,92 @@ export function AdminChatPanel() {
     { enabled: !!selectedConversationId, refetchInterval: 2000 }
   );
 
+  // Get attachments for selected conversation
+  const attachmentsQuery = trpc.chat.getConversationAttachments.useQuery(
+    { conversationId: selectedConversationId || 0 },
+    { enabled: !!selectedConversationId, refetchInterval: 3000 }
+  );
+
   // Send reply mutation
   const sendReplyMutation = trpc.chat.sendAdminReply.useMutation();
-
-  // Update conversation status mutation
   const updateStatusMutation = trpc.chat.updateStatus.useMutation();
+  const uploadFileMutation = trpc.chat.uploadFileAttachment.useMutation();
+  const deleteFileMutation = trpc.chat.deleteFileAttachment.useMutation();
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messagesQuery.data]);
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const maxSize = 50 * 1024 * 1024;
+      if (file.size > maxSize) {
+        toast.error("File size exceeds 50MB limit");
+        return;
+      }
+      setSelectedFile(file);
+      toast.success(`File selected: ${file.name}`);
+    }
+  };
+
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!message.trim() || !selectedConversationId) {
-      toast.error("Please enter a message");
+    if (!message.trim() && !selectedFile) {
+      toast.error("Please enter a message or select a file");
       return;
     }
 
+    if (!selectedConversationId) return;
+
     setIsLoading(true);
     try {
-      await sendReplyMutation.mutateAsync({
-        conversationId: selectedConversationId,
-        message: message.trim(),
-      });
+      // Send text message first
+      let messageId: number | null = null;
+      if (message.trim()) {
+        const result = await sendReplyMutation.mutateAsync({
+          conversationId: selectedConversationId,
+          message: message.trim(),
+        });
+        messageId = result.messageId;
+      }
+
+      // Upload file if selected
+      if (selectedFile && messageId) {
+        setIsUploading(true);
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const fileData = (event.target?.result as string).split(",")[1];
+            await uploadFileMutation.mutateAsync({
+              conversationId: selectedConversationId,
+              messageId,
+              fileName: selectedFile.name,
+              fileData,
+              mimeType: selectedFile.type,
+              uploadedByType: "admin",
+            });
+            toast.success("File uploaded successfully");
+          } catch (error) {
+            console.error("File upload failed:", error);
+            toast.error("Failed to upload file");
+          } finally {
+            setIsUploading(false);
+          }
+        };
+        reader.readAsDataURL(selectedFile);
+      }
 
       setMessage("");
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       await messagesQuery.refetch();
       await conversationsQuery.refetch();
+      await attachmentsQuery.refetch();
       toast.success("Reply sent");
     } catch (error) {
       console.error("Failed to send reply:", error);
@@ -78,6 +138,25 @@ export function AdminChatPanel() {
       console.error("Failed to close conversation:", error);
       toast.error("Failed to close conversation");
     }
+  };
+
+  const handleDeleteAttachment = async (attachmentId: number) => {
+    try {
+      await deleteFileMutation.mutateAsync({ attachmentId });
+      await attachmentsQuery.refetch();
+      toast.success("Attachment deleted");
+    } catch (error) {
+      console.error("Failed to delete attachment:", error);
+      toast.error("Failed to delete attachment");
+    }
+  };
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith("image/")) return "🖼️";
+    if (mimeType.startsWith("video/")) return "🎥";
+    if (mimeType.startsWith("audio/")) return "🎵";
+    if (mimeType.includes("pdf")) return "📄";
+    return "📎";
   };
 
   const selectedConversation = conversationsQuery.data?.find(
@@ -193,30 +272,66 @@ export function AdminChatPanel() {
               </div>
             ) : messagesQuery.data?.messages && messagesQuery.data.messages.length > 0 ? (
               <>
-                {messagesQuery.data.messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${
-                      msg.senderType === "admin" ? "justify-end" : "justify-start"
-                    }`}
-                  >
+                {messagesQuery.data.messages.map((msg) => {
+                  const msgAttachments = attachmentsQuery.data?.filter(
+                    (att) => att.messageId === msg.id
+                  ) || [];
+                  return (
                     <div
-                      className={`max-w-xs px-4 py-2 rounded-lg ${
-                        msg.senderType === "admin"
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-gray-700 text-white"
+                      key={msg.id}
+                      className={`flex ${
+                        msg.senderType === "admin" ? "justify-end" : "justify-start"
                       }`}
                     >
-                      <p className="text-sm font-semibold mb-1">
-                        {msg.senderType === "admin" ? "You" : selectedConversation.visitorName || "Customer"}
-                      </p>
-                      <p className="text-sm">{msg.message}</p>
-                      <p className="text-xs opacity-70 mt-1">
-                        {new Date(msg.createdAt).toLocaleTimeString()}
-                      </p>
+                      <div
+                        className={`max-w-xs px-4 py-2 rounded-lg ${
+                          msg.senderType === "admin"
+                            ? "bg-accent text-accent-foreground"
+                            : "bg-gray-700 text-white"
+                        }`}
+                      >
+                        <p className="text-sm font-semibold mb-1">
+                          {msg.senderType === "admin" ? "You" : selectedConversation.visitorName || "Customer"}
+                        </p>
+                        <p className="text-sm">{msg.message}</p>
+                        {msgAttachments.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {msgAttachments.map((att) => (
+                              <div
+                                key={att.id}
+                                className="flex items-center justify-between gap-2 text-xs bg-black/20 p-1 rounded"
+                              >
+                                <a
+                                  href={att.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 flex-1 hover:opacity-80 underline"
+                                >
+                                  <span>{getFileIcon(att.mimeType)}</span>
+                                  <span className="truncate">{att.fileName}</span>
+                                  <Download className="w-3 h-3 shrink-0" />
+                                </a>
+                                {msg.senderType === "admin" && (
+                                  <Button
+                                    onClick={() => handleDeleteAttachment(att.id)}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-auto p-0 text-gray-300 hover:text-red-400"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-xs opacity-70 mt-1">
+                          {new Date(msg.createdAt).toLocaleTimeString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div ref={messagesEndRef} />
               </>
             ) : (
@@ -226,24 +341,63 @@ export function AdminChatPanel() {
             )}
           </CardContent>
 
+          {selectedFile && (
+            <div className="border-t border-gray-800 px-4 py-2 bg-gray-800/50 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <FileIcon className="w-4 h-4" />
+                <span className="truncate">{selectedFile.name}</span>
+              </div>
+              <Button
+                onClick={() => {
+                  setSelectedFile(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+
           <form
             onSubmit={handleSendReply}
             className="border-t border-gray-800 p-4 flex gap-2"
           >
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileSelect}
+              className="hidden"
+              disabled={isLoading || isUploading}
+            />
+            <Button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              variant="ghost"
+              size="icon"
+              className="text-gray-400 hover:text-white"
+              disabled={isLoading || isUploading}
+            >
+              <Paperclip className="w-4 h-4" />
+            </Button>
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your reply..."
               className="bg-gray-800 border-gray-700 text-white placeholder-gray-400"
-              disabled={isLoading}
+              disabled={isLoading || isUploading}
             />
             <Button
               type="submit"
-              disabled={isLoading || !message.trim()}
+              disabled={isLoading || isUploading || (!message.trim() && !selectedFile)}
               className="bg-accent text-accent-foreground hover:bg-accent/90"
               size="icon"
             >
-              {isLoading ? (
+              {isLoading || isUploading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Send className="w-4 h-4" />

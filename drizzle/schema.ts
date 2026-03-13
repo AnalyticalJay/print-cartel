@@ -182,6 +182,23 @@ export const chatMessages = mysqlTable("chatMessages", {
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
 
+// Chat file attachments table
+export const chatFileAttachments = mysqlTable("chatFileAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(),
+  conversationId: int("conversationId").notNull(),
+  fileUrl: varchar("fileUrl", { length: 500 }).notNull(), // S3 URL
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileSize: int("fileSize").notNull(), // bytes
+  mimeType: varchar("mimeType", { length: 100 }).notNull(),
+  fileType: mysqlEnum("fileType", ["image", "document", "video", "audio", "other"]).notNull(),
+  uploadedBy: int("uploadedBy"), // user ID who uploaded
+  uploadedByType: mysqlEnum("uploadedByType", ["user", "admin"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ChatFileAttachment = typeof chatFileAttachments.$inferSelect;
+export type InsertChatFileAttachment = typeof chatFileAttachments.$inferInsert;
 
 // Reseller inquiries table
 export const resellerInquiries = mysqlTable("resellerInquiries", {
@@ -282,3 +299,8 @@ export const gangSheetArtwork = mysqlTable("gangSheetArtwork", {
 
 export type GangSheetArtwork = typeof gangSheetArtwork.$inferSelect;
 export type InsertGangSheetArtwork = typeof gangSheetArtwork.$inferInsert;
+
+// Foreign key constraint for chat file attachments
+// Note: Add these in a migration if not already present
+// ALTER TABLE chatFileAttachments ADD CONSTRAINT fk_chat_file_message FOREIGN KEY (messageId) REFERENCES chatMessages(id) ON DELETE CASCADE;
+// ALTER TABLE chatFileAttachments ADD CONSTRAINT fk_chat_file_conversation FOREIGN KEY (conversationId) REFERENCES chatConversations(id) ON DELETE CASCADE;

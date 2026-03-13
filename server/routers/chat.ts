@@ -13,7 +13,13 @@ import {
   linkConversationToOrder,
   getConversationWithMessages,
   getUnreadMessageCount,
+  addChatFileAttachment,
+  getChatFileAttachments,
+  getChatFileAttachmentsByConversation,
+  deleteChatFileAttachment,
+  getConversationWithMessagesAndAttachments,
 } from "../db";
+import { storagePut } from "../storage";
 
 export const chatRouter = router({
   // Create a new chat conversation (public - for visitors)
@@ -185,4 +191,103 @@ export const chatRouter = router({
     );
     return enhanced;
   }),
+
+  // Upload file attachment to chat
+  uploadFileAttachment: publicProcedure
+    .input(
+      z.object({
+        conversationId: z.number(),
+        messageId: z.number(),
+        fileName: z.string().min(1, "File name is required"),
+        fileData: z.string(), // Base64 encoded file data
+        mimeType: z.string().min(1, "MIME type is required"),
+        uploadedByType: z.enum(["user", "admin"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Decode base64 file data
+        const buffer = Buffer.from(input.fileData, "base64");
+        const fileSize = buffer.length;
+
+        // Validate file size (max 50MB)
+        const maxSize = 50 * 1024 * 1024;
+        if (fileSize > maxSize) {
+          throw new Error(`File size exceeds maximum limit of 50MB`);
+        }
+
+        // Determine file type
+        const fileExtension = input.fileName.split(".").pop()?.toLowerCase() || "";
+        const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
+        const documentExtensions = ["pdf", "doc", "docx", "xls", "xlsx", "txt"];
+        const videoExtensions = ["mp4", "avi", "mov", "mkv", "webm"];
+        const audioExtensions = ["mp3", "wav", "aac", "flac"];
+
+        let fileType: "image" | "document" | "video" | "audio" | "other" = "other";
+        if (imageExtensions.includes(fileExtension)) fileType = "image";
+        else if (documentExtensions.includes(fileExtension)) fileType = "document";
+        else if (videoExtensions.includes(fileExtension)) fileType = "video";
+        else if (audioExtensions.includes(fileExtension)) fileType = "audio";
+
+        // Upload to S3
+        const fileKey = `chat-attachments/${input.conversationId}/${Date.now()}-${Math.random().toString(36).substring(7)}-${input.fileName}`;
+        const { url } = await storagePut(fileKey, buffer, input.mimeType);
+
+        // Save attachment metadata to database
+        const attachmentId = await addChatFileAttachment({
+          messageId: input.messageId,
+          conversationId: input.conversationId,
+          fileUrl: url,
+          fileName: input.fileName,
+          fileSize,
+          mimeType: input.mimeType,
+          fileType,
+          uploadedBy: ctx.user?.id,
+          uploadedByType: input.uploadedByType,
+        });
+
+        return {
+          success: true,
+          attachmentId,
+          fileUrl: url,
+          fileName: input.fileName,
+          fileSize,
+        };
+      } catch (error) {
+        console.error("File upload error:", error);
+        throw new Error(`Failed to upload file: ${error instanceof Error ? error.message : "Unknown error"}`);
+      }
+    }),
+
+  // Get file attachments for a message
+  getMessageAttachments: publicProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      return getChatFileAttachments(input.messageId);
+    }),
+
+  // Get all attachments in a conversation
+  getConversationAttachments: publicProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return getChatFileAttachmentsByConversation(input.conversationId);
+    }),
+
+  // Delete file attachment (admin only)
+  deleteFileAttachment: protectedProcedure
+    .input(z.object({ attachmentId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+      await deleteChatFileAttachment(input.attachmentId);
+      return { success: true };
+    }),
+
+  // Get conversation with messages and attachments
+  getConversationWithAttachments: publicProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return getConversationWithMessagesAndAttachments(input.conversationId);
+    }),
 });

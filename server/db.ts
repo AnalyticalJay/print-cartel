@@ -1,6 +1,6 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, chatFileAttachments, InsertChatFileAttachment, resellerInquiries, InsertResellerInquiry, bulkPricingTiers, resellerResponses, InsertResellerResponse, gangSheets, InsertGangSheet, gangSheetArtwork, InsertGangSheetArtwork } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -450,4 +450,45 @@ export async function getAllGangSheets() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(gangSheets).orderBy(desc(gangSheets.createdAt));
+}
+
+// Chat file attachment functions
+export async function addChatFileAttachment(data: InsertChatFileAttachment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(chatFileAttachments).values(data);
+  return result[0].insertId;
+}
+
+export async function getChatFileAttachments(messageId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatFileAttachments).where(eq(chatFileAttachments.messageId, messageId)).orderBy(chatFileAttachments.createdAt);
+}
+
+export async function getChatFileAttachmentsByConversation(conversationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatFileAttachments).where(eq(chatFileAttachments.conversationId, conversationId)).orderBy(desc(chatFileAttachments.createdAt));
+}
+
+export async function deleteChatFileAttachment(attachmentId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(chatFileAttachments).where(eq(chatFileAttachments.id, attachmentId));
+}
+
+export async function getConversationWithMessagesAndAttachments(conversationId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const conversation = await getChatConversation(conversationId);
+  if (!conversation) return null;
+  const messages = await getChatMessages(conversationId);
+  const messagesWithAttachments = await Promise.all(
+    messages.map(async (msg) => ({
+      ...msg,
+      attachments: await getChatFileAttachments(msg.id),
+    }))
+  );
+  return { ...conversation, messages: messagesWithAttachments };
 }
