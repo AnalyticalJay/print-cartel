@@ -267,9 +267,9 @@ export default function OrderWizard() {
                       </div>
                     </div>
 
-                    {/* Color and Size Selection */}
-                    {selectedProduct && (
-                      <div className="space-y-6">
+                    {/* Color and Size Selection - Only show if product is selected */}
+                    {orderData.productId && selectedProduct && (
+                      <div className="space-y-6 border-t border-gray-700 pt-6">
                         {/* Color Selection */}
                         <div>
                           <Label className="text-white font-semibold mb-3 block">Select Color</Label>
@@ -277,7 +277,7 @@ export default function OrderWizard() {
                             <div className="flex items-center justify-center py-4">
                               <Loader2 className="w-4 h-4 animate-spin text-white" />
                             </div>
-                          ) : (
+                          ) : productColors.length > 0 ? (
                             <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
                               {productColors.map((color) => (
                                 <button
@@ -288,10 +288,11 @@ export default function OrderWizard() {
                                       ? "ring-2 ring-white"
                                       : "hover:ring-1 hover:ring-gray-500"
                                   }`}
+                                  title={color.colorName}
                                 >
                                   <div
                                     className="w-12 h-12 rounded-full border-2 border-gray-600"
-                                    style={{ backgroundColor: color.hexCode || "#ccc" }}
+                                    style={{ backgroundColor: color.colorHex || "#ccc" }}
                                   />
                                   <span className="text-xs text-gray-300 text-center truncate w-full">
                                     {color.colorName}
@@ -299,6 +300,8 @@ export default function OrderWizard() {
                                 </button>
                               ))}
                             </div>
+                          ) : (
+                            <p className="text-gray-400">No colors available for this product</p>
                           )}
                         </div>
 
@@ -309,7 +312,7 @@ export default function OrderWizard() {
                             <div className="flex items-center justify-center py-4">
                               <Loader2 className="w-4 h-4 animate-spin text-white" />
                             </div>
-                          ) : (
+                          ) : productSizes.length > 0 ? (
                             <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                               {productSizes.map((size) => (
                                 <button
@@ -325,6 +328,8 @@ export default function OrderWizard() {
                                 </button>
                               ))}
                             </div>
+                          ) : (
+                            <p className="text-gray-400">No sizes available for this product</p>
                           )}
                         </div>
 
@@ -368,65 +373,52 @@ export default function OrderWizard() {
                 {/* Step 2: Your Details */}
                 {currentStep === 2 && (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-white">First Name *</Label>
+                        <Label className="text-white">First Name</Label>
                         <Input
                           value={orderData.customerFirstName}
-                          onChange={(e) =>
-                            setOrderData({ ...orderData, customerFirstName: e.target.value })
-                          }
-                          className="bg-gray-700 border-gray-600 text-white"
+                          onChange={(e) => setOrderData({ ...orderData, customerFirstName: e.target.value })}
+                          className="bg-gray-700 border-gray-600 text-white mt-1"
                           placeholder="John"
                         />
                       </div>
                       <div>
-                        <Label className="text-white">Last Name *</Label>
+                        <Label className="text-white">Last Name</Label>
                         <Input
                           value={orderData.customerLastName}
-                          onChange={(e) =>
-                            setOrderData({ ...orderData, customerLastName: e.target.value })
-                          }
-                          className="bg-gray-700 border-gray-600 text-white"
+                          onChange={(e) => setOrderData({ ...orderData, customerLastName: e.target.value })}
+                          className="bg-gray-700 border-gray-600 text-white mt-1"
                           placeholder="Doe"
                         />
                       </div>
                     </div>
-
                     <div>
-                      <Label className="text-white">Email *</Label>
+                      <Label className="text-white">Email</Label>
                       <Input
                         type="email"
                         value={orderData.customerEmail}
-                        onChange={(e) =>
-                          setOrderData({ ...orderData, customerEmail: e.target.value })
-                        }
-                        className="bg-gray-700 border-gray-600 text-white"
+                        onChange={(e) => setOrderData({ ...orderData, customerEmail: e.target.value })}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
                         placeholder="john@example.com"
                       />
                     </div>
-
                     <div>
-                      <Label className="text-white">Phone *</Label>
+                      <Label className="text-white">Phone</Label>
                       <Input
                         type="tel"
                         value={orderData.customerPhone}
-                        onChange={(e) =>
-                          setOrderData({ ...orderData, customerPhone: e.target.value })
-                        }
-                        className="bg-gray-700 border-gray-600 text-white"
+                        onChange={(e) => setOrderData({ ...orderData, customerPhone: e.target.value })}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
                         placeholder="+27 123 456 7890"
                       />
                     </div>
-
                     <div>
-                      <Label className="text-white">Company Name (Optional)</Label>
+                      <Label className="text-white">Company (Optional)</Label>
                       <Input
                         value={orderData.customerCompany || ""}
-                        onChange={(e) =>
-                          setOrderData({ ...orderData, customerCompany: e.target.value })
-                        }
-                        className="bg-gray-700 border-gray-600 text-white"
+                        onChange={(e) => setOrderData({ ...orderData, customerCompany: e.target.value })}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
                         placeholder="Your Company"
                       />
                     </div>
@@ -437,12 +429,10 @@ export default function OrderWizard() {
                 {currentStep === 3 && (
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-white font-semibold mb-3 block">Delivery Method *</Label>
+                      <Label className="text-white font-semibold mb-3 block">Delivery Method</Label>
                       <div className="space-y-2">
                         <button
-                          onClick={() =>
-                            setOrderData({ ...orderData, deliveryMethod: "collection" })
-                          }
+                          onClick={() => setOrderData({ ...orderData, deliveryMethod: "collection" })}
                           className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                             orderData.deliveryMethod === "collection"
                               ? "border-white bg-gray-700"
@@ -452,11 +442,8 @@ export default function OrderWizard() {
                           <p className="text-white font-semibold">Collection</p>
                           <p className="text-gray-400 text-sm">Pick up from our location</p>
                         </button>
-
                         <button
-                          onClick={() =>
-                            setOrderData({ ...orderData, deliveryMethod: "delivery" })
-                          }
+                          onClick={() => setOrderData({ ...orderData, deliveryMethod: "delivery" })}
                           className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                             orderData.deliveryMethod === "delivery"
                               ? "border-white bg-gray-700"
@@ -464,90 +451,63 @@ export default function OrderWizard() {
                           }`}
                         >
                           <p className="text-white font-semibold">Delivery</p>
-                          <p className="text-gray-400 text-sm">Delivered to your address</p>
+                          <p className="text-gray-400 text-sm">We'll deliver to your address</p>
                         </button>
                       </div>
                     </div>
-
                     {orderData.deliveryMethod === "delivery" && (
                       <div>
-                        <Label className="text-white">Delivery Address *</Label>
+                        <Label className="text-white">Delivery Address</Label>
                         <Textarea
                           value={orderData.deliveryAddress || ""}
-                          onChange={(e) =>
-                            setOrderData({ ...orderData, deliveryAddress: e.target.value })
-                          }
-                          className="bg-gray-700 border-gray-600 text-white"
+                          onChange={(e) => setOrderData({ ...orderData, deliveryAddress: e.target.value })}
+                          className="bg-gray-700 border-gray-600 text-white mt-1"
+                          placeholder="Enter your delivery address"
                           rows={4}
-                          placeholder="Enter your full delivery address"
                         />
                       </div>
                     )}
-
-                    <div>
-                      <Label className="text-white">Additional Notes (Optional)</Label>
-                      <Textarea
-                        value={orderData.additionalNotes || ""}
-                        onChange={(e) =>
-                          setOrderData({ ...orderData, additionalNotes: e.target.value })
-                        }
-                        className="bg-gray-700 border-gray-600 text-white"
-                        rows={4}
-                        placeholder="Any special instructions or notes for your order"
-                      />
-                    </div>
                   </div>
                 )}
 
                 {/* Step 4: Review Order */}
                 {currentStep === 4 && (
                   <div className="space-y-4">
-                    <div className="p-4 bg-gray-700 rounded-lg space-y-3">
-                      <div className="border-b border-gray-600 pb-3">
-                        <p className="text-gray-400 text-sm">Product</p>
-                        <p className="text-white font-semibold text-lg">{selectedProduct?.name}</p>
-                      </div>
-
-                      <div className="border-b border-gray-600 pb-3">
-                        <p className="text-gray-400 text-sm">Quantity</p>
-                        <p className="text-white font-semibold">{orderData.quantity} units</p>
-                      </div>
-
-                      <div className="border-b border-gray-600 pb-3">
-                        <p className="text-gray-400 text-sm">Unit Price</p>
-                        <p className="text-accent font-bold">
-                          R
-                          {(
-                            parseFloat(selectedProduct?.basePrice as any) *
-                            (1 - calculateBulkDiscount(orderData.quantity))
-                          ).toFixed(2)}
-                        </p>
-                      </div>
-
-                      <div className="border-b border-gray-600 pb-3">
-                        <p className="text-gray-400 text-sm">Subtotal</p>
-                        <p className="text-white font-semibold text-lg">
-                          R
-                          {(
-                            parseFloat(selectedProduct?.basePrice as any) *
-                            (1 - calculateBulkDiscount(orderData.quantity)) *
-                            orderData.quantity
-                          ).toFixed(2)}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-gray-400 text-sm">Delivery</p>
-                        <p className="text-white font-semibold capitalize">
-                          {orderData.deliveryMethod}
-                        </p>
-                      </div>
+                    <div className="p-4 bg-gray-700 rounded-lg">
+                      <p className="text-gray-400 text-sm">Product</p>
+                      <p className="text-white font-semibold">{selectedProduct?.name}</p>
                     </div>
-
-                    <div className="p-4 bg-blue-900 rounded-lg border border-blue-700">
-                      <p className="text-blue-100 text-sm">
-                        <span className="font-semibold">Note:</span> Final invoice will include VAT and any applicable delivery charges.
+                    <div className="p-4 bg-gray-700 rounded-lg">
+                      <p className="text-gray-400 text-sm">Color</p>
+                      <p className="text-white font-semibold">
+                        {productColors.find((c) => c.id === orderData.colorId)?.colorName}
                       </p>
+                    </div>
+                    <div className="p-4 bg-gray-700 rounded-lg">
+                      <p className="text-gray-400 text-sm">Size</p>
+                      <p className="text-white font-semibold">
+                        {productSizes.find((s) => s.id === orderData.sizeId)?.sizeName}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-gray-700 rounded-lg">
+                      <p className="text-gray-400 text-sm">Quantity</p>
+                      <p className="text-white font-semibold">{orderData.quantity} units</p>
+                    </div>
+                    <div className="p-4 bg-gray-700 rounded-lg">
+                      <p className="text-gray-400 text-sm">Delivery Method</p>
+                      <p className="text-white font-semibold">
+                        {orderData.deliveryMethod === "collection" ? "Collection" : "Delivery"}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-white">Additional Notes (Optional)</Label>
+                      <Textarea
+                        value={orderData.additionalNotes || ""}
+                        onChange={(e) => setOrderData({ ...orderData, additionalNotes: e.target.value })}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
+                        placeholder="Any special requests or notes..."
+                        rows={4}
+                      />
                     </div>
                   </div>
                 )}
@@ -556,53 +516,67 @@ export default function OrderWizard() {
                 {currentStep === 5 && (
                   <div className="text-center py-8">
                     <div className="text-6xl mb-4">✓</div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Order Submitted Successfully!</h2>
-                    <p className="text-gray-300 mb-6">
-                      Your order has been submitted. You can track it in your account dashboard.
+                    <h2 className="text-2xl font-bold text-white mb-2">Order Submitted!</h2>
+                    <p className="text-gray-300 mb-4">
+                      Thank you for your order. We'll review it and get back to you shortly.
                     </p>
-                    <Button
-                      onClick={() => setLocation("/dashboard")}
-                      className="bg-accent text-accent-foreground hover:bg-accent/90"
-                    >
-                      Go to My Account
-                    </Button>
+                    <p className="text-gray-400">Confirmation email sent to {orderData.customerEmail}</p>
                   </div>
                 )}
+
+                {/* Navigation Buttons */}
+                <div className="flex justify-between gap-4 pt-6 border-t border-gray-700">
+                  <Button
+                    onClick={handlePreviousStep}
+                    variant="outline"
+                    className="gap-2"
+                    disabled={currentStep === 1}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </Button>
+                  {currentStep < 5 ? (
+                    <Button onClick={handleNextStep} className="gap-2 bg-accent hover:bg-accent/90">
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setLocation("/")} className="gap-2 bg-accent hover:bg-accent/90">
+                      Back to Home
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Sidebar: Order Summary */}
+          {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <Card className="bg-gray-800 border-gray-700 sticky top-4">
               <CardHeader>
                 <CardTitle className="text-white">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {selectedProduct ? (
+                {selectedProduct && (
                   <>
                     <div>
                       <p className="text-gray-400 text-sm">Product</p>
                       <p className="text-white font-semibold">{selectedProduct.name}</p>
                     </div>
-
                     <div>
                       <p className="text-gray-400 text-sm">Quantity</p>
                       <p className="text-white font-semibold">{orderData.quantity} units</p>
                     </div>
-
                     <div>
                       <p className="text-gray-400 text-sm">Unit Price</p>
-                      <p className="text-accent font-bold text-lg">
-                        R
-                        {(
+                      <p className="text-white font-semibold">
+                        R{(
                           parseFloat(selectedProduct.basePrice as any) *
                           (1 - calculateBulkDiscount(orderData.quantity))
                         ).toFixed(2)}
                       </p>
                     </div>
-
-                    <div className="border-t border-gray-600 pt-4">
+                    <div className="border-t border-gray-700 pt-4">
                       <p className="text-gray-400 text-sm">Estimated Total</p>
                       <p className="text-accent font-bold text-2xl">
                         R
@@ -613,87 +587,16 @@ export default function OrderWizard() {
                         ).toFixed(2)}
                       </p>
                     </div>
-
-                    {orderData.quantity >= 50 && (
-                      <div className="p-3 bg-green-900 rounded-lg border border-green-700">
-                        <p className="text-xs text-green-100 font-semibold">
-                          {getBulkPricingLabel(orderData.quantity)}
-                        </p>
-                      </div>
-                    )}
                   </>
-                ) : (
-                  <p className="text-gray-400 text-sm">Select a product to see pricing</p>
                 )}
-
-                <div className="space-y-2 pt-4">
-                  {currentStep < 5 && (
-                    <>
-                      <Button
-                        onClick={handleNextStep}
-                        disabled={
-                          (currentStep === 1 &&
-                            (!orderData.productId || !orderData.colorId || !orderData.sizeId)) ||
-                          (currentStep === 2 &&
-                            (!orderData.customerFirstName ||
-                              !orderData.customerLastName ||
-                              !orderData.customerEmail ||
-                              !orderData.customerPhone)) ||
-                          (currentStep === 3 && !orderData.deliveryMethod)
-                        }
-                        className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
-                      >
-                        Next <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
-
-                      {currentStep > 1 && (
-                        <Button
-                          onClick={handlePreviousStep}
-                          variant="outline"
-                          className="w-full"
-                        >
-                          <ChevronLeft className="w-4 h-4 mr-2" /> Back
-                        </Button>
-                      )}
-                    </>
-                  )}
-
-                  {currentStep === 4 && (
-                    <>
-                      <Button
-                        onClick={handleSubmitOrder}
-                        disabled={createOrderMutation.isPending}
-                        className="w-full bg-green-600 text-white hover:bg-green-700"
-                      >
-                        {createOrderMutation.isPending ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Submitting...
-                          </>
-                        ) : (
-                          "Submit Order"
-                        )}
-                      </Button>
-
-                      <Button
-                        onClick={handlePreviousStep}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <ChevronLeft className="w-4 h-4 mr-2" /> Back
-                      </Button>
-                    </>
-                  )}
-
-                  {currentStep === 5 && (
-                    <Button
-                      onClick={() => setLocation("/dashboard")}
-                      className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
-                    >
-                      Go to Dashboard
-                    </Button>
-                  )}
-                </div>
+                <Button
+                  onClick={handleNextStep}
+                  disabled={currentStep === 5 || !selectedProduct}
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold mt-4"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
               </CardContent>
             </Card>
           </div>

@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, productId, colorName, colorHex FROM productColors WHERE productId = 1 LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, productId, colorName, colorHex FROM productColors WHERE productId = 1 LIMIT 10;",
+  "rows": [
+    {
+      "id": "90001",
+      "productId": "1",
+      "colorName": "Black",
+      "colorHex": "#000000"
+    },
+    {
+      "id": "90002",
+      "productId": "1",
+      "colorName": "White",
+      "colorHex": "#FFFFFF"
+    },
+    {
+      "id": "90003",
+      "productId": "1",
+      "colorName": "Navy Blue",
+      "colorHex": "#001F3F"
+    },
+    {
+      "id": "90004",
+      "productId": "1",
+      "colorName": "Royal Blue",
+      "colorHex": "#0066CC"
+    },
+    {
+      "id": "90005",
+      "productId": "1",
+      "colorName": "Light Blue",
+      "colorHex": "#87CEEB"
+    },
+    {
+      "id": "90006",
+      "productId": "1",
+      "colorName": "Gray",
+      "colorHex": "#808080"
+    },
+    {
+      "id": "90007",
+      "productId": "1",
+      "colorName": "Green",
+      "colorHex": "#008000"
+    },
+    {
+      "id": "90008",
+      "productId": "1",
+      "colorName": "Lime Green",
+      "colorHex": "#32CD32"
+    },
+    {
+      "id": "90009",
+      "productId": "1",
+      "colorName": "Pink",
+      "colorHex": "#FFC0CB"
+    },
+    {
+      "id": "90010",
+      "productId": "1",
+      "colorName": "Red",
+      "colorHex": "#FF0000"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tproductId\tcolorName\tcolorHex\n90001\t1\tBlack\t#000000\n90002\t1\tWhite\t#FFFFFF\n90003\t1\tNavy Blue\t#001F3F\n90004\t1\tRoyal Blue\t#0066CC\n90005\t1\tLight Blue\t#87CEEB\n90006\t1\tGray\t#808080\n90007\t1\tGreen\t#008000\n90008\t1\tLime Green\t#32CD32\n90009\t1\tPink\t#FFC0CB\n90010\t1\tRed\t#FF0000\n",
+  "stderr": "",
+  "execution_time_ms": 353
+}

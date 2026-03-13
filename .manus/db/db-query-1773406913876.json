@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, productId, sizeName FROM productSizes WHERE productId = 1 LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, productId, sizeName FROM productSizes WHERE productId = 1 LIMIT 10;",
+  "rows": [
+    {
+      "id": "90001",
+      "productId": "1",
+      "sizeName": "S"
+    },
+    {
+      "id": "90002",
+      "productId": "1",
+      "sizeName": "M"
+    },
+    {
+      "id": "90003",
+      "productId": "1",
+      "sizeName": "L"
+    },
+    {
+      "id": "90004",
+      "productId": "1",
+      "sizeName": "XL"
+    },
+    {
+      "id": "90005",
+      "productId": "1",
+      "sizeName": "2XL"
+    },
+    {
+      "id": "90006",
+      "productId": "1",
+      "sizeName": "3XL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tproductId\tsizeName\n90001\t1\tS\n90002\t1\tM\n90003\t1\tL\n90004\t1\tXL\n90005\t1\t2XL\n90006\t1\t3XL\n",
+  "stderr": "",
+  "execution_time_ms": 362
+}
