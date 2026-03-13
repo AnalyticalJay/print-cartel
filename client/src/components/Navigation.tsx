@@ -48,6 +48,13 @@ export function Navigation() {
 
           {/* Desktop Menu */}
           <div className="flex gap-1 sm:gap-2 items-center">
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/reseller")}
+              className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+            >
+              For Resellers
+            </Button>
             {user ? (
               <>
                 <Button
@@ -126,6 +133,15 @@ export function Navigation() {
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 space-y-2">
+            {/* For Resellers */}
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/reseller")}
+              className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+            >
+              For Resellers
+            </Button>
+
             {/* Track Order */}
             <Button
               variant="ghost"

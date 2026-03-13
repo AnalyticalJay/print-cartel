@@ -715,3 +715,18 @@
 - [x] Test responsive design on mobile and desktop
 - [x] Verify chat widget doesn't interfere with order wizard
 - [x] All 117 tests passing - live chat widget complete
+
+
+## Current Task - Reseller & Bulk Orders Page
+- [x] Create database schema for reseller inquiries and bulk pricing tiers
+- [x] Build backend tRPC procedures for reseller contact form submission
+- [x] Design Reseller page layout with hero, benefits, pricing tiers
+- [x] Create ResellerContactForm component with validation
+- [x] Add reseller page route and navigation link
+- [x] Display bulk pricing tiers (10+, 50+, 100+, 500+)
+- [x] Add reseller benefits section (dedicated support, custom pricing, etc)
+- [x] Implement form submission with email notification to admin
+- [x] Write tests for reseller inquiry functionality (11 tests passing)
+- [x] Test responsive design on mobile and desktop
+- [x] Verify form validation and error handling
+- [x] All 128 tests passing - reseller page complete

@@ -178,3 +178,36 @@ export const chatMessages = mysqlTable("chatMessages", {
 
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+
+// Reseller inquiries table
+export const resellerInquiries = mysqlTable("resellerInquiries", {
+  id: int("id").autoincrement().primaryKey(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  contactName: varchar("contactName", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  businessType: varchar("businessType", { length: 100 }).notNull(), // e.g., "Print Shop", "Clothing Brand", "Event Company"
+  estimatedMonthlyVolume: varchar("estimatedMonthlyVolume", { length: 50 }).notNull(), // e.g., "100-500", "500-1000", "1000+"
+  message: text("message"),
+  status: mysqlEnum("status", ["new", "contacted", "qualified", "rejected"]).default("new").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ResellerInquiry = typeof resellerInquiries.$inferSelect;
+export type InsertResellerInquiry = typeof resellerInquiries.$inferInsert;
+
+// Bulk pricing tiers table
+export const bulkPricingTiers = mysqlTable("bulkPricingTiers", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  minQuantity: int("minQuantity").notNull(),
+  maxQuantity: int("maxQuantity"),
+  discountPercentage: decimal("discountPercentage", { precision: 5, scale: 2 }).notNull(),
+  pricePerUnit: decimal("pricePerUnit", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BulkPricingTier = typeof bulkPricingTiers.$inferSelect;
+export type InsertBulkPricingTier = typeof bulkPricingTiers.$inferInsert;

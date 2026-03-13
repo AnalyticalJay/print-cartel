@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage } from "../drizzle/schema";
+import { InsertUser, users, products, productColors, productSizes, printOptions, printPlacements, orders, orderPrints, InsertOrder, InsertOrderPrint, chatConversations, chatMessages, InsertChatConversation, InsertChatMessage, resellerInquiries, InsertResellerInquiry, bulkPricingTiers } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -227,4 +227,44 @@ export async function markChatMessagesAsRead(conversationId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(chatMessages).set({ isRead: 1 }).where(eq(chatMessages.conversationId, conversationId));
+}
+
+// Reseller inquiry functions
+export async function createResellerInquiry(data: InsertResellerInquiry) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(resellerInquiries).values(data);
+  return result[0].insertId;
+}
+
+export async function getResellerInquiry(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(resellerInquiries).where(eq(resellerInquiries.id, id));
+  return result[0] || null;
+}
+
+export async function getAllResellerInquiries() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(resellerInquiries).orderBy(resellerInquiries.createdAt);
+}
+
+export async function updateResellerInquiryStatus(id: number, status: "new" | "contacted" | "qualified" | "rejected") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(resellerInquiries).set({ status }).where(eq(resellerInquiries.id, id));
+}
+
+// Bulk pricing functions
+export async function getBulkPricingTiers(productId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(bulkPricingTiers).where(eq(bulkPricingTiers.productId, productId)).orderBy(bulkPricingTiers.minQuantity);
+}
+
+export async function getAllBulkPricingTiers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(bulkPricingTiers).orderBy(bulkPricingTiers.productId, bulkPricingTiers.minQuantity);
 }
