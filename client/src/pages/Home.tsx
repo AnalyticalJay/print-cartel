@@ -291,7 +291,7 @@ export default function Home() {
             {/* Second Column - Admin Dashboard Mockup */}
             <div className="flex justify-center">
               <img 
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/admin-dashboard-mockup-clean-V4bQck5GZ8aDbfWXbYNyxZ.webp" 
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/admin-dashboard-mockup-white-bg-Laun8DtronYV4Tk5mpMwPj.webp" 
                 alt="Admin Dashboard - Mobile and Desktop" 
                 className="w-full max-w-2xl h-auto object-contain"
               />

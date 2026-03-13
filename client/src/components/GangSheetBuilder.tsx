@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Download, Send, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
+import { Trash2, Plus, Download, Send, ZoomIn, ZoomOut, RotateCw, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 
@@ -31,7 +31,9 @@ export function GangSheetBuilder({ gangSheetId }: { gangSheetId: number }) {
   const [artwork, setArtwork] = useState<ArtworkItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [removingBg, setRemovingBg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const removeBackgroundMutation = trpc.gangSheets.removeBackground.useMutation();
 
   // Initialize Fabric canvas
   useEffect(() => {
@@ -158,6 +160,25 @@ export function GangSheetBuilder({ gangSheetId }: { gangSheetId: number }) {
     }
   };
 
+  const handleRemoveBackground = async (id: string) => {
+    const item = artwork.find((a) => a.id === id);
+    if (!item) return;
+
+    setRemovingBg(id);
+    try {
+      const result = await removeBackgroundMutation.mutateAsync({ imageUrl: item.url });
+      const updatedArtwork = artwork.map((a) =>
+        a.id === id ? { ...a, url: result.imageUrl } : a
+      );
+      setArtwork(updatedArtwork);
+      toast.success('Background removed successfully');
+    } catch (error) {
+      toast.error('Failed to remove background');
+    } finally {
+      setRemovingBg(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -204,14 +225,26 @@ export function GangSheetBuilder({ gangSheetId }: { gangSheetId: number }) {
                       {item.width.toFixed(1)}mm × {item.height.toFixed(1)}mm @ {item.rotation.toFixed(0)}°
                     </p>
                   </div>
-                  <Button
-                    onClick={() => handleDelete(item.id)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      onClick={() => handleRemoveBackground(item.id)}
+                      variant="ghost"
+                      size="sm"
+                      disabled={removingBg === item.id}
+                      className="text-blue-600 hover:text-blue-700"
+                      title="Remove background"
+                    >
+                      <Wand2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(item.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               ))
             )}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { createGangSheet, getGangSheetById, getGangSheetsByUserId, updateGangSheet, deleteGangSheet, addGangSheetArtwork, getGangSheetArtwork, updateGangSheetArtwork, deleteGangSheetArtwork, getAllGangSheets } from "../db";
+import { removeBackground, validateImageQuality } from "../_core/backgroundRemoval";
 
 const CreateGangSheetInput = z.object({
   name: z.string().min(1),
@@ -37,28 +38,28 @@ const UpdateArtworkInput = z.object({
 
 const SubmitGangSheetInput = z.object({
   gangSheetId: z.number(),
-  customerName: z.string(),
+  customerName: z.string().min(1),
   customerEmail: z.string().email(),
-  customerPhone: z.string(),
+  customerPhone: z.string().min(1),
   customerCompany: z.string().optional(),
   quantity: z.number().min(1),
-  exportFormat: z.enum(["png", "pdf"]).default("png"),
+  exportFormat: z.enum(["png", "pdf"]),
   exportFileUrl: z.string(),
   exportFileName: z.string(),
 });
 
-export const gangSheetsRouter = router({
+export const gangSheets = router({
   create: protectedProcedure
     .input(CreateGangSheetInput)
     .mutation(async ({ input, ctx }) => {
-      const gangSheetId = await createGangSheet({
+      const gangSheet = await createGangSheet({
         userId: ctx.user!.id,
         name: input.name,
         description: input.description,
         quantity: input.quantity,
         status: "draft",
       });
-      return { id: gangSheetId };
+      return gangSheet;
     }),
 
   getById: protectedProcedure
@@ -69,22 +70,40 @@ export const gangSheetsRouter = router({
       if (gangSheet.userId !== ctx.user!.id && ctx.user?.role !== "admin") {
         throw new Error("Unauthorized");
       }
-      const artwork = await getGangSheetArtwork(input.id);
-      return { ...gangSheet, artwork };
+      return gangSheet;
     }),
 
-  getByUserId: protectedProcedure.query(async ({ ctx }) => {
+  getByUser: protectedProcedure.query(async ({ ctx }) => {
     return getGangSheetsByUserId(ctx.user!.id);
   }),
+
+  update: protectedProcedure
+    .input(z.object({ id: z.number(), ...CreateGangSheetInput.shape }))
+    .mutation(async ({ input, ctx }) => {
+      const gangSheet = await getGangSheetById(input.id);
+      if (!gangSheet) throw new Error("Gang sheet not found");
+      if (gangSheet.userId !== ctx.user!.id && ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized");
+      }
+
+      const updated = await updateGangSheet(input.id, {
+        name: input.name,
+        description: input.description,
+        quantity: input.quantity,
+      });
+      return updated;
+    }),
 
   addArtwork: protectedProcedure
     .input(AddArtworkInput)
     .mutation(async ({ input, ctx }) => {
       const gangSheet = await getGangSheetById(input.gangSheetId);
       if (!gangSheet) throw new Error("Gang sheet not found");
-      if (gangSheet.userId !== ctx.user!.id) throw new Error("Unauthorized");
+      if (gangSheet.userId !== ctx.user!.id && ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized");
+      }
 
-      const artworkId = await addGangSheetArtwork({
+      const artwork = await addGangSheetArtwork({
         gangSheetId: input.gangSheetId,
         fileUrl: input.fileUrl,
         fileName: input.fileName,
@@ -93,30 +112,38 @@ export const gangSheetsRouter = router({
         originalWidth: input.originalWidth,
         originalHeight: input.originalHeight,
         dpi: input.dpi,
-        positionX: input.positionX.toString(),
-        positionY: input.positionY.toString(),
-        width: input.width.toString(),
-        height: input.height.toString(),
-        rotation: input.rotation.toString(),
+        positionX: input.positionX,
+        positionY: input.positionY,
+        width: input.width,
+        height: input.height,
+        rotation: input.rotation,
         zIndex: input.zIndex,
       });
-      return { id: artworkId };
+      return artwork;
+    }),
+
+  getArtwork: protectedProcedure
+    .input(z.object({ gangSheetId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const gangSheet = await getGangSheetById(input.gangSheetId);
+      if (!gangSheet) throw new Error("Gang sheet not found");
+      if (gangSheet.userId !== ctx.user!.id && ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized");
+      }
+      return getGangSheetArtwork(input.gangSheetId);
     }),
 
   updateArtwork: protectedProcedure
     .input(UpdateArtworkInput)
-    .mutation(async ({ input, ctx }) => {
-      const artwork = await getGangSheetArtwork(0); // Placeholder - would need to fetch artwork first
-      // In production, verify ownership
-      await updateGangSheetArtwork(input.id, {
-        positionX: input.positionX?.toString(),
-        positionY: input.positionY?.toString(),
-        width: input.width?.toString(),
-        height: input.height?.toString(),
-        rotation: input.rotation?.toString(),
+    .mutation(async ({ input }) => {
+      return updateGangSheetArtwork(input.id, {
+        positionX: input.positionX,
+        positionY: input.positionY,
+        width: input.width,
+        height: input.height,
+        rotation: input.rotation,
         zIndex: input.zIndex,
       });
-      return { success: true };
     }),
 
   deleteArtwork: protectedProcedure
@@ -128,12 +155,8 @@ export const gangSheetsRouter = router({
 
   submit: protectedProcedure
     .input(SubmitGangSheetInput)
-    .mutation(async ({ input, ctx }) => {
-      const gangSheet = await getGangSheetById(input.gangSheetId);
-      if (!gangSheet) throw new Error("Gang sheet not found");
-      if (gangSheet.userId !== ctx.user!.id) throw new Error("Unauthorized");
-
-      await updateGangSheet(input.gangSheetId, {
+    .mutation(async ({ input }) => {
+      const gangSheet = await updateGangSheet(input.gangSheetId, {
         status: "submitted",
         customerName: input.customerName,
         customerEmail: input.customerEmail,
@@ -160,7 +183,23 @@ export const gangSheetsRouter = router({
       return { success: true };
     }),
 
-  // Admin procedures
+  removeBackground: protectedProcedure
+    .input(z.object({ imageUrl: z.string().url() }))
+    .mutation(async ({ input }) => {
+      try {
+        const processedImage = await removeBackground(input.imageUrl);
+        return { success: true, imageUrl: processedImage };
+      } catch (error) {
+        throw new Error("Background removal failed");
+      }
+    }),
+
+  validateImageQuality: publicProcedure
+    .input(z.object({ width: z.number(), height: z.number(), dpi: z.number().optional() }))
+    .query(({ input }) => {
+      return validateImageQuality(input.width, input.height, input.dpi);
+    }),
+
   listAll: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user?.role !== "admin") throw new Error("Unauthorized");
     return getAllGangSheets();

@@ -932,3 +932,20 @@ Future enhancements (Phase 2):
 - [ ] Advanced artwork controls (rotate, resize with handles)
 - [ ] Admin dashboard gang sheet management
 - [ ] Email notifications for submitted orders
+
+
+## Current Task - Implement Background Removal Feature
+- [x] Install Sharp library for image processing
+- [x] Create backend service for background removal with remove.bg API support
+- [x] Add tRPC procedure for removeBackground
+- [x] Add background removal button to Gang Sheet Builder UI with Wand2 icon
+- [x] Implement background removal mutation with loading state
+- [x] All 141 tests passing
+
+
+## Current Task - Fix Admin Dashboard Mockup Background
+- [x] Regenerate admin dashboard mockup with solid white background
+- [x] Update Home page with new mockup image
+- [x] Verify business partners section displays correctly with white background
+- [x] Test responsive design - displays properly on all screen sizes
+- [x] All 141 tests passing

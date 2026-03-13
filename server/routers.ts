@@ -9,7 +9,9 @@ import { adminRouter } from "./routers/admin";
 import { quotesRouter } from "./routers/quotes";
 import { chatRouter } from "./routers/chat";
 import { resellerRouter } from "./routers/reseller";
-import { gangSheetsRouter } from "./routers/gangsheets";
+import { gangSheets } from "./routers/gangsheets";
+
+const gangSheetsRouter = gangSheets;
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
