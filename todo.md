@@ -805,3 +805,12 @@
 - [x] Test title header colors across all pages
 - [x] Verify responsive design with new colors
 - [x] All 141 tests passing - color and design updates complete
+
+
+## Current Task - Homepage Hero & Reseller Section Updates
+- [x] Generate new hero background with mannequins wearing DTF-printed garments and color burst
+- [x] Remove reseller artwork image from homepage reseller section
+- [x] Update hero section background image to new mannequin design
+- [x] Test responsive design on mobile and desktop
+- [x] Verify all images load correctly
+- [x] All 141 tests passing - homepage hero and reseller section updates complete

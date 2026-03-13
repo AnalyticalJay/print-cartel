@@ -71,11 +71,11 @@ export default function Home() {
 
       {/* Enhanced Hero Section - Center Aligned with Colorful Text */}
       <section className="relative overflow-hidden bg-black text-white py-20 sm:py-28 md:py-40">
-        {/* T-Shirt Mockup Background */}
+        {/* Mannequins with DTF Designs Background */}
         <div 
           className="absolute inset-0 opacity-100 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/tshirt-hero-splash-czPtMi7tbbazyVqaoGTspp.webp)',
+            backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/hero-mannequins-dtf-designs-NYbM2U5vSAZQaQcuHUBMsF.webp)',
           }}
         />
         
@@ -285,9 +285,7 @@ export default function Home() {
                 Learn About Our Reseller Program
               </Button>
             </div>
-            <div className="flex justify-center items-center">
-              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/reseller-highlight-artwork-U5tFVuoCDDFdyoyMwV4J8Q.webp" alt="Partnership and Growth" className="max-w-md w-full h-auto rounded-lg shadow-lg" />
-            </div>
+
           </div>
         </div>
       </section>
