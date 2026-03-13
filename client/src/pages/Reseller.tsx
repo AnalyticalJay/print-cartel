@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { trpc } from '@/lib/trpc';
 import { CheckCircle, TrendingUp, Users, Award, ArrowRight, Zap, Shield, Rocket } from 'lucide-react';
 import { toast } from 'sonner';
+import { Navigation } from '@/components/Navigation';
 
 export default function Reseller() {
   const [formData, setFormData] = useState({
@@ -112,7 +113,8 @@ export default function Reseller() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white text-foreground">
+      <Navigation />
       {/* Enhanced Hero Section */}
       <section className="relative py-24 px-4 sm:px-6 lg:px-8 text-white overflow-hidden bg-cover bg-center" style={{
         backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/reseller-hero-colorful-bg-86G9QHyavE8Yvb3brdngcX.webp)',
@@ -395,6 +397,16 @@ export default function Reseller() {
           </Button>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t-2 border-border bg-soft-grey">
+        <div className="max-w-6xl mx-auto px-4 py-12 text-center text-muted-foreground">
+          <p className="font-semibold text-foreground">&copy; 2026 Print Cartel. All rights reserved.</p>
+          <p className="mt-2">
+            Email: <a href="mailto:sales@printcartel.co.za" className="text-accent hover:underline font-semibold">sales@printcartel.co.za</a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

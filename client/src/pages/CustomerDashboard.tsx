@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { Download, Eye, LogOut } from "lucide-react";
+import { Download, Eye, LogOut, ArrowLeft } from "lucide-react";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderMockupPreview } from "@/components/OrderMockupPreview";
 import { toast } from "sonner";
@@ -136,9 +136,20 @@ export default function CustomerDashboard() {
       {/* Header */}
       <nav className="border-b border-gray-800">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Print Cartel</h1>
-            <p className="text-gray-400 text-sm">Customer Dashboard</p>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setLocation("/")}
+              variant="outline"
+              size="sm"
+              className="text-white border-gray-700 hover:bg-gray-900"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Print Cartel</h1>
+              <p className="text-gray-400 text-sm">Customer Dashboard</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
