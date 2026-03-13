@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Loader2, ChevronRight, ChevronLeft, Upload, X } from "lucide-react";
+import { Loader2, ChevronRight, ChevronLeft, Upload, X, ChevronDown } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -61,6 +61,7 @@ export default function OrderWizard() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>(1);
+  const [expandedPlacement, setExpandedPlacement] = useState<number | null>(null);
   const [orderData, setOrderData] = useState<OrderData>({
     productId: null,
     colorId: null,
@@ -287,17 +288,10 @@ export default function OrderWizard() {
                       {productsQuery.data?.map((product) => (
                         <button
                           key={product.id}
-                          onClick={() =>
-                            setOrderData({
-                              ...orderData,
-                              productId: product.id,
-                              colorId: null,
-                              sizeId: null,
-                            })
-                          }
-                          className={`p-4 rounded-lg border-2 transition-all text-left ${
+                          onClick={() => setOrderData({ ...orderData, productId: product.id, colorId: null, sizeId: null })}
+                          className={`p-4 rounded-lg border-2 transition-all text-center ${
                             orderData.productId === product.id
-                              ? "border-accent bg-accent/10"
+                              ? "border-accent bg-accent/20"
                               : "border-gray-600 bg-gray-700 hover:border-gray-500"
                           }`}
                         >
@@ -381,56 +375,99 @@ export default function OrderWizard() {
               </Card>
             )}
 
-            {/* Step 2: Print Placement & Size */}
+            {/* Step 2: Print Placement & Size - OPTIMIZED COMPACT LAYOUT */}
             {currentStep === 2 && (
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-white">Select Print Placement & Size</CardTitle>
                   <CardDescription>Choose where and how large to print your design</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {placements.map((placement: any) => (
-                    <div key={placement.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
-                      <h3 className="text-white font-semibold mb-3">{placement.placementName}</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {printOptions.map((option: any) => (
-                          <button
-                            key={option.id}
-                            onClick={() => handleAddPrintSelection(placement.id, option.id)}
-                            className={`p-3 rounded-lg border-2 transition-all text-sm font-semibold ${
-                              orderData.printSelections.some(
-                                (p) => p.placementId === placement.id && p.printSizeId === option.id
-                              )
-                                ? "border-accent bg-accent text-black"
-                                : "border-gray-600 bg-gray-600 text-white hover:border-gray-500"
-                            }`}
-                          >
-                            <div>{option.printSize}</div>
-                            <div className="text-xs font-normal">+R{option.additionalPrice}</div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <CardContent className="space-y-3">
+                  {/* Accordion-style placement selector */}
+                  <div className="space-y-2">
+                    {placements.map((placement: any) => {
+                      const isExpanded = expandedPlacement === placement.id;
+                      const selectedForPlacement = orderData.printSelections.filter(
+                        (p) => p.placementId === placement.id
+                      );
 
-                  {/* Selected Print Selections */}
+                      return (
+                        <div key={placement.id} className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700">
+                          {/* Placement Header - Clickable to expand/collapse */}
+                          <button
+                            onClick={() =>
+                              setExpandedPlacement(isExpanded ? null : placement.id)
+                            }
+                            className="w-full flex items-center justify-between p-3 hover:bg-gray-600 transition-colors"
+                          >
+                            <div className="flex items-center gap-2 flex-1 text-left">
+                              <h3 className="text-white font-semibold text-sm">{placement.placementName}</h3>
+                              {selectedForPlacement.length > 0 && (
+                                <span className="bg-accent text-black text-xs font-bold px-2 py-1 rounded">
+                                  {selectedForPlacement.length}
+                                </span>
+                              )}
+                            </div>
+                            <ChevronDown
+                              size={18}
+                              className={`text-gray-400 transition-transform ${
+                                isExpanded ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+
+                          {/* Placement Options - Show only when expanded */}
+                          {isExpanded && (
+                            <div className="border-t border-gray-600 p-3 bg-gray-600/50">
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {printOptions.map((option: any) => {
+                                  const isSelected = orderData.printSelections.some(
+                                    (p) => p.placementId === placement.id && p.printSizeId === option.id
+                                  );
+
+                                  return (
+                                    <button
+                                      key={option.id}
+                                      onClick={() => handleAddPrintSelection(placement.id, option.id)}
+                                      className={`p-2 rounded-lg border-2 transition-all text-xs font-semibold ${
+                                        isSelected
+                                          ? "border-accent bg-accent text-black"
+                                          : "border-gray-500 bg-gray-500 text-white hover:border-gray-400"
+                                      }`}
+                                    >
+                                      <div>{option.printSize}</div>
+                                      <div className="text-xs font-normal opacity-90">+R{option.additionalPrice}</div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Compact Selected Summary */}
                   {orderData.printSelections.length > 0 && (
-                    <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-                      <h3 className="text-white font-semibold mb-3">Selected Print Options:</h3>
-                      <div className="space-y-2">
+                    <div className="mt-4 p-3 bg-gray-700 rounded-lg border border-accent/30">
+                      <h3 className="text-white font-semibold text-sm mb-2">
+                        Selected: {orderData.printSelections.length} option{orderData.printSelections.length !== 1 ? "s" : ""}
+                      </h3>
+                      <div className="space-y-1">
                         {orderData.printSelections.map((selection, index) => {
                           const placement = placements.find((p: any) => p.id === selection.placementId);
                           const option = printOptions.find((o: any) => o.id === selection.printSizeId);
                           return (
-                            <div key={index} className="flex justify-between items-center bg-gray-600 p-2 rounded">
-                              <span className="text-white text-sm">
+                            <div key={index} className="flex justify-between items-center text-xs">
+                              <span className="text-gray-300">
                                 {placement?.placementName} - {option?.printSize}
                               </span>
                               <button
                                 onClick={() => handleRemovePrintSelection(index)}
-                                className="text-red-400 hover:text-red-300"
+                                className="text-red-400 hover:text-red-300 ml-2"
                               >
-                                <X size={16} />
+                                <X size={14} />
                               </button>
                             </div>
                           );
@@ -500,57 +537,90 @@ export default function OrderWizard() {
                   <CardDescription>Enter your contact information</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-white font-semibold mb-2 block">First Name</Label>
+                      <Label className="text-white">First Name</Label>
                       <Input
                         value={orderData.customerFirstName}
                         onChange={(e) =>
-                          setOrderData({ ...orderData, customerFirstName: e.target.value })
+                          setOrderData({
+                            ...orderData,
+                            customerFirstName: e.target.value,
+                          })
                         }
                         className="bg-gray-700 border-gray-600 text-white"
                       />
                     </div>
                     <div>
-                      <Label className="text-white font-semibold mb-2 block">Last Name</Label>
+                      <Label className="text-white">Last Name</Label>
                       <Input
                         value={orderData.customerLastName}
                         onChange={(e) =>
-                          setOrderData({ ...orderData, customerLastName: e.target.value })
+                          setOrderData({
+                            ...orderData,
+                            customerLastName: e.target.value,
+                          })
                         }
                         className="bg-gray-700 border-gray-600 text-white"
                       />
                     </div>
                   </div>
+
                   <div>
-                    <Label className="text-white font-semibold mb-2 block">Email</Label>
+                    <Label className="text-white">Email</Label>
                     <Input
                       type="email"
                       value={orderData.customerEmail}
                       onChange={(e) =>
-                        setOrderData({ ...orderData, customerEmail: e.target.value })
+                        setOrderData({
+                          ...orderData,
+                          customerEmail: e.target.value,
+                        })
                       }
                       className="bg-gray-700 border-gray-600 text-white"
                     />
                   </div>
+
                   <div>
-                    <Label className="text-white font-semibold mb-2 block">Phone</Label>
+                    <Label className="text-white">Phone</Label>
                     <Input
                       value={orderData.customerPhone}
                       onChange={(e) =>
-                        setOrderData({ ...orderData, customerPhone: e.target.value })
+                        setOrderData({
+                          ...orderData,
+                          customerPhone: e.target.value,
+                        })
                       }
                       className="bg-gray-700 border-gray-600 text-white"
                     />
                   </div>
+
                   <div>
-                    <Label className="text-white font-semibold mb-2 block">Company (Optional)</Label>
+                    <Label className="text-white">Company (Optional)</Label>
                     <Input
                       value={orderData.customerCompany || ""}
                       onChange={(e) =>
-                        setOrderData({ ...orderData, customerCompany: e.target.value })
+                        setOrderData({
+                          ...orderData,
+                          customerCompany: e.target.value,
+                        })
                       }
                       className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-white">Additional Notes (Optional)</Label>
+                    <Textarea
+                      value={orderData.additionalNotes || ""}
+                      onChange={(e) =>
+                        setOrderData({
+                          ...orderData,
+                          additionalNotes: e.target.value,
+                        })
+                      }
+                      className="bg-gray-700 border-gray-600 text-white"
+                      rows={3}
                     />
                   </div>
                 </CardContent>
@@ -565,56 +635,61 @@ export default function OrderWizard() {
                   <CardDescription>Choose how you want to receive your order</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => setOrderData({ ...orderData, deliveryMethod: "collection" })}
-                      className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                        orderData.deliveryMethod === "collection"
-                          ? "border-accent bg-accent/10"
-                          : "border-gray-600 bg-gray-700 hover:border-gray-500"
-                      }`}
-                    >
-                      <p className="text-white font-semibold">Collection</p>
-                      <p className="text-gray-400 text-sm">Pick up from our office</p>
-                    </button>
-                    <button
-                      onClick={() => setOrderData({ ...orderData, deliveryMethod: "delivery" })}
-                      className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                        orderData.deliveryMethod === "delivery"
-                          ? "border-accent bg-accent/10"
-                          : "border-gray-600 bg-gray-700 hover:border-gray-500"
-                      }`}
-                    >
-                      <p className="text-white font-semibold">Delivery</p>
-                      <p className="text-gray-400 text-sm">We'll deliver to your address</p>
-                    </button>
+                  <div
+                    onClick={() =>
+                      setOrderData({
+                        ...orderData,
+                        deliveryMethod: "collection",
+                        deliveryAddress: undefined,
+                      })
+                    }
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      orderData.deliveryMethod === "collection"
+                        ? "border-accent bg-accent/20"
+                        : "border-gray-600 bg-gray-700 hover:border-gray-500"
+                    }`}
+                  >
+                    <p className="text-white font-semibold">Collection</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      Collect from our office at 308 Cape Road, Newton Park
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() =>
+                      setOrderData({
+                        ...orderData,
+                        deliveryMethod: "delivery",
+                      })
+                    }
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      orderData.deliveryMethod === "delivery"
+                        ? "border-accent bg-accent/20"
+                        : "border-gray-600 bg-gray-700 hover:border-gray-500"
+                    }`}
+                  >
+                    <p className="text-white font-semibold">Delivery</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      We'll deliver to your address
+                    </p>
                   </div>
 
                   {orderData.deliveryMethod === "delivery" && (
                     <div>
-                      <Label className="text-white font-semibold mb-2 block">Delivery Address</Label>
+                      <Label className="text-white">Delivery Address</Label>
                       <Textarea
                         value={orderData.deliveryAddress || ""}
                         onChange={(e) =>
-                          setOrderData({ ...orderData, deliveryAddress: e.target.value })
+                          setOrderData({
+                            ...orderData,
+                            deliveryAddress: e.target.value,
+                          })
                         }
                         className="bg-gray-700 border-gray-600 text-white"
-                        rows={4}
+                        rows={3}
                       />
                     </div>
                   )}
-
-                  <div>
-                    <Label className="text-white font-semibold mb-2 block">Additional Notes (Optional)</Label>
-                    <Textarea
-                      value={orderData.additionalNotes || ""}
-                      onChange={(e) =>
-                        setOrderData({ ...orderData, additionalNotes: e.target.value })
-                      }
-                      className="bg-gray-700 border-gray-600 text-white"
-                      rows={3}
-                    />
-                  </div>
                 </CardContent>
               </Card>
             )}
@@ -624,35 +699,82 @@ export default function OrderWizard() {
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-white">Review Your Order</CardTitle>
-                  <CardDescription>Please verify all details before confirming</CardDescription>
+                  <CardDescription>Please review all details before submitting</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-3 bg-gray-700 p-4 rounded-lg">
-                    <div className="flex justify-between text-white">
-                      <span>Product:</span>
-                      <span className="font-semibold">{selectedProduct?.name}</span>
+                  <div className="bg-gray-700 p-4 rounded-lg">
+                    <h3 className="text-white font-semibold mb-3">Order Summary</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Product:</span>
+                        <span className="text-white">{selectedProduct?.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Quantity:</span>
+                        <span className="text-white">{orderData.quantity}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Print Options:</span>
+                        <span className="text-white">{orderData.printSelections.length}</span>
+                      </div>
+                      <div className="border-t border-gray-600 pt-2 mt-2 flex justify-between">
+                        <span className="text-gray-400">Subtotal:</span>
+                        <span className="text-white">R{subtotal.toFixed(2)}</span>
+                      </div>
+                      {bulkDiscount > 0 && (
+                        <div className="flex justify-between text-accent">
+                          <span>Bulk Discount ({(bulkDiscount * 100).toFixed(0)}%):</span>
+                          <span>-R{discountAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="border-t border-gray-600 pt-2 mt-2 flex justify-between font-bold">
+                        <span className="text-white">Total:</span>
+                        <span className="text-accent text-lg">R{totalPrice.toFixed(2)}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-white">
-                      <span>Quantity:</span>
-                      <span className="font-semibold">{orderData.quantity} units</span>
+                  </div>
+
+                  <div className="bg-gray-700 p-4 rounded-lg">
+                    <h3 className="text-white font-semibold mb-3">Contact Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Name:</span>
+                        <span className="text-white">
+                          {orderData.customerFirstName} {orderData.customerLastName}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Email:</span>
+                        <span className="text-white">{orderData.customerEmail}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Phone:</span>
+                        <span className="text-white">{orderData.customerPhone}</span>
+                      </div>
+                      {orderData.customerCompany && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Company:</span>
+                          <span className="text-white">{orderData.customerCompany}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex justify-between text-white">
-                      <span>Print Selections:</span>
-                      <span className="font-semibold">{orderData.printSelections.length}</span>
-                    </div>
-                    <div className="flex justify-between text-white">
-                      <span>Name:</span>
-                      <span className="font-semibold">
-                        {orderData.customerFirstName} {orderData.customerLastName}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-white">
-                      <span>Email:</span>
-                      <span className="font-semibold">{orderData.customerEmail}</span>
-                    </div>
-                    <div className="flex justify-between text-white">
-                      <span>Delivery:</span>
-                      <span className="font-semibold capitalize">{orderData.deliveryMethod}</span>
+                  </div>
+
+                  <div className="bg-gray-700 p-4 rounded-lg">
+                    <h3 className="text-white font-semibold mb-3">Delivery</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Method:</span>
+                        <span className="text-white capitalize">
+                          {orderData.deliveryMethod}
+                        </span>
+                      </div>
+                      {orderData.deliveryMethod === "delivery" && orderData.deliveryAddress && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Address:</span>
+                          <span className="text-white text-right">{orderData.deliveryAddress}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -663,18 +785,79 @@ export default function OrderWizard() {
             {currentStep === 7 && (
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-white text-center">Order Confirmed!</CardTitle>
+                  <CardTitle className="text-white">Order Confirmed!</CardTitle>
+                  <CardDescription>Thank you for your order</CardDescription>
                 </CardHeader>
-                <CardContent className="text-center space-y-4">
-                  <p className="text-gray-300">Thank you for your order. We'll be in touch shortly with more details.</p>
+                <CardContent className="space-y-4">
+                  <div className="text-center py-8">
+                    <div className="text-6xl mb-4">✓</div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Order Submitted Successfully</h2>
+                    <p className="text-gray-400 mb-4">
+                      We've received your order and will review it shortly. You'll receive an email confirmation with all the details.
+                    </p>
+                  </div>
+
+                  <div className="bg-gray-700 p-4 rounded-lg">
+                    <p className="text-white font-semibold mb-2">What happens next?</p>
+                    <ol className="text-gray-400 text-sm space-y-2">
+                      <li>1. We'll review your artwork and specifications</li>
+                      <li>2. Our team will prepare a quote for your order</li>
+                      <li>3. You'll receive an email with the final quote</li>
+                      <li>4. Once approved, we'll proceed with production</li>
+                      <li>5. You'll be notified when your order is ready</li>
+                    </ol>
+                  </div>
+
                   <Button
                     onClick={() => setLocation("/")}
-                    className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                    className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
                   >
                     Return to Home
                   </Button>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Navigation Buttons */}
+            {currentStep < 7 && (
+              <div className="flex gap-4 mt-6">
+                <Button
+                  onClick={handlePreviousStep}
+                  disabled={currentStep === 1}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <ChevronLeft size={20} className="mr-2" />
+                  Previous
+                </Button>
+                {currentStep === 6 ? (
+                  <Button
+                    onClick={handleSubmitOrder}
+                    disabled={createOrderMutation.isPending}
+                    className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                  >
+                    {createOrderMutation.isPending ? (
+                      <>
+                        <Loader2 size={20} className="mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Submit Order
+                        <ChevronRight size={20} className="ml-2" />
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleNextStep}
+                    className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                  >
+                    Next
+                    <ChevronRight size={20} className="ml-2" />
+                  </Button>
+                )}
+              </div>
             )}
           </div>
 
@@ -682,96 +865,66 @@ export default function OrderWizard() {
           <div className="lg:col-span-1">
             <Card className="bg-gray-800 border-gray-700 sticky top-4">
               <CardHeader>
-                <CardTitle className="text-white">Order Summary</CardTitle>
+                <CardTitle className="text-white text-lg">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {selectedProduct && (
                   <>
-                    <div className="space-y-2 border-b border-gray-700 pb-4">
-                      <div className="flex justify-between text-gray-300">
-                        <span>Product:</span>
-                        <span>{selectedProduct.name}</span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Product:</span>
+                        <span className="text-white">{selectedProduct.name}</span>
                       </div>
-                      <div className="flex justify-between text-gray-300">
-                        <span>Base Price:</span>
-                        <span>R{selectedProduct.basePrice}</span>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Quantity:</span>
+                        <span className="text-white">{orderData.quantity}</span>
                       </div>
-                      <div className="flex justify-between text-gray-300">
-                        <span>Quantity:</span>
-                        <span>{orderData.quantity}</span>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Base Price:</span>
+                        <span className="text-white">R{basePrice.toFixed(2)}</span>
                       </div>
-                      {printSizePrice > 0 && (
-                        <div className="flex justify-between text-gray-300">
-                          <span>Print Size Cost:</span>
-                          <span>R{printSizePrice.toFixed(2)}</span>
-                        </div>
-                      )}
                     </div>
 
-                    <div className="space-y-2 border-b border-gray-700 pb-4">
-                      <div className="flex justify-between text-gray-300">
-                        <span>Subtotal:</span>
-                        <span>R{subtotal.toFixed(2)}</span>
-                      </div>
-                      {bulkDiscount > 0 && (
-                        <div className="flex justify-between text-green-400">
-                          <span>Discount ({(bulkDiscount * 100).toFixed(0)}%):</span>
-                          <span>-R{discountAmount.toFixed(2)}</span>
+                    {orderData.printSelections.length > 0 && (
+                      <div className="border-t border-gray-600 pt-2">
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="text-gray-400">Print Surcharge:</span>
+                          <span className="text-white">R{printSizePrice.toFixed(2)}</span>
                         </div>
-                      )}
-                      <p className="text-xs text-gray-400 mt-2">{getBulkPricingLabel(orderData.quantity)}</p>
-                    </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Subtotal:</span>
+                          <span className="text-white">R{subtotal.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
 
-                    <div className="flex justify-between text-white font-bold text-lg">
-                      <span>Total:</span>
-                      <span className="text-accent">R{totalPrice.toFixed(2)}</span>
+                    {bulkDiscount > 0 && (
+                      <div className="border-t border-gray-600 pt-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-accent">{getBulkPricingLabel(orderData.quantity)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm mt-2">
+                          <span className="text-accent">Discount:</span>
+                          <span className="text-accent">-R{discountAmount.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="border-t border-gray-600 pt-2">
+                      <div className="flex justify-between font-bold">
+                        <span className="text-white">Total:</span>
+                        <span className="text-accent text-lg">R{totalPrice.toFixed(2)}</span>
+                      </div>
                     </div>
                   </>
+                )}
+
+                {!selectedProduct && (
+                  <p className="text-gray-400 text-sm">Select a product to see pricing</p>
                 )}
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between mt-8">
-          <Button
-            onClick={handlePreviousStep}
-            disabled={currentStep === 1}
-            variant="outline"
-            className="border-gray-600 text-white hover:bg-gray-800"
-          >
-            <ChevronLeft size={20} className="mr-2" />
-            Previous
-          </Button>
-
-          {currentStep === 6 ? (
-            <Button
-              onClick={handleSubmitOrder}
-              disabled={createOrderMutation.isPending}
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
-            >
-              {createOrderMutation.isPending ? (
-                <>
-                  <Loader2 size={20} className="mr-2 animate-spin" />
-                  Placing Order...
-                </>
-              ) : (
-                <>
-                  Confirm Order
-                  <ChevronRight size={20} className="ml-2" />
-                </>
-              )}
-            </Button>
-          ) : currentStep < 7 ? (
-            <Button
-              onClick={handleNextStep}
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
-            >
-              Next
-              <ChevronRight size={20} className="ml-2" />
-            </Button>
-          ) : null}
         </div>
       </div>
     </div>
