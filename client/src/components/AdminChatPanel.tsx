@@ -180,7 +180,7 @@ export function AdminChatPanel() {
             </div>
           ) : conversationsQuery.data && conversationsQuery.data.length > 0 ? (
             <div className="space-y-2 p-4">
-              {conversationsQuery.data.map((conversation) => (
+              {[...conversationsQuery.data].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map((conversation) => (
                 <button
                   key={conversation.id}
                   onClick={() => setSelectedConversationId(conversation.id)}
