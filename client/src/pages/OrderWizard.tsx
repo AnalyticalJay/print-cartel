@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Loader2, ChevronRight, ChevronLeft, Upload, X, ChevronDown, Sparkles } from "lucide-react";
+import { Loader2, ChevronRight, ChevronLeft, Upload, X, ChevronDown, Sparkles, Plus, Minus } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -371,19 +371,52 @@ export default function OrderWizard() {
 
                   {/* Quantity */}
                   <div>
-                    <Label className="text-white font-semibold mb-2 block">Quantity</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={orderData.quantity}
-                      onChange={(e) =>
-                        setOrderData({
-                          ...orderData,
-                          quantity: parseInt(e.target.value) || 1,
-                        })
-                      }
-                      className="bg-gray-700 border-gray-600 text-white"
-                    />
+                    <Label className="text-white font-semibold mb-3 block">Quantity</Label>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          setOrderData({
+                            ...orderData,
+                            quantity: Math.max(1, orderData.quantity - 1),
+                          })
+                        }
+                        variant="outline"
+                        size="icon"
+                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-10 w-10"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={orderData.quantity}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val) && val >= 1) {
+                            setOrderData({
+                              ...orderData,
+                              quantity: val,
+                            });
+                          }
+                        }}
+                        className="bg-gray-700 border-gray-600 text-white text-center font-semibold text-lg flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          setOrderData({
+                            ...orderData,
+                            quantity: orderData.quantity + 1,
+                          })
+                        }
+                        variant="outline"
+                        size="icon"
+                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-10 w-10"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
