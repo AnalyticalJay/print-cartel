@@ -35,9 +35,17 @@ export function PushNotificationManager() {
       });
 
       // Subscribe to push notifications
+      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      
+      // Skip if VAPID key is not configured
+      if (!vapidKey) {
+        console.log("Push notifications not configured - VAPID key missing");
+        return;
+      }
+      
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.VITE_VAPID_PUBLIC_KEY,
+        applicationServerKey: vapidKey,
       });
 
       if (subscription) {
