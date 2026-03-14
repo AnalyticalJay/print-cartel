@@ -131,9 +131,9 @@ export async function sendOrderConfirmationEmail(
             <h3 style="color: #000; margin-top: 20px;">Track Your Order</h3>
             <p>You can track your order status anytime using the link below:</p>
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://printcartel-kdhkmkqx.manus.space/track?email=${encodeURIComponent(customerEmail)}&orderId=${orderId}" style="background-color: #FFD400; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Track Order #${orderId}</a>
+              <a href="https://printcartel.co.za/track?email=${encodeURIComponent(customerEmail)}&orderId=${orderId}" style="background-color: #FFD400; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Track Order #${orderId}</a>
             </div>
-            <p style="text-align: center; font-size: 12px; color: #666;">Or visit: https://printcartel-kdhkmkqx.manus.space/track</p>
+            <p style="text-align: center; font-size: 12px; color: #666;">Or visit: https://printcartel.co.za/track</p>
 
             <p style="margin-top: 30px; color: #666;">
               If you have any questions about your order, please do not hesitate to contact us at <strong>sales@printcartel.co.za</strong> or call us during business hours.
@@ -185,7 +185,7 @@ WHAT HAPPENS NEXT:
 5. You will be notified when your order is ready
 
 Track your order anytime at:
-https://printcartel-kdhkmkqx.manus.space/track?email=${customerEmail}&orderId=${orderId}
+https://printcartel.co.za/track?email=${customerEmail}&orderId=${orderId}
 
 If you have any questions, contact us at sales@printcartel.co.za
 
