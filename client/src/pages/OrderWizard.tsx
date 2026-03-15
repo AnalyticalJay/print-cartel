@@ -15,6 +15,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { TemplateLibrary } from "@/components/TemplateLibrary";
 import { TemplatePreview } from "@/components/TemplatePreview";
+import { useOrderCart } from "@/hooks/useOrderCart";
 
 type Step = 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -62,6 +63,7 @@ const getBulkPricingLabel = (quantity: number): string => {
 export default function OrderWizard() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { addItem, items: cartItems } = useOrderCart();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [expandedPlacement, setExpandedPlacement] = useState<number | null>(null);
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
@@ -194,6 +196,42 @@ export default function OrderWizard() {
     if (currentStep > 1) {
       setCurrentStep((currentStep - 1) as Step);
     }
+  };
+
+  const handleAddToCart = () => {
+    if (
+      !orderData.productId ||
+      !orderData.colorId ||
+      !orderData.sizeId ||
+      orderData.printSelections.length === 0
+    ) {
+      toast.error("Please complete the garment selection and placement before adding to cart");
+      return;
+    }
+
+    const selectedColor = productColors.find((c) => c.id === orderData.colorId);
+    const selectedSize = productSizes.find((s) => s.id === orderData.sizeId);
+    const selectedPlacement = placements.find((p) => p.id === orderData.printSelections[0]?.placementId);
+    const selectedPrintSize = printOptions.find((p) => p.id === orderData.printSelections[0]?.printSizeId);
+
+    addItem({
+      id: `${Date.now()}-${Math.random()}`,
+      productId: orderData.productId,
+      colorId: orderData.colorId,
+      sizeId: orderData.sizeId,
+      quantity: orderData.quantity,
+      placementId: orderData.printSelections[0].placementId,
+      printSizeId: orderData.printSelections[0].printSizeId,
+      unitPrice: basePrice,
+      productName: selectedProduct?.name,
+      colorName: selectedColor?.colorName,
+      sizeName: selectedSize?.sizeName,
+      placementName: selectedPlacement?.placementName,
+      printSizeName: selectedPrintSize?.printSize,
+    });
+
+    toast.success(`Added ${orderData.quantity} ${selectedProduct?.name}(s) to cart`);
+    setCurrentStep(1);
   };
 
   const handleSubmitOrder = async () => {

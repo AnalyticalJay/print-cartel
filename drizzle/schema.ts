@@ -419,6 +419,26 @@ export const pushSubscriptions = mysqlTable("pushSubscriptions", {
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
 
+// Order line items table - supports multiple garments per order
+export const orderLineItems = mysqlTable("orderLineItems", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(), // FK to orders
+  productId: int("productId").notNull(), // Which garment
+  colorId: int("colorId").notNull(), // Which color
+  sizeId: int("sizeId").notNull(), // Which size
+  quantity: int("quantity").notNull(), // How many of this combination
+  placementId: int("placementId").notNull(), // Where to print
+  printSizeId: int("printSizeId").notNull(), // What size DTF
+  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(), // Price per unit
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(), // quantity * unitPrice
+  notes: text("notes"), // Special instructions for this line item
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OrderLineItem = typeof orderLineItems.$inferSelect;
+export type InsertOrderLineItem = typeof orderLineItems.$inferInsert;
+
 // Foreign key constraint for chat file attachments
 // Note: Add these in a migration if not already present
 // ALTER TABLE chatFileAttachments ADD CONSTRAINT fk_chat_file_message FOREIGN KEY (messageId) REFERENCES chatMessages(id) ON DELETE CASCADE;
