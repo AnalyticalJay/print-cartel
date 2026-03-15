@@ -16,6 +16,7 @@ import { getLoginUrl } from "@/const";
 import { TemplateLibrary } from "@/components/TemplateLibrary";
 import { TemplatePreview } from "@/components/TemplatePreview";
 import { useOrderCart } from "@/hooks/useOrderCart";
+import { OrderCartSummary } from "@/components/OrderCartSummary";
 
 type Step = 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -787,6 +788,12 @@ export default function OrderWizard() {
                   <CardDescription>Please review all details before submitting</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {cartItems.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-white font-semibold mb-3">Cart Items ({cartItems.length})</h3>
+                      <OrderCartSummary />
+                    </div>
+                  )}
                   <div className="bg-gray-700 p-4 rounded-lg">
                     <h3 className="text-white font-semibold mb-3">Order Summary</h3>
                     <div className="space-y-2 text-sm">
@@ -905,21 +912,39 @@ export default function OrderWizard() {
 
             {/* Navigation Buttons */}
             {currentStep < 7 && (
-              <div className="flex gap-4 mt-6">
+              <div className="flex gap-4 mt-6 flex-wrap">
                 <Button
                   onClick={handlePreviousStep}
                   disabled={currentStep === 1}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 min-w-[120px]"
                 >
                   <ChevronLeft size={20} className="mr-2" />
                   Previous
                 </Button>
+                {currentStep === 2 && (
+                  <Button
+                    onClick={handleAddToCart}
+                    className="flex-1 min-w-[140px] bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  >
+                    <Plus size={20} className="mr-2" />
+                    Add to Cart
+                  </Button>
+                )}
+                {cartItems.length > 0 && currentStep !== 6 && (
+                  <Button
+                    onClick={() => setCurrentStep(6)}
+                    variant="outline"
+                    className="flex-1 min-w-[140px] border-cyan-600 text-cyan-600 hover:bg-cyan-600/10"
+                  >
+                    Review Cart ({cartItems.length})
+                  </Button>
+                )}
                 {currentStep === 6 ? (
                   <Button
                     onClick={handleSubmitOrder}
                     disabled={createOrderMutation.isPending}
-                    className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                    className="flex-1 min-w-[120px] bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
                   >
                     {createOrderMutation.isPending ? (
                       <>
@@ -936,7 +961,7 @@ export default function OrderWizard() {
                 ) : (
                   <Button
                     onClick={handleNextStep}
-                    className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                    className="flex-1 min-w-[120px] bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
                   >
                     Next
                     <ChevronRight size={20} className="ml-2" />
