@@ -1245,3 +1245,29 @@ Future enhancements (Phase 2):
 - [x] Display only relevant status information (no admin notes or IDs) (component shows only status, timestamp, and description)
 - [x] Add estimated delivery date if available (displayed in info box below timeline)
 - [x] Test customer timeline display with real orders (dev server running with 0 errors)
+
+
+## Current Task - Payment and Invoicing System
+- [ ] Design optimal invoice/quote timing in order workflow
+  - [ ] Send initial quote when order moves to "quoted" status
+  - [ ] Send final invoice when order moves to "approved" status
+  - [ ] Include payment link/button in emails
+  - [ ] Track payment status separately from order status
+- [ ] Create invoice generation function with order details and pricing
+- [ ] Add payment status field to orders table (unpaid, paid, partially_paid)
+- [ ] Create payment tracking in database
+- [ ] Integrate invoice sending into status update flow
+- [ ] Create customer payment portal/page
+- [ ] Display invoice and payment status in customer account
+- [ ] Add payment method options (credit card, bank transfer, etc.)
+- [ ] Test complete payment workflow
+
+
+## Current Task - Payment and Invoicing System
+- [x] Design payment workflow and timing strategy (quote at "quoted" status, invoice at "approved" status)
+- [x] Create invoice/quote generation functions (createInvoice, recordPayment, getPaymentStatus)
+- [x] Implement payment status tracking in database (paymentStatus, amountPaid, depositAmount fields added)
+- [x] Create payment email templates (quote, invoice, reminder) (sendQuoteEmail, sendFinalInvoiceEmail, sendPaymentReminderEmail)
+- [x] Integrate payment notifications into status update flow (admin router updated with payment emails)
+- [x] Write and run tests for payment system (10 tests passing)
+- [x] Test payment workflow with 50% deposit and full payment options (deposit_paid and paid statuses working)

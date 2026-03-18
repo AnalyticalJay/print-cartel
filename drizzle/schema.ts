@@ -103,6 +103,12 @@ export const orders = mysqlTable("orders", {
   deliveryAddress: text("deliveryAddress"),
   deliveryCharge: decimal("deliveryCharge", { precision: 10, scale: 2 }).default("0"),
   additionalNotes: text("additionalNotes"),
+  paymentStatus: mysqlEnum("paymentStatus", ["unpaid", "deposit_paid", "paid", "cancelled"]).default("unpaid").notNull(),
+  paymentMethod: mysqlEnum("paymentMethod", ["deposit", "full_payment"]).default("full_payment"),
+  depositAmount: decimal("depositAmount", { precision: 10, scale: 2 }).default("0"),
+  amountPaid: decimal("amountPaid", { precision: 10, scale: 2 }).default("0"),
+  invoiceNumber: varchar("invoiceNumber", { length: 50 }),
+  invoiceDate: timestamp("invoiceDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -110,8 +116,24 @@ export const orders = mysqlTable("orders", {
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = typeof orders.$inferInsert;
 
+// Payment records table for tracking individual payments
+export const paymentRecords = mysqlTable("paymentRecords", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: varchar("paymentMethod", { length: 50 }).notNull(), // credit_card, bank_transfer, cash
+  paymentStatus: mysqlEnum("paymentStatus", ["pending", "completed", "failed", "refunded"]).default("pending"),
+  transactionId: varchar("transactionId", { length: 255 }),
+  paymentType: mysqlEnum("paymentType", ["deposit", "final_payment"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PaymentRecord = typeof paymentRecords.$inferSelect;
+export type InsertPaymentRecord = typeof paymentRecords.$inferInsert;
+
 // Type for order creation (excludes auto-generated fields)
-export type CreateOrderInput = Omit<InsertOrder, 'createdAt' | 'updatedAt' | 'status'> & {
+export type CreateOrderInput = Omit<InsertOrder, 'createdAt' | 'updatedAt' | 'status' | 'paymentStatus' | 'amountPaid' | 'invoiceNumber' | 'invoiceDate'> & {
   deliveryMethod: 'collection' | 'delivery';
 };
 
