@@ -443,3 +443,18 @@ export type InsertOrderLineItem = typeof orderLineItems.$inferInsert;
 // Note: Add these in a migration if not already present
 // ALTER TABLE chatFileAttachments ADD CONSTRAINT fk_chat_file_message FOREIGN KEY (messageId) REFERENCES chatMessages(id) ON DELETE CASCADE;
 // ALTER TABLE chatFileAttachments ADD CONSTRAINT fk_chat_file_conversation FOREIGN KEY (conversationId) REFERENCES chatConversations(id) ON DELETE CASCADE;
+
+
+// Order status history table (for tracking all status changes)
+export const orderStatusHistory = mysqlTable("orderStatusHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  previousStatus: mysqlEnum("previousStatus", ["pending", "quoted", "approved", "in-production", "completed", "shipped", "cancelled"]),
+  newStatus: mysqlEnum("newStatus", ["pending", "quoted", "approved", "in-production", "completed", "shipped", "cancelled"]).notNull(),
+  changedBy: int("changedBy"), // Admin user ID who made the change
+  adminNotes: text("adminNotes"), // Notes about why the status was changed
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type OrderStatusHistory = typeof orderStatusHistory.$inferSelect;
+export type InsertOrderStatusHistory = typeof orderStatusHistory.$inferInsert;

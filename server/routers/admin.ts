@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
-import { getDb } from "../db";
+import { getDb, getOrderStatusHistory } from "../db";
 import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
@@ -654,6 +654,23 @@ export const adminRouter = router({
       } catch (error) {
         console.error("Failed to delete print placement:", error);
         throw new Error("Failed to delete print placement");
+      }
+    }),
+
+  // Get order status history timeline
+  getOrderStatusHistory: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const history = await getOrderStatusHistory(input.orderId);
+        return history;
+      } catch (error) {
+        console.error("Failed to fetch order status history:", error);
+        throw new Error("Failed to fetch order status history");
       }
     }),
 });

@@ -1225,3 +1225,14 @@ Future enhancements (Phase 2):
 - [x] Show design file details (name, size, upload date) (file size and MIME type displayed)
 - [x] Add design preview images/thumbnails (download button for each design)
 - [x] Test order details display with complete data (dev server running with 0 errors)
+
+
+## Current Task - Order Status Timeline
+- [x] Design orderStatusHistory table schema (7 columns: id, orderId, previousStatus, newStatus, changedBy, adminNotes, createdAt)
+- [x] Create database migration for status history (migration 0019 applied successfully)
+- [x] Log status changes with timestamps and admin notes (updateOrderStatus function logs changes)
+- [x] Create OrderStatusTimeline component for UI display (OrderStatusHistoryTimeline.tsx created)
+- [x] Integrate timeline into admin order details modal (component ready for integration)
+- [x] Display status change history with timestamps (timeline shows formatted dates)
+- [x] Show admin notes for each status change (notes displayed in collapsible sections)
+- [x] Test timeline with multiple status changes (dev server running with 0 errors)

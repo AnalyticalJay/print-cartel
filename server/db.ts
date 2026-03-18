@@ -1,6 +1,6 @@
 import { eq, and, desc } from "drizzle-orm";
 import { db as drizzleDb } from "../drizzle/client";
-import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue, products, printPlacements, printOptions } from "../drizzle/schema";
+import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue, products, printPlacements, printOptions, orderStatusHistory } from "../drizzle/schema";
 import type { InsertUser, InsertOrder, InsertOrderPrint, InsertOrderLineItem, DesignTemplate, ResellerInquiry } from "../drizzle/schema";
 
 export async function getDb() {
@@ -100,10 +100,25 @@ export async function getAllOrders() {
   return db.select().from(orders).orderBy(orders.createdAt);
 }
 
-export async function updateOrderStatus(orderId: number, status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled") {
+export async function updateOrderStatus(orderId: number, status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled", adminId?: number, adminNotes?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Get current status before updating
+  const currentOrder = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  const previousStatus = currentOrder.length > 0 ? currentOrder[0].status : null;
+  
+  // Update order status
   await db.update(orders).set({ status }).where(eq(orders.id, orderId));
+  
+  // Log status change to history
+  await db.insert(orderStatusHistory).values({
+    orderId,
+    previousStatus: previousStatus as any,
+    newStatus: status,
+    changedBy: adminId,
+    adminNotes,
+  });
 }
 
 export async function createOrderPrint(printData: InsertOrderPrint) {
@@ -727,4 +742,25 @@ export async function getUserNotifications(userId: number, limit: number = 50) {
   if (!db) return [];
   const result = await db.select().from(notifications).where(eq(notifications.userId, userId)).orderBy(notifications.createdAt).limit(limit);
   return result;
+}
+
+
+// Order status history functions
+export async function getOrderStatusHistory(orderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(orderStatusHistory).where(eq(orderStatusHistory.orderId, orderId)).orderBy(desc(orderStatusHistory.createdAt));
+}
+
+export async function logOrderStatusChange(orderId: number, previousStatus: string | null, newStatus: string, adminId?: number, adminNotes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(orderStatusHistory).values({
+    orderId,
+    previousStatus: previousStatus as any,
+    newStatus: newStatus as any,
+    changedBy: adminId,
+    adminNotes,
+  });
 }
