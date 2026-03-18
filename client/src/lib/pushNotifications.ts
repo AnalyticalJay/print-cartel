@@ -186,12 +186,26 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 /**
- * Send order status update notification
+ * Send order status update notification (respects user preferences)
  */
 export const sendOrderStatusNotification = async (
   orderId: number,
-  status: string
+  status: string,
+  checkPreferences: boolean = true
 ): Promise<void> => {
+  // Check user preferences if enabled
+  if (checkPreferences) {
+    try {
+      const { isNotificationEnabledForStatus } = await import('./notificationPreferences');
+      if (!isNotificationEnabledForStatus(status as any)) {
+        console.log(`Notification disabled for status: ${status}`);
+        return;
+      }
+    } catch (error) {
+      console.warn('Failed to check notification preferences:', error);
+      // Continue with notification if preference check fails
+    }
+  }
   const statusMessages: Record<string, { title: string; body: string }> = {
     pending: {
       title: 'Order Received',
@@ -228,6 +242,16 @@ export const sendOrderStatusNotification = async (
     body: `Your order #${orderId} status has been updated to ${status}.`,
   };
 
+  // Check if sound is enabled in preferences
+  let soundEnabled = true;
+  try {
+    const { getNotificationPreferences } = await import('./notificationPreferences');
+    const prefs = getNotificationPreferences();
+    soundEnabled = prefs.soundEnabled;
+  } catch (error) {
+    console.warn('Failed to check sound preference:', error);
+  }
+
   await sendLocalNotification({
     title: message.title,
     body: message.body,
@@ -239,6 +263,7 @@ export const sendOrderStatusNotification = async (
       orderId,
       status,
       url: `/track-order/${orderId}`,
+      soundEnabled,
     },
   });
 };
