@@ -279,33 +279,33 @@ export function AdminChatPanel() {
                   return (
                     <div
                       key={msg.id}
-                      className={`flex ${
+                      className={`flex gap-2 mb-3 ${
                         msg.senderType === "admin" ? "justify-end" : "justify-start"
                       }`}
                     >
                       <div
-                        className={`max-w-xs px-4 py-2 rounded-lg ${
+                        className={`max-w-xs px-4 py-3 rounded-xl shadow-md ${
                           msg.senderType === "admin"
-                            ? "bg-accent text-accent-foreground"
-                            : "bg-gray-700 text-white"
+                            ? "bg-cyan-500 text-black font-medium"
+                            : "bg-gray-700 text-gray-100"
                         }`}
                       >
-                        <p className="text-sm font-semibold mb-1">
-                          {msg.senderType === "admin" ? "You" : selectedConversation.visitorName || "Customer"}
+                        <p className="text-xs font-semibold mb-1 opacity-80">
+                          {msg.senderType === "admin" ? "You (Admin)" : selectedConversation.visitorName || "Customer"}
                         </p>
-                        <p className="text-sm">{msg.message}</p>
+                        <p className="text-sm break-words">{msg.message}</p>
                         {msgAttachments.length > 0 && (
-                          <div className="mt-2 space-y-1">
+                          <div className="mt-3 space-y-1 border-t border-current border-opacity-20 pt-2">
                             {msgAttachments.map((att: any) => (
                               <div
                                 key={att.id}
-                                className="flex items-center justify-between gap-2 text-xs bg-black/20 p-1 rounded"
+                                className="flex items-center justify-between gap-2 text-xs"
                               >
                                 <a
                                   href={att.fileUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center gap-2 flex-1 hover:opacity-80 underline"
+                                  className="flex items-center gap-2 flex-1 hover:opacity-80 underline transition"
                                 >
                                   <span>{getFileIcon(att.mimeType)}</span>
                                   <span className="truncate">{att.fileName}</span>
@@ -325,8 +325,8 @@ export function AdminChatPanel() {
                             ))}
                           </div>
                         )}
-                        <p className="text-xs opacity-70 mt-1">
-                          {new Date(msg.createdAt).toLocaleTimeString()}
+                        <p className="text-xs opacity-70 mt-2 pt-1 border-t border-current border-opacity-20">
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
                     </div>

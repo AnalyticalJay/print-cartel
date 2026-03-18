@@ -202,7 +202,7 @@ export function CustomerChatBox({
         <p className="text-gray-400 text-sm mt-1">Order #{orderId}</p>
       </CardHeader>
 
-      <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+      <CardContent className="flex-1 overflow-y-auto p-4 space-y-2">
         {messagesQuery.isLoading ? (
           <div className="flex justify-center items-center h-32">
             <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
@@ -214,24 +214,26 @@ export function CustomerChatBox({
                 (att: any) => att.messageId === msg.id
               ) || [];
               return (
-                <div key={msg.id} className={`flex ${msg.senderType === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={msg.id} className={`flex gap-2 mb-2 ${msg.senderType === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      msg.senderType === "user"
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-gray-700 text-white"
-                    }`}
+                    className={`max-w-xs px-4 py-3 rounded-xl text-sm shadow-md ${msg.senderType === "user"
+                        ? "bg-cyan-500 text-black font-medium"
+                        : "bg-gray-700 text-gray-100"
+                      }`}
                   >
-                    <p className="text-sm">{msg.message}</p>
+                    <p className="text-xs font-semibold mb-1 opacity-80">
+                      {msg.senderType === "user" ? "You" : "Admin"}
+                    </p>
+                    <p className="break-words">{msg.message}</p>
                     {msgAttachments.length > 0 && (
-                      <div className="mt-2 space-y-1">
+                      <div className="mt-3 space-y-1 border-t border-current border-opacity-20 pt-2">
                         {msgAttachments.map((att: any) => (
                           <a
                             key={att.id}
                             href={att.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-xs underline hover:opacity-80"
+                            className="flex items-center gap-2 text-xs underline hover:opacity-80 transition"
                           >
                             <span>{getFileIcon(att.mimeType)}</span>
                             <span className="truncate">{att.fileName}</span>
@@ -240,8 +242,8 @@ export function CustomerChatBox({
                         ))}
                       </div>
                     )}
-                    <p className="text-xs opacity-70 mt-1">
-                      {new Date(msg.createdAt).toLocaleTimeString()}
+                    <p className="text-xs opacity-70 mt-2 pt-1 border-t border-current border-opacity-20">
+                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
                 </div>
