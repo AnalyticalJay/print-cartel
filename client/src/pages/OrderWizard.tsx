@@ -537,6 +537,10 @@ export default function OrderWizard() {
                                     (p) => p.placementId === placement.id && p.printSizeId === option.id
                                   );
 
+                                  const priceNum = typeof option.additionalPrice === 'string' 
+                                    ? parseFloat(option.additionalPrice) 
+                                    : option.additionalPrice;
+                                  
                                   return (
                                     <button
                                       key={option.id}
@@ -547,8 +551,8 @@ export default function OrderWizard() {
                                           : "border-gray-500 bg-gray-500 text-white hover:border-gray-400"
                                       }`}
                                     >
-                                      <div>{option.printSize}</div>
-                                      <div className="text-xs font-normal opacity-90">+R{option.additionalPrice}</div>
+                                      <div className="font-bold">{option.printSize}</div>
+                                      <div className="text-xs font-normal opacity-90">+R{priceNum.toFixed(2)}</div>
                                     </button>
                                   );
                                 })}
