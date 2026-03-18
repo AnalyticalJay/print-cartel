@@ -214,14 +214,21 @@ export default function OrderWizard() {
     const selectedPlacement = placements.find((p) => p.id === orderData.printSelections[0]?.placementId);
     const selectedPrintSize = printOptions.find((p) => p.id === orderData.printSelections[0]?.printSizeId);
 
+    // Ensure printSelections[0] exists before accessing properties
+    const firstSelection = orderData.printSelections[0];
+    if (!firstSelection) {
+      toast.error("Please select a placement before adding to cart");
+      return;
+    }
+
     addItem({
       id: `${Date.now()}-${Math.random()}`,
       productId: orderData.productId,
       colorId: orderData.colorId,
       sizeId: orderData.sizeId,
       quantity: orderData.quantity,
-      placementId: orderData.printSelections[0].placementId,
-      printSizeId: orderData.printSelections[0].printSizeId,
+      placementId: firstSelection.placementId,
+      printSizeId: firstSelection.printSizeId,
       unitPrice: basePrice,
       productName: selectedProduct?.name,
       colorName: selectedColor?.colorName,
