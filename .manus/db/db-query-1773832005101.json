@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET basePrice = CASE \n  WHEN id = 120001 THEN '85'\n  WHEN id = 120003 THEN '150'\nEND\nWHERE id IN (120001, 120003)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE products SET basePrice = CASE \n  WHEN id = 120001 THEN '85'\n  WHEN id = 120003 THEN '150'\nEND\nWHERE id IN (120001, 120003)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 382
+}
