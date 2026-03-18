@@ -18,6 +18,7 @@ import { ChatNotificationHandler } from "@/components/ChatNotificationHandler";
 import { ProductionKanban } from "@/components/ProductionKanban";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
+import { AdminInventoryManager } from "@/components/AdminInventoryManager";
 
 
 type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
@@ -57,7 +58,7 @@ export default function AdminDashboard() {
 function AdminDashboardContent() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'production'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'production' | 'inventory'>('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -264,6 +265,17 @@ function AdminDashboardContent() {
             <TrendingUp className="w-4 h-4 inline mr-2" />
             Production
           </button>
+          <button
+            onClick={() => setActiveTab('inventory')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'inventory'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 inline mr-2" />
+            Inventory
+          </button>
         </div>
 
         {/* Chat Tab */}
@@ -271,6 +283,9 @@ function AdminDashboardContent() {
 
         {/* Production Tab */}
         {activeTab === 'production' && <ProductionKanban />}
+
+        {/* Inventory Tab */}
+        {activeTab === 'inventory' && <AdminInventoryManager />}
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (
