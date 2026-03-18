@@ -59,13 +59,6 @@ export function Navigation() {
               <>
                 <Button
                   variant="ghost"
-                  onClick={() => handleNavigation("/track")}
-                  className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
-                >
-                  Track Order
-                </Button>
-                <Button
-                  variant="ghost"
                   onClick={() => handleNavigation("/dashboard")}
                   className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
                 >
@@ -140,15 +133,6 @@ export function Navigation() {
               className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
             >
               For Resellers
-            </Button>
-
-            {/* Track Order */}
-            <Button
-              variant="ghost"
-              onClick={() => handleNavigation("/track")}
-              className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
-            >
-              Track Order
             </Button>
 
             {/* My Account */}
