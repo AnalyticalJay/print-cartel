@@ -656,23 +656,39 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
           </div>
 
           {/* Order Details */}
-          <div className="space-y-2">
-            <h3 className="font-semibold text-gray-900">Order Details</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="space-y-4">
+            <h3 className="font-semibold text-cyan-400">Garment & Customization</h3>
+            <div className="grid grid-cols-2 gap-4 text-sm bg-gray-800 p-4 rounded-lg border border-gray-700">
               <div>
-                <p className="text-gray-600">Product</p>
-                <p className="font-medium">{order.product?.name || "N/A"}</p>
+                <p className="text-gray-400">Product</p>
+                <p className="font-medium text-cyan-400">{order.product?.name || "N/A"}</p>
               </div>
               <div>
-                <p className="text-gray-600">Quantity</p>
-                <p className="font-medium">{order.quantity}</p>
+                <p className="text-gray-400">Quantity</p>
+                <p className="font-medium text-cyan-400">{order.quantity}</p>
               </div>
               <div>
-                <p className="text-gray-600">Current Price</p>
-                <p className="font-medium">R{order.totalPriceEstimate.toFixed(2)}</p>
+                <p className="text-gray-400">Color</p>
+                <div className="flex items-center gap-2">
+                  {order.color?.colorHex && (
+                    <div
+                      className="w-5 h-5 rounded border border-gray-600"
+                      style={{ backgroundColor: order.color.colorHex }}
+                    />
+                  )}
+                  <p className="font-medium text-cyan-400">{order.color?.colorName || "N/A"}</p>
+                </div>
               </div>
               <div>
-                <p className="text-gray-600">Status</p>
+                <p className="text-gray-400">Size</p>
+                <p className="font-medium text-cyan-400">{order.size?.sizeName || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Current Price</p>
+                <p className="font-medium text-cyan-400">R{order.totalPriceEstimate.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Status</p>
                 <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "quoted" ? "bg-blue-100 text-blue-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
                   {order.status}
                 </Badge>
@@ -680,29 +696,55 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
             </div>
           </div>
 
-          {/* Print Files */}
+          {/* Print Placements */}
           {order.prints && order.prints.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="font-semibold text-gray-900">Uploaded Files</h3>
+            <div className="space-y-3 border-t border-gray-700 pt-4">
+              <h3 className="font-semibold text-cyan-400">Print Placements</h3>
               <div className="space-y-2">
                 {order.prints.map((print, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded">
-                    <div>
-                      <p className="font-medium text-sm">{print.uploadedFileName}</p>
-                      <p className="text-xs text-gray-600">
-                        {print.fileSize ? `${(print.fileSize / 1024 / 1024).toFixed(2)} MB` : "Size unknown"}
-                      </p>
+                  <div key={index} className="bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-gray-400">Placement Area</p>
+                        <p className="font-medium text-cyan-400">{print.placement?.placementName || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Print Size</p>
+                        <p className="font-medium text-cyan-400">{print.printSize?.printSize || "N/A"}</p>
+                      </div>
                     </div>
-                    <Button
-                      onClick={() => {
-                        window.open(print.uploadedFilePath, "_blank");
-                      }}
-                      variant="ghost"
-                      size="sm"
-                      className="text-blue-600"
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Design Files Gallery */}
+          {order.prints && order.prints.length > 0 && (
+            <div className="space-y-3 border-t border-gray-700 pt-4">
+              <h3 className="font-semibold text-cyan-400">Uploaded Designs</h3>
+              <div className="space-y-2">
+                {order.prints.map((print, index) => (
+                  <div key={index} className="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-cyan-500 transition">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-medium text-cyan-400 text-sm">{print.uploadedFileName}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {print.fileSize ? `${(print.fileSize / 1024 / 1024).toFixed(2)} MB` : "Size unknown"}
+                          {print.mimeType && ` • ${print.mimeType}`}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          window.open(print.uploadedFilePath, "_blank");
+                        }}
+                        variant="ghost"
+                        size="sm"
+                        className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

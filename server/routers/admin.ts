@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { orders, orderPrints, printOptions, printPlacements, products } from "../../drizzle/schema";
+import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 
@@ -49,22 +49,61 @@ export const adminRouter = router({
           throw new Error("Order not found");
         }
 
-        const prints = await db.select().from(orderPrints).where(eq(orderPrints.orderId, input.orderId));
-
+        // Fetch product details
         const product = await db
           .select()
           .from(products)
           .where(eq(products.id, order[0].productId))
           .limit(1);
 
+        // Fetch color details
+        const color = await db
+          .select()
+          .from(productColors)
+          .where(eq(productColors.id, order[0].colorId))
+          .limit(1);
+
+        // Fetch size details
+        const size = await db
+          .select()
+          .from(productSizes)
+          .where(eq(productSizes.id, order[0].sizeId))
+          .limit(1);
+
+        // Fetch all prints with placement and print size details
+        const prints = await db.select().from(orderPrints).where(eq(orderPrints.orderId, input.orderId));
+
+        // Fetch placement and print size details for each print
+        const printsWithDetails = await Promise.all(
+          prints.map(async (print) => {
+            const placement = await db
+              .select()
+              .from(printPlacements)
+              .where(eq(printPlacements.id, print.placementId))
+              .limit(1);
+
+            const printSize = await db
+              .select()
+              .from(printOptions)
+              .where(eq(printOptions.id, print.printSizeId))
+              .limit(1);
+
+            return {
+              ...print,
+              fileSize: print.fileSize ? Number(print.fileSize) : null,
+              placement: placement[0] || null,
+              printSize: printSize[0] || null,
+            };
+          })
+        );
+
         return {
           ...order[0],
           totalPriceEstimate: parseFloat(order[0].totalPriceEstimate as any),
-          prints: prints.map((p) => ({
-            ...p,
-            fileSize: p.fileSize ? Number(p.fileSize) : null,
-          })),
           product: product[0] || null,
+          color: color[0] || null,
+          size: size[0] || null,
+          prints: printsWithDetails,
         };
       } catch (error) {
         console.error("Failed to fetch order detail:", error);
