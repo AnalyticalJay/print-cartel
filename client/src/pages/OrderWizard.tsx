@@ -13,8 +13,7 @@ import { Loader2, ChevronRight, ChevronLeft, Upload, X, ChevronDown, Sparkles, P
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { TemplateLibrary } from "@/components/TemplateLibrary";
-import { TemplatePreview } from "@/components/TemplatePreview";
+
 import { useOrderCart } from "@/hooks/useOrderCart";
 import { OrderCartSummary } from "@/components/OrderCartSummary";
 
@@ -67,8 +66,7 @@ export default function OrderWizard() {
   const { addItem, items: cartItems } = useOrderCart();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [expandedPlacement, setExpandedPlacement] = useState<number | null>(null);
-  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+
   const [orderData, setOrderData] = useState<OrderData>({
     productId: null,
     colorId: null,
@@ -359,14 +357,7 @@ export default function OrderWizard() {
                 <CardHeader>
                   <CardTitle className="text-white">Select Your Garment</CardTitle>
                   <CardDescription>Choose product, color, size, and quantity</CardDescription>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowTemplateLibrary(true)}
-                    className="mt-4 w-full bg-accent/20 border-accent text-accent hover:bg-accent hover:text-black"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Browse Design Templates
-                  </Button>
+
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Product Selection */}
@@ -1072,50 +1063,7 @@ export default function OrderWizard() {
           </div>
         </div>
 
-        {/* Template Library Modal */}
-        {showTemplateLibrary && !selectedTemplateId && (
-          <div className="fixed inset-0 bg-black/80 z-50 overflow-y-auto">
-            <div className="max-w-6xl mx-auto p-4 py-12">
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-white">Design Templates</h2>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowTemplateLibrary(false)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    X
-                  </Button>
-                </div>
-                <TemplateLibrary
-                  onTemplateSelect={(template) => {
-                    setSelectedTemplateId(template.id);
-                  }}
-                  showActions={true}
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Template Preview Modal */}
-        {showTemplateLibrary && selectedTemplateId && (
-          <div className="fixed inset-0 bg-black/80 z-50 overflow-y-auto">
-            <div className="max-w-6xl mx-auto p-4 py-12">
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                <TemplatePreview
-                  templateId={selectedTemplateId}
-                  onBack={() => setSelectedTemplateId(null)}
-                  onUseTemplate={(customizations) => {
-                    setShowTemplateLibrary(false);
-                    setSelectedTemplateId(null);
-                    toast.success("Template applied! Customize your order below.");
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
