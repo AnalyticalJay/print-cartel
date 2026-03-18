@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems } from "../db";
-import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail } from "../_core/email";
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail } from "../_core/email";
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -254,6 +254,25 @@ export const ordersRouter = router({
         });
       } catch (error) {
         console.error('Failed to send status update email:', error);
+      }
+
+      // Send milestone emails for key status changes
+      const milestoneStatuses = ['approved', 'in-production', 'shipped'];
+      if (milestoneStatuses.includes(input.newStatus)) {
+        try {
+          const estimatedDelivery = new Date();
+          estimatedDelivery.setDate(estimatedDelivery.getDate() + (input.newStatus === 'shipped' ? 3 : 7));
+          
+          await sendOrderMilestoneEmail(
+            (order as any).customerEmail,
+            `${(order as any).customerFirstName} ${(order as any).customerLastName}`,
+            input.orderId,
+            input.newStatus as 'approved' | 'in-production' | 'shipped',
+            estimatedDelivery
+          );
+        } catch (error) {
+          console.error('Failed to send milestone email:', error);
+        }
       }
 
       return { success: true, previousStatus, newStatus: input.newStatus };

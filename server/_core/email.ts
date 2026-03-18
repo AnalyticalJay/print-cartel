@@ -391,3 +391,110 @@ export async function verifyEmailConnection(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Send order milestone email to customer
+ */
+export async function sendOrderMilestoneEmail(
+  customerEmail: string,
+  customerName: string,
+  orderId: number,
+  milestone: 'approved' | 'in-production' | 'shipped',
+  estimatedDelivery?: Date
+): Promise<boolean> {
+  try {
+    const transporter = getTransporter();
+
+    const milestoneMessages: Record<string, { subject: string; message: string; icon: string; color: string }> = {
+      approved: {
+        subject: '✅ Your Order Has Been Approved!',
+        message: 'Your order has been approved and is ready for production.',
+        icon: '✅',
+        color: '#32CD32',
+      },
+      'in-production': {
+        subject: '🎨 Your Order is in Production',
+        message: 'Your order is now being printed. We\'re working on your custom design!',
+        icon: '🎨',
+        color: '#FF6B35',
+      },
+      shipped: {
+        subject: '📦 Your Order Has Been Shipped!',
+        message: 'Your order has been shipped and is on its way to you!',
+        icon: '📦',
+        color: '#20B2AA',
+      },
+    };
+
+    const milestone_info = milestoneMessages[milestone];
+    const estimatedDate = estimatedDelivery
+      ? new Date(estimatedDelivery).toLocaleDateString('en-ZA', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : 'Soon';
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, ${milestone_info.color} 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .milestone-icon { font-size: 48px; margin: 20px 0; }
+            .milestone-message { font-size: 18px; font-weight: bold; color: ${milestone_info.color}; margin: 20px 0; }
+            .details { background: white; padding: 15px; border-left: 4px solid ${milestone_info.color}; margin: 20px 0; }
+            .detail-row { display: flex; justify-content: space-between; padding: 8px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+            .cta-button { display: inline-block; background: ${milestone_info.color}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Order Milestone Update</h1>
+            </div>
+            <div class="content">
+              <p>Hi ${customerName},</p>
+              <div class="milestone-icon">${milestone_info.icon}</div>
+              <div class="milestone-message">${milestone_info.message}</div>
+              <div class="details">
+                <div class="detail-row">
+                  <span><strong>Order ID:</strong></span>
+                  <span>#${orderId}</span>
+                </div>
+                <div class="detail-row">
+                  <span><strong>Estimated Delivery:</strong></span>
+                  <span>${estimatedDate}</span>
+                </div>
+              </div>
+              <p>You can track your order status anytime by visiting your account dashboard.</p>
+              <a href="https://printcartel.co.za/dashboard" class="cta-button">View Order Status</a>
+              <div class="footer">
+                <p>Thank you for choosing Print Cartel!</p>
+                <p>If you have any questions, please contact us at support@printcartel.co.za</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const result = await transporter.sendMail({
+      from: SMTP_FROM_EMAIL,
+      to: customerEmail,
+      subject: milestone_info.subject,
+      html,
+      text: `${milestone_info.message}\n\nOrder ID: #${orderId}\nEstimated Delivery: ${estimatedDate}\n\nView your order at: https://printcartel.co.za/dashboard`,
+    });
+
+    console.log(`✓ Milestone email (${milestone}) sent to ${customerEmail}`, result.messageId);
+    return true;
+  } catch (error) {
+    console.error(`❌ Error sending milestone email: ${error}`);
+    return false;
+  }
+}
