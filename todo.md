@@ -1206,3 +1206,12 @@ Future enhancements (Phase 2):
 - [x] Check user/admin message differentiation in bubbles (clear "You" and "Admin" labels)
 - [x] Test chat functionality end-to-end (dev server running with 0 errors)
 - [x] Improve chat UI (enhanced bubbles with cyan user messages, gray admin messages, better spacing)
+
+
+## Current Task - Add Unread Chat Message Badge to Navigation
+- [x] Analyze navigation header structure (Navigation.tsx reviewed)
+- [x] Create hook to fetch unread message count (useUnreadChatCount.ts created)
+- [x] Add badge component to navigation (red badge with count added)
+- [x] Display unread count for customers and admins (hook supports both roles)
+- [x] Update badge when messages are received (auto-refresh every 3 seconds)
+- [x] Test badge functionality end-to-end (dev server running with 0 errors)

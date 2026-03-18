@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Menu, X, ChevronDown, MessageCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { useUnreadChatCount } from "@/hooks/useUnreadChatCount";
 
 export function Navigation() {
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const { user } = useAuth();
+  const unreadChatCount = useUnreadChatCount();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -60,9 +63,15 @@ export function Navigation() {
                 <Button
                   variant="ghost"
                   onClick={() => handleNavigation("/dashboard")}
-                  className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                  className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2 relative"
                 >
+                  <MessageCircle className="w-4 h-4 mr-2" />
                   My Account
+                  {unreadChatCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full p-0">
+                      {unreadChatCount > 99 ? "99+" : unreadChatCount}
+                    </Badge>
+                  )}
                 </Button>
                 {user?.role === 'admin' && (
                   <Button
@@ -139,9 +148,15 @@ export function Navigation() {
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/dashboard")}
-              className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+              className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2 relative"
             >
+              <MessageCircle className="w-4 h-4 mr-2" />
               My Account
+              {unreadChatCount > 0 && (
+                <Badge className="absolute right-4 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full p-0">
+                  {unreadChatCount > 99 ? "99+" : unreadChatCount}
+                </Badge>
+              )}
             </Button>
 
             {/* Admin */}
