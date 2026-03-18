@@ -32,7 +32,12 @@ export const templatesRouter = router({
 
       const customizations = await getTemplateCustomizations(input.templateId);
       return {
-        ...template,
+        id: template.id,
+        name: template.name,
+        category: template.category,
+        description: template.description,
+        templateImageUrl: template.templateImageUrl,
+        templateDesignUrl: template.templateDesignUrl,
         customizations,
       };
     }),

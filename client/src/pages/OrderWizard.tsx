@@ -103,6 +103,7 @@ export default function OrderWizard() {
   const printOptionsQuery = trpc.products.getPrintOptions.useQuery();
 
   const createOrderMutation = trpc.orders.create.useMutation();
+  const createMultiItemMutation = trpc.orders.createMultiItem.useMutation();
 
   const selectedProduct = productsQuery.data?.find((p) => p.id === orderData.productId);
   const productColors = colorsQuery.data || [];
@@ -252,29 +253,63 @@ export default function OrderWizard() {
         return;
       }
 
-      await createOrderMutation.mutateAsync({
-        productId: orderData.productId,
-        colorId: orderData.colorId,
-        sizeId: orderData.sizeId,
-        quantity: orderData.quantity || 1,
-        prints: orderData.printSelections.map((p) => ({
-          placementId: p.placementId,
-          printSizeId: p.printSizeId,
-          uploadedFilePath: p.uploadedFilePath || "",
-          uploadedFileName: p.uploadedFileName || "",
-          fileSize: p.designFile?.size,
-          mimeType: p.designFile?.type,
-        })),
-        totalPriceEstimate: totalPrice,
-        customerFirstName: orderData.customerFirstName,
-        customerLastName: orderData.customerLastName,
-        customerEmail: orderData.customerEmail,
-        customerPhone: orderData.customerPhone,
-        customerCompany: orderData.customerCompany,
-        deliveryMethod: orderData.deliveryMethod,
-        deliveryAddress: orderData.deliveryAddress,
-        additionalNotes: orderData.additionalNotes,
-      });
+      // If cart has items, submit as multi-item order
+      if (cartItems.length > 0) {
+        // Prepare cart items for submission
+        const cartItemsForSubmission = cartItems.map(item => ({
+          productId: item.productId,
+          colorId: item.colorId,
+          sizeId: item.sizeId,
+          quantity: item.quantity,
+          printSelections: item.printSelections.map(p => ({
+            placementId: p.placementId,
+            printSizeId: p.printSizeId,
+            uploadedFilePath: p.uploadedFilePath || "",
+            uploadedFileName: p.uploadedFileName || "",
+            fileSize: p.designFile?.size,
+            mimeType: p.designFile?.type,
+          })),
+          subtotal: item.subtotal,
+        }));
+
+        await createMultiItemMutation.mutateAsync({
+          cartItems: cartItemsForSubmission,
+          totalPriceEstimate: totalPrice,
+          customerFirstName: orderData.customerFirstName,
+          customerLastName: orderData.customerLastName,
+          customerEmail: orderData.customerEmail,
+          customerPhone: orderData.customerPhone,
+          customerCompany: orderData.customerCompany,
+          deliveryMethod: orderData.deliveryMethod,
+          deliveryAddress: orderData.deliveryAddress,
+          additionalNotes: orderData.additionalNotes,
+        });
+      } else {
+        // Single item order (legacy)
+        await createOrderMutation.mutateAsync({
+          productId: orderData.productId,
+          colorId: orderData.colorId,
+          sizeId: orderData.sizeId,
+          quantity: orderData.quantity || 1,
+          prints: orderData.printSelections.map((p) => ({
+            placementId: p.placementId,
+            printSizeId: p.printSizeId,
+            uploadedFilePath: p.uploadedFilePath || "",
+            uploadedFileName: p.uploadedFileName || "",
+            fileSize: p.designFile?.size,
+            mimeType: p.designFile?.type,
+          })),
+          totalPriceEstimate: totalPrice,
+          customerFirstName: orderData.customerFirstName,
+          customerLastName: orderData.customerLastName,
+          customerEmail: orderData.customerEmail,
+          customerPhone: orderData.customerPhone,
+          customerCompany: orderData.customerCompany,
+          deliveryMethod: orderData.deliveryMethod,
+          deliveryAddress: orderData.deliveryAddress,
+          additionalNotes: orderData.additionalNotes,
+        } as any);
+      }
 
       toast.success("Order placed successfully!");
       setCurrentStep(7);
@@ -943,10 +978,10 @@ export default function OrderWizard() {
                 {currentStep === 6 ? (
                   <Button
                     onClick={handleSubmitOrder}
-                    disabled={createOrderMutation.isPending}
+                    disabled={createOrderMutation.isPending || createMultiItemMutation.isPending}
                     className="flex-1 min-w-[120px] bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
                   >
-                    {createOrderMutation.isPending ? (
+                    {(createOrderMutation.isPending || createMultiItemMutation.isPending) ? (
                       <>
                         <Loader2 size={20} className="mr-2 animate-spin" />
                         Submitting...

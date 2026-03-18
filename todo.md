@@ -335,6 +335,14 @@
 - [x] All 92 tests passing - design rotation and hero styling complete
 
 
+## Current Task - User Profile & Order History
+- [x] Create database queries for order history retrieval
+- [x] Add tRPC procedures for user profile and order history
+- [x] Build UserProfile component with order history display
+- [ ] Create OrderHistoryTable component with filtering and sorting
+- [x] Add order detail modal/view (basic implementation)
+- [ ] Test and verify order history functionality
+
 ## Current Task - Bulk Discount Tiers & DTF Pricing
 - [x] Update print sizes in database (Pocket: R25, A5: R45, A4: R55, A3: R75)
 - [x] Remove or hide non-approved print sizes from selection (only 4 approved sizes)

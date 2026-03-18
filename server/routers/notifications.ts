@@ -72,7 +72,7 @@ export const notificationsRouter = router({
         isActive: true,
       } as any);
 
-      return { success: true, id: result.insertId };
+      return { success: true, id: result };
     }),
 
   // Get user's push subscriptions
@@ -120,6 +120,6 @@ export const notificationsRouter = router({
         isRead: false,
       } as any);
 
-      return { success: true, id: result.insertId };
+      return { success: true, id: result };
     }),
 });

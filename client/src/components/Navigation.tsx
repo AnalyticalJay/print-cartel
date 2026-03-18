@@ -66,10 +66,17 @@ export function Navigation() {
                 </Button>
                 <Button
                   variant="ghost"
+                  onClick={() => handleNavigation("/profile")}
+                  className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                >
+                  My Profile
+                </Button>
+                <Button
+                  variant="ghost"
                   onClick={() => handleNavigation("/dashboard")}
                   className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
                 >
-                  My Account
+                  Dashboard
                 </Button>
                 {user?.role === 'admin' && (
                   <Button

@@ -97,7 +97,7 @@ export const resellerRouter = router({
     .input(z.object({ productId: z.number() }))
     .query(async ({ input }) => {
       try {
-        return await getBulkPricingTiers(input.productId);
+        return await getBulkPricingTiers();
       } catch (error) {
         console.error("Failed to get bulk pricing tiers:", error);
         return [];
@@ -106,8 +106,8 @@ export const resellerRouter = router({
 
   // Get all bulk pricing tiers
   getAllBulkPricing: publicProcedure.query(async () => {
-    try {
-      return await getAllBulkPricingTiers();
+      try {
+        return await getAllBulkPricingTiers();
     } catch (error) {
       console.error("Failed to get bulk pricing tiers:", error);
       return [];
@@ -162,7 +162,7 @@ export const resellerRouter = router({
         if (ctx.user?.role !== "admin") {
           throw new Error("Unauthorized");
         }
-        return await getResellerResponses(input.inquiryId);
+        return await getResellerResponses();
       } catch (error) {
         console.error("Failed to get responses:", error);
         return [];

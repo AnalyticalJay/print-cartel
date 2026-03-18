@@ -13,6 +13,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import Reseller from "./pages/Reseller";
 import ResellersManagement from "./pages/ResellersManagement";
 import GangSheetPage from "./pages/GangSheetPage";
+import UserProfile from "./pages/UserProfile";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/track"} component={OrderTracking} />
       <Route path={"/dashboard"} component={CustomerDashboard} />
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/profile"} component={UserProfile} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
