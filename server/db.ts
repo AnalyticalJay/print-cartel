@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { db as drizzleDb } from "../drizzle/client";
-import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue, products } from "../drizzle/schema";
+import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue, products, printPlacements, printOptions } from "../drizzle/schema";
 import type { InsertUser, InsertOrder, InsertOrderPrint, InsertOrderLineItem, DesignTemplate, ResellerInquiry } from "../drizzle/schema";
 
 export async function getDb() {
@@ -21,8 +21,9 @@ export async function getAllProducts() {
 
 export async function getProductById(productId: number) {
   const db = await getDb();
-  if (!db) return undefined;
-  return await db.select().from(orders).where(eq(orders.id, productId)).limit(1);
+  if (!db) return null;
+  const result = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function getProductColors(productId: number) {
@@ -309,17 +310,15 @@ export async function getBulkPricingTiers() {
 
 // Print functions
 export async function getAllPrintOptions() {
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(printOptions);
 }
 
 export async function getAllPrintPlacements() {
-  // Return mock placement data with placementName property
-  return [
-    { id: 1, placementName: "Front Center", description: "Center front of garment" },
-    { id: 2, placementName: "Back Center", description: "Center back of garment" },
-    { id: 3, placementName: "Left Sleeve", description: "Left sleeve" },
-    { id: 4, placementName: "Right Sleeve", description: "Right sleeve" },
-  ];
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(printPlacements);
 }
 
 // Chat functions
