@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE products SET imageUrl = CASE \n  WHEN id = 120001 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/lightweight-tshirt-h7WEUyxvFDArzAHvBPcWuf.webp'\n  WHEN id = 120002 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-polo-XbdH76qCa5uqZNajBPRRfM.webp'\n  WHEN id = 120003 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-dry-fit-polo-URXtkcC97dD5NqDy49NpNW.webp'\n  WHEN id = 120004 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/hoodie-9vm3VeuhJMqePpwcTpPpgW.webp'\nEND\nWHERE id IN (120001, 120002, 120003, 120004)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE products SET imageUrl = CASE \n  WHEN id = 120001 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/lightweight-tshirt-h7WEUyxvFDArzAHvBPcWuf.webp'\n  WHEN id = 120002 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-polo-XbdH76qCa5uqZNajBPRRfM.webp'\n  WHEN id = 120003 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-dry-fit-polo-URXtkcC97dD5NqDy49NpNW.webp'\n  WHEN id = 120004 THEN 'https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/hoodie-9vm3VeuhJMqePpwcTpPpgW.webp'\nEND\nWHERE id IN (120001, 120002, 120003, 120004)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 357
+}

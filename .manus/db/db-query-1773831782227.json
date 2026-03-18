@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, name, imageUrl FROM products WHERE id IN (120001, 120002, 120003, 120004)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT id, name, imageUrl FROM products WHERE id IN (120001, 120002, 120003, 120004)",
+  "rows": [
+    {
+      "id": "120001",
+      "name": "Lightweight T-Shirt",
+      "imageUrl": "NULL"
+    },
+    {
+      "id": "120002",
+      "name": "Men's Polo",
+      "imageUrl": "NULL"
+    },
+    {
+      "id": "120003",
+      "name": "Men's Dry Fit Polo",
+      "imageUrl": "NULL"
+    },
+    {
+      "id": "120004",
+      "name": "Hoodie",
+      "imageUrl": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\timageUrl\n120001\tLightweight T-Shirt\tNULL\n120002\tMen's Polo\tNULL\n120003\tMen's Dry Fit Polo\tNULL\n120004\tHoodie\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 601
+}
