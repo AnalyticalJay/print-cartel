@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems } from "../db";
-import { sendOrderNotificationEmail } from "../email";
-import { sendOrderConfirmationEmail } from "../email-confirmation";
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } from "../_core/email";
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -88,30 +87,20 @@ export const ordersRouter = router({
       });
     }
 
-    // Send admin notification email
+    // Send customer confirmation email
     try {
-      await sendOrderNotificationEmail({
-        orderId,
+      await sendOrderConfirmationEmail({
+        orderId: Number(orderId),
         customerName: `${input.customerFirstName} ${input.customerLastName}`,
         customerEmail: input.customerEmail,
         customerPhone: input.customerPhone,
-        customerCompany: input.customerCompany,
+        productName: 'Custom Order',
+        quantity: input.quantity,
         totalPrice: input.totalPriceEstimate,
+        status: 'pending',
+        orderDate: new Date(),
+        trackingUrl: `https://printcartel.co.za/track-order/${orderId}`,
       });
-    } catch (error) {
-      console.error("Failed to send order notification email:", error);
-      // Don't fail the order creation if email fails
-    }
-
-    // Send customer confirmation email
-    try {
-      await sendOrderConfirmationEmail(
-        orderId,
-        `${input.customerFirstName} ${input.customerLastName}`,
-        input.customerEmail,
-        input.deliveryMethod,
-        input.totalPriceEstimate
-      );
     } catch (error) {
       console.error("Failed to send order confirmation email:", error);
       // Don't fail the order creation if email fails
@@ -172,29 +161,21 @@ export const ordersRouter = router({
       }
     }
 
-    // Send admin notification email
+    // Send customer confirmation email
     try {
-      await sendOrderNotificationEmail({
-        orderId,
+      const totalQuantity = input.cartItems.reduce((sum, item) => sum + item.quantity, 0);
+      await sendOrderConfirmationEmail({
+        orderId: Number(orderId),
         customerName: `${input.customerFirstName} ${input.customerLastName}`,
         customerEmail: input.customerEmail,
         customerPhone: input.customerPhone,
-        customerCompany: input.customerCompany,
+        productName: `Custom Order (${input.cartItems.length} items)`,
+        quantity: totalQuantity,
         totalPrice: input.totalPriceEstimate,
+        status: 'pending',
+        orderDate: new Date(),
+        trackingUrl: `https://printcartel.co.za/track-order/${orderId}`,
       });
-    } catch (error) {
-      console.error("Failed to send order notification email:", error);
-    }
-
-    // Send customer confirmation email
-    try {
-      await sendOrderConfirmationEmail(
-        orderId,
-        `${input.customerFirstName} ${input.customerLastName}`,
-        input.customerEmail,
-        input.deliveryMethod,
-        input.totalPriceEstimate
-      );
     } catch (error) {
       console.error("Failed to send order confirmation email:", error);
     }
@@ -245,6 +226,20 @@ export const ordersRouter = router({
           previousStatus,
           input.newStatus
         );
+      }
+
+      // Send status update email to customer
+      try {
+        await sendOrderStatusUpdateEmail({
+          orderId: input.orderId,
+          customerName: `${(order as any).customerFirstName} ${(order as any).customerLastName}`,
+          customerEmail: (order as any).customerEmail,
+          previousStatus,
+          newStatus: input.newStatus,
+          trackingUrl: `https://printcartel.co.za/track-order/${input.orderId}`,
+        });
+      } catch (error) {
+        console.error('Failed to send status update email:', error);
       }
 
       return { success: true, previousStatus, newStatus: input.newStatus };

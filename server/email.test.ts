@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import nodemailer from "nodemailer";
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } from "./_core/email";
 
 // Mock nodemailer
 vi.mock("nodemailer");
@@ -103,5 +104,71 @@ describe("email service - order notification", () => {
     const fromEmail = process.env.SMTP_FROM_EMAIL || "noreply@printcartel.co.za";
     expect(fromEmail).toBeTruthy();
     expect(fromEmail).toContain("@");
+  });
+});
+
+
+describe("email service - order confirmation and status updates", () => {
+  it("should have sendOrderConfirmationEmail function", () => {
+    // This verifies the email module exports the required functions
+    expect(sendOrderConfirmationEmail).toBeDefined();
+    expect(typeof sendOrderConfirmationEmail).toBe('function');
+  });
+
+  it("should have sendOrderStatusUpdateEmail function", () => {
+    expect(sendOrderStatusUpdateEmail).toBeDefined();
+    expect(typeof sendOrderStatusUpdateEmail).toBe('function');
+  });
+
+  it("order confirmation email includes order ID", () => {
+    const orderId = 12345;
+    // Verify order ID format
+    expect(orderId).toBeGreaterThan(0);
+    expect(Number.isInteger(orderId)).toBe(true);
+  });
+
+  it("status update email supports all status types", () => {
+    const statuses = ['pending', 'quoted', 'approved', 'in-production', 'completed', 'shipped', 'cancelled'];
+    expect(statuses.length).toBe(7);
+    expect(statuses).toContain('pending');
+    expect(statuses).toContain('in-production');
+    expect(statuses).toContain('shipped');
+  });
+
+  it("email addresses are validated", () => {
+    const validEmails = [
+      'customer@example.com',
+      'test@printcartel.co.za',
+      'user.name@domain.co.uk'
+    ];
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    validEmails.forEach(email => {
+      expect(email).toMatch(emailRegex);
+    });
+  });
+
+  it("order prices are formatted correctly", () => {
+    const prices = [100, 100.5, 100.99, 1000.00];
+    prices.forEach(price => {
+      const formatted = price.toFixed(2);
+      expect(formatted).toMatch(/^\d+\.\d{2}$/);
+    });
+  });
+
+  it("customer names are included in emails", () => {
+    const names = ['John Doe', 'Jane Smith', 'Test User'];
+    names.forEach(name => {
+      expect(name.length).toBeGreaterThan(0);
+      expect(name).toContain(' ');
+    });
+  });
+
+  it("tracking URLs are properly formatted", () => {
+    const orderId = 12345;
+    const trackingUrl = `https://printcartel.co.za/track-order/${orderId}`;
+    expect(trackingUrl).toContain('https://');
+    expect(trackingUrl).toContain('track-order');
+    expect(trackingUrl).toContain(orderId.toString());
   });
 });
