@@ -163,7 +163,7 @@ export function NotificationCenter() {
                           )}
                         </div>
                         <p className="text-sm text-gray-600">{notification.message}</p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-300 mt-1">
                           {new Date(notification.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -183,7 +183,7 @@ export function NotificationCenter() {
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-300">
                 <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No notifications yet</p>
               </div>

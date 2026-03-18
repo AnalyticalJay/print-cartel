@@ -139,11 +139,11 @@ export default function OrderTracking() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Track Your Order</h1>
         {vapidPublicKey && (
-          <p className="text-gray-400 text-sm mb-4">
+          <p className="text-gray-200 text-sm mb-4">
             💡 Enable notifications above to get real-time order updates!
           </p>
         )}
-          <p className="text-gray-400">Enter your email address to view your order status and details</p>
+          <p className="text-gray-200">Enter your email address to view your order status and details</p>
         </div>
 
         {/* Search Form */}
@@ -217,22 +217,22 @@ export default function OrderTracking() {
                   <h3 className="text-white font-semibold mb-3">Customer Information</h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-400">Name</p>
+                      <p className="text-gray-200">Name</p>
                       <p className="text-white">
                         {selectedOrder.customerFirstName} {selectedOrder.customerLastName}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-400">Email</p>
+                      <p className="text-gray-200">Email</p>
                       <p className="text-white">{selectedOrder.customerEmail}</p>
                     </div>
                     <div>
-                      <p className="text-gray-400">Phone</p>
+                      <p className="text-gray-200">Phone</p>
                       <p className="text-white">{selectedOrder.customerPhone}</p>
                     </div>
                     {selectedOrder.customerCompany && (
                       <div>
-                        <p className="text-gray-400">Company</p>
+                        <p className="text-gray-200">Company</p>
                         <p className="text-white">{selectedOrder.customerCompany}</p>
                       </div>
                     )}
@@ -244,17 +244,17 @@ export default function OrderTracking() {
                   <h3 className="text-white font-semibold mb-3">Order Details</h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-400">Quantity</p>
+                      <p className="text-gray-200">Quantity</p>
                       <p className="text-white">{selectedOrder.quantity} units</p>
                     </div>
                     <div>
-                      <p className="text-gray-400">Estimated Total</p>
+                      <p className="text-gray-200">Estimated Total</p>
                       <p className="text-white font-semibold">
                         R{parseFloat(selectedOrder.totalPriceEstimate).toFixed(2)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-400">Garment Color</p>
+                      <p className="text-gray-200">Garment Color</p>
                       <p className="text-white flex items-center gap-2">
                         <span
                           className="w-4 h-4 rounded-full border border-gray-400"
@@ -280,7 +280,7 @@ export default function OrderTracking() {
                         >
                           <div className="flex-1">
                             <p className="text-white text-sm font-medium">{print.uploadedFileName}</p>
-                            <div className="flex gap-4 mt-1 text-xs text-gray-400">
+                            <div className="flex gap-4 mt-1 text-xs text-gray-200">
                               {print.fileSize && (
                                 <span>{(print.fileSize / 1024 / 1024).toFixed(2)} MB</span>
                               )}
@@ -362,14 +362,14 @@ export default function OrderTracking() {
                           {getStatusLabel(order.status)}
                         </Badge>
                       </div>
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-gray-200 text-sm">
                         Placed on {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                       <p className="text-gray-300 text-sm mt-1">
                         {order.quantity} units • R{parseFloat(order.totalPriceEstimate).toFixed(2)}
                       </p>
                     </div>
-                    <Eye className="w-5 h-5 text-gray-400" />
+                    <Eye className="w-5 h-5 text-gray-200" />
                   </div>
                 </CardContent>
               </Card>
@@ -378,7 +378,7 @@ export default function OrderTracking() {
         ) : ordersQuery.isLoading || ordersQuery.isFetching ? (
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="pt-6">
-              <p className="text-gray-400 text-center">
+              <p className="text-gray-200 text-center">
                 {ordersQuery.isFetching ? 'Updating orders...' : 'Searching for orders...'}
               </p>
             </CardContent>
@@ -386,7 +386,7 @@ export default function OrderTracking() {
         ) : searchedEmail ? (
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="pt-6">
-              <p className="text-gray-400 text-center">No orders found for {searchedEmail}</p>
+              <p className="text-gray-200 text-center">No orders found for {searchedEmail}</p>
               <Button
                 onClick={() => {
                   setSearchedEmail("");

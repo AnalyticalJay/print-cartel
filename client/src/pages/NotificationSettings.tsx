@@ -71,7 +71,7 @@ export default function NotificationSettings() {
           <Button
             onClick={() => setLocation('/track-order')}
             variant="ghost"
-            className="text-gray-400 hover:text-gray-200 mb-4"
+            className="text-gray-200 hover:text-gray-200 mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Order Tracking
@@ -81,7 +81,7 @@ export default function NotificationSettings() {
             <Bell className="w-8 h-8 text-blue-500" />
             <h1 className="text-3xl font-bold text-white">Notification Settings</h1>
           </div>
-          <p className="text-gray-400">
+          <p className="text-gray-200">
             Customize how you receive order status updates and notifications
           </p>
         </div>
@@ -93,7 +93,7 @@ export default function NotificationSettings() {
         <Card className="bg-gray-800 border-gray-700 mt-6">
           <CardHeader>
             <CardTitle className="text-white">Backup & Restore</CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-gray-200">
               Export your preferences to backup or import them on another device
             </CardDescription>
           </CardHeader>
@@ -116,7 +116,7 @@ export default function NotificationSettings() {
                 Import
               </Button>
             </div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-200 text-sm">
               Your preferences are automatically saved to your browser. Use export/import to sync across devices.
             </p>
           </CardContent>
@@ -147,7 +147,7 @@ export default function NotificationSettings() {
               </p>
             </div>
             <div className="pt-4 border-t border-gray-600">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-200">
                 💡 Tip: Enable notifications for critical statuses like "In Production" and "Order Shipped" to stay
                 updated on your orders.
               </p>

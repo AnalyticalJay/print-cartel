@@ -124,7 +124,7 @@ export function TemplateLibrary({ onTemplateSelect, showActions = true }: Templa
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">No popular templates yet</div>
+            <div className="text-center py-8 text-gray-300">No popular templates yet</div>
           )}
         </TabsContent>
 
@@ -170,7 +170,7 @@ export function TemplateLibrary({ onTemplateSelect, showActions = true }: Templa
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-300">
               No templates found matching your search
             </div>
           )}
@@ -194,7 +194,7 @@ export function TemplateLibrary({ onTemplateSelect, showActions = true }: Templa
                 ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-300">
               No favorite templates yet. Click the heart icon to add templates to your favorites
             </div>
           )}
@@ -260,7 +260,7 @@ function TemplateCard({
 
       {/* Usage Stats */}
       <CardContent className="pb-3">
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-xs text-gray-300 mb-3">
           <span>{template.usageCount || 0} people used this</span>
         </div>
 

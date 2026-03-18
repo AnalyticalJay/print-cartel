@@ -341,9 +341,9 @@ export function AdminInventoryManager() {
 
               <div className="space-y-2">
                 {productsQuery.isLoading ? (
-                  <p className="text-gray-500">Loading products...</p>
+                  <p className="text-gray-300">Loading products...</p>
                 ) : productsQuery.data?.length === 0 ? (
-                  <p className="text-gray-500">No products yet</p>
+                  <p className="text-gray-300">No products yet</p>
                 ) : (
                   productsQuery.data?.map((product) => (
                     <div key={product.id} className="flex justify-between items-center p-3 border rounded-lg bg-white">
@@ -419,9 +419,9 @@ export function AdminInventoryManager() {
 
               <div className="space-y-2">
                 {optionsQuery.isLoading ? (
-                  <p className="text-gray-500">Loading sizes...</p>
+                  <p className="text-gray-300">Loading sizes...</p>
                 ) : optionsQuery.data?.length === 0 ? (
-                  <p className="text-gray-500">No sizes yet</p>
+                  <p className="text-gray-300">No sizes yet</p>
                 ) : (
                   optionsQuery.data?.map((option) => (
                     <div key={option.id} className="flex justify-between items-center p-3 border rounded-lg bg-white">
@@ -488,9 +488,9 @@ export function AdminInventoryManager() {
 
               <div className="space-y-2">
                 {placementsQuery.isLoading ? (
-                  <p className="text-gray-500">Loading placements...</p>
+                  <p className="text-gray-300">Loading placements...</p>
                 ) : placementsQuery.data?.length === 0 ? (
-                  <p className="text-gray-500">No placements yet</p>
+                  <p className="text-gray-300">No placements yet</p>
                 ) : (
                   placementsQuery.data?.map((placement) => (
                     <div key={placement.id} className="flex justify-between items-center p-3 border rounded-lg bg-white">

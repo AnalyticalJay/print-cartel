@@ -52,7 +52,7 @@ export function RealtimeOrderTracker({ orderId, autoRefreshInterval = 5000 }: Re
       case 'shipped':
         return <Truck className="w-5 h-5 text-purple-500" />;
       default:
-        return <AlertCircle className="w-5 h-5 text-gray-500" />;
+        return <AlertCircle className="w-5 h-5 text-gray-300" />;
     }
   };
 

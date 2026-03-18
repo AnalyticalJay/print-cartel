@@ -216,13 +216,13 @@ export function GangSheetBuilder({ gangSheetId }: { gangSheetId: number }) {
         <CardContent>
           <div className="space-y-2">
             {artwork.length === 0 ? (
-              <p className="text-gray-500 text-sm">No artwork added yet. Click "Add Artwork" to get started.</p>
+              <p className="text-gray-300 text-sm">No artwork added yet. Click "Add Artwork" to get started.</p>
             ) : (
               artwork.map((item) => (
                 <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <div className="flex-1">
                     <p className="text-sm font-medium">{item.name}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-300">
                       {item.width.toFixed(1)}mm × {item.height.toFixed(1)}mm @ {item.rotation.toFixed(0)}°
                     </p>
                   </div>

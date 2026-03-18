@@ -64,7 +64,7 @@ export function BulkDiscountTable({ printSizes }: BulkDiscountTableProps) {
                   return (
                     <td key={`${tier.quantity}-${size.name}`} className="px-4 py-3 text-center">
                       <div className="flex flex-col items-center gap-1">
-                        <span className="text-sm text-gray-500 line-through">R{size.price.toFixed(2)}</span>
+                        <span className="text-sm text-gray-300 line-through">R{size.price.toFixed(2)}</span>
                         <span className="font-bold text-lg text-accent">R{discountedPrice.toFixed(2)}</span>
                       </div>
                     </td>

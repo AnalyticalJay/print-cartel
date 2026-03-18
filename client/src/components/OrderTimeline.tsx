@@ -98,7 +98,7 @@ export function OrderTimeline({ currentStatus, createdAt, updatedAt }: OrderTime
             {/* Timeline content */}
             <div className="pt-1">
               <p className="font-semibold text-gray-900">{event.label}</p>
-              <p className="text-sm text-gray-500">{formatDate(event.date)}</p>
+              <p className="text-sm text-gray-300">{formatDate(event.date)}</p>
             </div>
           </div>
         ))}

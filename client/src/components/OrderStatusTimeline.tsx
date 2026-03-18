@@ -182,7 +182,7 @@ export const OrderStatusTimeline: React.FC<OrderStatusTimelineProps> = ({
                           ? 'text-green-600'
                           : item.isCompleted
                           ? 'text-gray-700'
-                          : 'text-gray-500'
+                          : 'text-gray-300'
                       }`}
                     >
                       {item.label}
@@ -203,7 +203,7 @@ export const OrderStatusTimeline: React.FC<OrderStatusTimelineProps> = ({
                     {item.description}
                   </p>
                   {item.timestamp && (
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-300 mt-2">
                       {new Date(item.timestamp).toLocaleDateString('en-ZA', {
                         year: 'numeric',
                         month: 'short',

@@ -179,7 +179,7 @@ export function TemplatePreview({ templateId, onBack, onUseTemplate }: TemplateP
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">No customization options available</p>
+                <p className="text-sm text-gray-300">No customization options available</p>
               )}
 
               {/* Template Info */}

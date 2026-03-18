@@ -100,8 +100,28 @@ export default function OrderWizard() {
   // Fetch print options (sizes)
   const printOptionsQuery = trpc.products.getPrintOptions.useQuery();
 
-  const createOrderMutation = trpc.orders.create.useMutation();
-  const createMultiItemMutation = trpc.orders.createMultiItem.useMutation();
+  const createOrderMutation = trpc.orders.create.useMutation({
+    onSuccess: () => {
+      toast.success('Order placed successfully!');
+      setCurrentStep(7);
+      setTimeout(() => setLocation('/account'), 2000);
+    },
+    onError: (error) => {
+      console.error('Order creation error:', error);
+      toast.error(error.message || 'Failed to place order. Please try again.');
+    },
+  });
+  const createMultiItemMutation = trpc.orders.createMultiItem.useMutation({
+    onSuccess: () => {
+      toast.success('Order placed successfully!');
+      setCurrentStep(7);
+      setTimeout(() => setLocation('/account'), 2000);
+    },
+    onError: (error) => {
+      console.error('Multi-item order creation error:', error);
+      toast.error(error.message || 'Failed to place order. Please try again.');
+    },
+  });
 
   const selectedProduct = productsQuery.data?.find((p) => p.id === orderData.productId);
   const productColors = colorsQuery.data || [];
@@ -242,85 +262,77 @@ export default function OrderWizard() {
   };
 
   const handleSubmitOrder = async () => {
-    try {
-      if (
-        !orderData.productId ||
-        !orderData.colorId ||
-        !orderData.sizeId ||
-        !orderData.customerFirstName ||
-        !orderData.customerLastName ||
-        !orderData.customerEmail ||
-        !orderData.customerPhone ||
-        !orderData.deliveryMethod ||
-        orderData.printSelections.length === 0
-      ) {
-        toast.error("Please fill in all required fields");
-        return;
-      }
+    if (
+      !orderData.productId ||
+      !orderData.colorId ||
+      !orderData.sizeId ||
+      !orderData.customerFirstName ||
+      !orderData.customerLastName ||
+      !orderData.customerEmail ||
+      !orderData.customerPhone ||
+      !orderData.deliveryMethod ||
+      orderData.printSelections.length === 0
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
 
-      // If cart has items, submit as multi-item order
-      if (cartItems.length > 0) {
-        // Prepare cart items for submission
-        const cartItemsForSubmission = cartItems.map(item => ({
-          productId: item.productId,
-          colorId: item.colorId,
-          sizeId: item.sizeId,
-          quantity: item.quantity,
-          printSelections: (item.printSelections || []).map((p: any) => ({
-            placementId: p.placementId,
-            printSizeId: p.printSizeId,
-            uploadedFilePath: p.uploadedFilePath || "",
-            uploadedFileName: p.uploadedFileName || "",
-            fileSize: p.designFile?.size,
-            mimeType: p.designFile?.type,
-          })),
-          subtotal: item.subtotal || (item.unitPrice * item.quantity),
-        }));
+    // If cart has items, submit as multi-item order
+    if (cartItems.length > 0) {
+      // Prepare cart items for submission
+      const cartItemsForSubmission = cartItems.map(item => ({
+        productId: item.productId,
+        colorId: item.colorId,
+        sizeId: item.sizeId,
+        quantity: item.quantity,
+        printSelections: (item.printSelections || []).map((p: any) => ({
+          placementId: p.placementId,
+          printSizeId: p.printSizeId,
+          uploadedFilePath: p.uploadedFilePath || "",
+          uploadedFileName: p.uploadedFileName || "",
+          fileSize: p.designFile?.size,
+          mimeType: p.designFile?.type,
+        })),
+        subtotal: item.subtotal || (item.unitPrice * item.quantity),
+      }));
 
-        await createMultiItemMutation.mutateAsync({
-          cartItems: cartItemsForSubmission,
-          totalPriceEstimate: totalPrice,
-          customerFirstName: orderData.customerFirstName,
-          customerLastName: orderData.customerLastName,
-          customerEmail: orderData.customerEmail,
-          customerPhone: orderData.customerPhone,
-          customerCompany: orderData.customerCompany,
-          deliveryMethod: orderData.deliveryMethod,
-          deliveryAddress: orderData.deliveryAddress,
-          additionalNotes: orderData.additionalNotes,
-        });
-      } else {
-        // Single item order (legacy)
-        await createOrderMutation.mutateAsync({
-          productId: orderData.productId,
-          colorId: orderData.colorId,
-          sizeId: orderData.sizeId,
-          quantity: orderData.quantity || 1,
-          prints: orderData.printSelections.map((p) => ({
-            placementId: p.placementId,
-            printSizeId: p.printSizeId,
-            uploadedFilePath: p.uploadedFilePath || "",
-            uploadedFileName: p.uploadedFileName || "",
-            fileSize: p.designFile?.size,
-            mimeType: p.designFile?.type,
-          })),
-          totalPriceEstimate: totalPrice,
-          customerFirstName: orderData.customerFirstName,
-          customerLastName: orderData.customerLastName,
-          customerEmail: orderData.customerEmail,
-          customerPhone: orderData.customerPhone,
-          customerCompany: orderData.customerCompany,
-          deliveryMethod: orderData.deliveryMethod,
-          deliveryAddress: orderData.deliveryAddress,
-          additionalNotes: orderData.additionalNotes,
-        } as any);
-      }
-
-      toast.success("Order placed successfully!");
-      setCurrentStep(7);
-    } catch (error) {
-      toast.error("Failed to place order. Please try again.");
-      console.error(error);
+      createMultiItemMutation.mutate({
+        cartItems: cartItemsForSubmission,
+        totalPriceEstimate: totalPrice,
+        customerFirstName: orderData.customerFirstName,
+        customerLastName: orderData.customerLastName,
+        customerEmail: orderData.customerEmail,
+        customerPhone: orderData.customerPhone,
+        customerCompany: orderData.customerCompany,
+        deliveryMethod: orderData.deliveryMethod,
+        deliveryAddress: orderData.deliveryAddress,
+        additionalNotes: orderData.additionalNotes,
+      });
+    } else {
+      // Single item order (legacy)
+      createOrderMutation.mutate({
+        productId: orderData.productId,
+        colorId: orderData.colorId,
+        sizeId: orderData.sizeId,
+        quantity: orderData.quantity || 1,
+        prints: orderData.printSelections.map((p) => ({
+          placementId: p.placementId,
+          printSizeId: p.printSizeId,
+          uploadedFilePath: p.uploadedFilePath || "",
+          uploadedFileName: p.uploadedFileName || "",
+          fileSize: p.designFile?.size,
+          mimeType: p.designFile?.type,
+        })),
+        totalPriceEstimate: totalPrice,
+        customerFirstName: orderData.customerFirstName,
+        customerLastName: orderData.customerLastName,
+        customerEmail: orderData.customerEmail,
+        customerPhone: orderData.customerPhone,
+        customerCompany: orderData.customerCompany,
+        deliveryMethod: orderData.deliveryMethod,
+        deliveryAddress: orderData.deliveryAddress,
+        additionalNotes: orderData.additionalNotes,
+      } as any);
     }
   };
 
@@ -350,7 +362,7 @@ export default function OrderWizard() {
               />
             ))}
           </div>
-          <p className="text-center text-gray-400 text-sm">
+          <p className="text-center text-gray-200 text-sm">
             Step {currentStep === 1.5 ? "1" : currentStep} of 7
           </p>
         </div>
@@ -410,7 +422,7 @@ export default function OrderWizard() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-gray-400">No colors available for this product</p>
+                        <p className="text-gray-200">No colors available for this product</p>
                       )}
                     </div>
                   )}
@@ -436,7 +448,7 @@ export default function OrderWizard() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-gray-400">No sizes available for this product</p>
+                        <p className="text-gray-200">No sizes available for this product</p>
                       )}
                     </div>
                   )}
@@ -529,7 +541,7 @@ export default function OrderWizard() {
                             </div>
                             <ChevronDown
                               size={18}
-                              className={`text-gray-400 transition-transform ${
+                              className={`text-gray-200 transition-transform ${
                                 isExpanded ? "rotate-180" : ""
                               }`}
                             />
@@ -634,13 +646,13 @@ export default function OrderWizard() {
                             {selection.designFileName ? (
                               <div className="text-white">
                                 <p className="font-semibold">{selection.designFileName}</p>
-                                <p className="text-gray-400 text-sm mt-1">Click to change</p>
+                                <p className="text-gray-200 text-sm mt-1">Click to change</p>
                               </div>
                             ) : (
                               <div>
-                                <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                                <Upload className="w-8 h-8 mx-auto text-gray-200 mb-2" />
                                 <p className="text-white font-semibold">Drag and drop or click to upload</p>
-                                <p className="text-gray-400 text-sm mt-1">PNG, JPG, PDF up to 50MB</p>
+                                <p className="text-gray-200 text-sm mt-1">PNG, JPG, PDF up to 50MB</p>
                               </div>
                             )}
                           </label>
@@ -773,7 +785,7 @@ export default function OrderWizard() {
                     }`}
                   >
                     <p className="text-white font-semibold">Collection</p>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <p className="text-gray-200 text-sm mt-1">
                       Collect from our office at 308 Cape Road, Newton Park
                     </p>
                   </div>
@@ -792,7 +804,7 @@ export default function OrderWizard() {
                     }`}
                   >
                     <p className="text-white font-semibold">Delivery</p>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <p className="text-gray-200 text-sm mt-1">
                       We'll deliver to your address
                     </p>
                   </div>
@@ -835,19 +847,19 @@ export default function OrderWizard() {
                     <h3 className="text-white font-semibold mb-3">Order Summary</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Product:</span>
+                        <span className="text-gray-200">Product:</span>
                         <span className="text-white">{selectedProduct?.name}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Quantity:</span>
+                        <span className="text-gray-200">Quantity:</span>
                         <span className="text-white">{orderData.quantity}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Print Options:</span>
+                        <span className="text-gray-200">Print Options:</span>
                         <span className="text-white">{orderData.printSelections.length}</span>
                       </div>
                       <div className="border-t border-gray-600 pt-2 mt-2 flex justify-between">
-                        <span className="text-gray-400">Subtotal:</span>
+                        <span className="text-gray-200">Subtotal:</span>
                         <span className="text-white">R{subtotal.toFixed(2)}</span>
                       </div>
                       {bulkDiscount > 0 && (
@@ -867,22 +879,22 @@ export default function OrderWizard() {
                     <h3 className="text-white font-semibold mb-3">Contact Information</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Name:</span>
+                        <span className="text-gray-200">Name:</span>
                         <span className="text-white">
                           {orderData.customerFirstName} {orderData.customerLastName}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Email:</span>
+                        <span className="text-gray-200">Email:</span>
                         <span className="text-white">{orderData.customerEmail}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Phone:</span>
+                        <span className="text-gray-200">Phone:</span>
                         <span className="text-white">{orderData.customerPhone}</span>
                       </div>
                       {orderData.customerCompany && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Company:</span>
+                          <span className="text-gray-200">Company:</span>
                           <span className="text-white">{orderData.customerCompany}</span>
                         </div>
                       )}
@@ -893,14 +905,14 @@ export default function OrderWizard() {
                     <h3 className="text-white font-semibold mb-3">Delivery</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Method:</span>
+                        <span className="text-gray-200">Method:</span>
                         <span className="text-white capitalize">
                           {orderData.deliveryMethod}
                         </span>
                       </div>
                       {orderData.deliveryMethod === "delivery" && orderData.deliveryAddress && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Address:</span>
+                          <span className="text-gray-200">Address:</span>
                           <span className="text-white text-right">{orderData.deliveryAddress}</span>
                         </div>
                       )}
@@ -921,14 +933,14 @@ export default function OrderWizard() {
                   <div className="text-center py-8">
                     <div className="text-6xl mb-4">✓</div>
                     <h2 className="text-2xl font-bold text-white mb-2">Order Submitted Successfully</h2>
-                    <p className="text-gray-400 mb-4">
+                    <p className="text-gray-200 mb-4">
                       We've received your order and will review it shortly. You'll receive an email confirmation with all the details.
                     </p>
                   </div>
 
                   <div className="bg-gray-700 p-4 rounded-lg">
                     <p className="text-white font-semibold mb-2">What happens next?</p>
-                    <ol className="text-gray-400 text-sm space-y-2">
+                    <ol className="text-gray-200 text-sm space-y-2">
                       <li>1. We'll review your artwork and specifications</li>
                       <li>2. Our team will prepare a quote for your order</li>
                       <li>3. You'll receive an email with the final quote</li>
@@ -1019,15 +1031,15 @@ export default function OrderWizard() {
                   <>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Product:</span>
+                        <span className="text-gray-200">Product:</span>
                         <span className="text-white">{selectedProduct.name}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Quantity:</span>
+                        <span className="text-gray-200">Quantity:</span>
                         <span className="text-white">{orderData.quantity}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Base Price:</span>
+                        <span className="text-gray-200">Base Price:</span>
                         <span className="text-white">R{basePrice.toFixed(2)}</span>
                       </div>
                     </div>
@@ -1035,11 +1047,11 @@ export default function OrderWizard() {
                     {orderData.printSelections.length > 0 && (
                       <div className="border-t border-gray-600 pt-2">
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-gray-400">Print Surcharge:</span>
+                          <span className="text-gray-200">Print Surcharge:</span>
                           <span className="text-white">R{printSizePrice.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Subtotal:</span>
+                          <span className="text-gray-200">Subtotal:</span>
                           <span className="text-white">R{subtotal.toFixed(2)}</span>
                         </div>
                       </div>
@@ -1067,7 +1079,7 @@ export default function OrderWizard() {
                 )}
 
                 {!selectedProduct && (
-                  <p className="text-gray-400 text-sm">Select a product to see pricing</p>
+                  <p className="text-gray-200 text-sm">Select a product to see pricing</p>
                 )}
               </CardContent>
             </Card>

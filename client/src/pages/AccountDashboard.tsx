@@ -120,7 +120,7 @@ export default function AccountDashboard() {
         <Card className="bg-gray-800 border-gray-700 w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-white">Access Denied</CardTitle>
-            <CardDescription className="text-gray-400">Please log in to view your account</CardDescription>
+            <CardDescription className="text-gray-200">Please log in to view your account</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -175,14 +175,14 @@ export default function AccountDashboard() {
               </Button>
               <div>
                 <h1 className="text-2xl font-bold">Print Cartel</h1>
-                <p className="text-gray-400 text-sm">Account Dashboard</p>
+                <p className="text-gray-200 text-sm">Account Dashboard</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <NotificationCenter />
               <div className="text-right">
                 <p className="font-semibold">{user.firstName} {user.lastName}</p>
-                <p className="text-gray-400 text-sm">{user.email}</p>
+                <p className="text-gray-200 text-sm">{user.email}</p>
               </div>
               <Button
                 onClick={handleLogout}
@@ -230,7 +230,7 @@ export default function AccountDashboard() {
               {ordersQuery.isLoading ? (
                 <Card className="bg-gray-800 border-gray-700">
                   <CardContent className="py-8">
-                    <p className="text-center text-gray-400">Loading your orders...</p>
+                    <p className="text-center text-gray-200">Loading your orders...</p>
                   </CardContent>
                 </Card>
               ) : ordersQuery.data && ordersQuery.data.length > 0 ? (
@@ -250,7 +250,7 @@ export default function AccountDashboard() {
                                 {getStatusLabel(order.status)}
                               </Badge>
                             </div>
-                            <p className="text-gray-400 text-sm mb-2">
+                            <p className="text-gray-200 text-sm mb-2">
                               Submitted: {formatDate(order.createdAt)}
                             </p>
                             <p className="text-white font-semibold">
@@ -273,7 +273,7 @@ export default function AccountDashboard() {
               ) : (
                 <Card className="bg-gray-800 border-gray-700">
                   <CardContent className="py-8">
-                    <p className="text-center text-gray-400 mb-4">No orders yet. Start your first order!</p>
+                    <p className="text-center text-gray-200 mb-4">No orders yet. Start your first order!</p>
                     <Button onClick={() => setLocation("/order")} className="w-full bg-blue-600 hover:bg-blue-700">
                       Place an Order
                     </Button>
@@ -292,34 +292,34 @@ export default function AccountDashboard() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedOrder(null)}
-                      className="text-gray-400 hover:text-white"
+                      className="text-gray-200 hover:text-white"
                     >
                       ✕
                     </Button>
                   </CardHeader>
                   <CardContent className="space-y-6 pt-6">
                     <div>
-                      <p className="text-sm text-gray-400">Order ID</p>
+                      <p className="text-sm text-gray-200">Order ID</p>
                       <p className="font-medium text-lg">#{selectedOrder.id}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-400">Status</p>
+                      <p className="text-sm text-gray-200">Status</p>
                       <Badge className={getStatusColor(selectedOrder.status)}>
                         {getStatusLabel(selectedOrder.status)}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-400">Order Date</p>
+                        <p className="text-sm text-gray-200">Order Date</p>
                         <p className="font-medium">{formatDate(selectedOrder.createdAt)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400">Total Price</p>
+                        <p className="text-sm text-gray-200">Total Price</p>
                         <p className="text-lg font-semibold">{selectedOrder.totalPriceEstimate}</p>
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-400 mb-3">Uploaded Files</p>
+                      <p className="text-sm text-gray-200 mb-3">Uploaded Files</p>
                       <div className="space-y-2">
                         {selectedOrder.prints && selectedOrder.prints.length > 0 ? (
                           selectedOrder.prints.map((print, idx) => (
@@ -336,7 +336,7 @@ export default function AccountDashboard() {
                             </div>
                           ))
                         ) : (
-                          <p className="text-gray-400 text-sm">No files uploaded yet</p>
+                          <p className="text-gray-200 text-sm">No files uploaded yet</p>
                         )}
                       </div>
                     </div>
@@ -358,27 +358,27 @@ export default function AccountDashboard() {
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label className="text-gray-400">First Name</Label>
+                      <Label className="text-gray-200">First Name</Label>
                       <p className="font-medium mt-2">{user.firstName}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-400">Last Name</Label>
+                      <Label className="text-gray-200">Last Name</Label>
                       <p className="font-medium mt-2">{user.lastName}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-400">Email</Label>
+                      <Label className="text-gray-200">Email</Label>
                       <p className="font-medium mt-2">{user.email}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-400">Account Type</Label>
+                      <Label className="text-gray-200">Account Type</Label>
                       <p className="font-medium mt-2 capitalize">{user.role}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-400">Member Since</Label>
+                      <Label className="text-gray-200">Member Since</Label>
                       <p className="font-medium mt-2">{formatDate(user.createdAt)}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-400">Last Signed In</Label>
+                      <Label className="text-gray-200">Last Signed In</Label>
                       <p className="font-medium mt-2">{formatDate(user.lastSignedIn)}</p>
                     </div>
                   </div>

@@ -160,7 +160,7 @@ export default function CustomerDashboard() {
                 onClick={handleLogout}
                 variant="outline"
                 size="sm"
-                className="border-gray-700 text-gray-400 hover:text-white p-2"
+                className="border-gray-700 text-gray-200 hover:text-white p-2"
               >
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -187,20 +187,20 @@ export default function CustomerDashboard() {
               </Button>
               <div>
                 <h1 className="text-2xl font-bold">Print Cartel</h1>
-                <p className="text-gray-400 text-sm">Customer Dashboard</p>
+                <p className="text-gray-200 text-sm">Customer Dashboard</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <NotificationCenter />
               <div className="text-right">
                 <p className="font-semibold">{user.firstName} {user.lastName}</p>
-                <p className="text-gray-400 text-sm">{user.email}</p>
+                <p className="text-gray-200 text-sm">{user.email}</p>
               </div>
               <Button
                 onClick={handleLogout}
                 variant="outline"
                 size="sm"
-                className="border-gray-700 text-gray-400 hover:text-white"
+                className="border-gray-700 text-gray-200 hover:text-white"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
@@ -219,7 +219,7 @@ export default function CustomerDashboard() {
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               activeTab === 'orders'
                 ? 'border-white text-white'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+                : 'border-transparent text-gray-200 hover:text-gray-200'
             }`}
           >
             <Eye className="w-4 h-4 inline mr-2" />
@@ -230,7 +230,7 @@ export default function CustomerDashboard() {
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               activeTab === 'communications'
                 ? 'border-white text-white'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+                : 'border-transparent text-gray-200 hover:text-gray-200'
             }`}
           >
             <MessageSquare className="w-4 h-4 inline mr-2" />
@@ -241,7 +241,7 @@ export default function CustomerDashboard() {
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               activeTab === 'referral'
                 ? 'border-white text-white'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+                : 'border-transparent text-gray-200 hover:text-gray-200'
             }`}
           >
             <MessageSquare className="w-4 h-4 inline mr-2" />
@@ -257,7 +257,7 @@ export default function CustomerDashboard() {
           {ordersQuery.isLoading ? (
             <Card className="bg-gray-900 border-gray-800">
               <CardContent className="py-8">
-                <p className="text-center text-gray-400">Loading your orders...</p>
+                <p className="text-center text-gray-200">Loading your orders...</p>
               </CardContent>
             </Card>
           ) : ordersQuery.data && ordersQuery.data.length > 0 ? (
@@ -277,7 +277,7 @@ export default function CustomerDashboard() {
                             {getStatusLabel(order.status)}
                           </Badge>
                         </div>
-                        <p className="text-gray-400 text-sm mb-2">
+                        <p className="text-gray-200 text-sm mb-2">
                           Submitted: {formatDate(order.createdAt)}
                         </p>
                         <p className="text-white font-semibold">
@@ -287,7 +287,7 @@ export default function CustomerDashboard() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-gray-700 text-gray-400 hover:text-white"
+                        className="border-gray-700 text-gray-200 hover:text-white"
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         View Details
@@ -300,7 +300,7 @@ export default function CustomerDashboard() {
           ) : (
             <Card className="bg-gray-900 border-gray-800">
               <CardContent className="py-8">
-                <p className="text-center text-gray-400">No orders found</p>
+                <p className="text-center text-gray-200">No orders found</p>
                 <div className="text-center mt-4">
                   <Button
                     onClick={() => setLocation("/order")}
@@ -351,7 +351,7 @@ export default function CustomerDashboard() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedOrder(null)}
-                    className="text-gray-400 hover:text-white"
+                    className="text-gray-200 hover:text-white"
                   >
                     ✕
                   </Button>
@@ -373,7 +373,7 @@ export default function CustomerDashboard() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <h3 className="font-semibold mb-3">Customer Information</h3>
-                    <div className="space-y-2 text-sm text-gray-400">
+                    <div className="space-y-2 text-sm text-gray-200">
                       <p>
                         <span className="text-white font-semibold">Name:</span> {selectedOrder.customerFirstName}{" "}
                         {selectedOrder.customerLastName}
@@ -394,7 +394,7 @@ export default function CustomerDashboard() {
 
                   <div>
                     <h3 className="font-semibold mb-3">Order Details</h3>
-                    <div className="space-y-2 text-sm text-gray-400">
+                    <div className="space-y-2 text-sm text-gray-200">
                       <p>
                         <span className="text-white font-semibold">Quantity:</span> {selectedOrder.quantity}
                       </p>
@@ -425,7 +425,7 @@ export default function CustomerDashboard() {
                         >
                           <div className="flex-1">
                             <p className="font-semibold text-sm">{print.uploadedFileName}</p>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-gray-200">
                               {print.fileSize ? `${(print.fileSize / 1024).toFixed(2)} KB` : "Unknown size"}
                             </p>
                           </div>
@@ -435,7 +435,7 @@ export default function CustomerDashboard() {
                             onClick={() =>
                               handleDownloadFile(print.uploadedFilePath, print.uploadedFileName)
                             }
-                            className="border-gray-700 text-gray-400 hover:text-white"
+                            className="border-gray-700 text-gray-200 hover:text-white"
                           >
                             <Download className="w-4 h-4" />
                           </Button>
@@ -449,7 +449,7 @@ export default function CustomerDashboard() {
                 {selectedOrder.additionalNotes && (
                   <div>
                     <h3 className="font-semibold mb-3">Additional Notes</h3>
-                    <p className="text-gray-400 text-sm bg-gray-800 p-3 rounded">
+                    <p className="text-gray-200 text-sm bg-gray-800 p-3 rounded">
                       {selectedOrder.additionalNotes}
                     </p>
                   </div>

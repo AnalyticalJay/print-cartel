@@ -211,7 +211,7 @@ export function AdminChatPanel() {
                     )}
                   </div>
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-300">
                       {new Date(conversation.updatedAt).toLocaleDateString()}
                     </span>
                     <Badge
@@ -219,7 +219,7 @@ export function AdminChatPanel() {
                       className={`text-xs ${
                         conversation.status === "active"
                           ? "border-green-500 text-green-500"
-                          : "border-gray-500 text-gray-500"
+                          : "border-gray-500 text-gray-300"
                       }`}
                     >
                       {conversation.status}

@@ -268,7 +268,7 @@ export default function Reseller() {
                 <div className="text-center">
                   <Zap className="w-12 h-12 text-primary mx-auto mb-2" />
                   <p className="text-gray-600">Gang Sheet Canvas Preview</p>
-                  <p className="text-sm text-gray-500 mt-2">300mm × 1000mm</p>
+                  <p className="text-sm text-gray-300 mt-2">300mm × 1000mm</p>
                 </div>
               </div>
             </div>

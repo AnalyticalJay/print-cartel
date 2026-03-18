@@ -179,9 +179,9 @@ export function ReferralProgram() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <Gift className="w-12 h-12 mx-auto mb-3 text-gray-500 opacity-50" />
+              <Gift className="w-12 h-12 mx-auto mb-3 text-gray-300 opacity-50" />
               <p className="text-gray-400">No referrals yet</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-300 mt-1">
                 Share your referral code to start earning rewards!
               </p>
             </div>
