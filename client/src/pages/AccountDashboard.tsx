@@ -203,19 +203,19 @@ export default function AccountDashboard() {
         {/* Tabs Navigation */}
         <Tabs defaultValue="orders" className="w-full">
           <TabsList className={`grid w-full ${user?.role === 'admin' ? 'grid-cols-5' : 'grid-cols-4'} bg-gray-800 border border-gray-700`}>
-            <TabsTrigger value="orders" className="text-gray-300 data-[state=active]:text-white">
+            <TabsTrigger value="orders" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
               <Eye className="w-4 h-4 mr-2" />
               Orders
             </TabsTrigger>
-            <TabsTrigger value="account" className="text-gray-300 data-[state=active]:text-white">
+            <TabsTrigger value="account" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
               <Settings className="w-4 h-4 mr-2" />
               Account
             </TabsTrigger>
-            <TabsTrigger value="communications" className="text-gray-300 data-[state=active]:text-white">
+            <TabsTrigger value="communications" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
               <MessageSquare className="w-4 h-4 mr-2" />
               Messages
             </TabsTrigger>
-            <TabsTrigger value="referral" className="text-gray-300 data-[state=active]:text-white">
+            <TabsTrigger value="referral" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
               <Bell className="w-4 h-4 mr-2" />
               Referral
             </TabsTrigger>
@@ -359,34 +359,34 @@ export default function AccountDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label className="text-gray-200">First Name</Label>
-                      <p className="font-medium mt-2">{user.firstName}</p>
+                      <p className="font-medium mt-2 text-cyan-400">{user.firstName}</p>
                     </div>
                     <div>
                       <Label className="text-gray-200">Last Name</Label>
-                      <p className="font-medium mt-2">{user.lastName}</p>
+                      <p className="font-medium mt-2 text-cyan-400">{user.lastName}</p>
                     </div>
                     <div>
                       <Label className="text-gray-200">Email</Label>
-                      <p className="font-medium mt-2">{user.email}</p>
+                      <p className="font-medium mt-2 text-cyan-400">{user.email}</p>
                     </div>
                     <div>
                       <Label className="text-gray-200">Account Type</Label>
-                      <p className="font-medium mt-2 capitalize">{user.role}</p>
+                      <p className="font-medium mt-2 capitalize text-cyan-400">{user.role}</p>
                     </div>
                     <div>
                       <Label className="text-gray-200">Member Since</Label>
-                      <p className="font-medium mt-2">{formatDate(user.createdAt)}</p>
+                      <p className="font-medium mt-2 text-cyan-400">{formatDate(user.createdAt)}</p>
                     </div>
                     <div>
                       <Label className="text-gray-200">Last Signed In</Label>
-                      <p className="font-medium mt-2">{formatDate(user.lastSignedIn)}</p>
+                      <p className="font-medium mt-2 text-cyan-400">{formatDate(user.lastSignedIn)}</p>
                     </div>
                   </div>
 
                   <div className="pt-4 border-t border-gray-700">
                     <Button
                       onClick={() => setLocation("/notification-settings")}
-                      className="bg-blue-600 hover:bg-blue-700 gap-2"
+                      className="bg-cyan-500 hover:bg-cyan-600 text-black gap-2"
                     >
                       <Bell className="w-4 h-4" />
                       Notification Settings

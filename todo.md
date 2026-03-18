@@ -1189,3 +1189,10 @@ Future enhancements (Phase 2):
 - [x] Fix low-contrast text in OrderWizard, Admin, and other pages (replaced text-gray-400 with text-gray-200)
 - [x] Test order submission end-to-end (dev server running with 0 errors)
 - [x] Verify admin panel displays all order details correctly (Kanban board properly displays order info)
+
+
+## Current Task - Fix My Account Page Styling
+- [x] Change all black text to bright cyan (matching button color) (all profile details now cyan)
+- [x] Fix active tab styling to be clearly visible (active tabs now have cyan text and gray background)
+- [x] Ensure active tab text is readable (cyan text on gray background for better contrast)
+- [x] Test all tabs and verify styling consistency (dev server running with 0 errors)
