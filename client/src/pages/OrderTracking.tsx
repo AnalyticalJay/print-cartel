@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { Download, Eye, CheckCircle2, Clock, AlertCircle, Truck, Package } from "lucide-react";
 import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 import { OrderStatusTimeline } from "@/components/OrderStatusTimeline";
+import { PushNotificationPrompt } from "@/components/PushNotificationPrompt";
+import { sendOrderStatusNotification } from "@/lib/pushNotifications";
 
 interface OrderWithPrints {
   id: number;
@@ -44,6 +46,8 @@ export default function OrderTracking() {
   const [searchedEmail, setSearchedEmail] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [previousStatuses, setPreviousStatuses] = useState<Record<number, string>>({});
+  const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
   const ordersQuery = trpc.orders.getByEmail.useQuery(
     { email: searchedEmail },
@@ -52,6 +56,26 @@ export default function OrderTracking() {
       refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
     }
   );
+
+  // Monitor for status changes and send notifications
+  useEffect(() => {
+    if (!ordersQuery.data) return;
+
+    ordersQuery.data.forEach((order) => {
+      const previousStatus = previousStatuses[order.id];
+      if (previousStatus && previousStatus !== order.status) {
+        // Status changed, send notification
+        sendOrderStatusNotification(order.id, order.status);
+      }
+    });
+
+    // Update previous statuses
+    const newStatuses: Record<number, string> = {};
+    ordersQuery.data.forEach((order) => {
+      newStatuses[order.id] = order.status;
+    });
+    setPreviousStatuses(newStatuses);
+  }, [ordersQuery.data]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,10 +113,19 @@ export default function OrderTracking() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 md:p-8">
+      {/* Push Notification Prompt */}
+      {vapidPublicKey && (
+        <PushNotificationPrompt vapidPublicKey={vapidPublicKey} />
+      )}
+      <div className="max-w-6xl mx-auto mt-4">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Track Your Order</h1>
+        {vapidPublicKey && (
+          <p className="text-gray-400 text-sm mb-4">
+            💡 Enable notifications above to get real-time order updates!
+          </p>
+        )}
           <p className="text-gray-400">Enter your email address to view your order status and details</p>
         </div>
 
@@ -308,10 +341,12 @@ export default function OrderTracking() {
               </Card>
             ))}
           </div>
-        ) : ordersQuery.isLoading ? (
+        ) : ordersQuery.isLoading || ordersQuery.isFetching ? (
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="pt-6">
-              <p className="text-gray-400 text-center">Searching for orders...</p>
+              <p className="text-gray-400 text-center">
+                {ordersQuery.isFetching ? 'Updating orders...' : 'Searching for orders...'}
+              </p>
             </CardContent>
           </Card>
         ) : searchedEmail ? (
