@@ -19,6 +19,7 @@ import { ProductionKanban } from "@/components/ProductionKanban";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { AdminInventoryManager } from "@/components/AdminInventoryManager";
+import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
 
 
 type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
@@ -36,6 +37,9 @@ interface OrderWithDetails {
   createdAt: Date;
   updatedAt: Date;
   product?: { name: string };
+  paymentStatus?: any;
+  amountPaid?: any;
+  depositAmount?: any;
 }
 
 export default function AdminDashboard() {
@@ -716,6 +720,19 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Payment Status Display */}
+          {order.paymentStatus && (
+            <div className="border-t border-gray-700 pt-4">
+              <PaymentStatusDisplay
+                paymentStatus={order.paymentStatus as "unpaid" | "deposit_paid" | "paid"}
+                totalAmount={typeof order.totalPriceEstimate === 'string' ? parseFloat(order.totalPriceEstimate) : order.totalPriceEstimate}
+                amountPaid={typeof order.amountPaid === 'string' ? parseFloat(order.amountPaid) : (order.amountPaid || 0)}
+                depositAmount={order.depositAmount ? (typeof order.depositAmount === 'string' ? parseFloat(order.depositAmount) : order.depositAmount) : undefined}
+                showDetails={true}
+              />
             </div>
           )}
 

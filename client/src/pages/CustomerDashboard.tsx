@@ -19,6 +19,7 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 import { CustomerOrderStatusTimeline } from "@/components/CustomerOrderStatusTimeline";
+import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -35,6 +36,9 @@ interface OrderWithPrints {
   additionalNotes: string | null;
   totalPriceEstimate: string;
   status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
+  paymentStatus?: any;
+  amountPaid?: any;
+  depositAmount?: any;
   createdAt: Date;
   updatedAt: Date;
   prints: Array<{
@@ -391,6 +395,17 @@ export default function CustomerDashboard() {
 
                 {/* Order Status History Timeline */}
                 <OrderStatusHistorySection orderId={selectedOrder.id} />
+
+                {/* Payment Status Display */}
+                {selectedOrder.paymentStatus && (
+                  <PaymentStatusDisplay
+                    paymentStatus={selectedOrder.paymentStatus}
+                    totalAmount={parseFloat(selectedOrder.totalPriceEstimate)}
+                    amountPaid={selectedOrder.amountPaid || 0}
+                    depositAmount={selectedOrder.depositAmount || undefined}
+                    showDetails={true}
+                  />
+                )}
 
                 {/* Customer Information */}
                 <div className="grid md:grid-cols-2 gap-6">

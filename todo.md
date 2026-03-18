@@ -1300,3 +1300,14 @@ Future enhancements (Phase 2):
 - [x] Debug why timeline is not rendering on My Account page (root cause: status changes not being logged to orderStatusHistory table)
 - [x] Test with real order data from database (added logOrderStatusChange call to updateOrderStatus mutation)
 - [x] Verify customer authorization for viewing their order timeline (authorization check in place)
+
+
+## Current Task - Payment Status Tracking UI
+- [x] Create PaymentStatusDisplay component with visual indicators (progress bar, color-coded status)
+- [x] Show payment progress bar (unpaid → partially paid → fully paid) (visual progress indicator)
+- [x] Display payment amount due and amount paid (detailed breakdown shown)
+- [x] Integrate payment status into customer order details view (added to CustomerDashboard)
+- [x] Integrate payment status into admin order details view (added to AdminDashboard)
+- [x] Add payment status to order timeline (displays alongside order status)
+- [x] Show payment deadline if applicable (dueDate displayed with overdue indicator)
+- [x] Test payment status display with various payment states (dev server running with 0 errors)
