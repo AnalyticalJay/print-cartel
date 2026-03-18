@@ -11,6 +11,7 @@ import {
   createProductionQueueEntry,
   getOrderById,
 } from "../db";
+import { sendOrderStatusChangeEmail } from "../status-change-emails";
 
 export const productionRouter = router({
   // Get all orders grouped by status for Kanban board
@@ -38,10 +39,36 @@ export const productionRouter = router({
         queueId: z.number(),
         status: z.enum(["pending", "quoted", "approved", "in-production", "ready", "completed", "shipped", "cancelled"]),
         notes: z.string().optional(),
+        quoteAmount: z.number().optional(),
       })
     )
     .mutation(async ({ input }) => {
-      return await updateProductionQueueStatus(input.queueId, input.status, input.notes);
+      // Get the queue entry to find the order ID
+      const queueEntry = await getProductionQueueByOrderId(input.queueId);
+      if (queueEntry) {
+        const orderId = queueEntry.orderId;
+
+        // Get order details for email
+        const orderDetails = await getOrderById(orderId);
+
+        // Update the production queue status
+        await updateProductionQueueStatus(input.queueId, input.status, input.notes);
+
+        // Send status change email to customer
+        if (orderDetails) {
+          await sendOrderStatusChangeEmail({
+            orderId: orderId,
+            customerEmail: orderDetails.customerEmail,
+            customerName: `${orderDetails.customerFirstName} ${orderDetails.customerLastName}`,
+            newStatus: input.status as any,
+            previousStatus: orderDetails.status as any,
+            quoteAmount: input.quoteAmount,
+            productionNotes: input.notes,
+          });
+        }
+      }
+
+      return { success: true };
     }),
 
   // Assign order to admin

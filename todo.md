@@ -1146,3 +1146,14 @@ Future enhancements (Phase 2):
 - [x] Verify all backend endpoints return proper data structure
 - [x] Test Kanban board displays orders with customer names and product details
 - [x] Confirm drag-and-drop status updates work with new data structure
+
+
+## Current Task - Order Status Change Email Notifications
+- [x] Create enhanced status change email templates with detailed order information
+- [x] Implement sendOrderStatusChangeEmail function with custom messages for each status
+- [x] Integrate email sending into production queue status update endpoint
+- [x] Add email notifications for all status transitions (pending → quoted → approved → in-production → ready → shipped)
+- [x] Handle special cases (cancelled orders, delivery/collection information)
+- [x] Write comprehensive tests for status change email notifications (14 tests passing)
+- [x] Test email delivery for all status transitions
+- [x] Verify customer receives correct status information and next steps
