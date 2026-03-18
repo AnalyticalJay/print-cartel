@@ -186,9 +186,9 @@ export function TemplatePreview({ templateId, onBack, onUseTemplate }: TemplateP
               <div className="pt-4 border-t space-y-2">
                 <div className="text-xs">
                   <span className="text-gray-600">Used by: </span>
-                  <span className="font-semibold">{template.usageCount || 0} customers</span>
+                  <span className="font-semibold">{(template as any).usageCount || 0} customers</span>
                 </div>
-                {template.isPopular && (
+                {(template as any).isPopular && (
                   <Badge className="bg-orange-500 w-full justify-center">Popular Choice</Badge>
                 )}
               </div>
@@ -219,30 +219,30 @@ export function TemplatePreview({ templateId, onBack, onUseTemplate }: TemplateP
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {template.defaultProductId && (
+{(template as any).defaultProductId && (
               <div>
                 <p className="text-xs text-gray-600">Suggested Product</p>
-                <p className="font-semibold">Product ID: {template.defaultProductId}</p>
+                <p className="font-semibold">Product ID: {(template as any).defaultProductId}</p>
               </div>
             )}
-            {template.defaultColorId && (
+            {(template as any).defaultColorId && (
               <div>
                 <p className="text-xs text-gray-600">Suggested Color</p>
-                <p className="font-semibold">Color ID: {template.defaultColorId}</p>
+                <p className="font-semibold">Color ID: {(template as any).defaultColorId}</p>
               </div>
             )}
-            {template.defaultPlacements && (
+            {(template as any).defaultPlacements || (template as any).customizations?.some((c: any) => c.customizationType === 'placement') ? (
               <div>
                 <p className="text-xs text-gray-600">Placements</p>
-                <p className="font-semibold">{Array.isArray(template.defaultPlacements) ? template.defaultPlacements.length : 0} options</p>
+                <p className="font-semibold">{Array.isArray((template as any).defaultPlacements) ? (template as any).defaultPlacements.length : 1} options</p>
               </div>
-            )}
-            {template.defaultPrintSizes && (
+            ) : null}
+            {(template as any).defaultPrintSizes || (template as any).customizations?.some((c: any) => c.customizationType === 'size') ? (
               <div>
                 <p className="text-xs text-gray-600">Print Sizes</p>
-                <p className="font-semibold">{Array.isArray(template.defaultPrintSizes) ? template.defaultPrintSizes.length : 0} options</p>
+                <p className="font-semibold">{Array.isArray((template as any).defaultPrintSizes) ? (template as any).defaultPrintSizes.length : 1} options</p>
               </div>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>

@@ -60,7 +60,7 @@ export function ReferralProgram() {
               <div>
                 <p className="text-gray-400 text-sm">Total Rewards</p>
                 <p className="text-3xl font-bold text-white">
-                  R{parseFloat(referralStats?.totalRewardValue || '0').toFixed(2)}
+                  R{parseFloat(String(referralStats?.totalRewardValue) || '0').toFixed(2)}
                 </p>
               </div>
               <Gift className="w-10 h-10 text-green-500 opacity-50" />

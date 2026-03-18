@@ -270,11 +270,11 @@ export function AdminChatPanel() {
               <div className="flex justify-center items-center h-32">
                 <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
               </div>
-            ) : messagesQuery.data?.messages && messagesQuery.data.messages.length > 0 ? (
+            ) : (messagesQuery.data as any)?.messages && (messagesQuery.data as any).messages.length > 0 ? (
               <>
-                {messagesQuery.data.messages.map((msg) => {
+                {(messagesQuery.data as any).messages.map((msg: any) => {
                   const msgAttachments = attachmentsQuery.data?.filter(
-                    (att) => att.messageId === msg.id
+                    (att: any) => att.messageId === msg.id
                   ) || [];
                   return (
                     <div
@@ -296,7 +296,7 @@ export function AdminChatPanel() {
                         <p className="text-sm">{msg.message}</p>
                         {msgAttachments.length > 0 && (
                           <div className="mt-2 space-y-1">
-                            {msgAttachments.map((att) => (
+                            {msgAttachments.map((att: any) => (
                               <div
                                 key={att.id}
                                 className="flex items-center justify-between gap-2 text-xs bg-black/20 p-1 rounded"

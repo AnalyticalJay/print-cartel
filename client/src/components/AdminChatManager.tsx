@@ -195,8 +195,8 @@ export function AdminChatManager() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {conversationHistory?.messages && conversationHistory.messages.length > 0 ? (
-                conversationHistory.messages.map((msg) => (
+              {(conversationHistory as any)?.messages && (conversationHistory as any).messages.length > 0 ? (
+                (conversationHistory as any).messages.map((msg: any) => (
                   <div
                     key={msg.id}
                     className={`flex ${msg.senderType === 'admin' ? 'justify-end' : 'justify-start'}`}

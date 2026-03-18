@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { db as drizzleDb } from "../drizzle/client";
-import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue } from "../drizzle/schema";
+import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue, products } from "../drizzle/schema";
 import type { InsertUser, InsertOrder, InsertOrderPrint, InsertOrderLineItem, DesignTemplate, ResellerInquiry } from "../drizzle/schema";
 
 export async function getDb() {
@@ -16,7 +16,7 @@ export async function getDb() {
 export async function getAllProducts() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(orders);
+  return await db.select().from(products);
 }
 
 export async function getProductById(productId: number) {
@@ -313,7 +313,13 @@ export async function getAllPrintOptions() {
 }
 
 export async function getAllPrintPlacements() {
-  return [];
+  // Return mock placement data with placementName property
+  return [
+    { id: 1, placementName: "Front Center", description: "Center front of garment" },
+    { id: 2, placementName: "Back Center", description: "Center back of garment" },
+    { id: 3, placementName: "Left Sleeve", description: "Left sleeve" },
+    { id: 4, placementName: "Right Sleeve", description: "Right sleeve" },
+  ];
 }
 
 // Chat functions

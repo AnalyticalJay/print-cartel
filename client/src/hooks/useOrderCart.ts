@@ -9,6 +9,15 @@ export interface CartLineItem {
   placementId: number;
   printSizeId: number;
   unitPrice: number;
+  subtotal?: number;
+  printSelections?: Array<{
+    placementId: number;
+    printSizeId: number;
+    designFile?: File;
+    designFileName?: string;
+    uploadedFilePath?: string;
+    uploadedFileName?: string;
+  }>;
   productName?: string;
   colorName?: string;
   sizeName?: string;

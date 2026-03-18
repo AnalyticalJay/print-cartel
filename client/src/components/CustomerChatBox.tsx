@@ -209,9 +209,9 @@ export function CustomerChatBox({
           </div>
         ) : messagesQuery.data && messagesQuery.data.length > 0 ? (
           <>
-            {messagesQuery.data.map((msg) => {
+            {messagesQuery.data.map((msg: any) => {
               const msgAttachments = attachmentsQuery.data?.filter(
-                (att) => att.messageId === msg.id
+                (att: any) => att.messageId === msg.id
               ) || [];
               return (
                 <div key={msg.id} className={`flex ${msg.senderType === "user" ? "justify-end" : "justify-start"}`}>
@@ -225,7 +225,7 @@ export function CustomerChatBox({
                     <p className="text-sm">{msg.message}</p>
                     {msgAttachments.length > 0 && (
                       <div className="mt-2 space-y-1">
-                        {msgAttachments.map((att) => (
+                        {msgAttachments.map((att: any) => (
                           <a
                             key={att.id}
                             href={att.fileUrl}

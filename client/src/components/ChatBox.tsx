@@ -71,12 +71,13 @@ export function ChatBox({ conversationId, onConversationCreated, onUnreadCountCh
         visitorEmail,
         subject,
       });
+      if (!newId) throw new Error('Failed to create conversation');
       onConversationCreated(newId);
       setShowForm(false);
       
       // Send initial message
       await sendMessageMutation.mutateAsync({
-        conversationId: newId,
+        conversationId: newId || 0,
         message: `Hi! I'm ${visitorName} and I have a question about: ${subject}`,
         senderType: 'visitor',
       });

@@ -261,7 +261,7 @@ export default function OrderWizard() {
           colorId: item.colorId,
           sizeId: item.sizeId,
           quantity: item.quantity,
-          printSelections: item.printSelections.map(p => ({
+          printSelections: (item.printSelections || []).map((p: any) => ({
             placementId: p.placementId,
             printSizeId: p.printSizeId,
             uploadedFilePath: p.uploadedFilePath || "",
@@ -269,7 +269,7 @@ export default function OrderWizard() {
             fileSize: p.designFile?.size,
             mimeType: p.designFile?.type,
           })),
-          subtotal: item.subtotal,
+          subtotal: item.subtotal || (item.unitPrice * item.quantity),
         }));
 
         await createMultiItemMutation.mutateAsync({
