@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { db as drizzleDb } from "../drizzle/client";
 import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue, products, printPlacements, printOptions } from "../drizzle/schema";
 import type { InsertUser, InsertOrder, InsertOrderPrint, InsertOrderLineItem, DesignTemplate, ResellerInquiry } from "../drizzle/schema";
@@ -585,7 +585,33 @@ export async function deleteGangSheet(gangSheetId: number) {
 export async function getProductionQueueByStatus(status: string) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(productionQueue).where(eq(productionQueue.status, status as any));
+  
+  const result = await db
+    .select({
+      id: productionQueue.id,
+      orderId: productionQueue.orderId,
+      status: productionQueue.status,
+      priority: productionQueue.priority,
+      estimatedCompletionDate: productionQueue.estimatedCompletionDate,
+      productionNotes: productionQueue.productionNotes,
+      assignedToAdminId: productionQueue.assignedToAdminId,
+      createdAt: productionQueue.createdAt,
+      updatedAt: productionQueue.updatedAt,
+      customerFirstName: orders.customerFirstName,
+      customerLastName: orders.customerLastName,
+      customerEmail: orders.customerEmail,
+      quantity: orders.quantity,
+      totalPriceEstimate: orders.totalPriceEstimate,
+      productName: products.name,
+      productId: products.id,
+    })
+    .from(productionQueue)
+    .innerJoin(orders, eq(productionQueue.orderId, orders.id))
+    .innerJoin(products, eq(orders.productId, products.id))
+    .where(eq(productionQueue.status, status as any))
+    .orderBy(desc(productionQueue.createdAt));
+  
+  return result;
 }
 
 export async function updateProductionQueueStatus(queueId: number, status: string, notes?: string) {

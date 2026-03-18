@@ -1135,3 +1135,14 @@ Future enhancements (Phase 2):
 - [x] Implement polling for real-time updates (5-second auto-refresh)
 - [x] Integrate tracking into Track Order page and customer dashboard
 - [x] Write tests for real-time tracking functionality
+
+
+## Current Task - Fix Production Kanban Board
+- [x] Identify issue: Production queue data missing order and product details
+- [x] Update getProductionQueueByStatus function to join with orders and products tables
+- [x] Enhance ProductionKanban component to display customer and product information
+- [x] Update Order interface to include productName and other fields from joined query
+- [x] Write comprehensive tests for production queue functions (6 tests passing)
+- [x] Verify all backend endpoints return proper data structure
+- [x] Test Kanban board displays orders with customer names and product details
+- [x] Confirm drag-and-drop status updates work with new data structure

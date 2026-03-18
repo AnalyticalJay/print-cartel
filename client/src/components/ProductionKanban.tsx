@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
-import { AlertCircle, Clock, CheckCircle2, Zap } from 'lucide-react';
+import { AlertCircle, Clock, CheckCircle2, Zap, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface KanbanColumn {
@@ -25,11 +25,22 @@ const columns: KanbanColumn[] = [
 
 interface Order {
   id: number;
-  orderId: number;
+  orderId?: number;
   status: string;
-  priority: string;
+  priority?: string;
   estimatedCompletionDate?: string;
   productionNotes?: string;
+  customerFirstName?: string;
+  customerLastName?: string;
+  customerEmail?: string;
+  quantity?: number;
+  totalPriceEstimate?: number;
+  product?: { name: string };
+  productName?: string;
+  productId?: number;
+  assignedToAdminId?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export function ProductionKanban() {
@@ -159,11 +170,14 @@ export function ProductionKanban() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-white font-semibold text-sm">Order #{order.orderId}</p>
-                      <p className="text-xs text-gray-300 truncate">Queue ID: {order.id}</p>
+                      <p className="text-xs text-gray-300 truncate">{order.customerFirstName} {order.customerLastName}</p>
+                      <p className="text-xs text-gray-400 truncate">{order.productName || 'Product'}</p>
                     </div>
-                    <Badge className={getPriorityColor(order.priority)}>
-                      {order.priority}
-                    </Badge>
+                    {order.priority && (
+                      <Badge className={getPriorityColor(order.priority)}>
+                        {order.priority}
+                      </Badge>
+                    )}
                   </div>
 
                   {order.estimatedCompletionDate && (
@@ -193,18 +207,36 @@ export function ProductionKanban() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-400">Queue ID</p>
-                <p className="text-white font-semibold">{selectedOrder.id}</p>
+                <p className="text-sm text-gray-400">Customer</p>
+                <p className="text-white font-semibold">{selectedOrder.customerFirstName} {selectedOrder.customerLastName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Email</p>
+                <p className="text-white font-semibold text-sm">{selectedOrder.customerEmail}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Product</p>
+                <p className="text-white font-semibold">{selectedOrder.productName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Quantity</p>
+                <p className="text-white font-semibold">{selectedOrder.quantity}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-400">Current Status</p>
                 <p className="text-white font-semibold capitalize">{selectedOrder.status}</p>
               </div>
               <div>
+                <p className="text-sm text-gray-400">Total Price</p>
+                <p className="text-white font-semibold">R{selectedOrder.totalPriceEstimate?.toFixed(2)}</p>
+              </div>
+              <div>
                 <p className="text-sm text-gray-400">Priority</p>
-                <Badge className={getPriorityColor(selectedOrder.priority)}>
-                  {selectedOrder.priority}
-                </Badge>
+                {selectedOrder.priority && (
+                  <Badge className={getPriorityColor(selectedOrder.priority)}>
+                    {selectedOrder.priority}
+                  </Badge>
+                )}
               </div>
               <div>
                 <p className="text-sm text-gray-400">Estimated Completion</p>
