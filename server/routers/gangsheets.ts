@@ -59,8 +59,8 @@ export const gangSheets = router({
         quantity: input.quantity,
         status: "draft",
       });
-      const gangSheet = await getGangSheetById(gangSheetId);
-      return gangSheet || { id: gangSheetId };
+      const gangSheet = await getGangSheetById(gangSheetId || 0);
+      return gangSheet || { id: gangSheetId || 0 };
     }),
 
   getById: protectedProcedure

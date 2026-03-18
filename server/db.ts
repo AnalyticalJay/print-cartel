@@ -169,7 +169,8 @@ export async function createOrderStatusUpdateMessage(conversationId: number, ord
   if (!db) throw new Error("Database not available");
   const result = await db.insert(chatMessages).values({
     conversationId,
-    senderType: "system",
+    senderId: 0,
+    senderType: "admin",
     messageType: "status_update",
     message: `Order status updated from ${previousStatus} to ${newStatus}`,
     metadata: JSON.stringify({ orderId, previousStatus, newStatus }),
@@ -260,7 +261,7 @@ export async function getTemplateCategories() {
   if (!db) return [];
   // Get distinct categories from designTemplates
   const templates = await db.select({ category: designTemplates.category }).from(designTemplates);
-  return [...new Set(templates.map(t => t.category))];
+  return Array.from(new Set(templates.map(t => t.category)));
 }
 
 export async function incrementTemplateUsage(templateId: number) {
@@ -329,8 +330,9 @@ export async function getChatConversation(conversationId: number) {
 }
 
 export async function getChatConversationsByUserId(userId: number) {
-  // Placeholder - returns empty array
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatConversations).where(eq(chatConversations.userId, userId));
 }
 
 export async function updateChatConversationStatus(conversationId: number, status: string) {
@@ -341,23 +343,34 @@ export async function updateChatConversationStatus(conversationId: number, statu
 
 // Additional chat functions
 export async function addChatMessage(messageData: any) {
-  return null;
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.insert(chatMessages).values(messageData);
+  return result[0].insertId;
 }
 
 export async function getChatMessages(conversationId: number) {
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatMessages).where(eq(chatMessages.conversationId, conversationId)).orderBy(chatMessages.createdAt);
 }
 
 export async function markChatMessagesAsRead(conversationId: number, userId: number) {
-  return;
+  const db = await getDb();
+  if (!db) return;
+  await db.update(chatMessages).set({ isRead: 1 }).where(eq(chatMessages.conversationId, conversationId));
 }
 
 export async function getAllChatConversations() {
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatConversations).orderBy(chatConversations.updatedAt);
 }
 
 export async function getChatConversationsByOrderId(orderId: number) {
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatConversations).where(eq(chatConversations.orderId, orderId));
 }
 
 export async function linkConversationToOrder(conversationId: number, orderId: number) {
@@ -424,7 +437,7 @@ export async function createReferralProgram(userId: number, referralCode: string
   const result = await db.insert(referralProgram).values({
     userId,
     referralCode,
-    discountPercentage,
+    discountPercentage: discountPercentage.toString(),
   });
   return result[0].insertId;
 }
@@ -474,7 +487,7 @@ export async function completeReferralTracking(trackingId: number, firstOrderId:
     status: "completed",
     firstOrderId,
     firstOrderDate: new Date(),
-    rewardAmount,
+    rewardAmount: rewardAmount.toString(),
     rewardClaimedDate: new Date(),
   }).where(eq(referralTracking.id, trackingId));
 }
@@ -678,8 +691,9 @@ export async function getGangSheetById(gangSheetId: number) {
   return getGangSheet(gangSheetId);
 }
 
-export async function getUserNotifications(userId: number) {
+export async function getUserNotifications(userId: number, limit: number = 50) {
   const db = await getDb();
   if (!db) return [];
-  return getNotifications(userId);
+  const result = await db.select().from(notifications).where(eq(notifications.userId, userId)).orderBy(notifications.createdAt).limit(limit);
+  return result;
 }

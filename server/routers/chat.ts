@@ -101,8 +101,8 @@ export const chatRouter = router({
   // Mark messages as read
   markAsRead: publicProcedure
     .input(z.object({ conversationId: z.number() }))
-    .mutation(async ({ input }) => {
-      await markChatMessagesAsRead(input.conversationId);
+    .mutation(async ({ input, ctx }) => {
+      await markChatMessagesAsRead(input.conversationId, ctx.user?.id || 0);
       return { success: true };
     }),
 

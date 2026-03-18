@@ -144,12 +144,17 @@ export const ordersRouter = router({
 
     // Create line items for each cart item
     for (const item of input.cartItems) {
+      // Use the first print selection for placement and print size
+      const firstPrint = item.printSelections[0];
       await createOrderLineItem({
         orderId,
         productId: item.productId,
         colorId: item.colorId,
         sizeId: item.sizeId,
         quantity: item.quantity,
+        placementId: firstPrint.placementId,
+        printSizeId: firstPrint.printSizeId,
+        unitPrice: (item.subtotal / item.quantity).toString(),
         subtotal: item.subtotal.toString(),
       });
 
