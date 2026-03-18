@@ -1271,3 +1271,23 @@ Future enhancements (Phase 2):
 - [x] Integrate payment notifications into status update flow (admin router updated with payment emails)
 - [x] Write and run tests for payment system (10 tests passing)
 - [x] Test payment workflow with 50% deposit and full payment options (deposit_paid and paid statuses working)
+
+
+## Current Task - Debug Order Tracking and Invoice Issues
+- [ ] Investigate why order status tracking not displaying on user account page
+- [ ] Check if CustomerOrderStatusTimeline component is properly integrated
+- [ ] Verify getOrderStatusHistory endpoint is returning data
+- [ ] Debug invoice email sending when order status changes to "quoted"
+- [ ] Debug invoice email sending when order status changes to "approved"
+- [ ] Check SMTP configuration and email service connectivity
+- [ ] Test complete order workflow (create → quoted → approved → payment)
+- [ ] Verify emails are being sent and received
+
+
+## Current Task - Fix Order Status Tracking and Invoice Email Issues
+- [x] Fix order status tracking not displaying on customer account page (integrated CustomerOrderStatusTimeline into CustomerDashboard)
+- [x] Fix invoice emails not being sent when order status changes (updated admin router to send payment emails)
+- [x] Verify status change email integration (sendQuoteEmail and sendFinalInvoiceEmail now called on status changes)
+- [x] Test complete order workflow with status updates and emails (dev server running with 0 errors)
+- [x] Ensure customers receive quotes when status changes to "quoted" (quote email sends with 50% deposit option)
+- [x] Ensure customers receive invoices when status changes to "approved" (final invoice email sends with payment link)

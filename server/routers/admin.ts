@@ -173,17 +173,48 @@ export const adminRouter = router({
         // Update order status
         await db.update(orders).set({ status: input.status }).where(eq(orders.id, input.orderId));
 
-        // Send status update email to customer
+        // Send appropriate email based on status change
         try {
-          await sendStatusUpdateEmail(
-            input.orderId,
-            order.customerEmail,
-            `${order.customerFirstName} ${order.customerLastName}`,
-            input.status,
-            input.quoteAmount
-          );
+          if (input.status === "quoted" && input.quoteAmount) {
+            // Send quote email when status changes to quoted
+            const depositAmount = input.quoteAmount * 0.5;
+            const deliveryCharge = parseFloat(order.deliveryCharge || "0");
+            await sendQuoteEmail(
+              order.customerEmail,
+              `${order.customerFirstName} ${order.customerLastName}`,
+              input.orderId,
+              `INV-${input.orderId}-${Date.now()}`,
+              input.quoteAmount,
+              depositAmount,
+              deliveryCharge,
+              `${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://printcartel.co.za'}/payment/${input.orderId}`
+            );
+          } else if (input.status === "approved") {
+            // Send final invoice email when status changes to approved
+            const totalAmount = parseFloat(order.totalPriceEstimate || "0");
+            const depositAmount = totalAmount * 0.5;
+            await sendFinalInvoiceEmail(
+              order.customerEmail,
+              `${order.customerFirstName} ${order.customerLastName}`,
+              input.orderId,
+              `INV-${input.orderId}-${Date.now()}`,
+              totalAmount,
+              depositAmount,
+              totalAmount - depositAmount,
+              `${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://printcartel.co.za'}/payment/${input.orderId}`
+            );
+          } else {
+            // Send general status update email for other status changes
+            await sendStatusUpdateEmail(
+              input.orderId,
+              order.customerEmail,
+              `${order.customerFirstName} ${order.customerLastName}`,
+              input.status,
+              input.quoteAmount
+            );
+          }
         } catch (emailError) {
-          console.warn("Failed to send status update email, but order status was updated:", emailError);
+          console.warn("Failed to send email, but order status was updated:", emailError);
           // Don't fail the status update if email fails
         }
 

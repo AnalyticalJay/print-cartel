@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
+import { CustomerOrderStatusTimeline } from "@/components/CustomerOrderStatusTimeline";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -45,6 +47,24 @@ interface OrderWithPrints {
     fileSize: number | null;
     mimeType: string | null;
   }>;
+}
+
+// Component to display order status history
+function OrderStatusHistorySection({ orderId }: { orderId: number }) {
+  const statusHistoryQuery = trpc.orders.getOrderStatusHistory.useQuery(
+    { orderId },
+    { enabled: !!orderId }
+  );
+
+  return (
+    <div>
+      <h3 className="font-semibold mb-3">Order Status History</h3>
+      <CustomerOrderStatusTimeline
+        statusHistory={statusHistoryQuery.data || []}
+        isLoading={statusHistoryQuery.isLoading}
+      />
+    </div>
+  );
 }
 
 export default function CustomerDashboard() {
@@ -368,6 +388,9 @@ export default function CustomerDashboard() {
                   createdAt={selectedOrder.createdAt}
                   updatedAt={selectedOrder.updatedAt}
                 />
+
+                {/* Order Status History Timeline */}
+                <OrderStatusHistorySection orderId={selectedOrder.id} />
 
                 {/* Customer Information */}
                 <div className="grid md:grid-cols-2 gap-6">
