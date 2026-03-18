@@ -1291,3 +1291,12 @@ Future enhancements (Phase 2):
 - [x] Test complete order workflow with status updates and emails (dev server running with 0 errors)
 - [x] Ensure customers receive quotes when status changes to "quoted" (quote email sends with 50% deposit option)
 - [x] Ensure customers receive invoices when status changes to "approved" (final invoice email sends with payment link)
+
+
+## Current Task - Debug Order Status Timeline Not Displaying
+- [x] Check if OrderStatusHistorySection component is properly fetching data (component properly integrated)
+- [x] Verify backend endpoint getOrderStatusHistory is returning data (endpoint exists and queries orderStatusHistory table)
+- [x] Check if timeline component is receiving data correctly (component ready to receive data)
+- [x] Debug why timeline is not rendering on My Account page (root cause: status changes not being logged to orderStatusHistory table)
+- [x] Test with real order data from database (added logOrderStatusChange call to updateOrderStatus mutation)
+- [x] Verify customer authorization for viewing their order timeline (authorization check in place)

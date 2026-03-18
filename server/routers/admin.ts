@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
-import { getDb, getOrderStatusHistory } from "../db";
+import { getDb, getOrderStatusHistory, logOrderStatusChange } from "../db";
 import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
@@ -170,8 +170,25 @@ export const adminRouter = router({
         }
         const order = orderData[0];
 
+        // Get previous status for history logging
+        const previousStatus = order.status;
+        
         // Update order status
         await db.update(orders).set({ status: input.status }).where(eq(orders.id, input.orderId));
+        
+        // Log status change to history
+        try {
+          await logOrderStatusChange(
+            input.orderId,
+            previousStatus,
+            input.status,
+            ctx.user?.id,
+            undefined // No admin notes for now
+          );
+        } catch (historyError) {
+          console.warn("Failed to log status change to history:", historyError);
+          // Don't fail the status update if history logging fails
+        }
 
         // Send appropriate email based on status change
         try {
