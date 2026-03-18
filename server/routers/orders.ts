@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems } from "../db";
-import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } from "../_core/email";
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail } from "../_core/email";
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -89,7 +89,7 @@ export const ordersRouter = router({
 
     // Send customer confirmation email
     try {
-      await sendOrderConfirmationEmail({
+      const emailData = {
         orderId: Number(orderId),
         customerName: `${input.customerFirstName} ${input.customerLastName}`,
         customerEmail: input.customerEmail,
@@ -100,9 +100,16 @@ export const ordersRouter = router({
         status: 'pending',
         orderDate: new Date(),
         trackingUrl: `https://printcartel.co.za/track-order/${orderId}`,
-      });
+      };
+      
+      // Send to customer
+      await sendOrderConfirmationEmail(emailData);
+      
+      // Send to admin
+      const adminEmail = process.env.SMTP_FROM_EMAIL || 'admin@printcartel.com';
+      await sendNewOrderNotificationEmail(emailData, adminEmail);
     } catch (error) {
-      console.error("Failed to send order confirmation email:", error);
+      console.error("Failed to send order emails:", error);
       // Don't fail the order creation if email fails
     }
 
@@ -164,7 +171,7 @@ export const ordersRouter = router({
     // Send customer confirmation email
     try {
       const totalQuantity = input.cartItems.reduce((sum, item) => sum + item.quantity, 0);
-      await sendOrderConfirmationEmail({
+      const emailData = {
         orderId: Number(orderId),
         customerName: `${input.customerFirstName} ${input.customerLastName}`,
         customerEmail: input.customerEmail,
@@ -175,9 +182,16 @@ export const ordersRouter = router({
         status: 'pending',
         orderDate: new Date(),
         trackingUrl: `https://printcartel.co.za/track-order/${orderId}`,
-      });
+      };
+      
+      // Send to customer
+      await sendOrderConfirmationEmail(emailData);
+      
+      // Send to admin
+      const adminEmail = process.env.SMTP_FROM_EMAIL || 'admin@printcartel.com';
+      await sendNewOrderNotificationEmail(emailData, adminEmail);
     } catch (error) {
-      console.error("Failed to send order confirmation email:", error);
+      console.error("Failed to send order emails:", error);
     }
 
     return { orderId: Number(orderId), status: "pending", itemCount: input.cartItems.length };

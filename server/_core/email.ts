@@ -247,6 +247,111 @@ export async function sendOrderStatusUpdateEmail(data: StatusUpdateEmailData): P
 }
 
 /**
+ * Send new order notification email to admin
+ */
+export async function sendNewOrderNotificationEmail(data: OrderEmailData, adminEmail: string = SMTP_FROM_EMAIL): Promise<boolean> {
+  try {
+    const transporter = getTransporter();
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #FF6B35; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+            .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+            .footer { background-color: #f0f0f0; padding: 15px; border-radius: 0 0 5px 5px; text-align: center; font-size: 12px; }
+            .order-details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #FF6B35; }
+            .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+            .detail-row:last-child { border-bottom: none; }
+            .label { font-weight: bold; }
+            .button { background-color: #FF6B35; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 15px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>New Order Received</h1>
+              <p>Order #${data.orderId}</p>
+            </div>
+            <div class="content">
+              <p>A new order has been received and requires attention.</p>
+              
+              <div class="order-details">
+                <h3>Order Details</h3>
+                <div class="detail-row">
+                  <span class="label">Order ID:</span>
+                  <span>#${data.orderId}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Customer Name:</span>
+                  <span>${data.customerName}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Customer Email:</span>
+                  <span>${data.customerEmail}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Customer Phone:</span>
+                  <span>${data.customerPhone || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Product:</span>
+                  <span>${data.productName}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Quantity:</span>
+                  <span>${data.quantity}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Total Price:</span>
+                  <span>R${data.totalPrice.toFixed(2)}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Order Date:</span>
+                  <span>${new Date(data.orderDate).toLocaleDateString()} ${new Date(data.orderDate).toLocaleTimeString()}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Status:</span>
+                  <span>${data.status}</span>
+                </div>
+              </div>
+
+              <p>Please log in to the admin panel to review and process this order.</p>
+              <a href="https://printcartel.co.za/admin" class="button">View in Admin Panel</a>
+
+              <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                This is an automated notification. Please do not reply to this email.
+              </p>
+            </div>
+            <div class="footer">
+              <p>Print Cartel - Custom DTF Printing</p>
+              <p>© 2026 All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const result = await transporter.sendMail({
+      from: SMTP_FROM_EMAIL,
+      to: adminEmail,
+      subject: `New Order #${data.orderId} - ${data.customerName}`,
+      html,
+      text: `New Order Received\n\nOrder ID: #${data.orderId}\nCustomer: ${data.customerName}\nEmail: ${data.customerEmail}\nPhone: ${data.customerPhone || 'N/A'}\nProduct: ${data.productName}\nQuantity: ${data.quantity}\nTotal: R${data.totalPrice.toFixed(2)}\n\nPlease log in to the admin panel to process this order.`,
+    });
+
+    console.log(`✓ New order notification email sent to admin`, result.messageId);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending new order notification email:', error);
+    return false;
+  }
+}
+
+/**
  * Send admin notification email
  */
 export async function sendAdminNotificationEmail(
