@@ -279,4 +279,342 @@ export const adminRouter = router({
       throw new Error("Failed to get order stats");
     }
   }),
+
+  // ===== INVENTORY MANAGEMENT =====
+
+  // Get all products
+  getAllProducts: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user?.role !== "admin") {
+      throw new Error("Unauthorized: Admin access required");
+    }
+
+    const db = await getDb();
+    if (!db) {
+      throw new Error("Database not available");
+    }
+
+    try {
+      const allProducts = await db.select().from(products);
+      return allProducts.map((p) => ({
+        ...p,
+        basePrice: parseFloat(p.basePrice as any),
+      }));
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      throw new Error("Failed to fetch products");
+    }
+  }),
+
+  // Create new product
+  createProduct: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        basePrice: z.number().positive(),
+        productType: z.string().optional(),
+        fabricType: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const result = await db.insert(products).values({
+          name: input.name,
+          description: input.description || "",
+          basePrice: input.basePrice.toString(),
+          productType: input.productType || "General",
+          fabricType: input.fabricType || "",
+        });
+
+        return { success: true, message: "Product created successfully" };
+      } catch (error) {
+        console.error("Failed to create product:", error);
+        throw new Error("Failed to create product");
+      }
+    }),
+
+  // Update product
+  updateProduct: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        basePrice: z.number().positive().optional(),
+        productType: z.string().optional(),
+        fabricType: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const updateData: any = {};
+        if (input.name) updateData.name = input.name;
+        if (input.description !== undefined) updateData.description = input.description;
+        if (input.basePrice) updateData.basePrice = input.basePrice.toString();
+        if (input.productType) updateData.productType = input.productType;
+        if (input.fabricType) updateData.fabricType = input.fabricType;
+
+        await db.update(products).set(updateData).where(eq(products.id, input.id));
+
+        return { success: true, message: "Product updated successfully" };
+      } catch (error) {
+        console.error("Failed to update product:", error);
+        throw new Error("Failed to update product");
+      }
+    }),
+
+  // Delete product
+  deleteProduct: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        await db.delete(products).where(eq(products.id, input.id));
+
+        return { success: true, message: "Product deleted successfully" };
+      } catch (error) {
+        console.error("Failed to delete product:", error);
+        throw new Error("Failed to delete product");
+      }
+    }),
+
+  // Get all print options (colors and sizes)
+  getAllPrintOptions: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user?.role !== "admin") {
+      throw new Error("Unauthorized: Admin access required");
+    }
+
+    const db = await getDb();
+    if (!db) {
+      throw new Error("Database not available");
+    }
+
+    try {
+      const allOptions = await db.select().from(printOptions);
+      return allOptions;
+    } catch (error) {
+      console.error("Failed to fetch print options:", error);
+      throw new Error("Failed to fetch print options");
+    }
+  }),
+
+  // Create print option (size)
+  createPrintOption: protectedProcedure
+    .input(
+      z.object({
+        printSize: z.string().min(1),
+        additionalPrice: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        await db.insert(printOptions).values({
+          printSize: input.printSize,
+          additionalPrice: input.additionalPrice.toString(),
+        });
+
+        return { success: true, message: "Print option created successfully" };
+      } catch (error) {
+        console.error("Failed to create print option:", error);
+        throw new Error("Failed to create print option");
+      }
+    }),
+
+  // Update print option
+  updatePrintOption: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        printSize: z.string().min(1).optional(),
+        additionalPrice: z.number().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const updateData: any = {};
+        if (input.printSize) updateData.printSize = input.printSize;
+        if (input.additionalPrice !== undefined) updateData.additionalPrice = input.additionalPrice.toString();
+
+        await db.update(printOptions).set(updateData).where(eq(printOptions.id, input.id));
+
+        return { success: true, message: "Print option updated successfully" };
+      } catch (error) {
+        console.error("Failed to update print option:", error);
+        throw new Error("Failed to update print option");
+      }
+    }),
+
+  // Delete print option
+  deletePrintOption: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        await db.delete(printOptions).where(eq(printOptions.id, input.id));
+
+        return { success: true, message: "Print option deleted successfully" };
+      } catch (error) {
+        console.error("Failed to delete print option:", error);
+        throw new Error("Failed to delete print option");
+      }
+    }),
+
+  // Get all print placements
+  getAllPrintPlacements: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user?.role !== "admin") {
+      throw new Error("Unauthorized: Admin access required");
+    }
+
+    const db = await getDb();
+    if (!db) {
+      throw new Error("Database not available");
+    }
+
+    try {
+      const allPlacements = await db.select().from(printPlacements);
+      return allPlacements;
+    } catch (error) {
+      console.error("Failed to fetch print placements:", error);
+      throw new Error("Failed to fetch print placements");
+    }
+  }),
+
+  // Create print placement
+  createPrintPlacement: protectedProcedure
+    .input(
+      z.object({
+        placementName: z.string().min(1),
+        positionCoordinates: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        await db.insert(printPlacements).values({
+          placementName: input.placementName,
+          positionCoordinates: input.positionCoordinates || null,
+        });
+
+        return { success: true, message: "Print placement created successfully" };
+      } catch (error) {
+        console.error("Failed to create print placement:", error);
+        throw new Error("Failed to create print placement");
+      }
+    }),
+
+  // Update print placement
+  updatePrintPlacement: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        placementName: z.string().min(1).optional(),
+        positionCoordinates: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const updateData: any = {};
+        if (input.placementName) updateData.placementName = input.placementName;
+        if (input.positionCoordinates !== undefined) updateData.positionCoordinates = input.positionCoordinates;
+
+        await db.update(printPlacements).set(updateData).where(eq(printPlacements.id, input.id));
+
+        return { success: true, message: "Print placement updated successfully" };
+      } catch (error) {
+        console.error("Failed to update print placement:", error);
+        throw new Error("Failed to update print placement");
+      }
+    }),
+
+  // Delete print placement
+  deletePrintPlacement: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        await db.delete(printPlacements).where(eq(printPlacements.id, input.id));
+
+        return { success: true, message: "Print placement deleted successfully" };
+      } catch (error) {
+        console.error("Failed to delete print placement:", error);
+        throw new Error("Failed to delete print placement");
+      }
+    }),
 });

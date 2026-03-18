@@ -16,6 +16,7 @@ import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
+import { AdminInventoryManager } from "@/components/AdminInventoryManager";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -201,7 +202,7 @@ export default function AccountDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs Navigation */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800 border border-gray-700">
+          <TabsList className={`grid w-full ${user?.role === 'admin' ? 'grid-cols-5' : 'grid-cols-4'} bg-gray-800 border border-gray-700`}>
             <TabsTrigger value="orders" className="text-gray-300 data-[state=active]:text-white">
               <Eye className="w-4 h-4 mr-2" />
               Orders
@@ -218,6 +219,12 @@ export default function AccountDashboard() {
               <Bell className="w-4 h-4 mr-2" />
               Referral
             </TabsTrigger>
+            {user?.role === 'admin' && (
+              <TabsTrigger value="inventory" className="text-gray-300 data-[state=active]:text-white">
+                <Settings className="w-4 h-4 mr-2" />
+                Inventory
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Orders Tab */}
@@ -410,6 +417,16 @@ export default function AccountDashboard() {
               <ReferralProgram />
             </div>
           </TabsContent>
+
+          {/* Inventory Tab (Admin Only) */}
+          {user?.role === 'admin' && (
+            <TabsContent value="inventory" className="space-y-6 mt-6">
+              <div>
+                <h2 className="text-3xl font-bold mb-6">Inventory Management</h2>
+                <AdminInventoryManager />
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
