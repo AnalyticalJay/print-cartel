@@ -498,3 +498,95 @@ export async function sendOrderMilestoneEmail(
     return false;
   }
 }
+
+/**
+ * Send order ready for collection email to customer
+ */
+export async function sendOrderReadyForCollectionEmail(
+  customerEmail: string,
+  customerName: string,
+  orderId: number,
+  collectionLocation: string = 'Print Cartel Office',
+  collectionInstructions?: string
+): Promise<boolean> {
+  try {
+    const transporter = getTransporter();
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #20B2AA 0%, #17a2a2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .ready-icon { font-size: 48px; margin: 20px 0; }
+            .ready-message { font-size: 18px; font-weight: bold; color: #20B2AA; margin: 20px 0; }
+            .details { background: white; padding: 15px; border-left: 4px solid #20B2AA; margin: 20px 0; }
+            .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+            .detail-row:last-child { border-bottom: none; }
+            .instructions { background: #e8f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+            .cta-button { display: inline-block; background: #20B2AA; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .important { color: #FF6B35; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Your Order is Ready!</h1>
+            </div>
+            <div class="content">
+              <p>Hi ${customerName},</p>
+              <div class="ready-icon">✅</div>
+              <div class="ready-message">Your order is ready for collection!</div>
+              <div class="details">
+                <div class="detail-row">
+                  <span><strong>Order ID:</strong></span>
+                  <span>#${orderId}</span>
+                </div>
+                <div class="detail-row">
+                  <span><strong>Collection Location:</strong></span>
+                  <span>${collectionLocation}</span>
+                </div>
+              </div>
+              
+              ${collectionInstructions ? `
+              <div class="instructions">
+                <h3 style="margin-top: 0; color: #20B2AA;">Collection Instructions</h3>
+                <p>${collectionInstructions}</p>
+              </div>
+              ` : ''}
+
+              <p><span class="important">⏰ Important:</span> Please collect your order within 7 days. After this period, we may need to store it differently.</p>
+              
+              <p>Thank you for your order! If you have any questions about collection, please contact us.</p>
+              
+              <a href="https://printcartel.co.za/dashboard" class="cta-button">View Order Details</a>
+              
+              <div class="footer">
+                <p>Print Cartel - Custom DTF Printing</p>
+                <p>If you have any questions, please contact us at support@printcartel.co.za or call us directly.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const result = await transporter.sendMail({
+      from: SMTP_FROM_EMAIL,
+      to: customerEmail,
+      subject: `✅ Your Order #${orderId} is Ready for Collection!`,
+      html,
+      text: `Your order is ready for collection!\n\nOrder ID: #${orderId}\nCollection Location: ${collectionLocation}\n\n${collectionInstructions ? `Collection Instructions:\n${collectionInstructions}\n\n` : ''}Please collect your order within 7 days.\n\nView your order at: https://printcartel.co.za/dashboard`,
+    });
+
+    console.log(`✓ Ready for collection email sent to ${customerEmail}`, result.messageId);
+    return true;
+  } catch (error) {
+    console.error(`❌ Error sending ready for collection email: ${error}`);
+    return false;
+  }
+}

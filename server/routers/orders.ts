@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems } from "../db";
-import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail } from "../_core/email";
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -272,6 +272,21 @@ export const ordersRouter = router({
           );
         } catch (error) {
           console.error('Failed to send milestone email:', error);
+        }
+      }
+
+      // Send ready for collection email if order is ready for collection
+      if (input.newStatus === 'completed' && (order as any).deliveryMethod === 'collection') {
+        try {
+          await sendOrderReadyForCollectionEmail(
+            (order as any).customerEmail,
+            `${(order as any).customerFirstName} ${(order as any).customerLastName}`,
+            input.orderId,
+            'Print Cartel Office, South Africa',
+            'Please bring your order confirmation email or reference the order ID when collecting your order.'
+          );
+        } catch (error) {
+          console.error('Failed to send ready for collection email:', error);
         }
       }
 
