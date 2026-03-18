@@ -112,6 +112,23 @@ export default function OrderTracking() {
     }
   };
 
+  const colorMap: Record<number, { name: string; hex: string }> = {
+    1: { name: "Black", hex: "#000000" },
+    2: { name: "White", hex: "#FFFFFF" },
+    3: { name: "Red", hex: "#FF0000" },
+    4: { name: "Blue", hex: "#0000FF" },
+    5: { name: "Green", hex: "#00AA00" },
+    6: { name: "Yellow", hex: "#FFFF00" },
+  };
+
+  const getColorNameForId = (colorId: number): string => {
+    return colorMap[colorId]?.name || `Color ${colorId}`;
+  };
+
+  const getColorForId = (colorId: number): string => {
+    return colorMap[colorId]?.hex || "#808080";
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 md:p-8">
       {/* Push Notification Prompt */}
@@ -236,35 +253,52 @@ export default function OrderTracking() {
                         R{parseFloat(selectedOrder.totalPriceEstimate).toFixed(2)}
                       </p>
                     </div>
+                    <div>
+                      <p className="text-gray-400">Garment Color</p>
+                      <p className="text-white flex items-center gap-2">
+                        <span
+                          className="w-4 h-4 rounded-full border border-gray-400"
+                          style={{
+                            backgroundColor: getColorForId(selectedOrder.colorId),
+                          }}
+                        />
+                        {getColorNameForId(selectedOrder.colorId)}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Print Files */}
+                {/* Artwork Files */}
                 {selectedOrder.prints && selectedOrder.prints.length > 0 && (
                   <div>
-                    <h3 className="text-white font-semibold mb-3">Design Files</h3>
+                    <h3 className="text-white font-semibold mb-3">Artwork Files</h3>
                     <div className="space-y-2">
                       {selectedOrder.prints.map((print, index) => (
                         <div
                           key={print.id}
-                          className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
+                          className="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
                         >
                           <div className="flex-1">
                             <p className="text-white text-sm font-medium">{print.uploadedFileName}</p>
-                            {print.fileSize && (
-                              <p className="text-gray-400 text-xs">
-                                {(print.fileSize / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            )}
+                            <div className="flex gap-4 mt-1 text-xs text-gray-400">
+                              {print.fileSize && (
+                                <span>{(print.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                              )}
+                              {print.mimeType && <span>{print.mimeType}</span>}
+                            </div>
                           </div>
-                          <a
-                            href={print.uploadedFilePath}
-                            download
-                            className="ml-2 p-2 hover:bg-gray-600 rounded transition"
-                            title="Download file"
+                          <Button
+                            asChild
+                            variant="ghost"
+                            size="sm"
+                            className="ml-2 text-white hover:text-orange-500"
+                            title="Download artwork file"
                           >
-                            <Download className="w-4 h-4 text-white" />
-                          </a>
+                            <a href={print.uploadedFilePath} download>
+                              <Download className="w-4 h-4" />
+                              <span className="ml-1 hidden sm:inline">Download</span>
+                            </a>
+                          </Button>
                         </div>
                       ))}
                     </div>
