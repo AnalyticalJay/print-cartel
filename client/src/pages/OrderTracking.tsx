@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download, Eye } from "lucide-react";
+import { Download, Eye, CheckCircle2, Clock, AlertCircle, Truck, Package } from "lucide-react";
 import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
+import { OrderStatusTimeline } from "@/components/OrderStatusTimeline";
 
 interface OrderWithPrints {
   id: number;
@@ -25,6 +26,7 @@ interface OrderWithPrints {
   status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
   createdAt: Date;
   updatedAt: Date;
+  estimatedDelivery?: Date;
   prints: Array<{
     id: number;
     orderId: number;
@@ -41,10 +43,14 @@ export default function OrderTracking() {
   const [email, setEmail] = useState("");
   const [searchedEmail, setSearchedEmail] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const ordersQuery = trpc.orders.getByEmail.useQuery(
     { email: searchedEmail },
-    { enabled: !!searchedEmail }
+    {
+      enabled: !!searchedEmail,
+      refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
+    }
   );
 
   const handleSearch = (e: React.FormEvent) => {
@@ -244,42 +250,12 @@ export default function OrderTracking() {
 
                 {/* Status Timeline */}
                 <div>
-                  <h3 className="text-white font-semibold mb-3">Status Timeline</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <div>
-                        <p className="text-white text-sm font-medium">Order Received</p>
-                        <p className="text-gray-400 text-xs">
-                          {new Date(selectedOrder.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-
-                    {selectedOrder.status !== "pending" && (
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <div>
-                          <p className="text-white text-sm font-medium">
-                            {selectedOrder.status === "quoted" ? "Quote Sent" : "Approved"}
-                          </p>
-                          <p className="text-gray-400 text-xs">
-                            {new Date(selectedOrder.updatedAt).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedOrder.status === "approved" && (
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <div>
-                          <p className="text-white text-sm font-medium">Order Approved</p>
-                          <p className="text-gray-400 text-xs">Ready for production</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <h3 className="text-white font-semibold mb-3">Production Timeline</h3>
+                  <OrderStatusTimeline
+                    statuses={[]}
+                    currentStatus={selectedOrder.status}
+                    estimatedDelivery={selectedOrder.estimatedDelivery}
+                  />
                 </div>
 
                 {/* Info Message */}
@@ -303,7 +279,10 @@ export default function OrderTracking() {
               Found {ordersQuery.data.length} order(s) for {searchedEmail}
             </p>
             {ordersQuery.data.map((order) => (
-              <Card key={order.id} className="bg-gray-800 border-gray-700 hover:border-gray-600 transition cursor-pointer">
+              <Card
+                key={order.id}
+                className="bg-gray-800 border-gray-700 hover:border-gray-600 transition cursor-pointer"
+              >
                 <CardContent className="pt-6">
                   <div
                     onClick={() => setSelectedOrder(order)}
