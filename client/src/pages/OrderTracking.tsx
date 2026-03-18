@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Download, Eye, CheckCircle2, Clock, AlertCircle, Truck, Package } from "lucide-react";
 import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 import { OrderStatusTimeline } from "@/components/OrderStatusTimeline";
+import { CustomerOrderStatusTimeline } from "@/components/CustomerOrderStatusTimeline";
 import { PushNotificationPrompt } from "@/components/PushNotificationPrompt";
 import { sendOrderStatusNotification } from "@/lib/pushNotifications";
 
@@ -48,6 +49,12 @@ export default function OrderTracking() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [previousStatuses, setPreviousStatuses] = useState<Record<number, string>>({});
   const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+
+  // Get status history for selected order
+  const statusHistoryQuery = trpc.orders.getOrderStatusHistory.useQuery(
+    { orderId: selectedOrder?.id || 0 },
+    { enabled: !!selectedOrder?.id }
+  );
 
   const ordersQuery = trpc.orders.getByEmail.useQuery(
     { email: searchedEmail },
@@ -317,10 +324,10 @@ export default function OrderTracking() {
 
                 {/* Status Timeline */}
                 <div>
-                  <h3 className="text-white font-semibold mb-3">Production Timeline</h3>
-                  <OrderStatusTimeline
-                    statuses={[]}
-                    currentStatus={selectedOrder.status}
+                  <h3 className="text-white font-semibold mb-3">Order Status History</h3>
+                  <CustomerOrderStatusTimeline
+                    statusHistory={statusHistoryQuery.data || []}
+                    isLoading={statusHistoryQuery.isLoading}
                     estimatedDelivery={selectedOrder.estimatedDelivery}
                   />
                 </div>

@@ -1236,3 +1236,12 @@ Future enhancements (Phase 2):
 - [x] Display status change history with timestamps (timeline shows formatted dates)
 - [x] Show admin notes for each status change (notes displayed in collapsible sections)
 - [x] Test timeline with multiple status changes (dev server running with 0 errors)
+
+
+## Current Task - Customer Order Status Timeline
+- [x] Create simplified CustomerOrderStatusTimeline component (created with status icons and descriptions)
+- [x] Create backend endpoint for customer to view their order status history (added to orders router with auth check)
+- [x] Integrate timeline into customer order details page (integrated into OrderTracking component)
+- [x] Display only relevant status information (no admin notes or IDs) (component shows only status, timestamp, and description)
+- [x] Add estimated delivery date if available (displayed in info box below timeline)
+- [x] Test customer timeline display with real orders (dev server running with 0 errors)

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
-import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems } from "../db";
+import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
 
 const CreateOrderInput = z.object({
@@ -320,4 +320,28 @@ export const ordersRouter = router({
     );
     return ordersWithPrints.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }),
+
+  // Get order status history for customer (simplified view)
+  getOrderStatusHistory: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      if (!ctx.user?.email) {
+        throw new Error("User email not found");
+      }
+
+      try {
+        // Verify the order belongs to the current user
+        const order = await getOrderById(input.orderId);
+        if (!order || order.customerEmail !== ctx.user.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        // Get status history
+        const history = await getOrderStatusHistory(input.orderId);
+        return history;
+      } catch (error) {
+        console.error("Failed to fetch order status history:", error);
+        throw new Error("Failed to fetch order status history");
+      }
+    }),
 });
