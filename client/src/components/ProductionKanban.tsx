@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { trpc } from '@/lib/trpc';
 import { AlertCircle, Clock, CheckCircle2, Zap, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { useInAppNotification } from '@/hooks/useInAppNotification';
 
 interface KanbanColumn {
   id: string;
@@ -48,11 +49,17 @@ export function ProductionKanban() {
   const [draggedItem, setDraggedItem] = useState<{ item: Order; sourceColumn: string } | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [newStatus, setNewStatus] = useState<string>('');
+  const { notifySuccess } = useInAppNotification();
 
   const { data: boardData, isLoading, refetch } = trpc.production.getKanbanBoard.useQuery();
   const updateStatusMutation = trpc.production.updateOrderStatus.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success('Order status updated');
+      notifySuccess(
+        'Order Status Updated',
+        `Order status changed to ${variables.status}`,
+        { sound: true }
+      );
       refetch();
     },
     onError: (error) => {

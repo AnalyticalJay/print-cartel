@@ -4,12 +4,14 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import { ChatWidget } from "./components/ChatWidget";
 import Home from "./pages/Home";
 import OrderWizard from "./pages/OrderWizard";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderTracking from "./pages/OrderTracking";
 import AccountDashboard from "./pages/AccountDashboard";
+import NotificationSettings from "./pages/NotificationSettings";
 import Reseller from "./pages/Reseller";
 import ResellersManagement from "./pages/ResellersManagement";
 import GangSheetPage from "./pages/GangSheetPage";
@@ -26,6 +28,7 @@ function Router() {
       <Route path={"/track"} component={OrderTracking} />
       <Route path={"/dashboard"} component={AccountDashboard} />
       <Route path={"/profile"} component={AccountDashboard} />
+      <Route path={"/notification-settings"} component={NotificationSettings} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
@@ -46,11 +49,13 @@ function App() {
         defaultTheme="light"
         // switchable
       >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-          <ChatWidget />
-        </TooltipProvider>
+        <NotificationProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+            <ChatWidget />
+          </TooltipProvider>
+        </NotificationProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
