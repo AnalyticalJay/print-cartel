@@ -1,7 +1,12 @@
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { getDb } from "../db";
+import { orders } from "../../drizzle/schema";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory, approveQuote, rejectQuote } from "../db";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
+import { generateAndUploadInvoice } from "../invoice-generator";
+import { sendInvoiceEmail, sendInvoiceNotificationToAdmin } from "../invoice-email";
 import { sendQuoteApprovedEmail, sendQuoteRejectedEmail } from "../quote-action-emails";
 
 const CreateOrderInput = z.object({
@@ -92,26 +97,32 @@ export const ordersRouter = router({
 
         // Send confirmation email
         try {
-          await sendOrderConfirmationEmail(
-            input.customerEmail,
-            input.customerFirstName,
+          await sendOrderConfirmationEmail({
             orderId,
-            input.quantity,
-            input.totalPriceEstimate
-          );
+            customerName: input.customerFirstName,
+            customerEmail: input.customerEmail,
+            productName: "Custom DTF Print Order",
+            quantity: input.quantity,
+            totalPrice: parseFloat(input.totalPriceEstimate),
+            status: "pending",
+            orderDate: new Date(),
+          });
         } catch (error) {
           console.error("Failed to send confirmation email:", error);
         }
 
         // Notify admin
         try {
-          await sendNewOrderNotificationEmail(
-            input.customerEmail,
-            input.customerFirstName,
+          await sendNewOrderNotificationEmail({
             orderId,
-            input.quantity,
-            input.totalPriceEstimate
-          );
+            customerName: input.customerFirstName,
+            customerEmail: input.customerEmail,
+            productName: "Custom DTF Print Order",
+            quantity: input.quantity,
+            totalPrice: parseFloat(input.totalPriceEstimate),
+            status: "pending",
+            orderDate: new Date(),
+          });
         } catch (error) {
           console.error("Failed to send admin notification:", error);
         }
@@ -152,20 +163,14 @@ export const ordersRouter = router({
             colorId: cartItem.colorId,
             sizeId: cartItem.sizeId,
             quantity: cartItem.quantity,
+            placementId: cartItem.printSelections[0]?.placementId || 1,
+            printSizeId: cartItem.printSelections[0]?.printSizeId || 1,
+            unitPrice: (parseFloat(cartItem.subtotal) / cartItem.quantity).toString(),
             subtotal: cartItem.subtotal.toString(),
           });
 
-          for (const print of cartItem.printSelections) {
-            await createOrderPrint({
-              orderId,
-              printSizeId: print.printSizeId,
-              placementId: print.placementId,
-              uploadedFilePath: print.uploadedFilePath,
-              uploadedFileName: print.uploadedFileName,
-              fileSize: print.fileSize,
-              mimeType: print.mimeType,
-            });
-          }
+          // Print selections are now stored in line items
+          // Keep this for backward compatibility if needed
         }
 
         // Send confirmation email
@@ -229,7 +234,51 @@ export const ordersRouter = router({
       }
 
       try {
+        const order = await getOrderById(input.orderId);
+        if (!order) {
+          throw new Error("Order not found");
+        }
+
         await updateOrderStatus(input.orderId, input.status, ctx.user.id, input.adminNotes);
+
+        // Generate and send invoice when status changes to "quoted"
+        if (input.status === "quoted") {
+          try {
+            const invoiceNumber = `INV-${input.orderId}-${Date.now()}`;
+            const invoiceUrl = await generateAndUploadInvoice({
+              orderId: input.orderId,
+              invoiceNumber,
+              totalPrice: parseFloat(order.totalPriceEstimate),
+              depositAmount: order.depositAmount ? parseFloat(order.depositAmount) : undefined,
+              paymentMethod: order.paymentMethod || undefined,
+            });
+
+            // Send invoice email to customer
+            await sendInvoiceEmail({
+              orderId: input.orderId,
+              customerEmail: order.customerEmail,
+              customerName: `${order.customerFirstName} ${order.customerLastName}`,
+              totalPrice: parseFloat(order.totalPriceEstimate),
+              depositAmount: order.depositAmount ? parseFloat(order.depositAmount) : undefined,
+              paymentMethod: order.paymentMethod || undefined,
+              invoicePdfUrl: invoiceUrl,
+            });
+
+            // Notify admin
+            await sendInvoiceNotificationToAdmin({
+              orderId: input.orderId,
+              customerEmail: order.customerEmail,
+              customerName: `${order.customerFirstName} ${order.customerLastName}`,
+              totalPrice: parseFloat(order.totalPriceEstimate),
+              depositAmount: order.depositAmount ? parseFloat(order.depositAmount) : undefined,
+              paymentMethod: order.paymentMethod || undefined,
+            });
+          } catch (invoiceError) {
+            console.error("Failed to generate or send invoice:", invoiceError);
+            // Don't throw - status update was successful, just log the invoice error
+          }
+        }
+
         return { success: true };
       } catch (error) {
         console.error("Failed to update order status:", error);
@@ -391,13 +440,16 @@ export const ordersRouter = router({
         await rejectQuote(input.orderId, input.reason);
 
         // Send rejection notification email
-        try {
-          await sendQuoteRejectedEmail(
-            order.customerEmail,
-            `${order.customerFirstName} ${order.customerLastName}`,
-            input.orderId,
-            input.reason
-          );
+        try {          await sendOrderMilestoneEmail({
+            orderId: input.orderId,
+            customerName: `${order.customerFirstName} ${order.customerLastName}`,
+            customerEmail: order.customerEmail,
+            productName: "Custom DTF Print Order",
+            quantity: order.quantity,
+            totalPrice: parseFloat(order.totalPriceEstimate),
+            status: input.status,
+            orderDate: order.createdAt,
+          });
         } catch (error) {
           console.error("Failed to send quote rejection email:", error);
         }
@@ -405,6 +457,104 @@ export const ordersRouter = router({
         return { success: true, message: "Quote rejected successfully" };
       } catch (error) {
         console.error("Failed to reject quote:", error);
+        throw error;
+      }
+    }),
+  // Accept invoice
+  acceptInvoice: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.email) {
+        throw new Error("User email not found");
+      }
+
+      try {
+        const order = await getOrderById(input.orderId);
+        if (!order || order.customerEmail !== ctx.user.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        if (order.status !== "quoted") {
+          throw new Error("Order is not in quoted status");
+        }
+
+        // Update order status to approved and mark invoice as accepted
+        await updateOrderStatus(input.orderId, "approved", undefined, "Invoice accepted by customer");
+
+        // Update invoice acceptance timestamp
+        const db = await getDb();
+        if (db) {
+          await db.update(orders).set({ invoiceAcceptedAt: new Date() }).where(eq(orders.id, input.orderId));
+        }
+
+        // Send confirmation email
+        try {
+          await sendOrderStatusUpdateEmail({
+            orderId: input.orderId,
+            customerName: `${order.customerFirstName} ${order.customerLastName}`,
+            customerEmail: order.customerEmail,
+            previousStatus: "quoted",
+            newStatus: "approved",
+            updateMessage: "Invoice accepted by customer",
+          });
+        } catch (error) {
+          console.error("Failed to send invoice acceptance email:", error);
+        }
+
+        return { success: true, message: "Invoice accepted successfully" };
+      } catch (error) {
+        console.error("Failed to accept invoice:", error);
+        throw error;
+      }
+    }),
+
+  // Decline invoice
+  declineInvoice: protectedProcedure
+    .input(z.object({ orderId: z.number(), reason: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.email) {
+        throw new Error("User email not found");
+      }
+
+      try {
+        const order = await getOrderById(input.orderId);
+        if (!order || order.customerEmail !== ctx.user.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        if (order.status !== "quoted") {
+          throw new Error("Order is not in quoted status");
+        }
+
+        // Update invoice decline information
+        const db = await getDb();
+        if (db) {
+          await db
+            .update(orders)
+            .set({
+              invoiceDeclinedAt: new Date(),
+              invoiceDeclineReason: input.reason,
+            })
+            .where(eq(orders.id, input.orderId));
+        }
+
+        // Send notification email to customer and admin
+        try {
+          await sendOrderStatusUpdateEmail({
+            orderId: input.orderId,
+            customerName: `${order.customerFirstName} ${order.customerLastName}`,
+            customerEmail: order.customerEmail,
+            previousStatus: "quoted",
+            newStatus: "pending",
+            updateMessage: `Invoice declined: ${input.reason}`,
+          });
+        } catch (error) {
+          console.error("Failed to send invoice decline email:", error);
+        }
+
+        return { success: true, message: "Invoice declined successfully" };
+      } catch (error) {
+        console.error("Failed to decline invoice:", error);
         throw error;
       }
     }),

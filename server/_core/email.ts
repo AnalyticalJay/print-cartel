@@ -10,7 +10,7 @@ const SMTP_FROM_EMAIL = process.env.SMTP_FROM_EMAIL || 'noreply@printcartel.com'
 // Create transporter
 let transporter: nodemailer.Transporter | null = null;
 
-function getTransporter() {
+export function getTransporter() {
   if (!transporter) {
     transporter = nodemailer.createTransport({
       host: SMTP_HOST,

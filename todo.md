@@ -1405,3 +1405,24 @@ Future enhancements (Phase 2):
 - [ ] Add order ID parameter to payment link
 - [ ] Test payment link from email
 - [ ] Verify payment page displays order details correctly
+
+
+## Current Task - Invoice Workflow
+- [ ] Add invoice fields to orders table (invoiceUrl, invoiceAcceptedAt, invoiceDeclinedAt, invoiceDeclineReason)
+- [ ] Create invoice generation function with PDF generation
+- [ ] Create invoice email template with PDF attachment
+- [ ] Add invoice accept/decline buttons to order details modal
+- [ ] Create Payment page with order and invoice details
+- [ ] Add backend procedures for invoice accept/decline
+- [ ] Send invoice email when status changes to "quoted"
+- [ ] Redirect to payment page after invoice acceptance
+- [ ] Test complete invoice workflow
+
+
+## Current Task - Invoice Generation on Quote Status
+- [x] Create invoice generation service with PDF creation
+- [x] Create invoice email template
+- [x] Trigger invoice generation when admin changes status to "quoted"
+- [x] Send invoice email to customer with PDF attachment
+- [x] Store invoice URL in order record (via S3 storage)
+- [x] Test invoice generation and email sending
