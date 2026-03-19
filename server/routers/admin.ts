@@ -792,4 +792,100 @@ export const adminRouter = router({
         throw error;
       }
     }),
+
+  getPendingPaymentProofs: protectedProcedure
+    .input(z.object({
+      search: z.string().optional(),
+      filter: z.enum(["pending", "verified", "rejected"]).optional(),
+    }))
+    .query(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const allOrders = await db.select().from(orders);
+        
+        let filtered = allOrders.filter(o => o.paymentProofUrl);
+        
+        if (input.filter) {
+          filtered = filtered.filter(o => o.paymentVerificationStatus === input.filter);
+        }
+        
+        if (input.search) {
+          const searchLower = input.search.toLowerCase();
+          filtered = filtered.filter(o => 
+            o.customerFirstName.toLowerCase().includes(searchLower) ||
+            o.customerLastName.toLowerCase().includes(searchLower) ||
+            o.customerEmail.toLowerCase().includes(searchLower)
+          );
+        }
+        
+        return filtered.sort((a, b) => {
+          const aTime = a.paymentProofUploadedAt?.getTime() || 0;
+          const bTime = b.paymentProofUploadedAt?.getTime() || 0;
+          return bTime - aTime;
+        }).slice(0, 100);
+      } catch (error) {
+        console.error("Failed to get pending payment proofs:", error);
+        throw error;
+      }
+    }),
+
+  verifyPaymentProof: protectedProcedure
+    .input(z.object({
+      orderId: z.number(),
+      notes: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        await db.update(orders).set({
+          paymentVerificationStatus: "verified",
+          paymentVerifiedAt: new Date(),
+          paymentVerificationNotes: input.notes || null,
+          paymentStatus: "paid",
+        }).where(eq(orders.id, input.orderId));
+
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to verify payment proof:", error);
+        throw error;
+      }
+    }),
+
+  rejectPaymentProof: protectedProcedure
+    .input(z.object({
+      orderId: z.number(),
+      reason: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        await db.update(orders).set({
+          paymentVerificationStatus: "rejected",
+          paymentVerificationNotes: input.reason,
+        }).where(eq(orders.id, input.orderId));
+
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to reject payment proof:", error);
+        throw error;
+      }
+    }),
 });

@@ -558,4 +558,57 @@ export const ordersRouter = router({
         throw error;
       }
     }),
+
+  uploadPaymentProof: protectedProcedure
+    .input(z.object({
+      orderId: z.number(),
+      file: z.instanceof(Uint8Array),
+      fileName: z.string(),
+      mimeType: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.email) {
+        throw new Error("User email not found");
+      }
+
+      try {
+        const order = await getOrderById(input.orderId);
+        if (!order || order.customerEmail !== ctx.user.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        const { uploadPaymentProof } = await import("../payment-proof-service");
+        const result = await uploadPaymentProof(
+          input.orderId,
+          Buffer.from(input.file),
+          input.fileName,
+          input.mimeType
+        );
+        return result;
+      } catch (error) {
+        console.error("Failed to upload payment proof:", error);
+        throw error;
+      }
+    }),
+
+  getPaymentProof: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      if (!ctx.user?.email) {
+        throw new Error("User email not found");
+      }
+
+      try {
+        const order = await getOrderById(input.orderId);
+        if (!order || order.customerEmail !== ctx.user.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        const { getPaymentProofDetails } = await import("../payment-proof-service");
+        return await getPaymentProofDetails(input.orderId);
+      } catch (error) {
+        console.error("Failed to get payment proof:", error);
+        return null;
+      }
+    }),
 });

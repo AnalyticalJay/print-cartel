@@ -116,6 +116,11 @@ export const orders = mysqlTable("orders", {
   quoteApprovedAt: timestamp("quoteApprovedAt"),
   quoteRejectedAt: timestamp("quoteRejectedAt"),
   quoteRejectionReason: text("quoteRejectionReason"),
+  paymentProofUrl: varchar("paymentProofUrl", { length: 500 }),
+  paymentProofUploadedAt: timestamp("paymentProofUploadedAt"),
+  paymentVerificationStatus: mysqlEnum("paymentVerificationStatus", ["pending", "verified", "rejected"]).default("pending"),
+  paymentVerifiedAt: timestamp("paymentVerifiedAt"),
+  paymentVerificationNotes: text("paymentVerificationNotes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
