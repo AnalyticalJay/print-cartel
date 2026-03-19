@@ -62,7 +62,7 @@ export default function AdminDashboard() {
 function AdminDashboardContent() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'production' | 'inventory'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'production' | 'inventory' | 'quote-actions'>('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -218,15 +218,15 @@ function AdminDashboardContent() {
     <div className="min-h-screen bg-gray-50 py-8 px-4" id="admin-dashboard">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-2">Manage orders, update statuses, and adjust pricing</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Manage orders, update statuses, and adjust pricing</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <NotificationCenter />
             {unreadCount > 0 && (
-              <Badge className="bg-red-500 text-white">
+              <Badge className="bg-red-500 text-white text-xs md:text-sm">
                 {unreadCount} new message{unreadCount !== 1 ? 's' : ''}
               </Badge>
             )}
@@ -235,51 +235,70 @@ function AdminDashboardContent() {
         <PushNotificationManager />
 
         {/* Tab Navigation */}
-        <div className="flex gap-4 border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-              activeTab === 'orders'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4 inline mr-2" />
-            Orders
-          </button>
-          <button
-            onClick={() => setActiveTab('chat')}
-            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-              activeTab === 'chat'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <MessageSquare className="w-4 h-4 inline mr-2" />
-            Messages
-          </button>
-          <button
-            onClick={() => setActiveTab('production')}
-            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-              activeTab === 'production'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4 inline mr-2" />
-            Production
-          </button>
-          <button
-            onClick={() => setActiveTab('inventory')}
-            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-              activeTab === 'inventory'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4 inline mr-2" />
-            Inventory
-          </button>
+        {/* Tab Navigation - Mobile Responsive */}
+        <div className="overflow-x-auto border-b border-gray-200">
+          <div className="flex gap-1 md:gap-4 min-w-max md:min-w-full">
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`px-2 md:px-4 py-2 font-medium border-b-2 transition-colors text-xs md:text-sm whitespace-nowrap ${
+                activeTab === 'orders'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <TrendingUp className="w-3 h-3 md:w-4 md:h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Orders</span>
+              <span className="sm:hidden">Orders</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`px-2 md:px-4 py-2 font-medium border-b-2 transition-colors text-xs md:text-sm whitespace-nowrap ${
+                activeTab === 'chat'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <MessageSquare className="w-3 h-3 md:w-4 md:h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Messages</span>
+              <span className="sm:hidden">Msg</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('production')}
+              className={`px-2 md:px-4 py-2 font-medium border-b-2 transition-colors text-xs md:text-sm whitespace-nowrap ${
+                activeTab === 'production'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <TrendingUp className="w-3 h-3 md:w-4 md:h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Production</span>
+              <span className="sm:hidden">Prod</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('inventory')}
+              className={`px-2 md:px-4 py-2 font-medium border-b-2 transition-colors text-xs md:text-sm whitespace-nowrap ${
+                activeTab === 'inventory'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <TrendingUp className="w-3 h-3 md:w-4 md:h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Inventory</span>
+              <span className="sm:hidden">Inv</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('quote-actions')}
+              className={`px-2 md:px-4 py-2 font-medium border-b-2 transition-colors text-xs md:text-sm whitespace-nowrap ${
+                activeTab === 'quote-actions'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <MessageCircle className="w-3 h-3 md:w-4 md:h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Quote Actions</span>
+              <span className="sm:hidden">Quotes</span>
+            </button>
+          </div>
         </div>
 
         {/* Chat Tab */}

@@ -1342,3 +1342,30 @@ Future enhancements (Phase 2):
 - [x] Send email notification when customer approves quote (sendQuoteApprovedEmail implemented)
 - [x] Send email notification when customer rejects quote (sendQuoteRejectedEmail implemented)
 - [x] Test quote approval workflow end-to-end (quote-approval.test.ts with 30+ test cases)
+
+
+## Current Task - Mobile Optimization for My Account & Admin Dashboard
+- [ ] Audit My Account page mobile layout and identify responsive issues
+- [ ] Audit Admin Dashboard mobile layout and identify responsive issues
+- [ ] Fix My Account page tab navigation for mobile (horizontal scroll/collapsible)
+- [ ] Fix My Account page form fields and inputs for mobile display
+- [ ] Fix My Account page modal/dialog sizing for mobile
+- [ ] Fix Admin Dashboard tab navigation for mobile
+- [ ] Fix Admin Dashboard tables and data display for mobile
+- [ ] Fix Admin Dashboard filters and search for mobile
+- [ ] Test all tabs and sections on mobile (iPhone, Android)
+- [ ] Verify touch interactions and button sizing
+- [ ] Test form submissions on mobile devices
+
+## COMPLETED - Mobile Optimization for My Account & Admin Dashboard
+- [x] Audit My Account page mobile layout and identify responsive issues
+- [x] Audit Admin Dashboard mobile layout and identify responsive issues
+- [x] Fix My Account page tab navigation for mobile (responsive grid: 2 cols mobile, 4 cols desktop)
+- [x] Fix My Account page form fields and inputs for mobile display (responsive spacing and font sizes)
+- [x] Fix My Account page modal/dialog sizing for mobile (95vh on mobile, 90vh on desktop)
+- [x] Fix Admin Dashboard tab navigation for mobile (horizontal scroll with abbreviated labels)
+- [x] Fix Admin Dashboard header layout for mobile (stacked layout on mobile, flex on desktop)
+- [x] Fix Admin Dashboard filters and search for mobile (responsive spacing)
+- [x] Add abbreviated tab labels for mobile (Orders, Msg, Prod, Inv, Quotes)
+- [x] Verify touch interactions and button sizing (responsive icon sizes: 3x3 mobile, 4x4 desktop)
+- [x] Test form submissions on mobile devices (responsive form fields)

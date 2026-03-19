@@ -206,22 +206,26 @@ export default function AccountDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs Navigation */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className={`grid w-full ${user?.role === 'admin' ? 'grid-cols-5' : 'grid-cols-4'} bg-gray-800 border border-gray-700`}>
-            <TabsTrigger value="orders" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
-              <Eye className="w-4 h-4 mr-2" />
-              Orders
+          <TabsList className={`grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-1 bg-gray-800 border border-gray-700 p-1`}>
+            <TabsTrigger value="orders" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700 text-xs md:text-sm">
+              <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Orders</span>
+              <span className="sm:hidden">Orders</span>
             </TabsTrigger>
-            <TabsTrigger value="account" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
-              <Settings className="w-4 h-4 mr-2" />
-              Account
+            <TabsTrigger value="account" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700 text-xs md:text-sm">
+              <Settings className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Account</span>
+              <span className="sm:hidden">Account</span>
             </TabsTrigger>
-            <TabsTrigger value="communications" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Messages
+            <TabsTrigger value="communications" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700 text-xs md:text-sm">
+              <MessageSquare className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Messages</span>
+              <span className="sm:hidden">Msg</span>
             </TabsTrigger>
-            <TabsTrigger value="referral" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700">
-              <Bell className="w-4 h-4 mr-2" />
-              Referral
+            <TabsTrigger value="referral" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700 text-xs md:text-sm">
+              <Bell className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Referral</span>
+              <span className="sm:hidden">Ref</span>
             </TabsTrigger>
 
           </TabsList>
@@ -288,8 +292,8 @@ export default function AccountDashboard() {
 
             {/* Order Details Modal */}
             {selectedOrder && (
-              <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-                <Card className="bg-gray-800 border-gray-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-2 md:p-4 z-50 overflow-y-auto">
+                <Card className="bg-gray-800 border-gray-700 w-full max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto my-4 md:my-0">
                   <CardHeader className="flex flex-row items-center justify-between border-b border-gray-700">
                     <CardTitle className="text-white">Order Details</CardTitle>
                     <Button
@@ -301,7 +305,7 @@ export default function AccountDashboard() {
                       ✕
                     </Button>
                   </CardHeader>
-                  <CardContent className="space-y-6 pt-6">
+                  <CardContent className="space-y-4 md:space-y-6 pt-4 md:pt-6">
                     {/* Quote Approval Card */}
                     {selectedOrder.status === "quoted" && (
                       <QuoteApprovalCard
@@ -322,44 +326,44 @@ export default function AccountDashboard() {
                     )}
 
                     <div>
-                      <p className="text-sm text-gray-200">Order ID</p>
-                      <p className="font-medium text-lg">#{selectedOrder.id}</p>
+                      <p className="text-xs md:text-sm text-gray-200">Order ID</p>
+                      <p className="font-medium text-base md:text-lg">#{selectedOrder.id}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-200">Status</p>
+                      <p className="text-xs md:text-sm text-gray-200">Status</p>
                       <Badge className={getStatusColor(selectedOrder.status)}>
                         {getStatusLabel(selectedOrder.status)}
                       </Badge>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-2 md:gap-4">
                       <div>
-                        <p className="text-sm text-gray-200">Order Date</p>
-                        <p className="font-medium">{formatDate(selectedOrder.createdAt)}</p>
+                        <p className="text-xs md:text-sm text-gray-200">Order Date</p>
+                        <p className="font-medium text-sm md:text-base">{formatDate(selectedOrder.createdAt)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-200">Total Price</p>
-                        <p className="text-lg font-semibold">{selectedOrder.totalPriceEstimate}</p>
+                        <p className="text-xs md:text-sm text-gray-200">Total Price</p>
+                        <p className="text-base md:text-lg font-semibold">{selectedOrder.totalPriceEstimate}</p>
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-200 mb-3">Uploaded Files</p>
+                      <p className="text-xs md:text-sm text-gray-200 mb-2 md:mb-3">Uploaded Files</p>
                       <div className="space-y-2">
                         {selectedOrder.prints && selectedOrder.prints.length > 0 ? (
                           selectedOrder.prints.map((print, idx) => (
-                            <div key={idx} className="flex items-center justify-between bg-gray-700 p-3 rounded">
-                              <span className="text-sm">{print.uploadedFileName}</span>
+                            <div key={idx} className="flex items-center justify-between bg-gray-700 p-2 md:p-3 rounded gap-2">
+                              <span className="text-xs md:text-sm truncate">{print.uploadedFileName}</span>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleDownloadFile(print.uploadedFilePath, print.uploadedFileName)}
-                                className="border-gray-600 text-gray-300 hover:text-white"
+                                className="border-gray-600 text-gray-300 hover:text-white flex-shrink-0"
                               >
-                                <Download className="w-4 h-4" />
+                                <Download className="w-3 h-3 md:w-4 md:h-4" />
                               </Button>
                             </div>
                           ))
                         ) : (
-                          <p className="text-gray-200 text-sm">No files uploaded yet</p>
+                          <p className="text-gray-200 text-xs md:text-sm">No files uploaded yet</p>
                         )}
                       </div>
                     </div>
@@ -378,31 +382,31 @@ export default function AccountDashboard() {
                 <CardHeader>
                   <CardTitle className="text-white">Profile Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CardContent className="space-y-4 md:space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div>
-                      <Label className="text-gray-200">First Name</Label>
-                      <p className="font-medium mt-2 text-cyan-400">{user.firstName}</p>
+                      <Label className="text-gray-200 text-xs md:text-sm">First Name</Label>
+                      <p className="font-medium mt-1 md:mt-2 text-cyan-400 text-sm md:text-base">{user.firstName}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-200">Last Name</Label>
-                      <p className="font-medium mt-2 text-cyan-400">{user.lastName}</p>
+                      <Label className="text-gray-200 text-xs md:text-sm">Last Name</Label>
+                      <p className="font-medium mt-1 md:mt-2 text-cyan-400 text-sm md:text-base">{user.lastName}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-200">Email</Label>
-                      <p className="font-medium mt-2 text-cyan-400">{user.email}</p>
+                      <Label className="text-gray-200 text-xs md:text-sm">Email</Label>
+                      <p className="font-medium mt-1 md:mt-2 text-cyan-400 text-sm md:text-base break-all">{user.email}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-200">Account Type</Label>
-                      <p className="font-medium mt-2 capitalize text-cyan-400">{user.role}</p>
+                      <Label className="text-gray-200 text-xs md:text-sm">Account Type</Label>
+                      <p className="font-medium mt-1 md:mt-2 capitalize text-cyan-400 text-sm md:text-base">{user.role}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-200">Member Since</Label>
-                      <p className="font-medium mt-2 text-cyan-400">{formatDate(user.createdAt)}</p>
+                      <Label className="text-gray-200 text-xs md:text-sm">Member Since</Label>
+                      <p className="font-medium mt-1 md:mt-2 text-cyan-400 text-sm md:text-base">{formatDate(user.createdAt)}</p>
                     </div>
                     <div>
-                      <Label className="text-gray-200">Last Signed In</Label>
-                      <p className="font-medium mt-2 text-cyan-400">{formatDate(user.lastSignedIn)}</p>
+                      <Label className="text-gray-200 text-xs md:text-sm">Last Signed In</Label>
+                      <p className="font-medium mt-1 md:mt-2 text-cyan-400 text-sm md:text-base">{formatDate(user.lastSignedIn)}</p>
                     </div>
                   </div>
 
