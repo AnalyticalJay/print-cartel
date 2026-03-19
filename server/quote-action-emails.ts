@@ -173,7 +173,7 @@ export async function sendQuoteRejectedEmail(
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://printcartel.co.za/account" style="background: #17a2b8; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+          <a href="https://printcartel.co.za/dashboard" style="background: #17a2b8; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
             View Order Details
           </a>
         </div>

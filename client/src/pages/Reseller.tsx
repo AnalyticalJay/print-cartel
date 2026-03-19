@@ -149,7 +149,7 @@ export default function Reseller() {
             <Button 
               size="lg" 
               variant="outline"
-              onClick={() => window.location.href = '/track-order'}
+              onClick={() => window.location.href = '/track'}
             >
               Learn More
             </Button>

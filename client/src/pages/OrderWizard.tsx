@@ -104,7 +104,7 @@ export default function OrderWizard() {
     onSuccess: () => {
       toast.success('Order placed successfully!');
       setCurrentStep(7);
-      setTimeout(() => setLocation('/account'), 2000);
+      setTimeout(() => setLocation('/dashboard'), 2000);
     },
     onError: (error) => {
       console.error('Order creation error:', error);
@@ -115,7 +115,7 @@ export default function OrderWizard() {
     onSuccess: () => {
       toast.success('Order placed successfully!');
       setCurrentStep(7);
-      setTimeout(() => setLocation('/account'), 2000);
+      setTimeout(() => setLocation('/dashboard'), 2000);
     },
     onError: (error) => {
       console.error('Multi-item order creation error:', error);
