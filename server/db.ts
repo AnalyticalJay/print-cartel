@@ -811,3 +811,85 @@ export async function rejectQuote(orderId: number, rejectionReason: string) {
     });
   }
 }
+
+
+// Invoice management functions
+export async function getInvoices(filters?: { status?: string; search?: string; limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db.select().from(orders).where(ne(orders.invoiceUrl, null));
+
+  if (filters?.search) {
+    query = query.where(
+      or(
+        like(orders.customerFirstName, `%${filters.search}%`),
+        like(orders.customerLastName, `%${filters.search}%`),
+        like(orders.customerEmail, `%${filters.search}%`)
+      )
+    );
+  }
+
+  const limit = filters?.limit || 50;
+  const offset = filters?.offset || 0;
+
+  return await query.orderBy(desc(orders.invoiceDate)).limit(limit).offset(offset);
+}
+
+export async function getInvoiceStats() {
+  const db = await getDb();
+  if (!db) return { total: 0, pending: 0, accepted: 0, declined: 0, paid: 0 };
+
+  const invoices = await db.select().from(orders).where(ne(orders.invoiceUrl, null));
+
+  return {
+    total: invoices.length,
+    pending: invoices.filter(i => !i.invoiceAcceptedAt && !i.invoiceDeclinedAt).length,
+    accepted: invoices.filter(i => i.invoiceAcceptedAt && !i.invoiceDeclinedAt).length,
+    declined: invoices.filter(i => i.invoiceDeclinedAt).length,
+    paid: invoices.filter(i => i.paymentStatus === 'paid' || i.paymentStatus === 'deposit_paid').length,
+  };
+}
+
+export async function updateInvoiceStatus(orderId: number, invoiceAcceptedAt?: Date, invoiceDeclinedAt?: Date, invoiceDeclineReason?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updates: any = {};
+  if (invoiceAcceptedAt) updates.invoiceAcceptedAt = invoiceAcceptedAt;
+  if (invoiceDeclinedAt) updates.invoiceDeclinedAt = invoiceDeclinedAt;
+  if (invoiceDeclineReason) updates.invoiceDeclineReason = invoiceDeclineReason;
+
+  return await db.update(orders).set(updates).where(eq(orders.id, orderId));
+}
+
+export async function createManualInvoice(orderData: {
+  customerFirstName: string;
+  customerLastName: string;
+  customerEmail: string;
+  customerPhone: string;
+  totalPriceEstimate: number;
+  invoiceNumber: string;
+  invoiceUrl: string;
+  depositAmount?: number;
+  paymentMethod?: string;
+  additionalNotes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(orders).values({
+    ...orderData,
+    productId: 0, // Placeholder for manual invoices
+    colorId: 0,
+    sizeId: 0,
+    quantity: 0,
+    status: 'quoted',
+    deliveryMethod: 'collection',
+    invoiceDate: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  return result;
+}

@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
 import { sendQuoteEmail, sendFinalInvoiceEmail } from "../payment-emails";
+import { getInvoices, getInvoiceStats } from "../db";
 
 export const adminRouter = router({
   // Get all orders with related data for admin dashboard
@@ -721,6 +722,74 @@ export const adminRouter = router({
       } catch (error) {
         console.error("Failed to fetch order status history:", error);
         throw new Error("Failed to fetch order status history");
+      }
+    }),
+
+  // Get all invoices
+  getInvoices: protectedProcedure
+    .input(z.object({ search: z.string().optional(), filter: z.enum(["pending", "accepted", "declined"]).optional() }))
+    .query(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      try {
+        let query = db.select().from(orders);
+        const allInvoices = await query;
+        
+        // Filter by search
+        let filtered = allInvoices.filter(o => o.invoiceUrl);
+        if (input.search) {
+          filtered = filtered.filter(o => 
+            o.customerFirstName?.toLowerCase().includes(input.search!.toLowerCase()) ||
+            o.customerLastName?.toLowerCase().includes(input.search!.toLowerCase()) ||
+            o.customerEmail?.toLowerCase().includes(input.search!.toLowerCase())
+          );
+        }
+
+        // Filter by status
+        if (input.filter === "pending") {
+          filtered = filtered.filter(i => !i.invoiceAcceptedAt && !i.invoiceDeclinedAt);
+        } else if (input.filter === "accepted") {
+          filtered = filtered.filter(i => i.invoiceAcceptedAt && !i.invoiceDeclinedAt);
+        } else if (input.filter === "declined") {
+          filtered = filtered.filter(i => i.invoiceDeclinedAt);
+        }
+
+        return filtered.sort((a, b) => new Date(b.invoiceDate || 0).getTime() - new Date(a.invoiceDate || 0).getTime());
+      } catch (error) {
+        console.error("Failed to fetch invoices:", error);
+        throw error;
+      }
+    }),
+
+  // Get invoice statistics
+  getInvoiceStats: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      try {
+        const invoices = await db.select().from(orders);
+        const withInvoices = invoices.filter(i => i.invoiceUrl);
+
+        return {
+          total: withInvoices.length,
+          pending: withInvoices.filter(i => !i.invoiceAcceptedAt && !i.invoiceDeclinedAt).length,
+          accepted: withInvoices.filter(i => i.invoiceAcceptedAt && !i.invoiceDeclinedAt).length,
+          declined: withInvoices.filter(i => i.invoiceDeclinedAt).length,
+          paid: withInvoices.filter(i => i.paymentStatus === 'paid' || i.paymentStatus === 'deposit_paid').length,
+        };
+      } catch (error) {
+        console.error("Failed to fetch invoice stats:", error);
+        throw error;
       }
     }),
 });

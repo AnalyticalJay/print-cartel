@@ -1428,3 +1428,13 @@ Future enhancements (Phase 2):
 - [x] Test invoice generation and email sending
 - [x] Update invoice with correct sales email (sales@printcartel.co.za)
 - [x] Add banking details to invoice (Capitec Business - 1051316758)
+
+
+## Current Task - Invoices Tab (Replace Quote Actions)
+- [x] Add invoice status tracking fields to database (invoiceStatus, invoiceSentAt, invoicePaidAt)
+- [x] Create backend queries to fetch invoices with filtering and sorting
+- [x] Build InvoicesPanel component with invoice list and status display
+- [x] Replace Quote Actions tab with Invoices tab in AdminDashboard
+- [x] Add manual invoice creation form
+- [x] Add invoice preview and send functionality
+- [x] Test invoices tab end-to-end
