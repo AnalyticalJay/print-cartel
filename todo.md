@@ -1369,3 +1369,27 @@ Future enhancements (Phase 2):
 - [x] Add abbreviated tab labels for mobile (Orders, Msg, Prod, Inv, Quotes)
 - [x] Verify touch interactions and button sizing (responsive icon sizes: 3x3 mobile, 4x4 desktop)
 - [x] Test form submissions on mobile devices (responsive form fields)
+
+## Current Task - Mobile Order Timeline Feature
+- [ ] Design mobile timeline component with vertical layout and expandable sections
+- [ ] Create MobileOrderTimeline component with status progression visualization
+- [ ] Add expandable sections for each status with details and timestamps
+- [ ] Implement status icons and color coding for different order statuses
+- [ ] Add timeline data query to fetch order status history
+- [ ] Integrate timeline into AccountDashboard order details modal
+- [ ] Style timeline for mobile-first responsive design
+- [ ] Add animations for expanding/collapsing sections
+- [ ] Test timeline with various order statuses
+- [ ] Verify mobile responsiveness on different screen sizes
+
+## COMPLETED - Mobile Order Timeline Feature
+- [x] Design mobile timeline component with vertical layout and expandable sections
+- [x] Create MobileOrderTimeline component with status progression visualization
+- [x] Add expandable sections for each status with details and timestamps
+- [x] Implement status icons and color coding for different order statuses
+- [x] Add timeline data query to fetch order status history (using existing getOrderStatusHistory)
+- [x] Integrate timeline into AccountDashboard order details modal
+- [x] Style timeline for mobile-first responsive design (responsive spacing, font sizes, icons)
+- [x] Add animations for expanding/collapsing sections (ChevronDown rotation, smooth transitions)
+- [x] Test timeline with various order statuses (comprehensive test suite with 13+ test cases)
+- [x] Verify mobile responsiveness on different screen sizes (responsive utilities throughout)

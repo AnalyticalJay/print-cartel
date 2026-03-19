@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { Download, Eye, LogOut, ArrowLeft, MessageSquare, Settings, Bell } from "lucide-react";
 import { OrderTimeline } from "@/components/OrderTimeline";
+import { MobileOrderTimeline } from "@/components/MobileOrderTimeline";
 import { OrderMockupPreview } from "@/components/OrderMockupPreview";
 import { ChatSection } from "@/components/ChatSection";
 import { CustomerChatBox } from "@/components/CustomerChatBox";
@@ -345,6 +346,20 @@ export default function AccountDashboard() {
                         <p className="text-base md:text-lg font-semibold">{selectedOrder.totalPriceEstimate}</p>
                       </div>
                     </div>
+                    {/* Mobile Order Timeline */}
+                    <div className="border-t border-gray-700 pt-4 md:pt-6">
+                      <MobileOrderTimeline
+                        currentStatus={selectedOrder.status}
+                        createdAt={selectedOrder.createdAt}
+                        updatedAt={selectedOrder.updatedAt}
+                        orderDetails={{
+                          quantity: selectedOrder.quantity,
+                          totalPrice: selectedOrder.totalPriceEstimate,
+                          depositPaid: selectedOrder.status !== "quoted",
+                        }}
+                      />
+                    </div>
+
                     <div>
                       <p className="text-xs md:text-sm text-gray-200 mb-2 md:mb-3">Uploaded Files</p>
                       <div className="space-y-2">
