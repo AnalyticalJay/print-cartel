@@ -8,6 +8,9 @@ import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNot
 import { generateAndUploadInvoice } from "../invoice-generator";
 import { sendInvoiceEmail, sendInvoiceNotificationToAdmin } from "../invoice-email";
 import { sendQuoteApprovedEmail, sendQuoteRejectedEmail } from "../quote-action-emails";
+import { sendQuoteReceivedEmail } from "../quote-received-email";
+import { sendInvoiceReceivedEmail } from "../invoice-received-email";
+import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 
 const CreateOrderInput = z.object({
   productId: z.number(),

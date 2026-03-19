@@ -1460,3 +1460,14 @@ Future enhancements (Phase 2):
 - [x] Fix any broken route redirects (/account → /dashboard, /track-order → /track)
 - [x] Fix any broken API endpoint calls
 - [x] Verify all user flows work without 404 errors
+
+
+## Current Task - Email Notifications for Quotes, Invoices, and Payments
+- [x] Create quote received email template with quote details and action links
+- [x] Create invoice received email template with invoice details and payment instructions
+- [x] Create payment confirmation email template with receipt details
+- [x] Add email trigger imports to orders router
+- [ ] Add email trigger when quote is generated (status changed to "quoted")
+- [ ] Add email trigger when invoice is generated
+- [ ] Add email trigger when payment is verified
+- [ ] Test all email notifications end-to-end
