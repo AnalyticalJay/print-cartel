@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckCircle2, Clock, AlertCircle, Truck, Package } from "lucide-react";
 import { format } from "date-fns";
 

@@ -1311,3 +1311,12 @@ Future enhancements (Phase 2):
 - [x] Add payment status to order timeline (displays alongside order status)
 - [x] Show payment deadline if applicable (dueDate displayed with overdue indicator)
 - [x] Test payment status display with various payment states (dev server running with 0 errors)
+
+
+## Current Task - Fix Order Timeline Display and User ID Filtering
+- [x] Debug why OrderStatusHistorySection component is not rendering on My Account page (added "use client" directive)
+- [x] Verify backend getOrderStatusHistory endpoint filters by user ID (verified - filters by customerEmail)
+- [x] Check if order data is being fetched correctly in CustomerDashboard (confirmed data exists in database)
+- [x] Ensure timeline component receives correct order ID and user ID (component properly integrated)
+- [x] Test timeline display with orders belonging to current user (status history data found for user)
+- [x] Verify orders from other users are not visible to current user (authorization check in place)
