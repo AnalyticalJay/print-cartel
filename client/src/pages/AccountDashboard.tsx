@@ -16,6 +16,7 @@ import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
+import { QuoteApprovalCard } from "@/components/QuoteApprovalCard";
 
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
@@ -34,6 +35,9 @@ interface OrderWithPrints {
   additionalNotes: string | null;
   totalPriceEstimate: string;
   status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
+  paymentMethod?: "deposit" | "full_payment" | null;
+  depositAmount?: string | number | null;
+  amountPaid?: string | number | null;
   createdAt: Date;
   updatedAt: Date;
   prints: Array<{
@@ -298,6 +302,25 @@ export default function AccountDashboard() {
                     </Button>
                   </CardHeader>
                   <CardContent className="space-y-6 pt-6">
+                    {/* Quote Approval Card */}
+                    {selectedOrder.status === "quoted" && (
+                      <QuoteApprovalCard
+                        orderId={selectedOrder.id}
+                        orderStatus={selectedOrder.status}
+                        totalPrice={parseFloat(selectedOrder.totalPriceEstimate)}
+                        depositAmount={parseFloat(selectedOrder.totalPriceEstimate) * 0.5}
+                        paymentMethod={selectedOrder.paymentMethod || "full_payment"}
+                        onApproveSuccess={() => {
+                          setSelectedOrder(null);
+                          ordersQuery.refetch();
+                        }}
+                        onRejectSuccess={() => {
+                          setSelectedOrder(null);
+                          ordersQuery.refetch();
+                        }}
+                      />
+                    )}
+
                     <div>
                       <p className="text-sm text-gray-200">Order ID</p>
                       <p className="font-medium text-lg">#{selectedOrder.id}</p>

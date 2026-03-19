@@ -109,6 +109,9 @@ export const orders = mysqlTable("orders", {
   amountPaid: decimal("amountPaid", { precision: 10, scale: 2 }).default("0"),
   invoiceNumber: varchar("invoiceNumber", { length: 50 }),
   invoiceDate: timestamp("invoiceDate"),
+  quoteApprovedAt: timestamp("quoteApprovedAt"),
+  quoteRejectedAt: timestamp("quoteRejectedAt"),
+  quoteRejectionReason: text("quoteRejectionReason"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

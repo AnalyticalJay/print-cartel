@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
-import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
+import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory, approveQuote, rejectQuote } from "../db";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
+import { sendQuoteApprovedEmail, sendQuoteRejectedEmail } from "../quote-action-emails";
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -342,6 +343,92 @@ export const ordersRouter = router({
       } catch (error) {
         console.error("Failed to fetch order status history:", error);
         throw new Error("Failed to fetch order status history");
+      }
+    }),
+
+  // Approve quote
+  approveQuote: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.email) {
+        throw new Error("User email not found");
+      }
+
+      try {
+        // Verify the order belongs to the current user
+        const order = await getOrderById(input.orderId);
+        if (!order || order.customerEmail !== ctx.user.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        // Verify order is in quoted status
+        if (order.status !== "quoted") {
+          throw new Error("Order is not in quoted status");
+        }
+
+        // Approve the quote
+        await approveQuote(input.orderId);
+
+        // Send approval notification email
+        try {
+          await sendQuoteApprovedEmail(
+            order.customerEmail,
+            `${order.customerFirstName} ${order.customerLastName}`,
+            input.orderId,
+            parseFloat(order.totalPriceEstimate),
+            parseFloat(order.depositAmount || "0"),
+            order.paymentMethod || "full_payment"
+          );
+        } catch (error) {
+          console.error("Failed to send quote approval email:", error);
+        }
+
+        return { success: true, message: "Quote approved successfully" };
+      } catch (error) {
+        console.error("Failed to approve quote:", error);
+        throw error;
+      }
+    }),
+
+  // Reject quote
+  rejectQuote: protectedProcedure
+    .input(z.object({ orderId: z.number(), reason: z.string().min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user?.email) {
+        throw new Error("User email not found");
+      }
+
+      try {
+        // Verify the order belongs to the current user
+        const order = await getOrderById(input.orderId);
+        if (!order || order.customerEmail !== ctx.user.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        // Verify order is in quoted status
+        if (order.status !== "quoted") {
+          throw new Error("Order is not in quoted status");
+        }
+
+        // Reject the quote
+        await rejectQuote(input.orderId, input.reason);
+
+        // Send rejection notification email
+        try {
+          await sendQuoteRejectedEmail(
+            order.customerEmail,
+            `${order.customerFirstName} ${order.customerLastName}`,
+            input.orderId,
+            input.reason
+          );
+        } catch (error) {
+          console.error("Failed to send quote rejection email:", error);
+        }
+
+        return { success: true, message: "Quote rejected successfully" };
+      } catch (error) {
+        console.error("Failed to reject quote:", error);
+        throw error;
       }
     }),
 });

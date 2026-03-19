@@ -1320,3 +1320,25 @@ Future enhancements (Phase 2):
 - [x] Ensure timeline component receives correct order ID and user ID (component properly integrated)
 - [x] Test timeline display with orders belonging to current user (status history data found for user)
 - [x] Verify orders from other users are not visible to current user (authorization check in place)
+
+
+## Current Task - Quote Approval/Rejection Feature
+- [ ] Add quoteApprovedAt and quoteRejectedAt fields to orders table
+- [ ] Create backend endpoint for approving quote (changes status to approved)
+- [ ] Create backend endpoint for rejecting quote (changes status to pending with reason)
+- [ ] Add QuoteApprovalCard component to display quote with approve/reject buttons
+- [ ] Integrate quote approval UI into customer order details modal
+- [ ] Send email notification when customer approves quote
+- [ ] Send email notification when customer rejects quote
+- [ ] Update admin dashboard to show quote approval status
+- [ ] Test quote approval workflow end-to-end
+
+## COMPLETED - Quote Approval/Rejection Feature
+- [x] Add quoteApprovedAt and quoteRejectedAt fields to orders table (migration 0021 applied)
+- [x] Create backend endpoint for approving quote (changes status to approved) (orders.approveQuote procedure)
+- [x] Create backend endpoint for rejecting quote (changes status to pending with reason) (orders.rejectQuote procedure)
+- [x] Add QuoteApprovalCard component to display quote with approve/reject buttons (QuoteApprovalCard.tsx created)
+- [x] Integrate quote approval UI into customer order details modal (integrated in AccountDashboard)
+- [x] Send email notification when customer approves quote (sendQuoteApprovedEmail implemented)
+- [x] Send email notification when customer rejects quote (sendQuoteRejectedEmail implemented)
+- [x] Test quote approval workflow end-to-end (quote-approval.test.ts with 30+ test cases)
