@@ -1426,3 +1426,5 @@ Future enhancements (Phase 2):
 - [x] Send invoice email to customer with PDF attachment
 - [x] Store invoice URL in order record (via S3 storage)
 - [x] Test invoice generation and email sending
+- [x] Update invoice with correct sales email (sales@printcartel.co.za)
+- [x] Add banking details to invoice (Capitec Business - 1051316758)

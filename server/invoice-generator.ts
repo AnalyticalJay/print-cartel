@@ -203,6 +203,7 @@ export function generateInvoiceEmailHTML(
         .btn-secondary { background: #999; color: white; }
         .footer { color: #999; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
         .highlight { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107; }
+        a { color: #0099cc; text-decoration: none; }
       </style>
     </head>
     <body>
@@ -245,6 +246,13 @@ export function generateInvoiceEmailHTML(
 
         ${paymentTermsHtml}
 
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Banking Details for Payment:</strong></p>
+          <p style="margin: 5px 0;"><strong>Bank:</strong> Capitec Business</p>
+          <p style="margin: 5px 0;"><strong>Account Number:</strong> 1051316758</p>
+          <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">Please use your order number as the reference when making payment.</p>
+        </div>
+
         <div class="actions">
           <a href="https://printcartel.co.za/dashboard?orderId=${orderId}&action=invoice" class="btn btn-primary">View Invoice in Dashboard</a>
         </div>
@@ -255,7 +263,7 @@ export function generateInvoiceEmailHTML(
 
         <div class="footer">
           <p>This is an automated message. Please do not reply to this email.</p>
-          <p>For inquiries, contact us at info@printcartel.co.za</p>
+          <p>For inquiries, contact us at <a href="mailto:sales@printcartel.co.za" style="color: #0099cc; text-decoration: none;">sales@printcartel.co.za</a></p>
           <p>© Print Cartel - Custom DTF Printing Made Simple</p>
         </div>
       </div>

@@ -27,7 +27,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData): Promise<boolean>
     );
 
     const result = await transporter.sendMail({
-      from: process.env.SMTP_FROM_EMAIL || "noreply@printcartel.co.za",
+      from: process.env.SMTP_FROM_EMAIL || "sales@printcartel.co.za",
       to: data.customerEmail,
       subject: `Invoice Ready - Order #${data.orderId} | Print Cartel`,
       html,
@@ -95,7 +95,7 @@ export async function sendInvoiceNotificationToAdmin(data: InvoiceEmailData): Pr
     `;
 
     const result = await transporter.sendMail({
-      from: process.env.SMTP_FROM_EMAIL || "noreply@printcartel.co.za",
+      from: process.env.SMTP_FROM_EMAIL || "sales@printcartel.co.za",
       to: adminEmail,
       subject: `Invoice Generated - Order #${data.orderId}`,
       html,
