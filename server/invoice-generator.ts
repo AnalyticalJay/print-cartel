@@ -28,32 +28,32 @@ export async function generateAndUploadInvoice(invoiceData: InvoiceData): Promis
 
     // Header
     doc.setFontSize(24);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("INVOICE", margin, margin + 10);
 
     // Invoice details
     doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     doc.text(`Invoice #: ${invoiceData.invoiceNumber}`, margin, margin + 25);
     doc.text(`Order ID: #${invoiceData.orderId}`, margin, margin + 32);
     doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, margin + 39);
 
     // Company info
     doc.setFontSize(11);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("Print Cartel", margin, margin + 55);
     doc.setFontSize(9);
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     doc.text("Custom DTF Printing", margin, margin + 61);
     doc.text("Email: info@printcartel.co.za", margin, margin + 67);
     doc.text("Phone: +27 (0) 123 456 7890", margin, margin + 73);
 
     // Bill to
     doc.setFontSize(11);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("Bill To:", margin, margin + 90);
     doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     doc.text(`${order.customerFirstName} ${order.customerLastName}`, margin, margin + 97);
     if (order.customerCompany) {
       doc.text(order.customerCompany, margin, margin + 103);
@@ -64,14 +64,14 @@ export async function generateAndUploadInvoice(invoiceData: InvoiceData): Promis
     // Line items table
     let yPosition = margin + 135;
     doc.setFontSize(10);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("Description", margin, yPosition);
     doc.text("Quantity", margin + contentWidth * 0.5, yPosition);
     doc.text("Unit Price", margin + contentWidth * 0.7, yPosition);
     doc.text("Total", margin + contentWidth * 0.85, yPosition);
 
     yPosition += 8;
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
 
     // Order item
@@ -95,7 +95,7 @@ export async function generateAndUploadInvoice(invoiceData: InvoiceData): Promis
 
     // Totals section
     yPosition += 5;
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     const total = invoiceData.totalPrice + delivery;
 
     doc.text("Subtotal:", margin + contentWidth * 0.6, yPosition);
@@ -115,9 +115,9 @@ export async function generateAndUploadInvoice(invoiceData: InvoiceData): Promis
     // Payment info
     yPosition += 20;
     doc.setFontSize(10);
-    doc.setFont(undefined, "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("Payment Terms:", margin, yPosition);
-    doc.setFont(undefined, "normal");
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     yPosition += 7;
 

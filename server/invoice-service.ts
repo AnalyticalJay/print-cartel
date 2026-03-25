@@ -44,14 +44,14 @@ export async function generateInvoicePDF(orderId: number): Promise<Buffer> {
   // Line items table
   let yPosition = margin + 130;
   doc.setFontSize(10);
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   doc.text("Description", margin, yPosition);
   doc.text("Quantity", margin + contentWidth * 0.5, yPosition);
   doc.text("Unit Price", margin + contentWidth * 0.7, yPosition);
   doc.text("Total", margin + contentWidth * 0.85, yPosition);
 
   yPosition += 8;
-  doc.setFont(undefined, "normal");
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
 
   // Order item
@@ -74,7 +74,7 @@ export async function generateInvoicePDF(orderId: number): Promise<Buffer> {
 
   // Totals section
   yPosition += 5;
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   const subtotal = parseFloat(order.totalPriceEstimate);
   const delivery = order.deliveryCharge ? parseFloat(order.deliveryCharge) : 0;
   const total = subtotal + delivery;
@@ -96,9 +96,9 @@ export async function generateInvoicePDF(orderId: number): Promise<Buffer> {
   // Payment info
   yPosition += 20;
   doc.setFontSize(10);
-  doc.setFont(undefined, "bold");
+  doc.setFont("helvetica", "bold");
   doc.text("Payment Terms:", margin, yPosition);
-  doc.setFont(undefined, "normal");
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   yPosition += 7;
 

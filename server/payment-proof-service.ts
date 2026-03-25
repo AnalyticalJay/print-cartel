@@ -65,7 +65,7 @@ export async function getPaymentProofUrl(orderId: number, expiresIn?: number): P
     }
 
     // Otherwise, get presigned URL
-    const { url } = await storageGet(order[0].paymentProofUrl, expiresIn);
+    const { url } = await storageGet(order[0].paymentProofUrl);
     return url;
   } catch (error) {
     console.error("Failed to get payment proof URL:", error);
