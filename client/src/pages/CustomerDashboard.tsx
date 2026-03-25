@@ -55,7 +55,7 @@ interface OrderWithPrints {
 
 // Component to display order status history
 function OrderStatusHistorySection({ orderId }: { orderId: number }) {
-  const statusHistoryQuery = trpc.orders.getOrderStatusHistory.useQuery(
+  const statusHistoryQuery = trpc.orders.getStatusHistory.useQuery(
     { orderId },
     { enabled: !!orderId }
   );

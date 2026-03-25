@@ -51,7 +51,7 @@ export default function OrderTracking() {
   const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
   // Get status history for selected order
-  const statusHistoryQuery = trpc.orders.getOrderStatusHistory.useQuery(
+  const statusHistoryQuery = trpc.orders.getStatusHistory.useQuery(
     { orderId: selectedOrder?.id || 0 },
     { enabled: !!selectedOrder?.id }
   );
