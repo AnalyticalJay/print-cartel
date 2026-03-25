@@ -141,7 +141,7 @@ export function PaymentProofUpload({ orderId, orderAmount, onUploadSuccess }: Pa
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(proof.url, "_blank")}
+                onClick={() => proof.url && window.open(proof.url, "_blank")}
                 className="mt-3 w-full"
               >
                 Download Uploaded Proof

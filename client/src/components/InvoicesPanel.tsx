@@ -163,7 +163,7 @@ export function InvoicesPanel() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(invoice.invoiceUrl, "_blank")}
+                        onClick={() => invoice.invoiceUrl && window.open(invoice.invoiceUrl, "_blank")}
                         className="gap-2"
                       >
                         <Download className="h-4 w-4" />
@@ -210,8 +210,8 @@ function ManualInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
       toast.success("Invoice created successfully");
       onSuccess();
     },
-    onError: (error) => {
-      toast.error("Failed to create invoice: " + error.message);
+    onError: (error: any) => {
+      toast.error("Failed to create invoice: " + (error?.message || "Unknown error"));
     },
   });
 

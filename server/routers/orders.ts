@@ -222,8 +222,9 @@ export const ordersRouter = router({
       }
     }),
 
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.user?.email) {
+  getAll: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (!ctx.user?.email) {
       throw new Error("User email not found");
     }
 
@@ -623,12 +624,14 @@ export const ordersRouter = router({
 
   // Get orders by customer email
   getByEmail: protectedProcedure
-    .query(async ({ ctx }) => {
-      if (!ctx.user?.email) {
+    .input(z.object({ email: z.string().email().optional() }))
+    .query(async ({ ctx, input }) => {
+      const email = input.email || ctx.user?.email;
+      if (!email) {
         throw new Error("User email not found");
       }
       try {
-        return await getOrdersByCustomerEmail(ctx.user.email);
+        return await getOrdersByCustomerEmail(email);
       } catch (error) {
         console.error("Failed to fetch orders by email:", error);
         throw error;

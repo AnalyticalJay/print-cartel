@@ -145,7 +145,7 @@ export function PaymentVerificationPanel() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(order.paymentProofUrl, "_blank")}
+                      onClick={() => order.paymentProofUrl && window.open(order.paymentProofUrl, "_blank")}
                       className="gap-2"
                     >
                       <Eye className="h-4 w-4" />
@@ -198,7 +198,7 @@ export function PaymentVerificationPanel() {
                       <p className="text-gray-600 mb-2">PDF Document</p>
                       <Button
                         variant="outline"
-                        onClick={() => window.open(selectedOrder.paymentProofUrl, "_blank")}
+                        onClick={() => selectedOrder.paymentProofUrl && window.open(selectedOrder.paymentProofUrl, "_blank")}
                       >
                         Open PDF
                       </Button>
