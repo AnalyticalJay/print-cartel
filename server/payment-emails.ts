@@ -36,7 +36,8 @@ export async function sendQuoteEmail(
   totalAmount: number,
   depositAmount: number,
   deliveryCharge: number,
-  paymentLink: string
+  paymentLink: string,
+  acceptanceToken?: string
 ) {
   const subject = `Quote for Your Order #${orderId} - Print Cartel`;
 
@@ -91,6 +92,21 @@ export async function sendQuoteEmail(
           </p>
         </div>
         
+        <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
+          <h4 style="margin-top: 0; color: #004085;">Accept or Decline This Quote</h4>
+          <p style="color: #004085; margin: 10px 0;">
+            Please review the quote details above and let us know if you'd like to proceed.
+          </p>
+          <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <a href="https://printcartel.co.za/quote/accept?orderId=${orderId}&email=${encodeURIComponent(customerEmail)}&token=${acceptanceToken || ''}" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; flex: 1; text-align: center;">
+              ✓ Accept Quote
+            </a>
+            <a href="https://printcartel.co.za/quote/reject?orderId=${orderId}&email=${encodeURIComponent(customerEmail)}&token=${acceptanceToken || ''}" style="background: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; flex: 1; text-align: center;">
+              ✗ Decline Quote
+            </a>
+          </div>
+        </div>
+        
         <div style="text-align: center; margin: 30px 0;">
           <a href="${paymentLink}" style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
             Proceed to Payment
@@ -99,7 +115,7 @@ export async function sendQuoteEmail(
         
         <p style="color: #666; font-size: 14px;">
           <strong>Quote Valid For:</strong> 7 days from the date of this email.<br>
-          <strong>Next Steps:</strong> Click the button above to select your payment option and complete the transaction.
+          <strong>Next Steps:</strong> Click "Accept Quote" above to proceed, or click "Proceed to Payment" to pay directly.
         </p>
         
         <hr style="border: none; border-top: 1px solid #dee2e6; margin: 20px 0;">

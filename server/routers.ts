@@ -14,6 +14,7 @@ import { productionRouter } from "./routers/production";
 import { referralRouter } from "./routers/referral";
 import { templatesRouter } from "./routers/templates";
 import { notificationsRouter } from "./routers/notifications";
+import { quoteAcceptanceRouter } from "./routers/quote-acceptance";
 
 const gangSheetsRouter = gangSheets;
 
@@ -43,6 +44,7 @@ export const appRouter = router({
   referral: referralRouter,
   templates: templatesRouter,
   notifications: notificationsRouter,
+  quoteAcceptance: quoteAcceptanceRouter,
 });
 
 export type AppRouter = typeof appRouter;
