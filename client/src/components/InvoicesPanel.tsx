@@ -195,7 +195,10 @@ export function InvoicesPanel() {
 }
 
 function ManualInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
-  const [formData, setFormData] = useState({
+  const [invoiceMode, setInvoiceMode] = useState<"existing" | "new">("existing");
+  const [selectedOrderId, setSelectedOrderId] = useState<string>("");
+  const [customMessage, setCustomMessage] = useState("");
+  const [newInvoiceData, setNewInvoiceData] = useState({
     customerFirstName: "",
     customerLastName: "",
     customerEmail: "",
@@ -205,9 +208,14 @@ function ManualInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
     paymentMethod: "full_payment",
   });
 
-  const createInvoice = trpc.admin.createManualInvoice.useMutation({
+  // Fetch all orders for selection
+  const { data: orders } = trpc.admin.getAllOrders.useQuery();
+
+  const createManualInvoiceMutation = trpc.admin.createManualInvoice.useMutation({
     onSuccess: () => {
-      toast.success("Invoice created successfully");
+      toast.success("Invoice created and sent successfully");
+      setSelectedOrderId("");
+      setCustomMessage("");
       onSuccess();
     },
     onError: (error: any) => {
@@ -215,80 +223,154 @@ function ManualInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleExistingOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createInvoice.mutate({
-      customerFirstName: formData.customerFirstName,
-      customerLastName: formData.customerLastName,
-      customerEmail: formData.customerEmail,
-      customerPhone: formData.customerPhone,
-      totalPriceEstimate: parseFloat(formData.totalPriceEstimate),
-      depositAmount: formData.depositAmount ? parseFloat(formData.depositAmount) : undefined,
-      paymentMethod: formData.paymentMethod,
+    if (!selectedOrderId) {
+      toast.error("Please select an order");
+      return;
+    }
+    createManualInvoiceMutation.mutate({
+      orderId: parseInt(selectedOrderId),
+      customMessage: customMessage || undefined,
     });
   };
 
+  const handleNewInvoiceSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // This would be for creating a new invoice without an order
+    // For now, we'll show a message
+    toast.info("New invoice creation feature coming soon");
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <Input
-          placeholder="First Name"
-          value={formData.customerFirstName}
-          onChange={(e) => setFormData({ ...formData, customerFirstName: e.target.value })}
-          required
-        />
-        <Input
-          placeholder="Last Name"
-          value={formData.customerLastName}
-          onChange={(e) => setFormData({ ...formData, customerLastName: e.target.value })}
-          required
-        />
+    <div className="space-y-4">
+      {/* Mode Selection */}
+      <div className="flex gap-2 border-b">
+        <button
+          type="button"
+          onClick={() => setInvoiceMode("existing")}
+          className={`pb-2 px-2 font-medium text-sm ${
+            invoiceMode === "existing"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-600"
+          }`}
+        >
+          For Existing Order
+        </button>
+        <button
+          type="button"
+          onClick={() => setInvoiceMode("new")}
+          className={`pb-2 px-2 font-medium text-sm ${
+            invoiceMode === "new"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-600"
+          }`}
+        >
+          New Invoice
+        </button>
       </div>
 
-      <Input
-        type="email"
-        placeholder="Email"
-        value={formData.customerEmail}
-        onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
-        required
-      />
+      {/* Existing Order Mode */}
+      {invoiceMode === "existing" && (
+        <form onSubmit={handleExistingOrderSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Select Order</label>
+            <select
+              value={selectedOrderId}
+              onChange={(e) => setSelectedOrderId(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              required
+            >
+              <option value="">-- Choose an order --</option>
+              {orders?.map((order) => (
+                <option key={order.id} value={order.id}>
+                  Order #{order.id} - {order.customerFirstName} {order.customerLastName} ({order.customerEmail})
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <Input
-        placeholder="Phone"
-        value={formData.customerPhone}
-        onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
-        required
-      />
+          <div>
+            <label className="block text-sm font-medium mb-2">Custom Message (Optional)</label>
+            <textarea
+              placeholder="Add a custom message to include in the invoice email..."
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md text-sm"
+              rows={3}
+            />
+          </div>
 
-      <Input
-        type="number"
-        placeholder="Total Price"
-        step="0.01"
-        value={formData.totalPriceEstimate}
-        onChange={(e) => setFormData({ ...formData, totalPriceEstimate: e.target.value })}
-        required
-      />
+          <Button type="submit" className="w-full" disabled={createManualInvoiceMutation.isPending}>
+            {createManualInvoiceMutation.isPending ? "Creating..." : "Create & Send Invoice"}
+          </Button>
+        </form>
+      )}
 
-      <Input
-        type="number"
-        placeholder="Deposit Amount (optional)"
-        step="0.01"
-        value={formData.depositAmount}
-        onChange={(e) => setFormData({ ...formData, depositAmount: e.target.value })}
-      />
+      {/* New Invoice Mode */}
+      {invoiceMode === "new" && (
+        <form onSubmit={handleNewInvoiceSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              placeholder="First Name"
+              value={newInvoiceData.customerFirstName}
+              onChange={(e) => setNewInvoiceData({ ...newInvoiceData, customerFirstName: e.target.value })}
+              required
+            />
+            <Input
+              placeholder="Last Name"
+              value={newInvoiceData.customerLastName}
+              onChange={(e) => setNewInvoiceData({ ...newInvoiceData, customerLastName: e.target.value })}
+              required
+            />
+          </div>
 
-      <select
-        value={formData.paymentMethod}
-        onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-        className="w-full px-3 py-2 border rounded-md"
-      >
-        <option value="full_payment">Full Payment</option>
-        <option value="deposit">Deposit + Final Payment</option>
-      </select>
+          <Input
+            type="email"
+            placeholder="Email"
+            value={newInvoiceData.customerEmail}
+            onChange={(e) => setNewInvoiceData({ ...newInvoiceData, customerEmail: e.target.value })}
+            required
+          />
 
-      <Button type="submit" className="w-full" disabled={createInvoice.isPending}>
-        {createInvoice.isPending ? "Creating..." : "Create & Send Invoice"}
-      </Button>
-    </form>
+          <Input
+            placeholder="Phone"
+            value={newInvoiceData.customerPhone}
+            onChange={(e) => setNewInvoiceData({ ...newInvoiceData, customerPhone: e.target.value })}
+            required
+          />
+
+          <Input
+            type="number"
+            placeholder="Total Price"
+            step="0.01"
+            value={newInvoiceData.totalPriceEstimate}
+            onChange={(e) => setNewInvoiceData({ ...newInvoiceData, totalPriceEstimate: e.target.value })}
+            required
+          />
+
+          <Input
+            type="number"
+            placeholder="Deposit Amount (optional)"
+            step="0.01"
+            value={newInvoiceData.depositAmount}
+            onChange={(e) => setNewInvoiceData({ ...newInvoiceData, depositAmount: e.target.value })}
+          />
+
+          <select
+            value={newInvoiceData.paymentMethod}
+            onChange={(e) => setNewInvoiceData({ ...newInvoiceData, paymentMethod: e.target.value })}
+            className="w-full px-3 py-2 border rounded-md"
+          >
+            <option value="full_payment">Full Payment</option>
+            <option value="deposit">Deposit + Final Payment</option>
+          </select>
+
+          <Button type="submit" className="w-full" disabled={createManualInvoiceMutation.isPending}>
+            {createManualInvoiceMutation.isPending ? "Creating..." : "Create & Send Invoice"}
+          </Button>
+        </form>
+      )}
+    </div>
   );
 }
