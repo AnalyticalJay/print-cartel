@@ -637,4 +637,43 @@ export const ordersRouter = router({
         throw error;
       }
     }),
+
+  // Get order history for a customer
+  getUserOrderHistory: protectedProcedure
+    .input(
+      z.object({
+        customerEmail: z.string().email(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new Error("Database not available");
+        }
+
+        // Fetch orders for the customer, ordered by creation date (newest first)
+        const customerOrders = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.customerEmail, input.customerEmail))
+          .orderBy(orders.createdAt)
+          .limit(input.limit)
+          .offset(input.offset);
+
+        // Return orders with parsed decimal values
+        return customerOrders.map((order) => ({
+          ...order,
+          totalPriceEstimate: parseFloat(order.totalPriceEstimate as any),
+          depositAmount: parseFloat(order.depositAmount as any) || 0,
+          deliveryCharge: parseFloat(order.deliveryCharge as any) || 0,
+          amountPaid: parseFloat(order.amountPaid as any) || 0,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch order history:", error);
+        throw error;
+      }
+    }),
 });

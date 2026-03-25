@@ -888,6 +888,65 @@ export const adminRouter = router({
         throw error;
       }
     }),
-});
 
-// Placeholder - createManualInvoice will be added in next iteration
+  // Create and send manual invoice to customer
+  createManualInvoice: protectedProcedure
+    .input(
+      z.object({
+        orderId: z.number(),
+        customMessage: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get order details
+        const orderResult = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, input.orderId))
+          .limit(1);
+
+        if (!orderResult.length) {
+          throw new Error("Order not found");
+        }
+
+        const orderData = orderResult[0];
+
+        // Generate invoice PDF
+        const { generateInvoicePDF } = await import("../invoice-service");
+        const invoiceBuffer = await generateInvoicePDF(orderData.id);
+
+        // Upload invoice to S3
+        const { storagePut } = await import("../storage");
+        const { url } = await storagePut(
+          `invoices/${orderData.id}-manual-${Date.now()}.pdf`,
+          invoiceBuffer,
+          "application/pdf"
+        );
+
+        // Send email to customer
+        const { sendInvoiceEmail } = await import("../invoice-email");
+        await sendInvoiceEmail({
+          customerEmail: orderData.customerEmail,
+          customerName: `${orderData.customerFirstName} ${orderData.customerLastName}`,
+          orderId: orderData.id,
+          invoicePdfUrl: url,
+          totalPrice: parseFloat(orderData.totalPriceEstimate as any),
+          depositAmount: parseFloat(orderData.depositAmount as any) || 0,
+        });
+
+        console.log(`✓ Manual invoice created and sent for order ${input.orderId}`);
+        return { success: true, invoiceUrl: url };
+      } catch (error) {
+        console.error("Failed to create manual invoice:", error);
+        throw error;
+      }
+    }),
+});
