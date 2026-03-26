@@ -1546,3 +1546,16 @@ Future enhancements (Phase 2):
 - [x] Database schema supports full order status history
 - [x] Write tests for order status timeline (10 tests - all passing)
 - [x] Test end-to-end: status changes reflected in timeline with notes
+
+
+## Current Sprint - Admin Order Modal Integration
+- [x] Examine AdminDashboard and existing order modal structure
+- [x] Create OrderDetailModal component with tabs (Summary, Timeline, Payment, Notes)
+- [x] Integrate OrderDetailTimeline into Timeline tab
+- [x] Add order summary information (customer, product, pricing)
+- [x] Add payment details and history in Payment tab
+- [x] Add admin notes section in Notes tab
+- [x] Implement modal open/close with order selection
+- [x] Add modal to AdminDashboard orders list
+- [x] Write tests for order modal with timeline integration (10 tests)
+- [x] Test end-to-end: click order → modal opens → timeline displays

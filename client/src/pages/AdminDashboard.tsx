@@ -21,6 +21,8 @@ import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { AdminInventoryManager } from "@/components/AdminInventoryManager";
 import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
 import { InvoicesPanel } from "@/components/InvoicesPanel";
+import { OrderDetailTimeline } from "@/components/OrderDetailTimeline";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
@@ -565,6 +567,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
   const [adminNotes, setAdminNotes] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isUpdatingPrice, setIsUpdatingPrice] = useState(false);
+  const [activeTab, setActiveTab] = useState<'details' | 'timeline' | 'notes'>('details');
 
   const orderQuery = trpc.admin.getOrderDetail.useQuery({ orderId });
   const updateStatusMutation = trpc.admin.updateOrderStatus.useMutation();
@@ -645,7 +648,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <Card className="w-full max-w-2xl my-8">
+      <Card className="w-full max-w-4xl my-8">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
@@ -660,7 +663,15 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'details' | 'timeline' | 'notes')} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="timeline">Timeline</TabsTrigger>
+              <TabsTrigger value="notes">Notes & Actions</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="details" className="space-y-6">
           {/* Customer Information */}
           <div className="space-y-2">
             <h3 className="font-semibold text-gray-900">Customer Information</h3>
@@ -845,6 +856,69 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
               </Button>
             </div>
           </div>
+            </TabsContent>
+
+            <TabsContent value="timeline">
+              <OrderDetailTimeline order={order} />
+            </TabsContent>
+
+            <TabsContent value="notes" className="space-y-6">
+              {/* Admin Notes */}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Admin Notes
+                </h3>
+                <Textarea
+                  placeholder="Add internal notes about this order..."
+                  value={adminNotes}
+                  onChange={(e) => setAdminNotes(e.target.value)}
+                  className="min-h-24"
+                />
+              </div>
+
+              {/* Update Status */}
+              <div className="space-y-2 border-t pt-4">
+                <h3 className="font-semibold text-gray-900">Update Status</h3>
+                <div className="flex gap-2">
+                  <Select value={newStatus || ""} onValueChange={(value) => setNewStatus(value as OrderStatus)}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select new status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="quoted">Quoted</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="in-production">In Production</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={handleUpdateStatus} disabled={isUpdatingStatus || !newStatus} className="bg-blue-600 hover:bg-blue-700">
+                    {isUpdatingStatus ? "Updating..." : "Update"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Update Price */}
+              <div className="space-y-2 border-t pt-4">
+                <h3 className="font-semibold text-gray-900">Adjust Price</h3>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Enter new price"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    step="0.01"
+                    min="0"
+                    className="flex-1"
+                  />
+                  <Button onClick={handleUpdatePrice} disabled={isUpdatingPrice || !newPrice} className="bg-green-600 hover:bg-green-700">
+                    {isUpdatingPrice ? "Updating..." : "Update"}
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
