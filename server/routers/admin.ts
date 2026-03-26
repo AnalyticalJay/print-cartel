@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
 import { sendQuoteEmail, sendFinalInvoiceEmail } from "../payment-emails";
+import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 import { getInvoices, getInvoiceStats } from "../db";
 
 export const adminRouter = router({
@@ -849,12 +850,38 @@ export const adminRouter = router({
         const db = await getDb();
         if (!db) throw new Error("Database not available");
 
+        const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+        if (!orderResult.length) throw new Error("Order not found");
+        const order = orderResult[0];
+
         await db.update(orders).set({
           paymentVerificationStatus: "verified",
           paymentVerifiedAt: new Date(),
           paymentVerificationNotes: input.notes || null,
           paymentStatus: "paid",
         }).where(eq(orders.id, input.orderId));
+
+        try {
+          await sendPaymentConfirmationEmail(
+            order.customerEmail,
+            `${order.customerFirstName} ${order.customerLastName}`,
+            input.orderId,
+            `INV-${input.orderId}`,
+            parseFloat(order.amountPaid || "0"),
+            parseFloat(order.totalPriceEstimate),
+            Math.max(0, parseFloat(order.totalPriceEstimate) - parseFloat(order.amountPaid || "0")),
+            new Date().toLocaleDateString("en-ZA", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          );
+          console.log(`✓ Payment confirmation email sent to ${order.customerEmail}`);
+        } catch (emailError) {
+          console.error(`Failed to send payment confirmation email for order ${input.orderId}:`, emailError);
+        }
 
         return { success: true };
       } catch (error) {

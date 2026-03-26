@@ -1509,3 +1509,14 @@ Future enhancements (Phase 2):
 - [ ] Test end-to-end: invoice → payment → status update → confirmation email
 - [ ] Verify PayFast payment redirects and callbacks work correctly
 - [ ] Test manual payment proof verification workflow
+
+
+## Current Sprint - Payment Confirmation Emails
+- [x] Create payment confirmation email template with receipt details
+- [x] Add payment confirmation email trigger for PayFast payments
+- [x] Add payment confirmation email trigger for manual payment verification
+- [x] Include order details, payment amount, and payment method in email
+- [x] Add order tracking link to payment confirmation email
+- [x] Write tests for payment confirmation email workflow (10 tests)
+- [x] Test PayFast payment confirmation emails
+- [x] Test manual payment confirmation emails

@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { orders } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { PayFastIntegration } from "../payfast-integration";
+import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 
 // Initialize PayFast integration
 const payfast = new PayFastIntegration({
@@ -235,8 +236,28 @@ export const paymentRouter = router({
             })
             .where(eq(orders.id, orderId));
 
-          // Payment confirmation will be handled by admin notification system
-          console.log(`Payment confirmed for order ${orderId}: ${paidAmount} ZAR`);
+          // Send payment confirmation email to customer
+          try {
+            await sendPaymentConfirmationEmail(
+              order.customerEmail,
+              `${order.customerFirstName} ${order.customerLastName}`,
+              orderId,
+              `INV-${orderId}`,
+              paidAmount,
+              parseFloat(order.totalPriceEstimate),
+              Math.max(0, parseFloat(order.totalPriceEstimate) - paidAmount),
+              new Date().toLocaleDateString("en-ZA", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            );
+            console.log(`✓ Payment confirmation email sent to ${order.customerEmail}`);
+          } catch (emailError) {
+            console.error(`Failed to send payment confirmation email for order ${orderId}:`, emailError);
+          }
 
           console.log(`✓ Payment verified for order ${orderId}: ${paidAmount} ZAR`);
         }
