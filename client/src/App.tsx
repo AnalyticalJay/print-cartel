@@ -16,6 +16,7 @@ import Reseller from "./pages/Reseller";
 import ResellersManagement from "./pages/ResellersManagement";
 import GangSheetPage from "./pages/GangSheetPage";
 import QuoteAcceptance from "./pages/QuoteAcceptance";
+import { PayFastReturn } from "./pages/PayFastReturn";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -33,6 +34,7 @@ function Router() {
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/quote/accept"} component={QuoteAcceptance} />
       <Route path={"/quote/reject"} component={QuoteAcceptance} />
+      <Route path={"/payment/payfast-return"} component={PayFastReturn} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

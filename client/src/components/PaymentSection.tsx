@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,8 +34,15 @@ export function PaymentSection({
   const [proofFileName, setProofFileName] = useState("");
   const [proofFileUrl, setProofFileUrl] = useState("");
   const [notes, setNotes] = useState("");
+  const [lastVerificationStatus, setLastVerificationStatus] = useState<string | null>(null);
 
-  const paymentStatusQuery = trpc.payment.getPaymentStatus.useQuery({ orderId });
+  const paymentStatusQuery = trpc.payment.getPaymentStatus.useQuery(
+    { orderId },
+    {
+      refetchInterval: 5000, // Poll every 5 seconds
+      refetchIntervalInBackground: true,
+    }
+  );
 
   const initiatePayFastMutation = trpc.payment.initiatePayFastPayment.useMutation({
     onSuccess: (data) => {
@@ -66,11 +73,27 @@ export function PaymentSection({
     initiatePayFastMutation.mutate({
       orderId,
       amount: paymentAmount,
-      returnUrl: `${window.location.origin}/orders/${orderId}`,
-      cancelUrl: `${window.location.origin}/orders/${orderId}`,
+      returnUrl: `${window.location.origin}/payment/payfast-return`,
+      cancelUrl: `${window.location.origin}/dashboard`,
       notifyUrl: `${window.location.origin}/api/payment/payfast-notify`,
     });
   };
+
+  // Show notifications when payment status changes
+  useEffect(() => {
+    if (paymentStatusQuery.data?.verificationStatus) {
+      if (paymentStatusQuery.data.verificationStatus === "verified" && lastVerificationStatus !== "verified") {
+        toast.success("Payment verified! Thank you for your payment.");
+        setLastVerificationStatus("verified");
+      } else if (paymentStatusQuery.data.verificationStatus === "rejected" && lastVerificationStatus !== "rejected") {
+        toast.error("Payment verification failed. Please contact support.");
+        setLastVerificationStatus("rejected");
+      } else if (paymentStatusQuery.data.verificationStatus === "pending" && lastVerificationStatus !== "pending") {
+        toast.info("Payment verification in progress. Please check back soon.");
+        setLastVerificationStatus("pending");
+      }
+    }
+  }, [paymentStatusQuery.data?.verificationStatus, lastVerificationStatus]);
 
   const handleManualPaymentSubmit = () => {
     if (!proofFileUrl) {

@@ -1498,6 +1498,13 @@ Future enhancements (Phase 2):
 - [x] Create payment verification workflow for admin review
 - [x] Write tests for payment processing (11 tests - all passing)
 - [x] Integrate PaymentSection into CustomerDashboard for approved orders
+- [x] Create PayFast return handler page for payment confirmation
+- [x] Add payment status polling (5-second intervals)
+- [x] Implement payment success/failure notifications
+- [x] Update PayFast return URLs to redirect to payment/payfast-return
+- [x] Write PayFast integration tests (8 tests - all passing)
+- [x] Validate PayFast credentials with live merchant account
+- [x] Add PayFastReturn route to App.tsx
 - [x] Test end-to-end: invoice → payment → status update
 - [ ] Test end-to-end: invoice → payment → status update → confirmation email
 - [ ] Verify PayFast payment redirects and callbacks work correctly
