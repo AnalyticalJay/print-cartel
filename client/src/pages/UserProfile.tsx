@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { Loader2, Eye, LogOut } from "lucide-react";
 import { PaymentSection } from "@/components/PaymentSection";
+import { DepositPaymentTracker } from "@/components/DepositPaymentTracker";
 
 export default function UserProfile() {
   const { user, logout } = useAuth();
@@ -284,30 +285,25 @@ export default function UserProfile() {
                       </p>
                     </div>
 
-                    {/* Payment Section - Show for approved or quoted status */}
+                    {/* Deposit Payment Tracker */}
                     {(() => {
                       const order = orders.find((o) => o.id === selectedOrderId);
                       const shouldShowPayment = order?.status === "approved" || order?.status === "quoted";
-                      
-                      return shouldShowPayment ? (
-                        <div className="border-t pt-4 mt-4">
-                          <h3 className="text-lg font-semibold mb-4">Payment</h3>
-                          <PaymentSection
+                      if (!shouldShowPayment) return null;
+                      const totalPrice = parseFloat(String(order?.totalPriceEstimate || "0"));
+                      const depositPaid = order?.amountPaid ? parseFloat(String(order.amountPaid)) : 0;
+                      return (
+                        <div className="border-t pt-6 mt-6">
+                          <DepositPaymentTracker
                             orderId={selectedOrderId}
-                            totalAmount={parseFloat(
-                              String(order?.totalPriceEstimate || "0")
-                            )}
-                            depositAmount={order?.depositAmount
-                              ? parseFloat(String(order.depositAmount))
-                              : undefined}
-                            amountPaid={order?.amountPaid
-                              ? parseFloat(String(order.amountPaid))
-                              : 0}
-                            paymentStatus={order?.paymentStatus || "unpaid"}
-                            invoiceUrl={order?.invoiceUrl || undefined}
+                            totalPrice={totalPrice}
+                            depositPercentage={30}
+                            depositPaid={depositPaid}
+                            finalPaymentPaid={0}
+                            orderStatus={order?.status as any}
                           />
                         </div>
-                      ) : null;
+                      );
                     })()}
 
                   </>

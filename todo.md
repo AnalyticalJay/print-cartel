@@ -1627,3 +1627,15 @@ Future enhancements (Phase 2):
 - [x] Add next steps and action items
 - [x] Integrate with PayFast return flow
 - [x] Create comprehensive tests (50+ test cases)
+
+
+## Deposit Payment Tracking Feature
+- [x] Design deposit payment tracking UI with progress indicators
+- [x] Create DepositPaymentTracker component
+- [x] Add deposit amount calculation logic
+- [x] Implement final payment amount calculation
+- [x] Add visual progress bars for deposit and final payment
+- [x] Create payment status badges
+- [x] Add next-step instructions based on payment status
+- [x] Integrate into order details and dashboard
+- [x] Create comprehensive tests (90+ test cases)
