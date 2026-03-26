@@ -9,18 +9,18 @@ import { sendInvoiceEmail } from "../invoice-email";
 import { sendQuoteRejectedEmail } from "../quote-action-emails";
 
 /**
- * Quote acceptance router - handles customer quote acceptance/rejection
+ * Quote acceptance router - handles customer quote acceptance/rejection from dashboard
  */
 export const quoteAcceptanceRouter = router({
   /**
    * Accept a quote and generate invoice
+   * Called from customer dashboard when they accept a pending quote
    */
   acceptQuote: publicProcedure
     .input(
       z.object({
         orderId: z.number(),
-        customerEmail: z.string().email(),
-        acceptanceToken: z.string(),
+        email: z.string().email(),
       })
     )
     .mutation(async ({ input }: any) => {
@@ -44,23 +44,14 @@ export const quoteAcceptanceRouter = router({
         const order = orderData[0];
 
         // Verify email matches
-        if (order.customerEmail !== input.customerEmail) {
+        if (order.customerEmail !== input.email) {
           throw new Error("Email does not match order");
         }
 
-        // Verify order is in quoted status
-        if (order.status !== "quoted") {
-          throw new Error("Order is not in quoted status");
+        // Verify order is in pending status (customer accepts from dashboard)
+        if (order.status !== "pending") {
+          throw new Error("Order is not in pending status");
         }
-
-        // Update order status to approved
-        await db
-          .update(orders)
-          .set({
-            status: "approved",
-            updatedAt: new Date(),
-          })
-          .where(eq(orders.id, input.orderId));
 
         // Generate invoice PDF
         const invoiceBuffer = await generateInvoicePDF(order.id);
@@ -73,11 +64,14 @@ export const quoteAcceptanceRouter = router({
           "application/pdf"
         );
 
-        // Update order with invoice URL
+        // Update order with invoice URL and status to approved
         await db
           .update(orders)
           .set({
+            status: "approved",
             invoiceUrl,
+            invoiceAcceptedAt: new Date(),
+            updatedAt: new Date(),
           })
           .where(eq(orders.id, input.orderId));
 
@@ -94,7 +88,7 @@ export const quoteAcceptanceRouter = router({
 
         return {
           success: true,
-          message: "Quote accepted successfully",
+          message: "Quote accepted successfully. Invoice sent to your email.",
           orderId: order.id,
           invoiceUrl,
         };
@@ -106,14 +100,14 @@ export const quoteAcceptanceRouter = router({
 
   /**
    * Reject a quote
+   * Called from customer dashboard when they decline a pending quote
    */
   rejectQuote: publicProcedure
     .input(
       z.object({
         orderId: z.number(),
-        customerEmail: z.string().email(),
-        rejectionReason: z.string().min(10).max(500),
-        acceptanceToken: z.string(),
+        email: z.string().email(),
+        reason: z.string().min(10).max(500),
       })
     )
     .mutation(async ({ input }: any) => {
@@ -137,35 +131,37 @@ export const quoteAcceptanceRouter = router({
         const order = orderData[0];
 
         // Verify email matches
-        if (order.customerEmail !== input.customerEmail) {
+        if (order.customerEmail !== input.email) {
           throw new Error("Email does not match order");
         }
 
-        // Verify order is in quoted status
-        if (order.status !== "quoted") {
-          throw new Error("Order is not in quoted status");
+        // Verify order is in pending status
+        if (order.status !== "pending") {
+          throw new Error("Order is not in pending status");
         }
 
-        // Update order status to cancelled
+        // Update order status to cancelled with rejection reason
         await db
           .update(orders)
           .set({
             status: "cancelled",
+            invoiceDeclinedAt: new Date(),
+            invoiceDeclineReason: input.reason,
             updatedAt: new Date(),
           })
           .where(eq(orders.id, input.orderId));
 
-        // Send rejection email
+        // Send rejection notification email
         await sendQuoteRejectedEmail(
           order.customerEmail,
           `${order.customerFirstName} ${order.customerLastName}`,
           order.id,
-          input.rejectionReason
+          input.reason
         );
 
         return {
           success: true,
-          message: "Quote rejected successfully",
+          message: "Quote declined. We will follow up with you soon.",
           orderId: order.id,
         };
       } catch (error) {
@@ -175,13 +171,14 @@ export const quoteAcceptanceRouter = router({
     }),
 
   /**
-   * Get quote details for acceptance page
+   * Get quote details for a customer
+   * Used to display quote information on dashboard
    */
   getQuoteDetails: publicProcedure
     .input(
       z.object({
         orderId: z.number(),
-        customerEmail: z.string().email(),
+        email: z.string().email(),
       })
     )
     .query(async ({ input }: any) => {
@@ -191,6 +188,7 @@ export const quoteAcceptanceRouter = router({
           throw new Error("Database not available");
         }
 
+        // Fetch the order
         const orderData = await db
           .select()
           .from(orders)
@@ -204,19 +202,20 @@ export const quoteAcceptanceRouter = router({
         const order = orderData[0];
 
         // Verify email matches
-        if (order.customerEmail !== input.customerEmail) {
+        if (order.customerEmail !== input.email) {
           throw new Error("Email does not match order");
         }
 
         return {
-          orderId: order.id,
+          id: order.id,
+          status: order.status,
           customerName: `${order.customerFirstName} ${order.customerLastName}`,
           customerEmail: order.customerEmail,
+          quantity: order.quantity,
           totalPrice: parseFloat(order.totalPriceEstimate || "0"),
           depositAmount: parseFloat(order.depositAmount || "0"),
-          paymentMethod: order.paymentMethod || "full_payment",
-          quantity: order.quantity,
-          status: order.status,
+          paymentMethod: order.paymentMethod,
+          invoiceUrl: order.invoiceUrl,
           createdAt: order.createdAt,
         };
       } catch (error) {

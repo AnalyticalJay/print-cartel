@@ -1471,3 +1471,16 @@ Future enhancements (Phase 2):
 - [ ] Add email trigger when invoice is generated
 - [ ] Add email trigger when payment is verified
 - [ ] Test all email notifications end-to-end
+
+
+## Current Sprint - Quote Acceptance Workflow Redesign
+- [x] Add quote acceptance UI to customer dashboard showing pending quotes
+- [x] Implement accept/decline quote buttons on dashboard
+- [x] Update acceptQuote procedure to generate invoice PDF when customer accepts
+- [x] Update acceptQuote procedure to send invoice email automatically
+- [x] Write tests for new workflow (10 tests - all passing)
+- [ ] Update admin dashboard to display invoices in Invoices panel
+- [ ] Create payment section in customer dashboard
+- [ ] Integrate payment processing into dashboard (Stripe or manual)
+- [ ] Update admin dashboard order overview to show status changes
+- [ ] Test end-to-end: order submission → pending → admin quotes → customer accepts → invoice email → payment

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +19,7 @@ import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 import { CustomerOrderStatusTimeline } from "@/components/CustomerOrderStatusTimeline";
 import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
+import { QuoteAcceptanceSection } from "@/components/QuoteAcceptanceSection";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -77,6 +77,7 @@ export default function CustomerDashboard() {
   const [activeTab, setActiveTab] = useState<'orders' | 'communications' | 'referral'>('orders');
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
   const [showChat, setShowChat] = useState(false);
+  const [refreshOrders, setRefreshOrders] = useState(0);
 
   // Fetch orders for authenticated user
   const ordersQuery = trpc.orders.getByEmail.useQuery(
@@ -292,7 +293,7 @@ export default function CustomerDashboard() {
                   className="bg-gray-900 border-gray-800 hover:border-gray-700 cursor-pointer transition"
                   onClick={() => setSelectedOrder(order)}
                 >
-                  <CardContent className="py-6">
+                  <CardContent className="py-6 space-y-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -318,6 +319,15 @@ export default function CustomerDashboard() {
                       </Button>
                     </div>
                   </CardContent>
+                    {order.status === "pending" && (
+                      <QuoteAcceptanceSection
+                        order={order}
+                        onAcceptanceComplete={() => {
+                          setRefreshOrders(prev => prev + 1);
+                          setTimeout(() => setRefreshOrders(0), 5000);
+                        }}
+                      />
+                    )}
                 </Card>
               ))}
             </div>
