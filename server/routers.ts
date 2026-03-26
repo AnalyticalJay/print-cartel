@@ -15,6 +15,7 @@ import { referralRouter } from "./routers/referral";
 import { templatesRouter } from "./routers/templates";
 import { notificationsRouter } from "./routers/notifications";
 import { quoteAcceptanceRouter } from "./routers/quote-acceptance";
+import { paymentRouter } from "./routers/payment";
 
 const gangSheetsRouter = gangSheets;
 
@@ -45,6 +46,7 @@ export const appRouter = router({
   templates: templatesRouter,
   notifications: notificationsRouter,
   quoteAcceptance: quoteAcceptanceRouter,
+  payment: paymentRouter,
 });
 
 export type AppRouter = typeof appRouter;

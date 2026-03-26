@@ -20,6 +20,7 @@ import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 import { CustomerOrderStatusTimeline } from "@/components/CustomerOrderStatusTimeline";
 import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
 import { QuoteAcceptanceSection } from "@/components/QuoteAcceptanceSection";
+import { PaymentSection } from "@/components/PaymentSection";
 import { toast } from "sonner";
 
 interface OrderWithPrints {
@@ -406,14 +407,15 @@ export default function CustomerDashboard() {
                 {/* Order Status History Timeline */}
                 <OrderStatusHistorySection orderId={selectedOrder.id} />
 
-                {/* Payment Status Display */}
-                {selectedOrder.paymentStatus && (
-                  <PaymentStatusDisplay
-                    paymentStatus={selectedOrder.paymentStatus}
+                {/* Payment Section */}
+                {selectedOrder.status === "approved" && (
+                  <PaymentSection
+                    orderId={selectedOrder.id}
                     totalAmount={parseFloat(selectedOrder.totalPriceEstimate)}
-                    amountPaid={selectedOrder.amountPaid || 0}
-                    depositAmount={selectedOrder.depositAmount || undefined}
-                    showDetails={true}
+                    amountPaid={parseFloat(selectedOrder.amountPaid || "0")}
+                    depositAmount={selectedOrder.depositAmount ? parseFloat(selectedOrder.depositAmount) : undefined}
+                    paymentStatus={selectedOrder.paymentStatus}
+                    invoiceUrl={selectedOrder.invoiceUrl}
                   />
                 )}
 

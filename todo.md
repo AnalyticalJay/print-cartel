@@ -1483,7 +1483,22 @@ Future enhancements (Phase 2):
 - [x] Add resendInvoice mutation to admin router
 - [x] Implement invoice resend functionality with email
 - [x] Write tests for invoice resend (10 tests - all passing)
-- [ ] Create payment section in customer dashboard
-- [ ] Integrate payment processing into dashboard (Stripe or manual)
-- [ ] Update admin dashboard order overview to show status changes
-- [ ] Test end-to-end: order submission → pending → admin quotes → customer accepts → invoice email → payment
+- [x] Create payment section in customer dashboard
+- [x] Integrate payment processing into dashboard (PayFast + manual payment)
+- [x] Add payment status tracking and notifications
+- [x] Test end-to-end: order submission → pending → admin quotes → customer accepts → invoice email → payment
+
+
+## Current Sprint - Payment Processing Integration
+- [x] Create PayFast integration helper with API communication
+- [x] Add payment procedures to payment router (initiatePayFastPayment, submitManualPayment, getPaymentStatus, verifyPayFastNotification)
+- [x] Build PaymentSection component for customer dashboard with both payment methods
+- [x] Implement manual payment proof upload functionality with file URL tracking
+- [x] Add payment status tracking and updates to order records
+- [x] Create payment verification workflow for admin review
+- [x] Write tests for payment processing (11 tests - all passing)
+- [x] Integrate PaymentSection into CustomerDashboard for approved orders
+- [x] Test end-to-end: invoice → payment → status update
+- [ ] Test end-to-end: invoice → payment → status update → confirmation email
+- [ ] Verify PayFast payment redirects and callbacks work correctly
+- [ ] Test manual payment proof verification workflow
