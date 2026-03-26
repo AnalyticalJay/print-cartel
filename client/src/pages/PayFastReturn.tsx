@@ -9,7 +9,7 @@ import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 export function PayFastReturn() {
   const [searchParams] = useSearchParams();
-  const [, navigate] = useLocation();
+  const [, navigate] = useLocation() as any;
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
   const [orderId, setOrderId] = useState<number | null>(null);
@@ -21,12 +21,17 @@ export function PayFastReturn() {
         setMessage("Payment verified successfully! Your order status has been updated.");
         toast.success("Payment confirmed!");
         setTimeout(() => {
-          navigate(`/dashboard`);
-        }, 3000);
+          // Redirect to payment success page with order ID
+          navigate(`/payment/success?orderId=${orderId}`);
+        }, 2000);
       } else {
         setStatus("error");
         setMessage(data.error || "Payment verification failed. Please contact support.");
         toast.error("Payment verification failed");
+        // Fallback to dashboard after 5 seconds
+        setTimeout(() => {
+          navigate(`/dashboard`);
+        }, 5000);
       }
     },
     onError: (error: any) => {

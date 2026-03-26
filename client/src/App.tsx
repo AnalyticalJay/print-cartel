@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
@@ -17,6 +17,7 @@ import ResellersManagement from "./pages/ResellersManagement";
 import GangSheetPage from "./pages/GangSheetPage";
 import QuoteAcceptance from "./pages/QuoteAcceptance";
 import { PayFastReturn } from "./pages/PayFastReturn";
+import { PaymentSuccess } from "./pages/PaymentSuccess";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -35,6 +36,7 @@ function Router() {
       <Route path={"/quote/accept"} component={QuoteAcceptance} />
       <Route path={"/quote/reject"} component={QuoteAcceptance} />
       <Route path={"/payment/payfast-return"} component={PayFastReturn} />
+      <Route path={"/payment/success"} component={PaymentSuccess} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
