@@ -1533,3 +1533,16 @@ Future enhancements (Phase 2):
 - [x] Write tests for payment verification workflow (10 tests)
 - [x] Integrate PaymentVerificationPanel into AdminDashboard
 - [x] Test end-to-end payment verification workflow
+
+
+## Current Sprint - Order Status Timeline View
+- [x] Create OrderStatusTimeline component with visual timeline display
+- [x] Track status change timestamps (quoteApprovedAt, paymentVerifiedAt, etc.)
+- [x] Add admin notes field for each status change (paymentVerificationNotes, quoteRejectionReason)
+- [x] Display timeline with status badges and timestamps
+- [x] Show order progression: pending → quoted → approved → paid
+- [x] Add status change reason/notes in timeline
+- [x] Create OrderDetailTimeline component for order detail modal
+- [x] Database schema supports full order status history
+- [x] Write tests for order status timeline (10 tests - all passing)
+- [x] Test end-to-end: status changes reflected in timeline with notes
