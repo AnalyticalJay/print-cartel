@@ -254,11 +254,12 @@ export function generateInvoiceEmailHTML(
         </div>
 
         <div class="actions">
-          <a href="https://printcartel.co.za/dashboard?orderId=${orderId}&action=invoice" class="btn btn-primary">View Invoice in Dashboard</a>
+          <a href="https://printcartel.co.za/dashboard?orderId=${orderId}&action=payment" class="btn btn-primary">Make Payment Now</a>
+          <a href="https://printcartel.co.za/dashboard?orderId=${orderId}&action=invoice" class="btn btn-secondary">View Invoice</a>
         </div>
 
         <p style="color: #666; font-size: 14px;">
-          Log in to your account to accept or decline this invoice: <a href="https://printcartel.co.za/dashboard">Print Cartel Dashboard</a>
+          Log in to your account to make payment or view your invoice: <a href="https://printcartel.co.za/dashboard">Print Cartel Dashboard</a>
         </p>
 
         <div class="footer">

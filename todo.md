@@ -1598,3 +1598,11 @@ Future enhancements (Phase 2):
 - [ ] Test order wizard flow from Step 1 through Step 6
 - [ ] Verify email notifications are sent after order submission
 - [ ] Test responsive design on mobile and tablet
+
+
+## Current Issues - Payment Flow
+- [x] Fix broken payment link (404 error on https://forge.manus.ai/payment/990001)
+- [x] Add payment section to user dashboard for making payments
+- [x] Ensure quote acceptance email includes correct payment link
+- [x] Verify PayFast integration is working correctly
+- [x] Test complete quote-to-payment flow end-to-end

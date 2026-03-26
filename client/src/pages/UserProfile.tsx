@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { Loader2, Eye, LogOut } from "lucide-react";
+import { PaymentSection } from "@/components/PaymentSection";
 
 export default function UserProfile() {
   const { user, logout } = useAuth();
@@ -228,6 +229,26 @@ export default function UserProfile() {
                         )}
                       </p>
                     </div>
+
+                    {/* Payment Section */}
+                    {orders.find((o) => o.id === selectedOrderId)?.status === "approved" && (
+                      <div className="border-t pt-4">
+                        <PaymentSection
+                          orderId={selectedOrderId}
+                          totalAmount={parseFloat(
+                            String(orders?.find((o) => o.id === selectedOrderId)?.totalPriceEstimate || "0")
+                          )}
+                          depositAmount={orders.find((o) => o.id === selectedOrderId)?.depositAmount
+                            ? parseFloat(String(orders.find((o) => o.id === selectedOrderId)?.depositAmount))
+                            : undefined}
+                          amountPaid={orders.find((o) => o.id === selectedOrderId)?.amountPaid
+                            ? parseFloat(String(orders.find((o) => o.id === selectedOrderId)?.amountPaid))
+                            : 0}
+                          paymentStatus={orders.find((o) => o.id === selectedOrderId)?.paymentStatus || "unpaid"}
+                          invoiceUrl={orders.find((o) => o.id === selectedOrderId)?.invoiceUrl || undefined}
+                        />
+                      </div>
+                    )}
 
                   </>
                 )}
