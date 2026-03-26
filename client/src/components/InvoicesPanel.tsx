@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { FileText, Download, Mail, Plus, Search } from "lucide-react";
+import { FileText, Download, Mail, Plus, Search, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export function InvoicesPanel() {
@@ -13,9 +13,19 @@ export function InvoicesPanel() {
   const [filter, setFilter] = useState<"all" | "pending" | "accepted" | "declined">("all");
   const [showManualForm, setShowManualForm] = useState(false);
 
-  const { data: invoices, isLoading } = trpc.admin.getInvoices.useQuery({
+  const { data: invoices, isLoading, refetch } = trpc.admin.getInvoices.useQuery({
     search,
     filter: filter === "all" ? undefined : filter,
+  });
+
+  const resendInvoiceMutation = trpc.admin.resendInvoice.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice resent successfully");
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error("Failed to resend invoice: " + (error?.message || "Unknown error"));
+    },
   });
 
   const { data: stats } = trpc.admin.getInvoiceStats.useQuery();
@@ -174,8 +184,11 @@ export function InvoicesPanel() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        toast.success("Email sent to " + invoice.customerEmail);
+                        resendInvoiceMutation.mutate({
+                          orderId: invoice.id,
+                        });
                       }}
+                      disabled={resendInvoiceMutation.isPending}
                       className="gap-2"
                     >
                       <Mail className="h-4 w-4" />

@@ -949,4 +949,60 @@ export const adminRouter = router({
         throw error;
       }
     }),
+  // Resend invoice email to customer
+  resendInvoice: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get order with invoice
+        const orderResult = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, input.orderId))
+          .limit(1);
+
+        if (!orderResult.length) {
+          throw new Error("Order not found");
+        }
+
+        const orderData = orderResult[0];
+
+        if (!orderData.invoiceUrl) {
+          throw new Error("No invoice found for this order");
+        }
+
+        // Send invoice email
+        const { sendInvoiceEmail } = await import("../invoice-email");
+        await sendInvoiceEmail({
+          customerEmail: orderData.customerEmail,
+          customerName: `${orderData.customerFirstName} ${orderData.customerLastName}`,
+          orderId: orderData.id,
+          invoicePdfUrl: orderData.invoiceUrl,
+          totalPrice: parseFloat(orderData.totalPriceEstimate as any),
+          depositAmount: parseFloat(orderData.depositAmount as any) || 0,
+          paymentMethod: orderData.paymentMethod || "full_payment",
+        });
+
+        // Update order timestamp to track resend
+        await db
+          .update(orders)
+          .set({
+            updatedAt: new Date(),
+          })
+          .where(eq(orders.id, input.orderId));
+
+        console.log(`✓ Invoice resent for order ${input.orderId}`);
+        return { success: true, message: "Invoice resent successfully" };
+      } catch (error) {
+        console.error("Failed to resend invoice:", error);
+        throw error;
+      }
+    }),
 });

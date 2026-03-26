@@ -1479,7 +1479,10 @@ Future enhancements (Phase 2):
 - [x] Update acceptQuote procedure to generate invoice PDF when customer accepts
 - [x] Update acceptQuote procedure to send invoice email automatically
 - [x] Write tests for new workflow (10 tests - all passing)
-- [ ] Update admin dashboard to display invoices in Invoices panel
+- [x] Update admin dashboard to display invoices in Invoices panel
+- [x] Add resendInvoice mutation to admin router
+- [x] Implement invoice resend functionality with email
+- [x] Write tests for invoice resend (10 tests - all passing)
 - [ ] Create payment section in customer dashboard
 - [ ] Integrate payment processing into dashboard (Stripe or manual)
 - [ ] Update admin dashboard order overview to show status changes
