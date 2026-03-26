@@ -1606,3 +1606,13 @@ Future enhancements (Phase 2):
 - [x] Ensure quote acceptance email includes correct payment link
 - [x] Verify PayFast integration is working correctly
 - [x] Test complete quote-to-payment flow end-to-end
+
+
+## Current Issues - Payment Section Not Visible
+- [x] Debug why PaymentSection is not showing in customer dashboard
+- [x] Verify order status values match the condition check
+- [x] Check if PaymentSection component is rendering
+- [x] Test payment flow with actual order statuses
+- [x] Add dedicated Payments tab to dashboard
+- [x] Show payment section in order details modal
+- [x] Create comprehensive tests for payment visibility

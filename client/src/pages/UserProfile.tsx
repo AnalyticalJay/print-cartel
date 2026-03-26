@@ -77,8 +77,9 @@ export default function UserProfile() {
 
         {/* Tabs */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="orders">Order History</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="account">Account Details</TabsTrigger>
           </TabsList>
 
@@ -150,6 +151,59 @@ export default function UserProfile() {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Payments Tab */}
+          <TabsContent value="payments" className="space-y-4">
+            {isLoading ? (
+              <Card>
+                <CardContent className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </CardContent>
+              </Card>
+            ) : !orders || orders.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-center text-muted-foreground">No orders requiring payment</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {orders
+                  .filter((order) => order.status === "approved" || order.status === "quoted")
+                  .map((order) => (
+                    <Card key={order.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="text-lg">Order #{order.id}</CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                              Amount Due: {formatCurrency(typeof order.totalPriceEstimate === 'string' ? parseFloat(order.totalPriceEstimate) : order.totalPriceEstimate)}
+                            </p>
+                          </div>
+                          <Badge className={getStatusColor(order.status)}>
+                            {order.status.replace("-", " ").toUpperCase()}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <PaymentSection
+                          orderId={order.id}
+                          totalAmount={typeof order.totalPriceEstimate === 'string' ? parseFloat(order.totalPriceEstimate) : order.totalPriceEstimate}
+                          depositAmount={order.depositAmount
+                            ? parseFloat(String(order.depositAmount))
+                            : undefined}
+                          amountPaid={order.amountPaid
+                            ? parseFloat(String(order.amountPaid))
+                            : 0}
+                          paymentStatus={order.paymentStatus || "unpaid"}
+                          invoiceUrl={order.invoiceUrl || undefined}
+                        />
+                      </CardContent>
+                    </Card>
+                  ))}
               </div>
             )}
           </TabsContent>
@@ -230,25 +284,31 @@ export default function UserProfile() {
                       </p>
                     </div>
 
-                    {/* Payment Section */}
-                    {orders.find((o) => o.id === selectedOrderId)?.status === "approved" && (
-                      <div className="border-t pt-4">
-                        <PaymentSection
-                          orderId={selectedOrderId}
-                          totalAmount={parseFloat(
-                            String(orders?.find((o) => o.id === selectedOrderId)?.totalPriceEstimate || "0")
-                          )}
-                          depositAmount={orders.find((o) => o.id === selectedOrderId)?.depositAmount
-                            ? parseFloat(String(orders.find((o) => o.id === selectedOrderId)?.depositAmount))
-                            : undefined}
-                          amountPaid={orders.find((o) => o.id === selectedOrderId)?.amountPaid
-                            ? parseFloat(String(orders.find((o) => o.id === selectedOrderId)?.amountPaid))
-                            : 0}
-                          paymentStatus={orders.find((o) => o.id === selectedOrderId)?.paymentStatus || "unpaid"}
-                          invoiceUrl={orders.find((o) => o.id === selectedOrderId)?.invoiceUrl || undefined}
-                        />
-                      </div>
-                    )}
+                    {/* Payment Section - Show for approved or quoted status */}
+                    {(() => {
+                      const order = orders.find((o) => o.id === selectedOrderId);
+                      const shouldShowPayment = order?.status === "approved" || order?.status === "quoted";
+                      
+                      return shouldShowPayment ? (
+                        <div className="border-t pt-4 mt-4">
+                          <h3 className="text-lg font-semibold mb-4">Payment</h3>
+                          <PaymentSection
+                            orderId={selectedOrderId}
+                            totalAmount={parseFloat(
+                              String(order?.totalPriceEstimate || "0")
+                            )}
+                            depositAmount={order?.depositAmount
+                              ? parseFloat(String(order.depositAmount))
+                              : undefined}
+                            amountPaid={order?.amountPaid
+                              ? parseFloat(String(order.amountPaid))
+                              : 0}
+                            paymentStatus={order?.paymentStatus || "unpaid"}
+                            invoiceUrl={order?.invoiceUrl || undefined}
+                          />
+                        </div>
+                      ) : null;
+                    })()}
 
                   </>
                 )}
