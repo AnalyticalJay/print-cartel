@@ -1674,3 +1674,16 @@ Future enhancements (Phase 2):
 - ✅ Single admin dashboard: AdminDashboard
 - ✅ Payment features in both dashboards
 - ✅ No duplicate components
+
+
+## UI/UX Enhancements - Customer Facing
+- [x] Enhance product cards with hover effects and better CTAs
+- [x] Add file preview/download to order details
+- [x] Show garment color in order details
+- [x] Add production timeline to order details (already in MobileOrderTimeline)
+- [x] Implement toast notifications for user actions
+- [x] Add order filtering (status, date, search)
+- [x] Improve product showcase with better navigation
+- [x] Add visual feedback to interactive elements
+- [ ] Enhance form validation messages
+- [ ] Add loading states and skeleton loaders

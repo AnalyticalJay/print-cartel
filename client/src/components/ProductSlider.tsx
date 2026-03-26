@@ -98,6 +98,10 @@ export function ProductSlider({ products }: ProductSliderProps) {
 
           {/* Product Info */}
           <div className="p-6 sm:p-8 bg-white">
+            {/* Product Counter */}
+            <div className="text-xs sm:text-sm font-semibold text-accent uppercase tracking-wide mb-3">
+              Product {currentIndex + 1} of {products.length}
+            </div>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -116,6 +120,16 @@ export function ProductSlider({ products }: ProductSliderProps) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Quick Order Button */}
+        <div className="px-6 sm:px-8 pb-6 sm:pb-8 bg-white border-t border-gray-200">
+          <Button
+            onClick={() => handleQuickView(currentProduct)}
+            className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-base sm:text-lg py-3 sm:py-4 font-bold shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            Quick Order
+          </Button>
         </div>
 
         {/* Thumbnail Navigation */}
@@ -143,14 +157,16 @@ export function ProductSlider({ products }: ProductSliderProps) {
                 )}
               </button>
 
-              {/* Quick View Button - appears on hover */}
-              <button
-                onClick={() => handleQuickView(product)}
-                className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-accent text-accent-foreground px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1 whitespace-nowrap"
-              >
-                <Eye className="w-3 h-3" />
-                Quick View
-              </button>
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
+                <button
+                  onClick={() => handleQuickView(product)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-accent text-accent-foreground px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap shadow-lg hover:bg-accent/90"
+                >
+                  <Eye className="w-4 h-4" />
+                  View
+                </button>
+              </div>
             </div>
           ))}
         </div>

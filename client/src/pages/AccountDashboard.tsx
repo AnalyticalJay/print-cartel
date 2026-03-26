@@ -345,7 +345,7 @@ export default function AccountDashboard() {
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-200">Total Price</p>
-                        <p className="text-base md:text-lg font-semibold">{selectedOrder.totalPriceEstimate}</p>
+                        <p className="text-base md:text-lg font-semibold">R{parseFloat(String(selectedOrder.totalPriceEstimate)).toFixed(2)}</p>
                       </div>
                     </div>
                     {/* Mobile Order Timeline */}
@@ -376,8 +376,8 @@ export default function AccountDashboard() {
                       </div>
                     )}
 
-                    <div>
-                      <p className="text-xs md:text-sm text-gray-200 mb-2 md:mb-3">Uploaded Files</p>
+                    <div className="border-t border-gray-700 pt-4 md:pt-6">
+                      <p className="text-xs md:text-sm text-gray-200 mb-3 md:mb-4 font-semibold uppercase tracking-wide">Design Files</p>
                       <div className="space-y-2">
                         {selectedOrder.prints && selectedOrder.prints.length > 0 ? (
                           selectedOrder.prints.map((print, idx) => (
