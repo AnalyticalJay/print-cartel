@@ -24,6 +24,7 @@ import { toast } from "sonner";
 
 interface OrderWithPrints {
   id: number;
+  userId?: number | null;
   productId: number;
   colorId: number;
   sizeId: number;
@@ -34,14 +35,14 @@ interface OrderWithPrints {
   customerPhone: string;
   customerCompany: string | null;
   additionalNotes: string | null;
-  totalPriceEstimate: string;
+  totalPriceEstimate: string | number;
   status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
   paymentMethod?: "deposit" | "full_payment" | null;
   depositAmount?: string | number | null;
   amountPaid?: string | number | null;
   createdAt: Date;
   updatedAt: Date;
-  prints: Array<{
+  prints?: Array<{
     id: number;
     orderId: number;
     printSizeId: number;
@@ -312,8 +313,8 @@ export default function AccountDashboard() {
                       <QuoteApprovalCard
                         orderId={selectedOrder.id}
                         orderStatus={selectedOrder.status}
-                        totalPrice={parseFloat(selectedOrder.totalPriceEstimate)}
-                        depositAmount={parseFloat(selectedOrder.totalPriceEstimate) * 0.5}
+                        totalPrice={parseFloat(String(selectedOrder.totalPriceEstimate))}
+                        depositAmount={parseFloat(String(selectedOrder.totalPriceEstimate)) * 0.5}
                         paymentMethod={selectedOrder.paymentMethod || "full_payment"}
                         onApproveSuccess={() => {
                           setSelectedOrder(null);
@@ -354,7 +355,7 @@ export default function AccountDashboard() {
                         updatedAt={selectedOrder.updatedAt}
                         orderDetails={{
                           quantity: selectedOrder.quantity,
-                          totalPrice: selectedOrder.totalPriceEstimate,
+                          totalPrice: String(selectedOrder.totalPriceEstimate),
                           depositPaid: selectedOrder.status !== "quoted",
                         }}
                       />

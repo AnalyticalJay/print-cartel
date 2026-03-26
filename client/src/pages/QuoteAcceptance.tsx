@@ -41,7 +41,7 @@ export default function QuoteAcceptance() {
   const { data: quoteDetails, isLoading: isLoadingQuote } = trpc.quoteAcceptance.getQuoteDetails.useQuery(
     {
       orderId: orderId || 0,
-      customerEmail: email,
+      email: email,
     },
     {
       enabled: orderId !== null && email !== "",
@@ -74,8 +74,7 @@ export default function QuoteAcceptance() {
     if (!orderId) return;
     acceptMutation.mutate({
       orderId,
-      customerEmail: email,
-      acceptanceToken: token,
+      email: email,
     });
   };
 
@@ -86,9 +85,8 @@ export default function QuoteAcceptance() {
     }
     rejectMutation.mutate({
       orderId,
-      customerEmail: email,
-      rejectionReason: rejectionReason.trim(),
-      acceptanceToken: token,
+      email: email,
+      reason: rejectionReason.trim(),
     });
   };
 
@@ -145,7 +143,7 @@ export default function QuoteAcceptance() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Order Number</p>
-                    <p className="font-semibold text-gray-900">#{quoteDetails.orderId}</p>
+                    <p className="font-semibold text-gray-900">#{quoteDetails.id}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Customer</p>
@@ -227,7 +225,7 @@ export default function QuoteAcceptance() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Order Number</p>
-                    <p className="font-semibold text-gray-900">#{quoteDetails.orderId}</p>
+                    <p className="font-semibold text-gray-900">#{quoteDetails.id}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Quote Amount</p>

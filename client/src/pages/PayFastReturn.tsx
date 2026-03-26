@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "wouter";
+import { useSearchParams, useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,14 +9,14 @@ import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 export function PayFastReturn() {
   const [searchParams] = useSearchParams();
-  const [, navigate] = useRouter();
+  const [, navigate] = useLocation();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
   const [orderId, setOrderId] = useState<number | null>(null);
 
   const verifyPaymentMutation = trpc.payment.verifyPayFastNotification.useMutation({
     onSuccess: (data) => {
-      if (data.verified) {
+      if (data.success) {
         setStatus("success");
         setMessage("Payment verified successfully! Your order status has been updated.");
         toast.success("Payment confirmed!");
@@ -49,12 +49,12 @@ export function PayFastReturn() {
 
     // Verify payment with backend
     if (paymentId && mPaymentId) {
-      const notificationData: Record<string, string> = {};
-      for (const [key, value] of searchParams.entries()) {
+      const notificationData: any = {};
+      Array.from(searchParams.entries()).forEach(([key, value]) => {
         notificationData[key] = value;
-      }
+      });
 
-      verifyPaymentMutation.mutate(notificationData);
+      verifyPaymentMutation.mutate(notificationData as any);
     } else {
       setStatus("error");
       setMessage("Invalid payment response. Missing payment information.");

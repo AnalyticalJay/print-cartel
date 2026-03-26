@@ -25,6 +25,7 @@ import { toast } from "sonner";
 
 interface OrderWithPrints {
   id: number;
+  userId?: number | null;
   productId: number;
   colorId: number;
   sizeId: number;
@@ -35,14 +36,16 @@ interface OrderWithPrints {
   customerPhone: string;
   customerCompany: string | null;
   additionalNotes: string | null;
-  totalPriceEstimate: string;
+  totalPriceEstimate: string | number;
   status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
-  paymentStatus?: any;
-  amountPaid?: any;
-  depositAmount?: any;
+  paymentStatus?: string | null;
+  amountPaid?: string | number | null;
+  depositAmount?: string | number | null;
+  deliveryMethod?: string;
+  invoiceUrl?: string | null;
   createdAt: Date;
   updatedAt: Date;
-  prints: Array<{
+  prints?: Array<{
     id: number;
     orderId: number;
     printSizeId: number;
@@ -322,7 +325,7 @@ export default function CustomerDashboard() {
                   </CardContent>
                     {order.status === "pending" && (
                       <QuoteAcceptanceSection
-                        order={order}
+                        order={order as any}
                         onAcceptanceComplete={() => {
                           setRefreshOrders(prev => prev + 1);
                           setTimeout(() => setRefreshOrders(0), 5000);
@@ -411,11 +414,11 @@ export default function CustomerDashboard() {
                 {selectedOrder.status === "approved" && (
                   <PaymentSection
                     orderId={selectedOrder.id}
-                    totalAmount={parseFloat(selectedOrder.totalPriceEstimate)}
-                    amountPaid={parseFloat(selectedOrder.amountPaid || "0")}
-                    depositAmount={selectedOrder.depositAmount ? parseFloat(selectedOrder.depositAmount) : undefined}
-                    paymentStatus={selectedOrder.paymentStatus}
-                    invoiceUrl={selectedOrder.invoiceUrl}
+                    totalAmount={parseFloat(String(selectedOrder.totalPriceEstimate))}
+                    amountPaid={parseFloat(String(selectedOrder.amountPaid || "0"))}
+                    depositAmount={selectedOrder.depositAmount ? parseFloat(String(selectedOrder.depositAmount)) : undefined}
+                    paymentStatus={selectedOrder.paymentStatus || undefined}
+                    invoiceUrl={selectedOrder.invoiceUrl || undefined}
                   />
                 )}
 
@@ -464,11 +467,11 @@ export default function CustomerDashboard() {
                 </div>
 
                 {/* Design Files */}
-                {selectedOrder.prints.length > 0 && (
+                {selectedOrder.prints && selectedOrder.prints.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-3">Design Files</h3>
                     <div className="space-y-2">
-                      {selectedOrder.prints.map((print) => (
+                      {selectedOrder.prints?.map((print) => (
                         <div
                           key={print.id}
                           className="flex items-center justify-between bg-gray-800 p-3 rounded border border-gray-700"

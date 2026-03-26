@@ -15,6 +15,7 @@ import { sendOrderStatusNotification } from "@/lib/pushNotifications";
 
 interface OrderWithPrints {
   id: number;
+  userId?: number | null;
   productId: number;
   colorId: number;
   sizeId: number;
@@ -25,12 +26,12 @@ interface OrderWithPrints {
   customerPhone: string;
   customerCompany: string | null;
   additionalNotes: string | null;
-  totalPriceEstimate: string;
+  totalPriceEstimate: string | number;
   status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
   createdAt: Date;
   updatedAt: Date;
   estimatedDelivery?: Date;
-  prints: Array<{
+  prints?: Array<{
     id: number;
     orderId: number;
     printSizeId: number;
@@ -257,7 +258,7 @@ export default function OrderTracking() {
                     <div>
                       <p className="text-gray-200">Estimated Total</p>
                       <p className="text-white font-semibold">
-                        R{parseFloat(selectedOrder.totalPriceEstimate).toFixed(2)}
+                        R{parseFloat(String(selectedOrder.totalPriceEstimate)).toFixed(2)}
                       </p>
                     </div>
                     <div>

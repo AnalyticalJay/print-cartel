@@ -15,9 +15,12 @@ export default function UserProfile() {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   // Fetch user order history
-  const { data: orders, isLoading, error } = trpc.orders.getUserOrderHistory.useQuery(undefined, {
-    enabled: !!user,
-  });
+  const { data: orders, isLoading, error } = trpc.orders.getUserOrderHistory.useQuery(
+    user?.email ? { customerEmail: user.email, limit: 50, offset: 0 } : { customerEmail: '', limit: 50, offset: 0 },
+    {
+      enabled: !!user?.email,
+    }
+  );
 
   if (!user) {
     return (
@@ -122,27 +125,17 @@ export default function UserProfile() {
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-sm text-muted-foreground">Total Price</p>
-                          <p className="text-lg font-semibold">{formatCurrency(parseFloat(order.totalPriceEstimate))}</p>
+                          <p className="text-lg font-semibold">{formatCurrency(typeof order.totalPriceEstimate === 'string' ? parseFloat(order.totalPriceEstimate) : order.totalPriceEstimate)}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Items</p>
+                          <p className="text-sm text-muted-foreground">Quantity</p>
                           <p className="text-lg font-semibold">
-                            {order.lineItems?.length || 1} {(order.lineItems?.length || 1) !== 1 ? "items" : "item"}
+                            {order.quantity}
                           </p>
                         </div>
                       </div>
 
-                      {/* Line Items */}
-                      {order.lineItems && order.lineItems.length > 0 && (
-                        <div className="mb-4 space-y-2 bg-muted p-3 rounded">
-                          {order.lineItems.map((item, idx) => (
-                            <div key={idx} className="text-sm">
-                              <p className="font-medium">Item {idx + 1}</p>
-                              <p className="text-muted-foreground">Quantity: {item.quantity}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+
 
                       <Button
                         variant="outline"
@@ -229,23 +222,13 @@ export default function UserProfile() {
                       <p className="text-sm text-muted-foreground">Total Price</p>
                       <p className="text-lg font-semibold">
                         {formatCurrency(
-                          parseFloat(orders.find((o) => o.id === selectedOrderId)?.totalPriceEstimate || "0")
+                          parseFloat(
+                            String(orders?.find((o) => o.id === selectedOrderId)?.totalPriceEstimate || "0")
+                          )
                         )}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-2">Items</p>
-                      <div className="space-y-2">
-                        {orders
-                          .find((o) => o.id === selectedOrderId)
-                          ?.lineItems?.map((item, idx) => (
-                            <div key={idx} className="bg-muted p-2 rounded">
-                              <p className="font-medium">Item {idx + 1}</p>
-                              <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
+
                   </>
                 )}
               </CardContent>

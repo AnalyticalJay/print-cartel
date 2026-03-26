@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { CreditCard, Upload, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { CreditCard, Upload, AlertCircle, CheckCircle2, Clock, Download } from "lucide-react";
 
 interface PaymentSectionProps {
   orderId: number;

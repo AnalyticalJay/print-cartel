@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, or, isNotNull, like } from "drizzle-orm";
 import { db as drizzleDb } from "../drizzle/client";
 import { users, orders, orderPrints, orderLineItems, pushSubscriptions, notifications, chatConversations, chatMessages, designTemplates, templateCustomizations, resellerInquiries, resellerResponses, bulkPricingTiers, referralProgram, referralTracking, gangSheets, gangSheetArtwork, productColors, productSizes, productionQueue, products, printPlacements, printOptions, orderStatusHistory } from "../drizzle/schema";
 import type { InsertUser, InsertOrder, InsertOrderPrint, InsertOrderLineItem, DesignTemplate, ResellerInquiry } from "../drizzle/schema";
@@ -818,10 +818,10 @@ export async function getInvoices(filters?: { status?: string; search?: string; 
   const db = await getDb();
   if (!db) return [];
 
-  let query = db.select().from(orders).where(ne(orders.invoiceUrl, null));
+  const conditions: any[] = [isNotNull(orders.invoiceUrl)];
 
   if (filters?.search) {
-    query = query.where(
+    conditions.push(
       or(
         like(orders.customerFirstName, `%${filters.search}%`),
         like(orders.customerLastName, `%${filters.search}%`),
@@ -833,14 +833,22 @@ export async function getInvoices(filters?: { status?: string; search?: string; 
   const limit = filters?.limit || 50;
   const offset = filters?.offset || 0;
 
-  return await query.orderBy(desc(orders.invoiceDate)).limit(limit).offset(offset);
+  return await db
+    .select()
+    .from(orders)
+    .where(and(...conditions))
+    .orderBy(desc(orders.invoiceDate))
+    .limit(limit)
+    .offset(offset);
 }
 
 export async function getInvoiceStats() {
   const db = await getDb();
   if (!db) return { total: 0, pending: 0, accepted: 0, declined: 0, paid: 0 };
 
-  const invoices = await db.select().from(orders).where(ne(orders.invoiceUrl, null));
+  const invoices = await db.select().from(orders).where(isNotNull(orders.invoiceUrl));
+
+  if (!invoices) return { total: 0, pending: 0, accepted: 0, declined: 0, paid: 0 };
 
   return {
     total: invoices.length,
@@ -879,8 +887,16 @@ export async function createManualInvoice(orderData: {
   if (!db) throw new Error("Database not available");
 
   const result = await db.insert(orders).values({
-    ...orderData,
-    productId: 0, // Placeholder for manual invoices
+    customerFirstName: orderData.customerFirstName,
+    customerLastName: orderData.customerLastName,
+    customerEmail: orderData.customerEmail,
+    customerPhone: orderData.customerPhone,
+    totalPriceEstimate: orderData.totalPriceEstimate.toString(),
+    invoiceNumber: orderData.invoiceNumber,
+    invoiceUrl: orderData.invoiceUrl,
+    depositAmount: orderData.depositAmount ? orderData.depositAmount.toString() : '0',
+    additionalNotes: orderData.additionalNotes,
+    productId: 0,
     colorId: 0,
     sizeId: 0,
     quantity: 0,

@@ -219,7 +219,12 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
 
           {/* Payment Tab */}
           <TabsContent value="payment" className="space-y-4">
-            <PaymentStatusDisplay order={order} />
+            <PaymentStatusDisplay 
+              paymentStatus={(order.paymentStatus as any) || "unpaid"}
+              totalAmount={parseFloat(String(order.totalPriceEstimate))}
+              amountPaid={parseFloat(String(order.amountPaid || "0"))}
+              depositAmount={order.depositAmount ? parseFloat(String(order.depositAmount)) : undefined}
+            />
           </TabsContent>
 
           {/* Notes Tab */}
