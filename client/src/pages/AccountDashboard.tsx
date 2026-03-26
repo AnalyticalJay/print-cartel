@@ -18,6 +18,7 @@ import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { QuoteApprovalCard } from "@/components/QuoteApprovalCard";
+import { DepositPaymentTracker } from "@/components/DepositPaymentTracker";
 
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
@@ -360,6 +361,20 @@ export default function AccountDashboard() {
                         }}
                       />
                     </div>
+
+                    {/* Deposit Payment Tracker - Show for approved or quoted status */}
+                    {(selectedOrder.status === "approved" || selectedOrder.status === "quoted") && (
+                      <div className="border-t border-gray-700 pt-4 md:pt-6">
+                        <DepositPaymentTracker
+                          orderId={selectedOrder.id}
+                          totalPrice={parseFloat(String(selectedOrder.totalPriceEstimate || "0"))}
+                          depositPercentage={30}
+                          depositPaid={selectedOrder.amountPaid ? parseFloat(String(selectedOrder.amountPaid)) : 0}
+                          finalPaymentPaid={0}
+                          orderStatus={selectedOrder.status}
+                        />
+                      </div>
+                    )}
 
                     <div>
                       <p className="text-xs md:text-sm text-gray-200 mb-2 md:mb-3">Uploaded Files</p>

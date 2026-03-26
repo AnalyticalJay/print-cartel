@@ -1639,3 +1639,10 @@ Future enhancements (Phase 2):
 - [x] Add next-step instructions based on payment status
 - [x] Integrate into order details and dashboard
 - [x] Create comprehensive tests (90+ test cases)
+
+
+## Current Issues - Payment Features Not Showing
+- [x] Payment features integrated into UserProfile but dashboard uses different component
+- [x] Identified that dashboard uses AccountDashboard component
+- [x] Integrated DepositPaymentTracker into AccountDashboard Order Details modal
+- [x] Verified Order Details modal displays payment section for approved/quoted orders
