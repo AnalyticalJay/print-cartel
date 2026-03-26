@@ -22,12 +22,13 @@
 - [x] Implement "Why Choose Print Cartel" section with key benefits
 - [x] Add Order Now CTA button linking to order wizard
 - [x] Create footer with contact and social links
-- [ ] Ensure responsive design for mobile and desktop
+- [x] Ensure responsive design for mobile and desktop
 
 ## Frontend - Multi-Step Order Wizard
 - [x] Build Step 1: Garment Selection (product cards, color picker, size selector, quantity input)
-- [ ] Build Step 2: Print Options (multiple placements, print size selector, file upload button)
-- [ ] Build Step 3: File Upload Validation (DPI check, format validation, dimension check, file size check)
+- [x] Build Step 2: Print Options (multiple placements, print size selector, file upload button)
+- [x] Build Step 3: File Upload Validation (DPI check, format validation, dimension check, file size check)
+- [x] Optimize order wizard for mobile devices (responsive spacing, touch-friendly buttons, readable text)
 - [x] Build Step 4: Live Preview Mockup (canvas rendering, drag repositioning)
 - [x] Build Step 5: Contact Details Form (name, email, phone, company, notes)
 - [x] Build Step 6: Order Summary (review all selections, pricing breakdown, submit button)

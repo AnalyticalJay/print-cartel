@@ -350,54 +350,54 @@ export default function OrderWizard() {
   const totalPrice = subtotal - discountAmount;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-6 md:py-12 px-3 md:px-4">
       <div className="max-w-6xl mx-auto">
         {/* Step Indicator */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
+        <div className="mb-6 md:mb-8">
+          <div className="flex justify-between items-center mb-3 md:mb-4 gap-1">
             {[1, 1.5, 2, 3, 4, 5, 6, 7].map((step) => (
               <div
                 key={step}
-                className={`flex-1 h-2 mx-1 rounded-full transition-all ${
+                className={`flex-1 h-1.5 md:h-2 rounded-full transition-all ${
                   step <= currentStep ? "bg-accent" : "bg-gray-600"
                 }`}
               />
             ))}
           </div>
-          <p className="text-center text-gray-200 text-sm">
+          <p className="text-center text-gray-200 text-xs md:text-sm font-medium">
             Step {currentStep === 1.5 ? "1" : currentStep} of 7
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Step 1: Select Garment */}
             {currentStep === 1 && (
               <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Select Your Garment</CardTitle>
-                  <CardDescription>Choose product, color, size, and quantity</CardDescription>
+                <CardHeader className="pb-3 md:pb-4">
+                  <CardTitle className="text-lg md:text-xl text-white">Select Your Garment</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">Choose product, color, size, and quantity</CardDescription>
 
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 md:space-y-6">
                   {/* Product Selection */}
                   <div>
-                    <Label className="text-white font-semibold mb-3 block">Select Product</Label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Select Product</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                       {productsQuery.data?.map((product) => (
                         <button
                           key={product.id}
                           onClick={() => setOrderData({ ...orderData, productId: product.id, colorId: null, sizeId: null })}
-                          className={`p-4 rounded-lg border-2 transition-all text-center ${
+                          className={`p-3 md:p-4 rounded-lg border-2 transition-all text-center active:scale-95 ${
                             orderData.productId === product.id
                               ? "border-accent bg-accent/20"
                               : "border-gray-600 bg-gray-700 hover:border-gray-500"
                           }`}
                         >
-                          <p className="text-white font-semibold text-sm">{product.name}</p>
+                          <p className="text-white font-semibold text-xs md:text-sm">{product.name}</p>
                           <p className="text-gray-300 text-xs mt-1">{product.productType}</p>
-                          <p className="text-accent font-bold mt-2">R{product.basePrice}</p>
+                          <p className="text-accent font-bold mt-2 text-sm md:text-base">R{product.basePrice}</p>
                         </button>
                       ))}
                     </div>
@@ -406,20 +406,21 @@ export default function OrderWizard() {
                   {/* Color Selection */}
                   {orderData.productId && (
                     <div>
-                      <Label className="text-white font-semibold mb-3 block">Select Color</Label>
+                      <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Select Color</Label>
                       {productColors.length > 0 ? (
-                        <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+                        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3">
                           {productColors.map((color: any) => (
                             <button
                               key={color.id}
                               onClick={() => setOrderData({ ...orderData, colorId: color.id })}
-                              className={`w-12 h-12 rounded-lg border-2 transition-all ${
+                              className={`w-14 h-14 md:w-12 md:h-12 rounded-lg border-2 transition-all active:scale-95 ${
                                 orderData.colorId === color.id
                                   ? "border-white"
                                   : "border-gray-600"
                               }`}
                               style={{ backgroundColor: color.colorHex }}
                               title={color.colorName}
+                              aria-label={`Select color: ${color.colorName}`}
                             />
                           ))}
                         </div>
@@ -432,14 +433,14 @@ export default function OrderWizard() {
                   {/* Size Selection */}
                   {orderData.productId && (
                     <div>
-                      <Label className="text-white font-semibold mb-3 block">Select Size</Label>
+                      <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Select Size</Label>
                       {productSizes.length > 0 ? (
-                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-2">
                           {productSizes.map((size: any) => (
                             <button
                               key={size.id}
                               onClick={() => setOrderData({ ...orderData, sizeId: size.id })}
-                              className={`p-2 rounded-lg border-2 transition-all text-sm font-semibold ${
+                              className={`p-2 md:p-2 rounded-lg border-2 transition-all text-xs md:text-sm font-semibold active:scale-95 ${
                                 orderData.sizeId === size.id
                                   ? "border-accent bg-accent text-black"
                                   : "border-gray-600 bg-gray-700 text-white hover:border-gray-500"
@@ -457,8 +458,8 @@ export default function OrderWizard() {
 
                   {/* Quantity */}
                   <div>
-                    <Label className="text-white font-semibold mb-3 block">Quantity</Label>
-                    <div className="flex items-center gap-3">
+                    <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Quantity</Label>
+                    <div className="flex items-center gap-2 md:gap-3">
                       <Button
                         type="button"
                         onClick={() =>
@@ -469,9 +470,9 @@ export default function OrderWizard() {
                         }
                         variant="outline"
                         size="icon"
-                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-10 w-10"
+                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-12 w-12 md:h-10 md:w-10 active:scale-95"
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="w-5 md:w-4 h-5 md:h-4" />
                       </Button>
                       <Input
                         type="number"
@@ -486,7 +487,7 @@ export default function OrderWizard() {
                             });
                           }
                         }}
-                        className="bg-gray-700 border-gray-600 text-white text-center font-semibold text-lg flex-1"
+                        className="bg-gray-700 border-gray-600 text-white text-center font-semibold text-base md:text-lg flex-1"
                       />
                       <Button
                         type="button"
@@ -498,9 +499,9 @@ export default function OrderWizard() {
                         }
                         variant="outline"
                         size="icon"
-                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-10 w-10"
+                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-12 w-12 md:h-10 md:w-10 active:scale-95"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-5 md:w-4 h-5 md:h-4" />
                       </Button>
                     </div>
                   </div>
@@ -859,59 +860,64 @@ export default function OrderWizard() {
 
             {/* Navigation Buttons */}
             {currentStep < 7 && (
-              <div className="flex gap-4 mt-6 flex-wrap">
+              <div className="flex gap-2 md:gap-4 mt-4 md:mt-6 flex-wrap">
                 <Button
                   onClick={handlePreviousStep}
                   disabled={currentStep === 1}
                   variant="outline"
-                  className="flex-1 min-w-[120px]"
+                  className="flex-1 min-w-[100px] md:min-w-[120px] text-xs md:text-sm py-2 md:py-2 h-10 md:h-10"
                 >
-                  <ChevronLeft size={20} className="mr-2" />
-                  Previous
+                  <ChevronLeft size={16} className="mr-1 md:mr-2" />
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">Back</span>
                 </Button>
                 {currentStep === 2 && (
                   <Button
                     onClick={handleAddToCart}
-                    className="flex-1 min-w-[140px] bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    className="flex-1 min-w-[100px] md:min-w-[140px] bg-green-600 hover:bg-green-700 text-white font-semibold text-xs md:text-sm py-2 md:py-2 h-10 md:h-10"
                   >
-                    <Plus size={20} className="mr-2" />
-                    Add to Cart
+                    <Plus size={16} className="mr-1 md:mr-2" />
+                    <span className="hidden sm:inline">Add to Cart</span>
+                    <span className="sm:hidden">Add</span>
                   </Button>
                 )}
                 {cartItems.length > 0 && currentStep !== 6 && (
                   <Button
                     onClick={() => setCurrentStep(6)}
                     variant="outline"
-                    className="flex-1 min-w-[140px] border-cyan-600 text-cyan-600 hover:bg-cyan-600/10"
+                    className="flex-1 min-w-[100px] md:min-w-[140px] border-cyan-600 text-cyan-600 hover:bg-cyan-600/10 text-xs md:text-sm py-2 md:py-2 h-10 md:h-10"
                   >
-                    Review Cart ({cartItems.length})
+                    <span className="hidden sm:inline">Review Cart</span>
+                    <span className="sm:hidden">Cart</span> ({cartItems.length})
                   </Button>
                 )}
                 {currentStep === 6 ? (
                   <Button
                     onClick={handleSubmitOrder}
                     disabled={createOrderMutation.isPending || createMultiItemMutation.isPending}
-                    className="flex-1 min-w-[120px] bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                    className="flex-1 min-w-[100px] md:min-w-[120px] bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-xs md:text-sm py-2 md:py-2 h-10 md:h-10"
                   >
                     {(createOrderMutation.isPending || createMultiItemMutation.isPending) ? (
                       <>
-                        <Loader2 size={20} className="mr-2 animate-spin" />
-                        Submitting...
+                        <Loader2 size={16} className="mr-1 md:mr-2 animate-spin" />
+                        <span className="hidden sm:inline">Submitting...</span>
                       </>
                     ) : (
                       <>
-                        Submit Order
-                        <ChevronRight size={20} className="ml-2" />
+                        <span className="hidden sm:inline">Submit Order</span>
+                        <span className="sm:hidden">Submit</span>
+                        <ChevronRight size={16} className="ml-1 md:ml-2" />
                       </>
                     )}
                   </Button>
                 ) : (
                   <Button
                     onClick={handleNextStep}
-                    className="flex-1 min-w-[120px] bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                    className="flex-1 min-w-[100px] md:min-w-[120px] bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-xs md:text-sm py-2 md:py-2 h-10 md:h-10"
                   >
-                    Next
-                    <ChevronRight size={20} className="ml-2" />
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">Next</span>
+                    <ChevronRight size={16} className="ml-1 md:ml-2" />
                   </Button>
                 )}
               </div>
@@ -921,10 +927,10 @@ export default function OrderWizard() {
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <Card className="bg-gray-800 border-gray-700 sticky top-4">
-              <CardHeader>
-                <CardTitle className="text-white text-lg">Order Summary</CardTitle>
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="text-white text-base md:text-lg">Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 md:space-y-4">
                 {selectedProduct && (
                   <>
                     <div className="space-y-2">

@@ -49,7 +49,7 @@ export function PrintPlacementSelector({
   const [expandedPlacement, setExpandedPlacement] = useState<number | null>(null);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 md:space-y-4">
       {/* Placement Selection */}
       <div className="space-y-2">
         {placements.map((placement) => {
@@ -68,21 +68,21 @@ export function PrintPlacementSelector({
                 onClick={() =>
                   setExpandedPlacement(isExpanded ? null : placement.id)
                 }
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-600 transition-colors"
+                className="w-full flex items-center justify-between p-3 md:p-4 hover:bg-gray-600 transition-colors active:bg-gray-600"
               >
-                <div className="flex items-center gap-3 flex-1 text-left">
-                  <div>
-                    <h3 className="text-white font-semibold">
+                <div className="flex items-center gap-2 md:gap-3 flex-1 text-left min-w-0">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-white font-semibold text-sm md:text-base">
                       {placement.placementName}
                     </h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-300 text-xs md:text-sm line-clamp-1">
                       {placementDescriptions[placement.placementName] ||
                         "Select print size for this placement"}
                     </p>
                   </div>
                   {selectedForPlacement.length > 0 && (
-                    <span className="bg-accent text-black text-xs font-bold px-3 py-1 rounded ml-auto">
-                      {selectedForPlacement.length} selected
+                    <span className="bg-accent text-black text-xs font-bold px-2 md:px-3 py-1 rounded whitespace-nowrap">
+                      {selectedForPlacement.length}
                     </span>
                   )}
                 </div>
@@ -96,8 +96,8 @@ export function PrintPlacementSelector({
 
               {/* Print Size Options */}
               {isExpanded && (
-                <div className="border-t border-gray-600 p-4 bg-gray-600/50">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                <div className="border-t border-gray-600 p-3 md:p-4 bg-gray-600/50">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                     {printOptions.map((option) => {
                       const isSelected = printSelections.some(
                         (p) =>
@@ -116,7 +116,7 @@ export function PrintPlacementSelector({
                           onClick={() =>
                             onAddSelection(placement.id, option.id)
                           }
-                          className={`p-3 rounded-lg border-2 transition-all text-sm font-semibold ${
+                          className={`p-3 md:p-3 rounded-lg border-2 transition-all text-xs md:text-sm font-semibold active:scale-95 ${
                             isSelected
                               ? "border-accent bg-accent text-black"
                               : "border-gray-500 bg-gray-500 text-white hover:border-gray-400 hover:bg-gray-400"
