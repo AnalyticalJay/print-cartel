@@ -106,7 +106,7 @@ export const ordersRouter = router({
             customerEmail: input.customerEmail,
             productName: "Custom DTF Print Order",
             quantity: input.quantity,
-            totalPrice: parseFloat(input.totalPriceEstimate),
+            totalPrice: input.totalPriceEstimate,
             status: "pending",
             orderDate: new Date(),
           });
@@ -122,7 +122,7 @@ export const ordersRouter = router({
             customerEmail: input.customerEmail,
             productName: "Custom DTF Print Order",
             quantity: input.quantity,
-            totalPrice: parseFloat(input.totalPriceEstimate),
+            totalPrice: input.totalPriceEstimate,
             status: "pending",
             orderDate: new Date(),
           });

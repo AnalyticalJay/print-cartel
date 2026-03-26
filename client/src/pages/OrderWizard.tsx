@@ -16,6 +16,8 @@ import { getLoginUrl } from "@/const";
 
 import { useOrderCart } from "@/hooks/useOrderCart";
 import { OrderCartSummary } from "@/components/OrderCartSummary";
+import { PrintPlacementSelector } from "@/components/PrintPlacementSelector";
+import { FileUploadValidator } from "@/components/FileUploadValidator";
 
 type Step = 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -506,110 +508,21 @@ export default function OrderWizard() {
               </Card>
             )}
 
-            {/* Step 2: Print Placement & Size - OPTIMIZED COMPACT LAYOUT */}
+            {/* Step 2: Print Placement & Size */}
             {currentStep === 2 && (
               <Card className="bg-gray-800 border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-white">Select Print Placement & Size</CardTitle>
                   <CardDescription>Choose where and how large to print your design</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {/* Accordion-style placement selector */}
-                  <div className="space-y-2">
-                    {placements.map((placement: any) => {
-                      const isExpanded = expandedPlacement === placement.id;
-                      const selectedForPlacement = orderData.printSelections.filter(
-                        (p) => p.placementId === placement.id
-                      );
-
-                      return (
-                        <div key={placement.id} className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700">
-                          {/* Placement Header - Clickable to expand/collapse */}
-                          <button
-                            onClick={() =>
-                              setExpandedPlacement(isExpanded ? null : placement.id)
-                            }
-                            className="w-full flex items-center justify-between p-3 hover:bg-gray-600 transition-colors"
-                          >
-                            <div className="flex items-center gap-2 flex-1 text-left">
-                              <h3 className="text-white font-semibold text-sm">{placement.placementName}</h3>
-                              {selectedForPlacement.length > 0 && (
-                                <span className="bg-accent text-black text-xs font-bold px-2 py-1 rounded">
-                                  {selectedForPlacement.length}
-                                </span>
-                              )}
-                            </div>
-                            <ChevronDown
-                              size={18}
-                              className={`text-gray-200 transition-transform ${
-                                isExpanded ? "rotate-180" : ""
-                              }`}
-                            />
-                          </button>
-
-                          {/* Placement Options - Show only when expanded */}
-                          {isExpanded && (
-                            <div className="border-t border-gray-600 p-3 bg-gray-600/50">
-                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                {printOptions.map((option: any) => {
-                                  const isSelected = orderData.printSelections.some(
-                                    (p) => p.placementId === placement.id && p.printSizeId === option.id
-                                  );
-
-                                  const priceNum = typeof option.additionalPrice === 'string' 
-                                    ? parseFloat(option.additionalPrice) 
-                                    : option.additionalPrice;
-                                  
-                                  return (
-                                    <button
-                                      key={option.id}
-                                      onClick={() => handleAddPrintSelection(placement.id, option.id)}
-                                      className={`p-2 rounded-lg border-2 transition-all text-xs font-semibold ${
-                                        isSelected
-                                          ? "border-accent bg-accent text-black"
-                                          : "border-gray-500 bg-gray-500 text-white hover:border-gray-400"
-                                      }`}
-                                    >
-                                      <div className="font-bold">{option.printSize}</div>
-                                      <div className="text-xs font-normal opacity-90">+R{priceNum.toFixed(2)}</div>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Compact Selected Summary */}
-                  {orderData.printSelections.length > 0 && (
-                    <div className="mt-4 p-3 bg-gray-700 rounded-lg border border-accent/30">
-                      <h3 className="text-white font-semibold text-sm mb-2">
-                        Selected: {orderData.printSelections.length} option{orderData.printSelections.length !== 1 ? "s" : ""}
-                      </h3>
-                      <div className="space-y-1">
-                        {orderData.printSelections.map((selection, index) => {
-                          const placement = placements.find((p: any) => p.id === selection.placementId);
-                          const option = printOptions.find((o: any) => o.id === selection.printSizeId);
-                          return (
-                            <div key={index} className="flex justify-between items-center text-xs">
-                              <span className="text-gray-300">
-                                {placement?.placementName} - {option?.printSize}
-                              </span>
-                              <button
-                                onClick={() => handleRemovePrintSelection(index)}
-                                className="text-red-400 hover:text-red-300 ml-2"
-                              >
-                                <X size={14} />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                <CardContent>
+                  <PrintPlacementSelector
+                    placements={placements}
+                    printOptions={printOptions}
+                    printSelections={orderData.printSelections}
+                    onAddSelection={handleAddPrintSelection}
+                    onRemoveSelection={handleRemovePrintSelection}
+                  />
                 </CardContent>
               </Card>
             )}
@@ -622,42 +535,27 @@ export default function OrderWizard() {
                   <CardDescription>Upload a design file for each print selection</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                      {orderData.printSelections.map((selection, index) => {
-                        const placement = placements.find((p: any) => p.id === selection.placementId);
-                        const option = printOptions.find((o: any) => o.id === selection.printSizeId);
+                  {orderData.printSelections.map((selection, index) => {
+                    const placement = placements.find((p: any) => p.id === selection.placementId);
+                    const option = printOptions.find((o: any) => o.id === selection.printSizeId);
+
                     return (
-                      <div key={index} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
-                        <h3 className="text-white font-semibold mb-3">
-                          {placement?.placementName} - {option?.printSize}
-                        </h3>
-                        <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
-                          <input
-                            type="file"
-                            id={`file-${index}`}
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                handleFileUpload(index, e.target.files[0]);
-                              }
-                            }}
-                            className="hidden"
-                            accept="image/*,.pdf"
-                          />
-                          <label htmlFor={`file-${index}`} className="cursor-pointer">
-                            {selection.designFileName ? (
-                              <div className="text-white">
-                                <p className="font-semibold">{selection.designFileName}</p>
-                                <p className="text-gray-200 text-sm mt-1">Click to change</p>
-                              </div>
-                            ) : (
-                              <div>
-                                <Upload className="w-8 h-8 mx-auto text-gray-200 mb-2" />
-                                <p className="text-white font-semibold">Drag and drop or click to upload</p>
-                                <p className="text-gray-200 text-sm mt-1">PNG, JPG, PDF up to 50MB</p>
-                              </div>
-                            )}
-                          </label>
-                        </div>
-                      </div>
+                      <FileUploadValidator
+                        key={index}
+                        placement={placement?.placementName || "Unknown"}
+                        printSize={option?.printSize || "Unknown"}
+                        uploadedFileName={selection.designFileName}
+                        onFileUpload={(file) => handleFileUpload(index, file)}
+                        onRemoveFile={() => {
+                          const updated = [...orderData.printSelections];
+                          updated[index] = {
+                            ...updated[index],
+                            designFile: undefined,
+                            designFileName: undefined,
+                          };
+                          setOrderData({ ...orderData, printSelections: updated });
+                        }}
+                      />
                     );
                   })}
                 </CardContent>

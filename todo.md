@@ -1559,3 +1559,41 @@ Future enhancements (Phase 2):
 - [x] Add modal to AdminDashboard orders list
 - [x] Write tests for order modal with timeline integration (10 tests)
 - [x] Test end-to-end: click order → modal opens → timeline displays
+
+
+## Current Sprint - Bug Fixes & Missing Components
+- [x] Verified: OrderDetailTimeline component is properly imported in AdminDashboard (line 24)
+- [x] Verified: Tabs component is properly imported in AdminDashboard (line 25)
+- [x] Verified: PaymentSection component is properly imported in CustomerDashboard (line 23)
+- [x] Verified: PaymentSection is integrated into CustomerDashboard order modal (lines 411-420)
+- [x] Verified: PaymentSection only shows when order status is "approved"
+- [ ] Test: Click "View" button on an order in Admin Dashboard to open modal
+- [ ] Test: Verify "Timeline" tab appears and displays order progression
+- [ ] Test: Create/accept a quote to set order status to "approved"
+- [ ] Test: Verify Payment section appears in Customer Dashboard for approved orders
+- [ ] Test: Verify PayFast payment button works and redirects to payment page
+- [ ] Test: Verify manual payment upload option is available
+
+
+## Current Sprint - Order Wizard Steps 2 & 3 Enhancement
+- [x] Create PrintPlacementSelector component with enhanced UI and placement descriptions
+- [x] Add accordion-style placement selector with expandable options
+- [x] Display placement descriptions (Front, Back, Sleeves, etc.)
+- [x] Show selected placements summary with prices
+- [x] Create FileUploadValidator component with drag-and-drop support
+- [x] Implement drag-and-drop file upload functionality
+- [x] Add file validation with size limits (50MB max)
+- [x] Display design requirements and best practices
+- [x] Show uploaded file status with remove option
+- [x] Integrate PrintPlacementSelector into OrderWizard Step 2
+- [x] Integrate FileUploadValidator into OrderWizard Step 3
+- [x] Create comprehensive test suite for PrintPlacementSelector (12 tests)
+- [x] Create comprehensive test suite for FileUploadValidator (12 tests)
+- [ ] Fix TypeScript errors in orders.ts (totalPriceEstimate type mismatch)
+- [ ] Fix database schema compatibility issues
+- [ ] Test Step 2: Select placement and print size combinations
+- [ ] Test Step 3: Upload design files with drag-and-drop
+- [ ] Test file validation error handling
+- [ ] Test order wizard flow from Step 1 through Step 6
+- [ ] Verify email notifications are sent after order submission
+- [ ] Test responsive design on mobile and tablet
