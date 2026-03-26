@@ -1646,3 +1646,31 @@ Future enhancements (Phase 2):
 - [x] Identified that dashboard uses AccountDashboard component
 - [x] Integrated DepositPaymentTracker into AccountDashboard Order Details modal
 - [x] Verified Order Details modal displays payment section for approved/quoted orders
+
+
+## Database Cleanup & Consolidation
+- [x] Removed duplicate UserProfile component (not in use)
+- [x] Removed duplicate CustomerDashboard component (not in use)
+- [x] Verified AccountDashboard is the primary customer dashboard
+- [x] Verified AdminDashboard is the primary admin dashboard
+- [x] Audited database schema - all 27 tables are actively used
+- [x] Confirmed payment features integrated into both dashboards
+
+### Active Tables (27 total):
+- Core: users, products, productColors, productSizes
+- Orders: orders, orderPrints, orderLineItems, orderStatusHistory
+- Payments: paymentRecords
+- Quotes: quotes
+- Chat: chatConversations, chatMessages, chatFileAttachments
+- Print Options: printOptions, printPlacements
+- Production: productionQueue, gangSheets, gangSheetArtwork
+- Reseller: resellerInquiries, resellerResponses, bulkPricingTiers
+- Design: designTemplates, templateCustomizations
+- Referral: referralProgram, referralTracking
+- Notifications: notifications, pushSubscriptions
+
+### Dashboard Consolidation Complete:
+- ✅ Single customer dashboard: AccountDashboard
+- ✅ Single admin dashboard: AdminDashboard
+- ✅ Payment features in both dashboards
+- ✅ No duplicate components
