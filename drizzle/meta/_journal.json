@@ -169,6 +169,13 @@
       "when": 1773959946746,
       "tag": "0023_fast_bloodstorm",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1774680076185,
+      "tag": "0024_illegal_ogun",
+      "breakpoints": true
     }
   ]
 }

@@ -16,7 +16,7 @@ import {
 export interface DepositPaymentTrackerProps {
   orderId: number;
   totalPrice: number | string;
-  depositPercentage?: number; // Default 30% deposit
+  depositPercentage?: number; // Default 50% deposit
   depositPaid?: number | string;
   finalPaymentPaid?: number | string;
   orderStatus?: "pending" | "quoted" | "approved" | "paid" | "production" | "shipped" | "delivered";
@@ -32,7 +32,7 @@ export interface DepositPaymentTrackerProps {
 export function DepositPaymentTracker({
   orderId,
   totalPrice,
-  depositPercentage = 30,
+  depositPercentage = 50,
   depositPaid = 0,
   finalPaymentPaid = 0,
   orderStatus = "pending",

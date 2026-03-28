@@ -1697,3 +1697,28 @@ Future enhancements (Phase 2):
 - [x] Add Toast to file upload actions (file selection, validation feedback)
 - [x] Add Toast to file download actions (download started confirmation)
 - [x] Toast notifications fully integrated across all critical user actions
+
+
+## Critical Issues - Payment & Deposit
+- [ ] Fix payment gateway process - users cannot complete payment
+- [ ] Fix deposit calculation - currently 30% instead of 50%
+- [ ] Verify PayFast integration is working correctly
+- [ ] Test complete payment flow end-to-end
+
+
+## Critical Payment Gateway Issues
+- [ ] Fix broken payment link in invoice email (404 error)
+- [ ] Add payment method selection UI (PayFast vs manual bank transfer)
+- [ ] Verify PayFast credentials are properly configured and loaded
+- [ ] Fix deposit calculation showing 50% instead of 30% (FIXED)
+- [ ] Test complete payment flow from invoice email to PayFast
+
+
+## Manual Payment Tracking System
+- [ ] Create ManualPaymentProof component for customers to upload bank transfer proof
+- [ ] Add paymentProofs table to database schema
+- [ ] Create tRPC procedures for submitting and managing payment proofs
+- [ ] Integrate manual payment UI into PaymentSection
+- [ ] Create admin payment verification interface
+- [ ] Add email notifications for payment submissions and approvals
+- [ ] Test manual payment flow end-to-end

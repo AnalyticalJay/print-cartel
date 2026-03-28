@@ -254,8 +254,8 @@ export function generateInvoiceEmailHTML(
         </div>
 
         <div class="actions">
-          <a href="https://printcartel.co.za/dashboard?orderId=${orderId}&action=payment" class="btn btn-primary">Make Payment Now</a>
-          <a href="https://printcartel.co.za/dashboard?orderId=${orderId}&action=invoice" class="btn btn-secondary">View Invoice</a>
+          <a href="https://printcartel.co.za/payment?orderId=${orderId}" class="btn btn-primary">Make Payment Now</a>
+          <a href="https://printcartel.co.za/dashboard" class="btn btn-secondary">View Dashboard</a>
         </div>
 
         <p style="color: #666; font-size: 14px;">

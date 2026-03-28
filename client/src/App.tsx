@@ -18,6 +18,7 @@ import GangSheetPage from "./pages/GangSheetPage";
 import QuoteAcceptance from "./pages/QuoteAcceptance";
 import { PayFastReturn } from "./pages/PayFastReturn";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
+import { PaymentPage } from "./pages/PaymentPage";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -35,6 +36,7 @@ function Router() {
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/quote/accept"} component={QuoteAcceptance} />
       <Route path={"/quote/reject"} component={QuoteAcceptance} />
+      <Route path={"/payment"} component={PaymentPage} />
       <Route path={"/payment/payfast-return"} component={PayFastReturn} />
       <Route path={"/payment/success"} component={PaymentSuccess} />
       <Route path={"/404"} component={NotFound} />
