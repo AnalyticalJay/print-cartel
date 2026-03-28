@@ -7,6 +7,7 @@ import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
 import { sendQuoteEmail, sendFinalInvoiceEmail } from "../payment-emails";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
+import { sendPaymentProofTemplateEmail } from "../payment-proof-email";
 import { getInvoices, getInvoiceStats } from "../db";
 
 export const adminRouter = router({
@@ -222,6 +223,21 @@ export const adminRouter = router({
               totalAmount - depositAmount,
               `${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://printcartel.co.za'}/payment/${input.orderId}`
             );
+            
+            // Send payment proof template email to guide customer on documentation
+            try {
+              await sendPaymentProofTemplateEmail({
+                customerEmail: order.customerEmail,
+                customerName: `${order.customerFirstName} ${order.customerLastName}`,
+                orderId: input.orderId,
+                orderAmount: totalAmount,
+                paymentMethods: ["eft", "creditcard"],
+                templateDownloadUrl: `${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://printcartel.co.za'}/account?tab=orders&order=${input.orderId}`,
+              });
+            } catch (templateEmailError) {
+              console.warn("Failed to send payment proof template email:", templateEmailError);
+              // Don't fail the order approval if template email fails
+            }
           } else {
             // Send general status update email for other status changes
             await sendStatusUpdateEmail(
