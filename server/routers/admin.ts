@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb, getOrderStatusHistory, logOrderStatusChange } from "../db";
-import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users } from "../../drizzle/schema";
+import { eq, and } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
 import { sendQuoteEmail, sendFinalInvoiceEmail } from "../payment-emails";
@@ -836,7 +836,8 @@ export const adminRouter = router({
       }
     }),
 
-  verifyPaymentProof: protectedProcedure
+  // Verify payment proof (legacy - for direct order verification)
+  verifyPaymentProofLegacy: protectedProcedure
     .input(z.object({
       orderId: z.number(),
       notes: z.string().optional(),
@@ -890,7 +891,7 @@ export const adminRouter = router({
       }
     }),
 
-  rejectPaymentProof: protectedProcedure
+  rejectPaymentProofLegacy: protectedProcedure
     .input(z.object({
       orderId: z.number(),
       reason: z.string(),
@@ -1029,6 +1030,164 @@ export const adminRouter = router({
         return { success: true, message: "Invoice resent successfully" };
       } catch (error) {
         console.error("Failed to resend invoice:", error);
+        throw error;
+      }
+    }),
+
+  // Get payment proofs for verification (new - for manual payment tracking)
+  getPaymentProofs: protectedProcedure
+    .input(z.object({
+      status: z.enum(["pending", "verified", "rejected"]).optional(),
+    }))
+    .query(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        let proofs;
+        
+        if (input.status) {
+          proofs = await db.select().from(paymentProofs).where(eq(paymentProofs.status, input.status));
+        } else {
+          proofs = await db.select().from(paymentProofs);
+        }
+
+        // Fetch related order and user data
+        const proofsWithDetails = await Promise.all(
+          proofs.map(async (proof) => {
+            const order = await db
+              .select()
+              .from(orders)
+              .where(eq(orders.id, proof.orderId))
+              .limit(1);
+
+            const user = await db
+              .select()
+              .from(users)
+              .where(eq(users.id, proof.userId))
+              .limit(1);
+
+            return {
+              ...proof,
+              order: order[0] || null,
+              user: user[0] || null,
+            };
+          })
+        );
+
+        return proofsWithDetails;
+      } catch (error) {
+        console.error("Failed to fetch payment proofs:", error);
+        throw error;
+      }
+    }),
+
+  // Verify payment proof
+  verifyPaymentProof: protectedProcedure
+    .input(z.object({
+      paymentProofId: z.number(),
+      action: z.enum(["approve", "reject"]),
+      verifiedAmount: z.number().optional(),
+      adminNotes: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get payment proof
+        const proofResult = await db
+          .select()
+          .from(paymentProofs)
+          .where(eq(paymentProofs.id, input.paymentProofId))
+          .limit(1);
+
+        if (!proofResult.length) {
+          throw new Error("Payment proof not found");
+        }
+
+        const proof = proofResult[0];
+
+        // Get order details
+        const orderResult = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, proof.orderId))
+          .limit(1);
+
+        if (!orderResult.length) {
+          throw new Error("Order not found");
+        }
+
+        const order = orderResult[0];
+
+        // Update payment proof status
+        const newStatus = input.action === "approve" ? "verified" : "rejected";
+        await db
+          .update(paymentProofs)
+          .set({
+            status: newStatus,
+            verifiedAt: new Date(),
+            verifiedBy: ctx.user.id,
+            adminNotes: input.adminNotes || null,
+            updatedAt: new Date(),
+          })
+          .where(eq(paymentProofs.id, input.paymentProofId));
+
+        // If approved, update order payment status
+        if (input.action === "approve") {
+          const amountPaid = input.verifiedAmount || parseFloat(order.totalPriceEstimate as any);
+          const totalPrice = parseFloat(order.totalPriceEstimate as any);
+          const paymentStatus = amountPaid >= totalPrice ? "paid" : "deposit_paid";
+
+          await db
+            .update(orders)
+            .set({
+              paymentStatus,
+              amountPaid: amountPaid.toString(),
+              paymentVerifiedAt: new Date(),
+              paymentVerificationNotes: input.adminNotes || null,
+              updatedAt: new Date(),
+            })
+            .where(eq(orders.id, proof.orderId));
+        }
+
+        // Send notification email to customer
+        try {
+          if (input.action === "approve") {
+            await sendPaymentConfirmationEmail(
+              order.customerEmail,
+              `${order.customerFirstName} ${order.customerLastName}`,
+              order.id,
+              `INV-${order.id}`,
+              input.verifiedAmount || parseFloat(order.totalPriceEstimate as any),
+              parseFloat(order.totalPriceEstimate as any),
+              0,
+              new Date().toLocaleDateString("en-ZA", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            );
+            console.log(`✓ Payment confirmation email sent to ${order.customerEmail}`);
+          }
+        } catch (emailError) {
+          console.error(`Failed to send payment confirmation email for order ${order.id}:`, emailError);
+        }
+
+        return { success: true, message: `Payment ${input.action === "approve" ? "approved" : "rejected"} successfully` };
+      } catch (error) {
+        console.error("Failed to verify payment proof:", error);
         throw error;
       }
     }),

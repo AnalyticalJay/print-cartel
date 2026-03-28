@@ -22,6 +22,7 @@ import { AdminInventoryManager } from "@/components/AdminInventoryManager";
 import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
 import { InvoicesPanel } from "@/components/InvoicesPanel";
 import { OrderDetailTimeline } from "@/components/OrderDetailTimeline";
+import { PaymentVerificationPanel } from "@/components/PaymentVerificationPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
@@ -65,7 +66,7 @@ export default function AdminDashboard() {
 function AdminDashboardContent() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'production' | 'inventory' | 'invoices'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'production' | 'inventory' | 'invoices' | 'payments'>('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -301,6 +302,18 @@ function AdminDashboardContent() {
               <span className="hidden sm:inline">Invoices</span>
               <span className="sm:hidden">Inv</span>
             </button>
+            <button
+              onClick={() => setActiveTab('payments')}
+              className={`px-2 md:px-4 py-2 font-medium border-b-2 transition-colors text-xs md:text-sm whitespace-nowrap ${
+                activeTab === 'payments'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Mail className="w-3 h-3 md:w-4 md:h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Payments</span>
+              <span className="sm:hidden">Pay</span>
+            </button>
           </div>
         </div>
 
@@ -315,6 +328,9 @@ function AdminDashboardContent() {
 
         {/* Invoices Tab */}
         {activeTab === 'invoices' && <InvoicesPanel />}
+
+        {/* Payments Tab */}
+        {activeTab === 'payments' && <PaymentVerificationPanel />}
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (
