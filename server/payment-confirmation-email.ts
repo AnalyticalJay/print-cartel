@@ -96,6 +96,33 @@ export async function sendPaymentConfirmationEmail(
           </table>
         </div>
         
+        ${paymentMethod ? `
+        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #333; font-size: 16px;">Payment Method Details</h3>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <tr style="border-bottom: 1px solid #dee2e6;">
+              <td style="padding: 10px 0; color: #666;"><strong>Method:</strong></td>
+              <td style="padding: 10px 0; text-align: right;">${paymentMethod === 'bank_transfer' ? 'Bank Transfer' : paymentMethod === 'eft' ? 'EFT' : 'PayFast'}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #dee2e6;">
+              <td style="padding: 10px 0; color: #666;"><strong>Processing Time:</strong></td>
+              <td style="padding: 10px 0; text-align: right;">${paymentMethod === 'bank_transfer' ? '1-3 business days' : paymentMethod === 'eft' ? '1-2 hours' : 'Immediate'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;"><strong>Transaction Fees:</strong></td>
+              <td style="padding: 10px 0; text-align: right;">${paymentMethod === 'payfast' ? 'May apply (2-3%)' : 'None'}</td>
+            </tr>
+          </table>
+          
+          <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 12px; border-radius: 4px; margin: 15px 0;">
+            <p style="margin: 0; color: #155724; font-size: 14px;">
+              <strong>Important:</strong> Please keep your payment proof/receipt. You may need to submit it as verification of payment.
+            </p>
+          </div>
+        </div>
+        ` : ''}
+        
         <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
           <h3 style="margin-top: 0; color: #333;">What Happens Next</h3>
           <ol style="color: #666;">

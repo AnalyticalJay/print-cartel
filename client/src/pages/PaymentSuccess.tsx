@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { PaymentMethodDetails, type PaymentMethodType } from "@/components/PaymentMethodDetails";
 import {
   CheckCircle2,
   Clock,
@@ -290,6 +291,20 @@ export function PaymentSuccess() {
                 </div>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Enhanced Payment Method Details */}
+            {paymentRecords && paymentRecords.length > 0 && (
+              <div className="mt-6">
+                <PaymentMethodDetails
+                  method={paymentRecords[0].paymentMethod as PaymentMethodType}
+                  amount={parseFloat(paymentRecords[0].amount as any)}
+                  isDeposit={paymentRecords[0].paymentType === 'deposit'}
+                  showInstructions={true}
+                />
+              </div>
+            )}
 
             <Separator />
 
