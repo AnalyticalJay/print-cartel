@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, AlertCircle, CheckCircle, CreditCard } from "lucide-react";
 import { toast } from "sonner";
+import { PaymentMethodSelector, type PaymentMethodType } from "@/components/PaymentMethodSelector";
 
 export default function Payment() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"deposit" | "full_payment">("deposit");
+  const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<"deposit" | "full_payment">("deposit");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType>("payfast");
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Get order ID from URL query parameter
@@ -154,10 +156,10 @@ export default function Payment() {
                   <label className="flex items-center gap-3 rounded-lg border p-4 cursor-pointer hover:bg-slate-50">
                     <input
                       type="radio"
-                      name="payment-method"
+                      name="payment-amount"
                       value="deposit"
-                      checked={selectedPaymentMethod === "deposit"}
-                      onChange={(e) => setSelectedPaymentMethod(e.target.value as "deposit")}
+                      checked={selectedPaymentAmount === "deposit"}
+                      onChange={(e) => setSelectedPaymentAmount(e.target.value as "deposit")}
                       className="h-4 w-4"
                     />
                     <div className="flex-1">
@@ -171,10 +173,10 @@ export default function Payment() {
                   <label className="flex items-center gap-3 rounded-lg border p-4 cursor-pointer hover:bg-slate-50">
                     <input
                       type="radio"
-                      name="payment-method"
+                      name="payment-amount"
                       value="full_payment"
-                      checked={selectedPaymentMethod === "full_payment"}
-                      onChange={(e) => setSelectedPaymentMethod(e.target.value as "full_payment")}
+                      checked={selectedPaymentAmount === "full_payment"}
+                      onChange={(e) => setSelectedPaymentAmount(e.target.value as "full_payment")}
                       className="h-4 w-4"
                     />
                     <div className="flex-1">
@@ -186,34 +188,13 @@ export default function Payment() {
               </CardContent>
             </Card>
 
-            {/* Bank Transfer Instructions */}
-            <Card className="border-blue-200 bg-blue-50">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Bank Transfer Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-blue-900">
-                <div>
-                  <p className="font-medium">Bank Name:</p>
-                  <p>Standard Bank</p>
-                </div>
-                <div>
-                  <p className="font-medium">Account Holder:</p>
-                  <p>Print Cartel (Pty) Ltd</p>
-                </div>
-                <div>
-                  <p className="font-medium">Account Number:</p>
-                  <p className="font-mono">123456789</p>
-                </div>
-                <div>
-                  <p className="font-medium">Branch Code:</p>
-                  <p className="font-mono">051001</p>
-                </div>
-                <div>
-                  <p className="font-medium">Reference:</p>
-                  <p className="font-mono">ORD-{orderId}</p>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Payment Method Selection */}
+            <PaymentMethodSelector
+              selectedMethod={selectedPaymentMethod}
+              onMethodChange={setSelectedPaymentMethod}
+              amount={selectedPaymentAmount === "deposit" ? depositAmount : total}
+              orderAmount={total}
+            />
 
             <p className="text-xs text-gray-600">
               After making the payment, please allow 1-2 business days for confirmation. We'll send you an email
@@ -245,7 +226,7 @@ export default function Payment() {
                   </div>
                 </div>
 
-                {selectedPaymentMethod === "deposit" && (
+                {selectedPaymentAmount === "deposit" && (
                   <div className="space-y-2 rounded-lg bg-blue-50 p-3 text-sm">
                     <div className="flex justify-between font-medium text-blue-900">
                       <span>Due Now:</span>

@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { orders } from "../../drizzle/schema";
+import { orders, paymentRecords } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { PayFastIntegration } from "../payfast-integration";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
@@ -266,6 +266,56 @@ export const paymentRouter = router({
       } catch (error) {
         console.error("PayFast notification verification error:", error);
         return { success: false, error: "Verification failed" };
+      }
+    }),
+
+  // Store payment method selection
+  recordPaymentMethod: protectedProcedure
+    .input(
+      z.object({
+        orderId: z.number(),
+        paymentMethod: z.enum(["payfast", "eft", "bank_transfer"]),
+        amount: z.number().positive(),
+        paymentType: z.enum(["deposit", "final_payment"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Verify order exists and belongs to user
+        const orderResult = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, input.orderId))
+          .limit(1);
+
+        if (!orderResult.length) {
+          throw new Error("Order not found");
+        }
+
+        const order = orderResult[0];
+        if (order.customerEmail !== ctx.user?.email) {
+          throw new Error("Unauthorized: Order does not belong to this user");
+        }
+
+        // Insert payment record with selected method
+        const result = await db.insert(paymentRecords).values({
+          orderId: input.orderId,
+          amount: input.amount.toString(),
+          paymentMethod: input.paymentMethod,
+          paymentStatus: "pending",
+          paymentType: input.paymentType,
+        });
+
+        return {
+          success: true,
+          message: `Payment method ${input.paymentMethod} recorded for order #${input.orderId}`,
+        };
+      } catch (error) {
+        console.error("Error recording payment method:", error);
+        throw new Error("Failed to record payment method");
       }
     }),
 });
