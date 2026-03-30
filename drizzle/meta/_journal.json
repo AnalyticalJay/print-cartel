@@ -176,6 +176,20 @@
       "when": 1774680076185,
       "tag": "0024_illegal_ogun",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1774879241116,
+      "tag": "0025_flashy_morg",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1774879380380,
+      "tag": "0026_bent_junta",
+      "breakpoints": true
     }
   ]
 }
