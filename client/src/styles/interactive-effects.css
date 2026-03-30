@@ -1,0 +1,542 @@
+/* Interactive Elements Hover Effects and Visual Feedback */
+
+/* ===== BUTTON HOVER EFFECTS ===== */
+
+/* Primary Button Hover */
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(7, 203, 217, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(7, 203, 217, 0.2);
+}
+
+.btn-primary:focus {
+  outline: 2px solid #07cbd9;
+  outline-offset: 2px;
+}
+
+/* Secondary Button Hover */
+.btn-secondary:hover {
+  background-color: rgba(7, 203, 217, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  background-color: rgba(7, 203, 217, 0.05);
+}
+
+/* Outline Button Hover */
+.btn-outline:hover {
+  background-color: rgba(7, 203, 217, 0.1);
+  border-color: #07cbd9;
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-outline:active {
+  transform: translateY(0);
+  background-color: rgba(7, 203, 217, 0.05);
+}
+
+/* Ghost Button Hover */
+.btn-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== CARD HOVER EFFECTS ===== */
+
+/* Product Card Hover - Lift Effect */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+}
+
+.card-hover:active {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Product Card Image Hover - Zoom Effect */
+.card-image-hover {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-image-hover:hover img {
+  transform: scale(1.08);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Overlay on Card Hover */
+.card-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(7, 203, 217, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.card-overlay:hover::after {
+  opacity: 1;
+}
+
+/* ===== LINK HOVER EFFECTS ===== */
+
+/* Text Link Hover */
+.link-hover {
+  position: relative;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #07cbd9;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link-hover:hover {
+  color: #06a8b8;
+}
+
+.link-hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #07cbd9;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.link-hover:hover::after {
+  width: 100%;
+}
+
+/* ===== FORM INPUT HOVER EFFECTS ===== */
+
+/* Input Field Hover */
+.input-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-color: #e5e7eb;
+}
+
+.input-hover:hover {
+  border-color: #07cbd9;
+  box-shadow: 0 0 0 3px rgba(7, 203, 217, 0.1);
+}
+
+.input-hover:focus {
+  border-color: #07cbd9;
+  box-shadow: 0 0 0 3px rgba(7, 203, 217, 0.2);
+  outline: none;
+}
+
+/* Checkbox/Radio Hover */
+.checkbox-hover,
+.radio-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.checkbox-hover:hover,
+.radio-hover:hover {
+  transform: scale(1.1);
+}
+
+/* ===== NAVIGATION HOVER EFFECTS ===== */
+
+/* Nav Link Hover */
+.nav-link-hover {
+  position: relative;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-link-hover:hover {
+  color: #07cbd9;
+}
+
+.nav-link-hover::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background-color: #07cbd9;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link-hover:hover::before {
+  width: 100%;
+}
+
+/* Tab Hover */
+.tab-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.tab-hover:hover {
+  color: #07cbd9;
+  background-color: rgba(7, 203, 217, 0.05);
+}
+
+.tab-hover.active {
+  color: #07cbd9;
+  background-color: rgba(7, 203, 217, 0.1);
+  border-bottom: 3px solid #07cbd9;
+}
+
+/* ===== ICON HOVER EFFECTS ===== */
+
+/* Icon Hover - Rotate */
+.icon-hover-rotate:hover {
+  transform: rotate(10deg) scale(1.1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Icon Hover - Scale */
+.icon-hover-scale:hover {
+  transform: scale(1.2);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Icon Hover - Color Change */
+.icon-hover-color:hover {
+  color: #07cbd9;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== INTERACTIVE LIST ITEMS ===== */
+
+/* List Item Hover */
+.list-item-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.list-item-hover:hover {
+  background-color: rgba(7, 203, 217, 0.1);
+  transform: translateX(4px);
+}
+
+/* ===== BADGE AND PILL HOVER EFFECTS ===== */
+
+/* Badge Hover */
+.badge-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  transform: scale(1);
+}
+
+.badge-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(7, 203, 217, 0.3);
+}
+
+/* ===== DISABLED STATE STYLING ===== */
+
+/* Disabled Button */
+.btn-disabled,
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Disabled Input */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f3f4f6;
+}
+
+/* ===== FOCUS STATES FOR ACCESSIBILITY ===== */
+
+/* Focus Ring */
+.focus-ring:focus {
+  outline: 2px solid #07cbd9;
+  outline-offset: 2px;
+}
+
+/* Focus Visible */
+*:focus-visible {
+  outline: 2px solid #07cbd9;
+  outline-offset: 2px;
+}
+
+/* ===== TRANSITION UTILITIES ===== */
+
+/* Smooth Transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-fast {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-slow {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== CURSOR FEEDBACK ===== */
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.cursor-grab {
+  cursor: grab;
+}
+
+.cursor-grabbing {
+  cursor: grabbing;
+}
+
+/* ===== ACTIVE STATE STYLING ===== */
+
+/* Active Link */
+.link-active {
+  color: #07cbd9;
+  font-weight: 600;
+}
+
+/* Active Tab */
+.tab-active {
+  color: #07cbd9;
+  border-bottom: 3px solid #07cbd9;
+  background-color: rgba(7, 203, 217, 0.05);
+}
+
+/* ===== RIPPLE EFFECT ===== */
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(7, 203, 217, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.ripple-effect:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* ===== LOADING STATE ===== */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ===== SKELETON LOADER ===== */
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton-loader {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ===== TOOLTIP HOVER EFFECTS ===== */
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 12px;
+}
+
+.tooltip .tooltiptext::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ===== DRAG AND DROP FEEDBACK ===== */
+
+.draggable-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: grab;
+}
+
+.draggable-item:active {
+  cursor: grabbing;
+  opacity: 0.7;
+  transform: scale(1.02);
+}
+
+.drag-over {
+  background-color: rgba(7, 203, 217, 0.1);
+  border: 2px dashed #07cbd9;
+  transform: scale(1.02);
+}
+
+/* ===== MODAL AND OVERLAY EFFECTS ===== */
+
+.modal-overlay {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ===== NOTIFICATION TOAST EFFECTS ===== */
+
+.toast-enter {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-exit {
+  animation: slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
