@@ -1763,3 +1763,19 @@ Future enhancements (Phase 2):
 - [ ] Add quote analytics (acceptance rate, average time to accept)
 - [ ] Write comprehensive tests for quotes system
 - [ ] Test end-to-end quote workflow
+
+
+## Current Task - Customer Quote Acceptance Flow
+- [x] Create QuoteAcceptanceModal component with acceptance/rejection UI
+- [x] Add rejection reason text input field
+- [x] Implement automatic invoice generation on quote acceptance
+- [ ] Add quote display to customer dashboard
+- [ ] Create quote detail view with template preview
+- [ ] Add quote status indicators (pending, accepted, rejected, expired)
+- [ ] Implement quote countdown timer for expiration
+- [ ] Add email notification when quote is accepted/rejected
+- [ ] Create quote history view showing past quotes
+- [ ] Add quote comparison feature (compare multiple quotes)
+- [ ] Implement quote download as PDF
+- [ ] Create unit tests for quote acceptance flow
+- [ ] Test end-to-end quote workflow

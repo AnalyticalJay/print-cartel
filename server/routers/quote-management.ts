@@ -370,6 +370,7 @@ export const quoteManagementRouter = router({
         });
       }
 
+      // Update quote status
       await db
         .update(quotes)
         .set({
@@ -378,7 +379,16 @@ export const quoteManagementRouter = router({
         })
         .where(eq(quotes.id, input.quoteId));
 
-      return { success: true };
+      // Update order status to approved and set total price from quote
+      await db
+        .update(orders)
+        .set({
+          status: "approved",
+          totalPriceEstimate: quote[0].quotes?.adjustedPrice,
+        })
+        .where(eq(orders.id, quote[0].quotes?.orderId));
+
+      return { success: true, orderId: quote[0].quotes?.orderId };
     }),
 
   /**
