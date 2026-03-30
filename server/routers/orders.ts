@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { orders } from "../../drizzle/schema";
+import { orders, paymentRecords } from "../../drizzle/schema";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory, approveQuote, rejectQuote } from "../db";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
 import { generateAndUploadInvoice } from "../invoice-generator";
@@ -673,6 +673,40 @@ export const ordersRouter = router({
         }));
       } catch (error) {
         console.error("Failed to fetch order history:", error);
+        throw error;
+      }
+    }),
+
+  getPaymentRecords: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new Error("Database not available");
+        }
+
+        // Verify order belongs to user
+        const orderResult = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, input.orderId))
+          .limit(1);
+
+        if (!orderResult.length || orderResult[0].customerEmail !== ctx.user?.email) {
+          throw new Error("Unauthorized: Order not found or does not belong to user");
+        }
+
+        // Fetch payment records for this order
+        const records = await db
+          .select()
+          .from(paymentRecords)
+          .where(eq(paymentRecords.orderId, input.orderId))
+          .orderBy(paymentRecords.createdAt);
+
+        return records;
+      } catch (error) {
+        console.error("Failed to fetch payment records:", error);
         throw error;
       }
     }),

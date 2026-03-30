@@ -36,7 +36,8 @@ export async function sendPaymentConfirmationEmail(
   amountPaid: number,
   totalAmount: number,
   remainingBalance: number,
-  paymentDate: string
+  paymentDate: string,
+  paymentMethod?: string
 ) {
   const subject = `Payment Confirmed - Order #${orderId} - Print Cartel`;
   const isFullPayment = remainingBalance === 0;
@@ -76,6 +77,12 @@ export async function sendPaymentConfirmationEmail(
               <td style="padding: 10px 0; color: #666;"><strong>Amount Paid:</strong></td>
               <td style="padding: 10px 0; text-align: right; font-weight: bold; color: #28a745;">R${amountPaid.toFixed(2)}</td>
             </tr>
+            ${paymentMethod ? `
+            <tr style="border-bottom: 1px solid #dee2e6;">
+              <td style="padding: 10px 0; color: #666;"><strong>Payment Method:</strong></td>
+              <td style="padding: 10px 0; text-align: right;">${paymentMethod === 'bank_transfer' ? 'Bank Transfer' : paymentMethod === 'eft' ? 'EFT' : 'PayFast'}</td>
+            </tr>
+            ` : ''}
             <tr style="border-bottom: 1px solid #dee2e6;">
               <td style="padding: 10px 0; color: #666;"><strong>Total Order Amount:</strong></td>
               <td style="padding: 10px 0; text-align: right;">R${totalAmount.toFixed(2)}</td>

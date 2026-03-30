@@ -17,6 +17,8 @@ export default function Payment() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType>("payfast");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const recordPaymentMethodMutation = trpc.payment.recordPaymentMethod.useMutation();
+
   // Get order ID from URL query parameter
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -240,12 +242,26 @@ export default function Payment() {
                 )}
 
                 <Button
-                  onClick={() => {
+                  onClick={async () => {
                     setIsProcessing(true);
-                    toast.success("Payment details saved. Please complete the bank transfer using the details above.");
-                    setTimeout(() => {
-                      setLocation("/dashboard");
-                    }, 2000);
+                    try {
+                      const paymentAmount = selectedPaymentAmount === "deposit" ? depositAmount : total;
+                      await recordPaymentMethodMutation.mutateAsync({
+                        orderId: orderId!,
+                        paymentMethod: selectedPaymentMethod,
+                        amount: paymentAmount,
+                        paymentType: selectedPaymentAmount === "deposit" ? "deposit" : "final_payment",
+                      });
+
+                      toast.success(`Payment method ${selectedPaymentMethod} recorded!`);
+                      setTimeout(() => {
+                        setLocation(`/payment-success?orderId=${orderId}`);
+                      }, 1500);
+                    } catch (error) {
+                      console.error("Error recording payment method:", error);
+                      toast.error("Failed to record payment method. Please try again.");
+                      setIsProcessing(false);
+                    }
                   }}
                   disabled={isProcessing}
                   className="w-full bg-cyan-500 hover:bg-cyan-600"

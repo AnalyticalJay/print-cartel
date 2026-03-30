@@ -42,6 +42,12 @@ export function PaymentSuccess() {
     { enabled: !!orderId }
   );
 
+  // Fetch payment records for this order
+  const { data: paymentRecords } = trpc.orders.getPaymentRecords.useQuery(
+    { orderId: orderId! },
+    { enabled: !!orderId }
+  );
+
   if (isLoading || orderLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
@@ -272,7 +278,15 @@ export function PaymentSuccess() {
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Payment Method:</span>
-                  <span>PayFast</span>
+                  <span className="font-medium capitalize">
+                    {paymentRecords && paymentRecords.length > 0
+                      ? paymentRecords[0].paymentMethod === 'bank_transfer'
+                        ? 'Bank Transfer'
+                        : paymentRecords[0].paymentMethod === 'eft'
+                        ? 'EFT'
+                        : 'PayFast'
+                      : 'Not specified'}
+                  </span>
                 </div>
               </div>
             </div>
