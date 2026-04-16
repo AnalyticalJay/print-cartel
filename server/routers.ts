@@ -6,7 +6,6 @@ import { productsRouter } from "./routers/products";
 import { ordersRouter } from "./routers/orders";
 import { filesRouter } from "./routers/files";
 import { adminRouter } from "./routers/admin";
-import { quotesRouter } from "./routers/quotes";
 import { chatRouter } from "./routers/chat";
 import { resellerRouter } from "./routers/reseller";
 import { gangSheets } from "./routers/gangsheets";
@@ -14,8 +13,6 @@ import { productionRouter } from "./routers/production";
 import { referralRouter } from "./routers/referral";
 import { templatesRouter } from "./routers/templates";
 import { notificationsRouter } from "./routers/notifications";
-import { quoteAcceptanceRouter } from "./routers/quote-acceptance";
-import { quoteManagementRouter } from "./routers/quote-management";
 import { paymentRouter } from "./routers/payment";
 import { payfastRouter } from "./routers/payfast";
 
@@ -39,7 +36,6 @@ export const appRouter = router({
   orders: ordersRouter,
   files: filesRouter,
   admin: adminRouter,
-  quotes: quotesRouter,
   chat: chatRouter,
   reseller: resellerRouter,
   gangSheets: gangSheetsRouter,
@@ -47,8 +43,6 @@ export const appRouter = router({
   referral: referralRouter,
   templates: templatesRouter,
   notifications: notificationsRouter,
-  quoteAcceptance: quoteAcceptanceRouter,
-  quoteManagement: quoteManagementRouter,
   payfast: payfastRouter,
   payment: paymentRouter,
 });

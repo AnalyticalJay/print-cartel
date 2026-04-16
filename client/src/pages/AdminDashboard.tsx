@@ -27,7 +27,7 @@ import { PaymentsTab } from "@/components/PaymentsTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
-type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
+type OrderStatus = "pending" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
 
 interface OrderWithDetails {
   id: number;
@@ -37,7 +37,7 @@ interface OrderWithDetails {
   customerPhone: string;
   customerCompany?: string;
   totalPriceEstimate: number;
-  status: OrderStatus;
+  status: OrderStatus | "quoted";
   quantity: number;
   createdAt: Date;
   updatedAt: Date;
@@ -145,12 +145,10 @@ function AdminDashboardContent() {
     return filtered;
   }, [ordersQuery.data, searchQuery, statusFilter, dateFrom, dateTo]);
 
-  const getStatusColor = (status: OrderStatus) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800";
-      case "quoted":
-        return "bg-blue-100 text-blue-800";
       case "approved":
         return "bg-purple-100 text-purple-800";
       case "in-production":
@@ -411,7 +409,6 @@ function AdminDashboardContent() {
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="quoted">Quoted</SelectItem>
                     <SelectItem value="approved">Approved</SelectItem>
                     <SelectItem value="in-production">In Production</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
@@ -454,7 +451,6 @@ function AdminDashboardContent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="quoted">Quoted</SelectItem>
                     <SelectItem value="approved">Approved</SelectItem>
                     <SelectItem value="in-production">In Production</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
@@ -529,7 +525,7 @@ function AdminDashboardContent() {
                           R{order.totalPriceEstimate.toFixed(2)}
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                          <Badge className={getStatusColor((order.status as any) === 'quoted' ? 'pending' : order.status)}>{(order.status as any) === 'quoted' ? 'Pending' : order.status}</Badge>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {new Date(order.createdAt).toLocaleDateString()}
@@ -765,7 +761,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
               </div>
               <div>
                 <p className="text-gray-400">Status</p>
-                <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "quoted" ? "bg-blue-100 text-blue-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
+                <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
                   {order.status}
                 </Badge>
               </div>
@@ -864,7 +860,6 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="quoted">Quoted</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="in-production">In Production</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
@@ -943,7 +938,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="quoted">Quoted</SelectItem>
+
                       <SelectItem value="approved">Approved</SelectItem>
                       <SelectItem value="in-production">In Production</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>

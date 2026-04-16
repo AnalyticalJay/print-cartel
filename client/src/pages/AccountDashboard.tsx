@@ -17,12 +17,8 @@ import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
-import { QuoteApprovalCard } from "@/components/QuoteApprovalCard";
 import { DepositPaymentTracker } from "@/components/DepositPaymentTracker";
 import { TemplateSelector } from "@/components/PaymentProofTemplates/TemplateSelector";
-import { QuoteStatusBadge } from "@/components/QuoteStatusBadge";
-import { QuoteHistoryTimeline } from "@/components/QuoteHistoryTimeline";
-import { QuoteAcceptanceModal } from "@/components/QuoteAcceptanceModal";
 
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
@@ -41,7 +37,7 @@ interface OrderWithPrints {
   customerCompany: string | null;
   additionalNotes: string | null;
   totalPriceEstimate: string | number;
-  status: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
+  status: "pending" | "approved" | "in-production" | "completed" | "shipped" | "cancelled" | "quoted";
   paymentMethod?: "deposit" | "full_payment" | null;
   depositAmount?: string | number | null;
   amountPaid?: string | number | null;
@@ -69,8 +65,6 @@ export default function AccountDashboard() {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [showPaymentTemplates, setShowPaymentTemplates] = useState(false);
-  const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
-  const [showQuoteModal, setShowQuoteModal] = useState(false);
 
   // Fetch orders for authenticated user
   const ordersQuery = trpc.orders.getByEmail.useQuery(
@@ -79,26 +73,6 @@ export default function AccountDashboard() {
   );
 
   // Fetch quotes for authenticated user
-  const quotesQuery = trpc.quoteManagement.getCustomerQuotes.useQuery(
-    { userId: user?.id || 0 },
-    { enabled: !!user?.id }
-  );
-
-  // Handle quote acceptance
-  const handleQuoteAccepted = () => {
-    setShowQuoteModal(false);
-    setSelectedQuote(null);
-    quotesQuery.refetch();
-  };
-
-  // Handle quote rejection
-  const handleQuoteRejected = () => {
-    setShowQuoteModal(false);
-    setSelectedQuote(null);
-    quotesQuery.refetch();
-  };
-
-  // Handle payment button clicks
   const handlePayDeposit = () => {
     if (selectedOrder) {
       setLocation(`/payment?orderId=${selectedOrder.id}&type=deposit`);
@@ -119,7 +93,6 @@ export default function AccountDashboard() {
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, string> = {
       pending: "bg-yellow-500 text-white",
-      quoted: "bg-blue-500 text-white",
       approved: "bg-purple-500 text-white",
       "in-production": "bg-orange-500 text-white",
       completed: "bg-green-500 text-white",
@@ -132,7 +105,6 @@ export default function AccountDashboard() {
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
       pending: "Pending Review",
-      quoted: "Quote Sent",
       approved: "Approved",
       "in-production": "In Production",
       completed: "Completed",
@@ -255,11 +227,6 @@ export default function AccountDashboard() {
               <span className="hidden sm:inline">Orders</span>
               <span className="sm:hidden">Orders</span>
             </TabsTrigger>
-            <TabsTrigger value="quotes" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700 text-xs md:text-sm">
-              <MessageSquare className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Quotes</span>
-              <span className="sm:hidden">Quotes</span>
-            </TabsTrigger>
             <TabsTrigger value="account" className="text-gray-300 data-[state=active]:text-cyan-400 data-[state=active]:bg-gray-700 text-xs md:text-sm">
               <Settings className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
               <span className="hidden sm:inline">Account</span>
@@ -354,25 +321,6 @@ export default function AccountDashboard() {
                     </Button>
                   </CardHeader>
                   <CardContent className="space-y-4 md:space-y-6 pt-4 md:pt-6">
-                    {/* Quote Approval Card */}
-                    {selectedOrder.status === "quoted" && (
-                      <QuoteApprovalCard
-                        orderId={selectedOrder.id}
-                        orderStatus={selectedOrder.status}
-                        totalPrice={parseFloat(String(selectedOrder.totalPriceEstimate))}
-                        depositAmount={parseFloat(String(selectedOrder.totalPriceEstimate)) * 0.5}
-                        paymentMethod={selectedOrder.paymentMethod || "full_payment"}
-                        onApproveSuccess={() => {
-                          setSelectedOrder(null);
-                          ordersQuery.refetch();
-                        }}
-                        onRejectSuccess={() => {
-                          setSelectedOrder(null);
-                          ordersQuery.refetch();
-                        }}
-                      />
-                    )}
-
                     <div>
                       <p className="text-xs md:text-sm text-gray-200">Order ID</p>
                       <p className="font-medium text-base md:text-lg">#{selectedOrder.id}</p>
@@ -402,13 +350,13 @@ export default function AccountDashboard() {
                         orderDetails={{
                           quantity: selectedOrder.quantity,
                           totalPrice: String(selectedOrder.totalPriceEstimate),
-                          depositPaid: selectedOrder.status !== "quoted",
+                          depositPaid: false,
                         }}
                       />
                     </div>
 
                     {/* Deposit Payment Tracker - Show for approved or quoted status */}
-                    {(selectedOrder.status === "approved" || selectedOrder.status === "quoted") && (
+                    {(selectedOrder.status === "approved") && (
                       <div className="border-t border-gray-700 pt-4 md:pt-6">
                         <DepositPaymentTracker
                           orderId={selectedOrder.id}
@@ -424,7 +372,7 @@ export default function AccountDashboard() {
                     )}
 
                     {/* Payment Proof Templates */}
-                    {(selectedOrder.status === "approved" || selectedOrder.status === "quoted") && (
+                    {(selectedOrder.status === "approved") && (
                       <div className="border-t border-gray-700 pt-4 md:pt-6">
                         <Button
                           onClick={() => setShowPaymentTemplates(true)}
@@ -552,88 +500,6 @@ export default function AccountDashboard() {
             </div>
           </TabsContent>
 
-          {/* Quotes Tab */}
-          <TabsContent value="quotes" className="space-y-6 mt-6">
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Your Quotes</h2>
-              
-              {quotesQuery?.isLoading ? (
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="py-8">
-                    <p className="text-center text-gray-200">Loading your quotes...</p>
-                  </CardContent>
-                </Card>
-              ) : quotesQuery?.data && quotesQuery.data.length > 0 ? (
-                <div className="space-y-6">
-                  {/* Pending Quotes */}
-                  <div>
-                    <h3 className="text-xl font-semibold mb-4">Pending Quotes</h3>
-                    <div className="grid gap-4">
-                      {quotesQuery.data
-                        .filter((q: any) => q.status === "pending")
-                        .map((quote: any) => (
-                          <Card key={quote.id} className="bg-gray-800 border-gray-700 hover:border-gray-600 cursor-pointer transition" onClick={() => {
-                            setSelectedQuote(quote);
-                            setShowQuoteModal(true);
-                          }}>
-                            <CardContent className="py-6">
-                              <div className="flex justify-between items-start">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-3 mb-2">
-                                    <h4 className="text-lg font-semibold">Quote #{quote.id}</h4>
-                                    <QuoteStatusBadge status={quote.status} expiresAt={quote.expiresAt} />
-                                  </div>
-                                  <p className="text-gray-200 text-sm mb-2">Sent: {quote.sentAt ? new Date(quote.sentAt).toLocaleDateString() : 'N/A'}</p>
-                                  <p className="text-white font-semibold">Price: {formatCurrency(parseFloat(String(quote.adjustedPrice)))}</p>
-                                </div>
-                                <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:text-white">
-                                  View & Respond
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                    </div>
-                  </div>
-
-                  {/* Quote History */}
-                  <QuoteHistoryTimeline 
-                    quotes={quotesQuery.data.map((q: any) => ({
-                      id: q.id,
-                      status: q.status,
-                      basePrice: String(q.basePrice),
-                      adjustedPrice: String(q.adjustedPrice),
-                      sentAt: q.sentAt,
-                      respondedAt: q.respondedAt,
-                      expiresAt: q.expiresAt,
-                      rejectionReason: q.rejectionReason,
-                    }))}
-                    isLoading={false}
-                  />
-                </div>
-              ) : (
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="py-8">
-                    <p className="text-center text-gray-200">No quotes yet. Place an order to receive quotes!</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Quote Acceptance Modal */}
-            {selectedQuote && showQuoteModal && (
-              <QuoteAcceptanceModal
-                quote={selectedQuote}
-                isOpen={showQuoteModal}
-                onClose={() => {
-                  setShowQuoteModal(false);
-                  setSelectedQuote(null);
-                }}
-                onAccept={handleQuoteAccepted}
-                onReject={handleQuoteRejected}
-              />
-            )}
-          </TabsContent>
 
           {/* Referral Tab */}
           <TabsContent value="referral" className="space-y-6 mt-6">

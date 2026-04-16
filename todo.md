@@ -1881,3 +1881,28 @@ Future enhancements (Phase 2):
 - [x] Update payment table with PaymentMethodBadge component
 - [x] Implement filtering logic for payment method selection
 - [x] Write comprehensive unit tests for payment method normalization and filtering (29 tests passing)
+
+
+## Current Sprint - Phase 6: Remove Legacy Quotes Workflow
+- [ ] Remove quote-related UI components (CustomerQuoteView, QuoteApprovalCard, QuoteGenerator, etc.)
+- [ ] Remove quote-related pages (QuoteAcceptance.tsx)
+- [ ] Remove quote tabs from AdminDashboard
+- [ ] Remove quote routers (quotes.ts, quote-acceptance.ts, quote-management.ts)
+- [ ] Remove quote-related email procedures
+- [ ] Remove quote tables from database schema (quotes, quoteTemplates, quoteReminders)
+- [ ] Update order status enum to remove "quoted" status
+- [ ] Remove quote-related test files
+- [ ] Update email workflows to skip quote emails
+
+
+## Current Sprint - Phase 7: Quote Workflow Removal
+- [x] Remove quote-related UI tabs from customer dashboard (AccountDashboard)
+- [x] Remove quote-related routes from App.tsx
+- [x] Remove quote routers (quotesRouter, quoteAcceptanceRouter, quoteManagementRouter) from main router
+- [x] Remove quote-related imports from orders router
+- [x] Remove approveQuote and rejectQuote procedures from orders router
+- [x] Remove quote-related database functions from db.ts
+- [x] Handle legacy "quoted" status in database for backward compatibility
+- [x] Update type definitions to accept legacy quoted status without breaking UI
+- [x] Remove "Quoted" status option from admin order status selector
+- [x] Fix TypeScript compilation errors related to quote removal

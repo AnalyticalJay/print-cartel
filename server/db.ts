@@ -766,53 +766,6 @@ export async function logOrderStatusChange(orderId: number, previousStatus: stri
 }
 
 
-// Quote approval/rejection functions
-export async function approveQuote(orderId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  // Update order with quote approval timestamp and change status to approved
-  await db.update(orders).set({ 
-    quoteApprovedAt: new Date(),
-    status: "approved"
-  }).where(eq(orders.id, orderId));
-  
-  // Log the status change
-  const currentOrder = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-  if (currentOrder.length > 0) {
-    await db.insert(orderStatusHistory).values({
-      orderId,
-      previousStatus: "quoted",
-      newStatus: "approved",
-      adminNotes: "Quote approved by customer",
-    });
-  }
-}
-
-export async function rejectQuote(orderId: number, rejectionReason: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  // Update order with quote rejection timestamp and reason, change status back to pending
-  await db.update(orders).set({ 
-    quoteRejectedAt: new Date(),
-    quoteRejectionReason: rejectionReason,
-    status: "pending"
-  }).where(eq(orders.id, orderId));
-  
-  // Log the status change
-  const currentOrder = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-  if (currentOrder.length > 0) {
-    await db.insert(orderStatusHistory).values({
-      orderId,
-      previousStatus: "quoted",
-      newStatus: "pending",
-      adminNotes: `Quote rejected by customer. Reason: ${rejectionReason}`,
-    });
-  }
-}
-
-
 // Invoice management functions
 export async function getInvoices(filters?: { status?: string; search?: string; limit?: number; offset?: number }) {
   const db = await getDb();

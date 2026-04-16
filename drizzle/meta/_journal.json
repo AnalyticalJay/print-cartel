@@ -190,6 +190,20 @@
       "when": 1774879380380,
       "tag": "0026_bent_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1776378233288,
+      "tag": "0027_free_the_santerians",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1776378384454,
+      "tag": "0028_silky_apocalypse",
+      "breakpoints": true
     }
   ]
 }

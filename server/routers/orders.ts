@@ -3,12 +3,11 @@ import { eq } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { orders, paymentRecords } from "../../drizzle/schema";
-import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory, approveQuote, rejectQuote } from "../db";
+import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
 import { generateAndUploadInvoice } from "../invoice-generator";
 import { sendInvoiceEmail, sendInvoiceNotificationToAdmin } from "../invoice-email";
-import { sendQuoteApprovedEmail, sendQuoteRejectedEmail } from "../quote-action-emails";
-import { sendQuoteReceivedEmail } from "../quote-received-email";
+
 import { sendInvoiceReceivedEmail } from "../invoice-received-email";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 
@@ -238,7 +237,7 @@ export const ordersRouter = router({
   }),
 
   updateStatus: protectedProcedure
-    .input(z.object({ orderId: z.number(), status: z.enum(["pending", "quoted", "approved", "in-production", "completed", "shipped", "cancelled"]), adminNotes: z.string().optional() }))
+    .input(z.object({ orderId: z.number(), status: z.enum(["pending", "approved", "in-production", "completed", "shipped", "cancelled"]), adminNotes: z.string().optional() }))
     .mutation(async ({ input, ctx }) => {
       if (!ctx.user?.role || ctx.user.role !== "admin") {
         throw new Error("Unauthorized: Admin access required");
@@ -252,8 +251,8 @@ export const ordersRouter = router({
 
         await updateOrderStatus(input.orderId, input.status, ctx.user.id, input.adminNotes);
 
-        // Generate and send invoice when status changes to "quoted"
-        if (input.status === "quoted") {
+        // Generate and send invoice when status changes to "approved"
+        if (input.status === "approved") {
           try {
             const invoiceNumber = `INV-${input.orderId}-${Date.now()}`;
             const invoiceUrl = await generateAndUploadInvoice({
@@ -385,91 +384,6 @@ export const ordersRouter = router({
       }
     }),
 
-  // Approve quote
-  approveQuote: protectedProcedure
-    .input(z.object({ orderId: z.number() }))
-    .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.email) {
-        throw new Error("User email not found");
-      }
-
-      try {
-        // Verify the order belongs to the current user
-        const order = await getOrderById(input.orderId);
-        if (!order || order.customerEmail !== ctx.user.email) {
-          throw new Error("Unauthorized: Order not found or does not belong to user");
-        }
-
-        // Verify order is in quoted status
-        if (order.status !== "quoted") {
-          throw new Error("Order is not in quoted status");
-        }
-
-        // Approve the quote
-        await approveQuote(input.orderId);
-
-        // Send approval notification email
-        try {
-          await sendQuoteApprovedEmail(
-            order.customerEmail,
-            `${order.customerFirstName} ${order.customerLastName}`,
-            input.orderId,
-            parseFloat(order.totalPriceEstimate),
-            parseFloat(order.depositAmount || "0"),
-            order.paymentMethod || "full_payment"
-          );
-        } catch (error) {
-          console.error("Failed to send quote approval email:", error);
-        }
-
-        return { success: true, message: "Quote approved successfully" };
-      } catch (error) {
-        console.error("Failed to approve quote:", error);
-        throw error;
-      }
-    }),
-
-  // Reject quote
-  rejectQuote: protectedProcedure
-    .input(z.object({ orderId: z.number(), reason: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      if (!ctx.user?.email) {
-        throw new Error("User email not found");
-      }
-
-      try {
-        // Verify the order belongs to the current user
-        const order = await getOrderById(input.orderId);
-        if (!order || order.customerEmail !== ctx.user.email) {
-          throw new Error("Unauthorized: Order not found or does not belong to user");
-        }
-
-        // Verify order is in quoted status
-        if (order.status !== "quoted") {
-          throw new Error("Order is not in quoted status");
-        }
-
-        // Reject the quote
-        await rejectQuote(input.orderId, input.reason);
-
-        // Send rejection notification email
-        try {
-          await sendQuoteRejectedEmail(
-            order.customerEmail,
-            `${order.customerFirstName} ${order.customerLastName}`,
-            input.orderId,
-            input.reason
-          );
-        } catch (error) {
-          console.error("Failed to send quote rejection email:", error);
-        }
-
-        return { success: true, message: "Quote rejected successfully" };
-      } catch (error) {
-        console.error("Failed to reject quote:", error);
-        throw error;
-      }
-    }),
   // Accept invoice
   acceptInvoice: protectedProcedure
     .input(z.object({ orderId: z.number() }))
@@ -484,7 +398,7 @@ export const ordersRouter = router({
           throw new Error("Unauthorized: Order not found or does not belong to user");
         }
 
-        if (order.status !== "quoted") {
+        if (true) {
           throw new Error("Order is not in quoted status");
         }
 
@@ -493,17 +407,18 @@ export const ordersRouter = router({
 
         // Update invoice acceptance timestamp
         const db = await getDb();
-        if (db) {
-          await db.update(orders).set({ invoiceAcceptedAt: new Date() }).where(eq(orders.id, input.orderId));
+        if (!db) {
+          throw new Error("Database not available");
         }
+        await db!.update(orders).set({ invoiceAcceptedAt: new Date() }).where(eq(orders.id, input.orderId));
 
         // Send confirmation email
         try {
           await sendOrderStatusUpdateEmail({
             orderId: input.orderId,
-            customerName: `${order.customerFirstName} ${order.customerLastName}`,
-            customerEmail: order.customerEmail,
-            previousStatus: "quoted",
+            customerName: `${order!.customerFirstName} ${order!.customerLastName}`,
+            customerEmail: order!.customerEmail,
+            previousStatus: "pending",
             newStatus: "approved",
             updateMessage: "Invoice accepted by customer",
           });
@@ -532,29 +447,31 @@ export const ordersRouter = router({
           throw new Error("Unauthorized: Order not found or does not belong to user");
         }
 
-        if (order.status !== "quoted") {
+        if (true) {
           throw new Error("Order is not in quoted status");
         }
 
         // Update invoice decline information
         const db = await getDb();
-        if (db) {
-          await db
-            .update(orders)
-            .set({
-              invoiceDeclinedAt: new Date(),
-              invoiceDeclineReason: input.reason,
-            })
-            .where(eq(orders.id, input.orderId));
+        if (!db) {
+          throw new Error("Database not available");
         }
+
+        await db!
+          .update(orders)
+          .set({
+            invoiceDeclinedAt: new Date(),
+            invoiceDeclineReason: input.reason,
+          })
+          .where(eq(orders.id, input.orderId));
 
         // Send notification email to customer and admin
         try {
           await sendOrderStatusUpdateEmail({
             orderId: input.orderId,
-            customerName: `${order.customerFirstName} ${order.customerLastName}`,
-            customerEmail: order.customerEmail,
-            previousStatus: "quoted",
+            customerName: `${order!.customerFirstName} ${order!.customerLastName}`,
+            customerEmail: order!.customerEmail,
+            previousStatus: "pending",
             newStatus: "pending",
             updateMessage: `Invoice declined: ${input.reason}`,
           });

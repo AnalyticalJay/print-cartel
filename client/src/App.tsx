@@ -15,7 +15,7 @@ import NotificationSettings from "./pages/NotificationSettings";
 import Reseller from "./pages/Reseller";
 import ResellersManagement from "./pages/ResellersManagement";
 import GangSheetPage from "./pages/GangSheetPage";
-import QuoteAcceptance from "./pages/QuoteAcceptance";
+
 import { PayFastReturn } from "./pages/PayFastReturn";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
 import { PaymentPage } from "./pages/PaymentPage";
@@ -34,8 +34,7 @@ function Router() {
       <Route path={"/profile"} component={AccountDashboard} />
       <Route path={"/notification-settings"} component={NotificationSettings} />
       <Route path={"/admin"} component={AdminDashboard} />
-      <Route path={"/quote/accept"} component={QuoteAcceptance} />
-      <Route path={"/quote/reject"} component={QuoteAcceptance} />
+
       <Route path={"/payment"} component={PaymentPage} />
       <Route path={"/payment/payfast-return"} component={PayFastReturn} />
       <Route path={"/payment/success"} component={PaymentSuccess} />
