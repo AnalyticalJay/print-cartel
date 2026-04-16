@@ -24,6 +24,7 @@ import { InvoicesPanel } from "@/components/InvoicesPanel";
 import { OrderDetailTimeline } from "@/components/OrderDetailTimeline";
 import { PaymentVerificationPanel } from "@/components/PaymentVerificationPanel";
 import { PaymentsTab } from "@/components/PaymentsTab";
+import { AdvancedOrderDetailView } from "@/components/AdvancedOrderDetailView";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 

@@ -15,6 +15,7 @@ import { templatesRouter } from "./routers/templates";
 import { notificationsRouter } from "./routers/notifications";
 import { paymentRouter } from "./routers/payment";
 import { payfastRouter } from "./routers/payfast";
+import { adminAdvancedOrdersRouter } from "./routers/admin-advanced-orders";
 
 const gangSheetsRouter = gangSheets;
 
@@ -45,6 +46,7 @@ export const appRouter = router({
   notifications: notificationsRouter,
   payfast: payfastRouter,
   payment: paymentRouter,
+  adminAdvancedOrders: adminAdvancedOrdersRouter,
 });
 
 export type AppRouter = typeof appRouter;

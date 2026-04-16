@@ -1975,3 +1975,13 @@ Future enhancements (Phase 2):
 - [ ] Create placement-organized design view in admin order details
 - [ ] Add download links for all designs by placement
 - [ ] Test end-to-end workflow from order creation to admin review
+
+
+## Current Sprint - Phase 14: Admin Dashboard Advanced Orders Integration
+- [ ] Create backend procedure to fetch advanced orders with design details
+- [ ] Build AdvancedOrderDetailView component for admin dashboard
+- [ ] Create placement-organized design display component
+- [ ] Add download links and thumbnail previews for designs
+- [ ] Integrate into admin dashboard Orders tab
+- [ ] Write and run tests
+- [ ] Save checkpoint and deliver
