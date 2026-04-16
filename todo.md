@@ -1800,3 +1800,19 @@ Future enhancements (Phase 2):
 - [x] Create unit tests for PayFast integration (16 tests passing)
 - [ ] Test end-to-end payment flow with sandbox
 - [ ] Create payment success confirmation page
+
+
+## CRITICAL - Sales Workflow Redesign (Simplified Process)
+- [ ] Sort orders by newest first in admin dashboard (descending order)
+- [ ] Sort orders by newest first in customer dashboard (descending order)
+- [ ] Remove quote workflow completely (delete quotes tab, quote components)
+- [ ] Replace quote with admin invoice approval button
+- [ ] Create "Send Invoice" button in admin order details
+- [ ] Display invoice in customer order details after admin sends it
+- [ ] Add "Proceed to Payment" button in customer order details (only after invoice sent)
+- [ ] Simplify order confirmation email (remove quote references)
+- [ ] Create invoice notification email for customers
+- [ ] Create admin Payments tab showing customer name, order ID, amount, payment status
+- [ ] Update order status workflow: submitted → approved → production → completed
+- [ ] Add payment success notification email to customers
+- [ ] Test complete workflow end-to-end

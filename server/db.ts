@@ -150,7 +150,7 @@ export async function getOrderPrints(orderId: number) {
 export async function getOrdersByCustomerEmail(email: string) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(orders).where(eq(orders.customerEmail, email)).orderBy(orders.createdAt);
+  return db.select().from(orders).where(eq(orders.customerEmail, email)).orderBy(desc(orders.id));
 }
 
 export async function getConversationByOrderId(orderId: number) {

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb, getOrderStatusHistory, logOrderStatusChange } from "../db";
 import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
 import { sendQuoteEmail, sendFinalInvoiceEmail } from "../payment-emails";
@@ -23,7 +23,7 @@ export const adminRouter = router({
     }
 
     try {
-      const allOrders = await db.select().from(orders);
+      const allOrders = await db.select().from(orders).orderBy(desc(orders.id));
       return allOrders.map((order) => ({
         ...order,
         totalPriceEstimate: parseFloat(order.totalPriceEstimate as any),
