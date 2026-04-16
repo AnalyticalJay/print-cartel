@@ -98,6 +98,19 @@ export default function AccountDashboard() {
     quotesQuery.refetch();
   };
 
+  // Handle payment button clicks
+  const handlePayDeposit = () => {
+    if (selectedOrder) {
+      setLocation(`/payment?orderId=${selectedOrder.id}&type=deposit`);
+    }
+  };
+
+  const handlePayFinal = () => {
+    if (selectedOrder) {
+      setLocation(`/payment?orderId=${selectedOrder.id}&type=final`);
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     setLocation("/");
@@ -404,6 +417,8 @@ export default function AccountDashboard() {
                           depositPaid={selectedOrder.amountPaid ? parseFloat(String(selectedOrder.amountPaid)) : 0}
                           finalPaymentPaid={0}
                           orderStatus={selectedOrder.status}
+                          onPayDeposit={handlePayDeposit}
+                          onPayFinal={handlePayFinal}
                         />
                       </div>
                     )}

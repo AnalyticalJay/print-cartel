@@ -10,29 +10,35 @@ import { toast } from "sonner";
 import { SimplifiedPaymentMethodSelector, type PaymentMethodType } from "@/components/SimplifiedPaymentMethodSelector";
 import { SimplifiedPaymentProofUpload } from "@/components/SimplifiedPaymentProofUpload";
 
+type PaymentType = "deposit" | "full_payment";
+
 export default function Payment() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<"deposit" | "full_payment">("deposit");
+  const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<PaymentType>("deposit");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const recordPaymentMethodMutation = trpc.payment.recordPaymentMethod.useMutation();
 
-  // Get order ID from URL query parameter
+  // Get order ID and payment type from URL query parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("orderId");
+    const type = params.get("type");
     if (id) {
       setOrderId(parseInt(id));
     }
+      if (type === "deposit" || type === "full_payment") {
+        setSelectedPaymentAmount(type as PaymentType);
+      }
   }, []);
 
   // Fetch order details
   const orderQuery = trpc.orders.getById.useQuery(
     { id: orderId || 0 },
-    { enabled: !!orderId && !!user?.email }
+    { enabled: !!orderId }
   );
 
   const order = orderQuery.data;
