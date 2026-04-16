@@ -11,6 +11,7 @@ import { sendPaymentProofTemplateEmail } from "../payment-proof-email";
 import { getInvoices, getInvoiceStats } from "../db";
 import { approveAndSendInvoice } from "../admin-invoice-approval";
 import { getPaymentRecords, getPaymentStats, getPaymentsByOrderId } from "../admin-payments";
+import { verifyPayment, rejectPayment, getReconciliationDetails, bulkVerifyPayments } from "../payment-reconciliation";
 
 export const adminRouter = router({
   // Get all orders with related data for admin dashboard
@@ -1215,4 +1216,8 @@ export const adminRouter = router({
   getPaymentRecords,
   getPaymentStats,
   getPaymentsByOrderId,
+  verifyPayment,
+  rejectPayment,
+  getReconciliationDetails,
+  bulkVerifyPayments,
 });

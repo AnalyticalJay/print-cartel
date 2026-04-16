@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Filter, Download, TrendingUp } from "lucide-react";
+import { DollarSign, Filter, Download, TrendingUp, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { PaymentReconciliationModal } from "./PaymentReconciliationModal";
 
 interface PaymentRecord {
   paymentId: number;
@@ -30,6 +31,7 @@ export function PaymentsTab() {
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed" | "failed" | "refunded">("all");
   const [paymentTypeFilter, setPaymentTypeFilter] = useState<"all" | "deposit" | "final_payment">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [reconciliationModal, setReconciliationModal] = useState<{ isOpen: boolean; paymentId: number; orderId: number }>({ isOpen: false, paymentId: 0, orderId: 0 });
 
   const paymentRecordsQuery = trpc.admin.getPaymentRecords.useQuery({
     status: statusFilter,
@@ -272,6 +274,7 @@ export function PaymentsTab() {
                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Type</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -302,6 +305,31 @@ export function PaymentsTab() {
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {new Date(record.createdAt).toLocaleDateString()}
                       </td>
+                      <td className="px-4 py-3 text-sm">
+                        {record.paymentStatus === "pending" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setReconciliationModal({
+                                isOpen: true,
+                                paymentId: record.paymentId,
+                                orderId: record.orderId,
+                              })
+                            }
+                            className="flex items-center gap-1"
+                          >
+                            <CheckCircle className="w-3 h-3" />
+                            Reconcile
+                          </Button>
+                        )}
+                        {record.paymentStatus === "completed" && (
+                          <Badge className="bg-green-100 text-green-800">Verified</Badge>
+                        )}
+                        {record.paymentStatus === "failed" && (
+                          <Badge className="bg-red-100 text-red-800">Rejected</Badge>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -310,6 +338,15 @@ export function PaymentsTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* Payment Reconciliation Modal */}
+      <PaymentReconciliationModal
+        isOpen={reconciliationModal.isOpen}
+        onClose={() => setReconciliationModal({ isOpen: false, paymentId: 0, orderId: 0 })}
+        paymentId={reconciliationModal.paymentId}
+        orderId={reconciliationModal.orderId}
+        onSuccess={() => paymentRecordsQuery.refetch()}
+      />
     </div>
   );
 }
