@@ -440,6 +440,38 @@ export const quoteManagementRouter = router({
     }),
 
   /**
+   * Get customer quotes (customer)
+   */
+  getCustomerQuotes: protectedProcedure
+    .input(z.object({ userId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Get all quotes for orders belonging to this user
+      const customerQuotes = await db
+        .select()
+        .from(quotes)
+        .leftJoin(orders, eq(quotes.orderId, orders.id))
+        .where(eq(orders.userId, input.userId))
+        .orderBy(desc(quotes.sentAt));
+
+      return customerQuotes.map((q: any) => ({
+        id: q.quotes?.id,
+        orderId: q.quotes?.orderId,
+        basePrice: q.quotes?.basePrice,
+        adjustedPrice: q.quotes?.adjustedPrice,
+        status: q.quotes?.status,
+        sentAt: q.quotes?.sentAt,
+        respondedAt: q.quotes?.respondedAt,
+        expiresAt: q.quotes?.expiresAt,
+        rejectionReason: q.quotes?.rejectionReason,
+        priceAdjustmentReason: q.quotes?.priceAdjustmentReason,
+        adminNotes: q.quotes?.adminNotes,
+      }));
+    }),
+
+  /**
    * Get quote analytics (admin only)
    */
   getQuoteAnalytics: adminProcedure.query(async () => {
