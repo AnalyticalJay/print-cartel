@@ -21,6 +21,7 @@ interface MobileOrderTimelineProps {
 }
 
 export function MobileOrderTimeline({ currentStatus, createdAt, updatedAt, orderDetails }: MobileOrderTimelineProps) {
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [expandedStatus, setExpandedStatus] = useState<string | null>(null);
 
   const events: TimelineEvent[] = [
@@ -129,7 +130,14 @@ export function MobileOrderTimeline({ currentStatus, createdAt, updatedAt, order
 
   return (
     <div className="py-4 md:py-8">
-      <h3 className="text-lg md:text-xl font-semibold mb-4 md:mb-6 text-gray-900">Order Timeline</h3>
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="flex items-center justify-between w-full mb-4 md:mb-6 p-3 md:p-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+      >
+        <h3 className="text-lg md:text-xl font-semibold text-gray-900">Order Timeline</h3>
+        <ChevronDown className={`w-5 h-5 md:w-6 md:h-6 text-gray-600 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
+      </button>
+      {!isCollapsed && (
       <div className="space-y-2 md:space-y-3">
         {events.map((event, index) => (
           <div key={event.status} className="relative">
@@ -192,6 +200,7 @@ export function MobileOrderTimeline({ currentStatus, createdAt, updatedAt, order
           </div>
         ))}
       </div>
+      )}
 
       {/* Status legend */}
       <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-gray-200">

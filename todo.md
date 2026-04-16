@@ -1906,3 +1906,9 @@ Future enhancements (Phase 2):
 - [x] Update type definitions to accept legacy quoted status without breaking UI
 - [x] Remove "Quoted" status option from admin order status selector
 - [x] Fix TypeScript compilation errors related to quote removal
+
+
+## Current Sprint - Phase 8: Customer Order Details UX Improvements
+- [x] Fix text visibility - make all field labels and values bright/white for dark background
+- [x] Minimize order timeline - collapse by default to reduce scrolling
+- [x] Remove "View Payment Proof Templates" button - unnecessary for current workflow

@@ -18,7 +18,7 @@ import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { DepositPaymentTracker } from "@/components/DepositPaymentTracker";
-import { TemplateSelector } from "@/components/PaymentProofTemplates/TemplateSelector";
+
 
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
@@ -64,7 +64,7 @@ export default function AccountDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [showChat, setShowChat] = useState(false);
-  const [showPaymentTemplates, setShowPaymentTemplates] = useState(false);
+
 
   // Fetch orders for authenticated user
   const ordersQuery = trpc.orders.getByEmail.useQuery(
@@ -323,7 +323,7 @@ export default function AccountDashboard() {
                   <CardContent className="space-y-4 md:space-y-6 pt-4 md:pt-6">
                     <div>
                       <p className="text-xs md:text-sm text-gray-200">Order ID</p>
-                      <p className="font-medium text-base md:text-lg">#{selectedOrder.id}</p>
+                      <p className="font-medium text-base md:text-lg text-white">#{selectedOrder.id}</p>
                     </div>
                     <div>
                       <p className="text-xs md:text-sm text-gray-200">Status</p>
@@ -334,11 +334,11 @@ export default function AccountDashboard() {
                     <div className="grid grid-cols-2 gap-2 md:gap-4">
                       <div>
                         <p className="text-xs md:text-sm text-gray-200">Order Date</p>
-                        <p className="font-medium text-sm md:text-base">{formatDate(selectedOrder.createdAt)}</p>
+                        <p className="font-medium text-sm md:text-base text-white">{formatDate(selectedOrder.createdAt)}</p>
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-200">Total Price</p>
-                        <p className="text-base md:text-lg font-semibold">R{parseFloat(String(selectedOrder.totalPriceEstimate)).toFixed(2)}</p>
+                        <p className="text-base md:text-lg font-semibold text-white">R{parseFloat(String(selectedOrder.totalPriceEstimate)).toFixed(2)}</p>
                       </div>
                     </div>
                     {/* Mobile Order Timeline */}
@@ -372,16 +372,7 @@ export default function AccountDashboard() {
                     )}
 
                     {/* Payment Proof Templates */}
-                    {(selectedOrder.status === "approved") && (
-                      <div className="border-t border-gray-700 pt-4 md:pt-6">
-                        <Button
-                          onClick={() => setShowPaymentTemplates(true)}
-                          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
-                        >
-                          📄 View Payment Proof Templates
-                        </Button>
-                      </div>
-                    )}
+
 
                     <div className="border-t border-gray-700 pt-4 md:pt-6">
                       <p className="text-xs md:text-sm text-gray-200 mb-3 md:mb-4 font-semibold uppercase tracking-wide">Design Files</p>
@@ -405,36 +396,6 @@ export default function AccountDashboard() {
                         )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Payment Templates Modal */}
-            {showPaymentTemplates && selectedOrder && (
-              <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-2 md:p-4 z-50 overflow-y-auto">
-                <Card className="bg-gray-800 border-gray-700 w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto my-4 md:my-0">
-                  <CardHeader className="flex flex-row items-center justify-between border-b border-gray-700 sticky top-0 bg-gray-800 z-10">
-                    <CardTitle className="text-white">Payment Proof Templates</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowPaymentTemplates(false)}
-                      className="text-gray-200 hover:text-white"
-                    >
-                      ✕
-                    </Button>
-                  </CardHeader>
-                  <CardContent className="pt-4 md:pt-6">
-                    <TemplateSelector
-                      orderId={selectedOrder.id}
-                      orderAmount={parseFloat(String(selectedOrder.totalPriceEstimate))}
-                      customerName={`${selectedOrder.customerFirstName} ${selectedOrder.customerLastName}`}
-                      onTemplateSubmit={(templateType, data) => {
-                        toast.success(`${templateType === 'eft' ? 'EFT' : 'Credit Card'} template ready to submit`);
-                      }}
-                      onClose={() => setShowPaymentTemplates(false)}
-                    />
                   </CardContent>
                 </Card>
               </div>
