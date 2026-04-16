@@ -4,6 +4,7 @@ import { getDb } from "./db";
 import { orders, paymentRecords } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "./email";
+import { checkAndProgressOrder } from "./auto-progression";
 
 /**
  * Verify and confirm a payment record

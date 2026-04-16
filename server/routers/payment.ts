@@ -5,6 +5,7 @@ import { orders, paymentRecords } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { PayFastIntegration } from "../payfast-integration";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
+import { checkAndProgressOrder } from "../auto-progression";
 
 // Initialize PayFast integration
 const payfast = new PayFastIntegration({
@@ -235,6 +236,17 @@ export const paymentRouter = router({
               updatedAt: new Date(),
             })
             .where(eq(orders.id, orderId));
+
+          // Check if order should auto-progress to in-production
+          try {
+            const progressionResult = await checkAndProgressOrder(orderId);
+            if (progressionResult.progressed) {
+              console.log(`✓ Order ${orderId} auto-progressed to in-production after payment`);
+            }
+          } catch (progressionError) {
+            console.error("Error during auto-progression:", progressionError);
+            // Don't fail the payment verification if auto-progression fails
+          }
 
           // Send payment confirmation email to customer
           try {
