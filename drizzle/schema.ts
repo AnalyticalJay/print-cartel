@@ -574,3 +574,62 @@ export const quoteReminders = mysqlTable(
 
 export type QuoteReminder = typeof quoteReminders.$inferSelect;
 export type InsertQuoteReminder = typeof quoteReminders.$inferInsert;
+
+
+// ============================================================================
+// ADVANCED ORDER WIZARD TABLES - Per-Quantity Design Management
+// ============================================================================
+
+// Design variation tracking for line items - tracks if designs differ per quantity
+export const lineItemDesignVariations = mysqlTable("lineItemDesignVariations", {
+  id: int("id").autoincrement().primaryKey(),
+  lineItemId: int("lineItemId").notNull().references(() => orderLineItems.id, { onDelete: "cascade" }),
+  designVariationType: mysqlEnum("designVariationType", ["same_across_all", "different_per_quantity"]).default("same_across_all").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LineItemDesignVariation = typeof lineItemDesignVariations.$inferSelect;
+export type InsertLineItemDesignVariation = typeof lineItemDesignVariations.$inferInsert;
+
+// Design quantity tracking - tracks each individual quantity within a line item
+export const designQuantityTracker = mysqlTable("designQuantityTracker", {
+  id: int("id").autoincrement().primaryKey(),
+  lineItemId: int("lineItemId").notNull().references(() => orderLineItems.id, { onDelete: "cascade" }),
+  quantityNumber: int("quantityNumber").notNull(),
+  hasCustomDesign: boolean("hasCustomDesign").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DesignQuantityTracker = typeof designQuantityTracker.$inferSelect;
+export type InsertDesignQuantityTracker = typeof designQuantityTracker.$inferInsert;
+
+// Design uploads table - tracks design files for specific placements on specific quantities
+export const designUploadsByQuantity = mysqlTable("designUploadsByQuantity", {
+  id: int("id").autoincrement().primaryKey(),
+  designQuantityId: int("designQuantityId").notNull().references(() => designQuantityTracker.id, { onDelete: "cascade" }),
+  placementId: int("placementId").notNull().references(() => printPlacements.id),
+  printSizeId: int("printSizeId").notNull().references(() => printOptions.id),
+  uploadedFilePath: varchar("uploadedFilePath", { length: 500 }).notNull(),
+  uploadedFileName: varchar("uploadedFileName", { length: 255 }).notNull(),
+  fileSize: int("fileSize"),
+  mimeType: varchar("mimeType", { length: 100 }),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 500 }),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+});
+
+export type DesignUploadByQuantity = typeof designUploadsByQuantity.$inferSelect;
+export type InsertDesignUploadByQuantity = typeof designUploadsByQuantity.$inferInsert;
+
+// Design summary cache - for quick retrieval of design info per order
+export const designSummaryCache = mysqlTable("designSummaryCache", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull().references(() => orders.id, { onDelete: "cascade" }),
+  totalDesignCount: int("totalDesignCount").notNull(),
+  placementBreakdown: json("placementBreakdown"),
+  hasMultipleDesignVariations: boolean("hasMultipleDesignVariations").default(false).notNull(),
+  lastUpdatedAt: timestamp("lastUpdatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DesignSummaryCache = typeof designSummaryCache.$inferSelect;
+export type InsertDesignSummaryCache = typeof designSummaryCache.$inferInsert;

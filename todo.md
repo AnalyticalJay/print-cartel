@@ -1931,3 +1931,47 @@ Future enhancements (Phase 2):
 - [x] Create enhanced HowItWorks component with improved layout
 - [x] Integrate new icons and styling into Home page
 - [x] Test and save checkpoint
+
+
+## Current Sprint - Phase 12: Advanced Multi-Step Order Wizard with Per-Quantity Design Management
+- [ ] Design database schema for order line items, placements, and design uploads
+- [ ] Create backend procedures for order wizard data management
+- [ ] Build multi-step order wizard UI component with placement selection
+- [ ] Implement design upload and preview functionality per placement
+- [ ] Create order summary with thumbnail previews organized by placement
+- [ ] Build admin order detail view with placement-organized designs
+- [ ] Write and run comprehensive tests
+- [ ] Save checkpoint and deliver
+
+
+## Current Sprint - Phase 13: Advanced Order Wizard UI
+- [ ] Create multi-step wizard component structure
+- [ ] Build step 1: Garment and quantity selection
+- [ ] Build step 2: Placement selection and design upload
+- [ ] Build step 3: Design variation options and preview
+- [ ] Build step 4: Order summary with thumbnails
+- [ ] Integrate wizard into order flow
+- [ ] Write and run tests
+
+
+## Current Sprint - Phase 13: Advanced Order Wizard Foundation (COMPLETED)
+- [x] Create multi-step wizard component structure (AdvancedOrderWizard.tsx)
+- [x] Build step 1: Garment and quantity selection
+- [x] Build step 2: Placement selection and design upload
+- [x] Build step 3: Design variation options (same vs different per quantity)
+- [x] Build step 4: Order summary with thumbnails
+- [x] Integrate wizard into order flow (route /order/advanced)
+- [x] Create tRPC procedures for order creation and design uploads (advanced-orders.ts)
+- [x] Add toggle button on home page between simple and advanced wizard
+- [ ] Write and run comprehensive tests
+- [ ] Refine UI styling and user experience
+- [ ] Build admin dashboard integration for design viewing by placement
+
+## Next Sprint - Phase 14: Advanced Wizard Testing & Admin Integration
+- [ ] Write vitest tests for advanced order creation procedure
+- [ ] Write vitest tests for design upload functionality
+- [ ] Write vitest tests for order submission workflow
+- [ ] Build admin dashboard display for multi-item orders
+- [ ] Create placement-organized design view in admin order details
+- [ ] Add download links for all designs by placement
+- [ ] Test end-to-end workflow from order creation to admin review
