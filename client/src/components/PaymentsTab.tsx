@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { DollarSign, Filter, Download, TrendingUp, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PaymentReconciliationModal } from "./PaymentReconciliationModal";
+import { PaymentMethodBadge, getAllPaymentMethods, normalizePaymentMethod } from "@/lib/payment-method-icons";
 
 interface PaymentRecord {
   paymentId: number;
@@ -30,8 +31,10 @@ interface PaymentRecord {
 export function PaymentsTab() {
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed" | "failed" | "refunded">("all");
   const [paymentTypeFilter, setPaymentTypeFilter] = useState<"all" | "deposit" | "final_payment">("all");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [reconciliationModal, setReconciliationModal] = useState<{ isOpen: boolean; paymentId: number; orderId: number }>({ isOpen: false, paymentId: 0, orderId: 0 });
+  const paymentMethods = getAllPaymentMethods();
 
   const paymentRecordsQuery = trpc.admin.getPaymentRecords.useQuery({
     status: statusFilter,
@@ -41,21 +44,33 @@ export function PaymentsTab() {
 
   const paymentStatsQuery = trpc.admin.getPaymentStats.useQuery();
 
-  // Filter records based on search query
+  // Filter records based on search query and payment method
   const filteredRecords = useMemo(() => {
     if (!paymentRecordsQuery.data) return [];
 
-    if (!searchQuery) return paymentRecordsQuery.data;
+    let records = paymentRecordsQuery.data;
+
+    // Apply payment method filter
+    if (paymentMethodFilter !== "all") {
+      records = records.filter((record) => {
+        const normalizedMethod = normalizePaymentMethod(record.paymentMethod);
+        return normalizedMethod === paymentMethodFilter;
+      });
+    }
+
+    // Apply search filter
+    if (!searchQuery) return records;
 
     const query = searchQuery.toLowerCase();
-    return paymentRecordsQuery.data.filter((record) => {
+    return records.filter((record) => {
       const fullName = `${record.customerFirstName} ${record.customerLastName}`.toLowerCase();
       const email = record.customerEmail.toLowerCase();
       const orderId = record.orderId.toString();
 
       return fullName.includes(query) || email.includes(query) || orderId.includes(query);
     });
-  }, [paymentRecordsQuery.data, searchQuery]);
+  }, [paymentRecordsQuery.data, searchQuery, paymentMethodFilter]);
+
 
   const getStatusColor = (status: "pending" | "completed" | "failed" | "refunded"): string => {
     switch (status) {
@@ -193,7 +208,7 @@ export function PaymentsTab() {
           <CardTitle>Filters</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
               <Input
@@ -230,6 +245,23 @@ export function PaymentsTab() {
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="deposit">Deposit</SelectItem>
                   <SelectItem value="final_payment">Final Payment</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+              <Select value={paymentMethodFilter} onValueChange={setPaymentMethodFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  {paymentMethods.map((method) => (
+                    <SelectItem key={method.value} value={method.value}>
+                      {method.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -291,7 +323,9 @@ export function PaymentsTab() {
                       <td className="px-4 py-3 text-sm font-semibold text-gray-900">
                         R{record.amount.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{record.paymentMethod}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <PaymentMethodBadge method={record.paymentMethod} />
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         <Badge className={getStatusColor((record.paymentStatus || "pending") as "pending" | "completed" | "failed" | "refunded")}>
                           {record.paymentStatus}

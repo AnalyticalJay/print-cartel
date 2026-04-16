@@ -1873,3 +1873,11 @@ Future enhancements (Phase 2):
 - [x] Test payment status calculations and order progression logic
 - [x] Test bulk verification and error handling
 - [x] Test UI interactions and form validation
+
+
+## Current Sprint - Phase 5: Payment Method Icons
+- [x] Create payment method icon mapping utility with color schemes
+- [x] Add payment method filter dropdown to PaymentsTab
+- [x] Update payment table with PaymentMethodBadge component
+- [x] Implement filtering logic for payment method selection
+- [x] Write comprehensive unit tests for payment method normalization and filtering (29 tests passing)
