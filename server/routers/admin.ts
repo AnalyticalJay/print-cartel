@@ -10,6 +10,7 @@ import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 import { sendPaymentProofTemplateEmail } from "../payment-proof-email";
 import { getInvoices, getInvoiceStats } from "../db";
 import { approveAndSendInvoice } from "../admin-invoice-approval";
+import { getPaymentRecords, getPaymentStats, getPaymentsByOrderId } from "../admin-payments";
 
 export const adminRouter = router({
   // Get all orders with related data for admin dashboard
@@ -1211,4 +1212,7 @@ export const adminRouter = router({
 
   // Approve order and send invoice to customer
   approveAndSendInvoice,
+  getPaymentRecords,
+  getPaymentStats,
+  getPaymentsByOrderId,
 });

@@ -23,6 +23,7 @@ import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
 import { InvoicesPanel } from "@/components/InvoicesPanel";
 import { OrderDetailTimeline } from "@/components/OrderDetailTimeline";
 import { PaymentVerificationPanel } from "@/components/PaymentVerificationPanel";
+import { PaymentsTab } from "@/components/PaymentsTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
@@ -330,7 +331,7 @@ function AdminDashboardContent() {
         {activeTab === 'invoices' && <InvoicesPanel />}
 
         {/* Payments Tab */}
-        {activeTab === 'payments' && <PaymentVerificationPanel />}
+        {activeTab === 'payments' && <PaymentsTab />}
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (

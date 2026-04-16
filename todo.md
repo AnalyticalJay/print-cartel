@@ -1831,3 +1831,24 @@ Future enhancements (Phase 2):
 - [ ] Create admin Payments tracking tab to monitor payment statuses
 - [ ] Remove legacy Quotes workflow from UI and database
 - [ ] Simplify email workflow to only send "Reviewing" then "Invoice" emails
+
+
+## Current Sprint - Phase 3: Admin Payments Tracking Dashboard
+- [x] Create backend procedures to fetch payment records with order details
+- [x] Implement getPaymentRecords procedure with filtering and pagination
+- [x] Implement getPaymentStats procedure for dashboard statistics
+- [x] Implement getPaymentsByOrderId procedure for order-specific payments
+- [x] Build PaymentsTab component with comprehensive UI
+- [x] Add payment status statistics cards (Total, Completed, Pending, Total Amount)
+- [x] Implement search functionality (customer name, email, order ID)
+- [x] Add payment status filter (All, Pending, Completed, Failed, Refunded)
+- [x] Add payment type filter (All, Deposit, Final Payment)
+- [x] Create payment records table with all relevant columns
+- [x] Implement CSV export functionality for payment records
+- [x] Add color-coded badges for payment status and type
+- [x] Integrate PaymentsTab into AdminDashboard as new tab
+- [x] Display amounts in Rand (ZAR) currency format
+- [x] Write 36 comprehensive unit tests for payment functionality (all passing)
+- [x] Test filtering, sorting, and search capabilities
+- [x] Test CSV export and data formatting
+- [x] Test payment statistics calculations
