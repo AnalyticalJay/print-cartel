@@ -253,9 +253,30 @@ export default function Payment() {
                       }
 
                       if (selectedPaymentMethod === "payfast") {
-                        // Redirect to PayFast for instant payment
-                        toast.success("Redirecting to PayFast...");
-                        // TODO: Implement PayFast redirect
+                        // Generate PayFast payment URL
+                        const returnUrl = `${window.location.origin}/payment-success?orderId=${orderId}`;
+                        const cancelUrl = `${window.location.origin}/payment?orderId=${orderId}`;
+                        const notifyUrl = `${window.location.origin}/api/payfast/callback`;
+
+                        try {
+                          const generatePaymentUrlMutation = trpc.payfast.generatePaymentUrl.useMutation();
+                          const response = await generatePaymentUrlMutation.mutateAsync({
+                            orderId: orderId!,
+                            amount: paymentAmount,
+                            returnUrl,
+                            cancelUrl,
+                            notifyUrl,
+                          });
+
+                          toast.success("Redirecting to PayFast...");
+                          setTimeout(() => {
+                            window.location.href = response.paymentUrl;
+                          }, 500);
+                        } catch (error) {
+                          console.error("PayFast error:", error);
+                          toast.error("Failed to process PayFast payment. Please try again.");
+                          setIsProcessing(false);
+                        }
                       } else {
                         // Show manual payment form
                         await recordPaymentMethodMutation.mutateAsync({

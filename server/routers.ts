@@ -17,6 +17,7 @@ import { notificationsRouter } from "./routers/notifications";
 import { quoteAcceptanceRouter } from "./routers/quote-acceptance";
 import { quoteManagementRouter } from "./routers/quote-management";
 import { paymentRouter } from "./routers/payment";
+import { payfastRouter } from "./routers/payfast";
 
 const gangSheetsRouter = gangSheets;
 
@@ -48,6 +49,7 @@ export const appRouter = router({
   notifications: notificationsRouter,
   quoteAcceptance: quoteAcceptanceRouter,
   quoteManagement: quoteManagementRouter,
+  payfast: payfastRouter,
   payment: paymentRouter,
 });
 
