@@ -1912,3 +1912,8 @@ Future enhancements (Phase 2):
 - [x] Fix text visibility - make all field labels and values bright/white for dark background
 - [x] Minimize order timeline - collapse by default to reduce scrolling
 - [x] Remove "View Payment Proof Templates" button - unnecessary for current workflow
+
+
+## Current Sprint - Phase 9: Admin Dashboard Cleanup
+- [x] Remove unused Production tab from admin dashboard
+- [x] Remove ProductionKanban component import
