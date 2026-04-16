@@ -1,11 +1,12 @@
 import { useLocation } from "wouter";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2, Palette, Settings, Upload, CheckCircle } from "lucide-react";
+import { Zap, Eye, Truck, Lightbulb, Headphones, DollarSign, Loader2, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 import { ProductSlider } from "@/components/ProductSlider";
+import { HowItWorks } from "@/components/HowItWorks";
 import { trpc } from "@/lib/trpc";
 
 function ProductShowcase() {
@@ -125,56 +126,7 @@ export default function Home() {
 
 
       {/* How It Works */}
-      <section className="bg-soft-grey py-12 sm:py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-8 sm:mb-12 text-center text-foreground">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {[
-              {
-                icon: Palette,
-                title: "Choose Garment",
-                description: "Select from our premium collection",
-                color: "text-pink-500",
-                bgColor: "bg-pink-100",
-              },
-              {
-                icon: Settings,
-                title: "Select Print Options",
-                description: "Pick placement and size",
-                color: "text-blue-500",
-                bgColor: "bg-blue-100",
-              },
-              {
-                icon: Upload,
-                title: "Upload Design",
-                description: "Upload your artwork",
-                color: "text-purple-500",
-                bgColor: "bg-purple-100",
-              },
-              {
-                icon: CheckCircle,
-                title: "Preview & Order",
-                description: "See your design and submit",
-                color: "text-green-500",
-                bgColor: "bg-green-100",
-              },
-            ].map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <div key={index} className="flex flex-col items-center text-center md:flex-col md:text-center gap-4 md:gap-0">
-                  <div className={`${item.bgColor} ${item.color} rounded-lg p-3 md:p-4 flex-shrink-0 md:mx-auto md:mb-4 w-fit md:w-auto`}>
-                    <IconComponent className="w-6 h-6 md:w-8 md:h-8" />
-                  </div>
-                  <div className="flex-1 md:flex-none">
-                    <h3 className="text-base sm:text-lg md:text-lg font-bold mb-1 text-foreground">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
 
       {/* Product Showcase */}
       <section className="max-w-6xl mx-auto px-4 py-12 sm:py-16 md:py-20">
