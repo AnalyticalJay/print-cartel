@@ -7,14 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, AlertCircle, CheckCircle, CreditCard } from "lucide-react";
 import { toast } from "sonner";
-import { PaymentMethodSelector, type PaymentMethodType } from "@/components/PaymentMethodSelector";
+import { SimplifiedPaymentMethodSelector, type PaymentMethodType } from "@/components/SimplifiedPaymentMethodSelector";
+import { SimplifiedPaymentProofUpload } from "@/components/SimplifiedPaymentProofUpload";
 
 export default function Payment() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<"deposit" | "full_payment">("deposit");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType>("payfast");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const recordPaymentMethodMutation = trpc.payment.recordPaymentMethod.useMutation();
@@ -191,11 +192,10 @@ export default function Payment() {
             </Card>
 
             {/* Payment Method Selection */}
-            <PaymentMethodSelector
+            <SimplifiedPaymentMethodSelector
               selectedMethod={selectedPaymentMethod}
-              onMethodChange={setSelectedPaymentMethod}
-              amount={selectedPaymentAmount === "deposit" ? depositAmount : total}
-              orderAmount={total}
+              onMethodSelect={setSelectedPaymentMethod}
+              isLoading={isProcessing}
             />
 
             <p className="text-xs text-gray-600">
@@ -246,17 +246,30 @@ export default function Payment() {
                     setIsProcessing(true);
                     try {
                       const paymentAmount = selectedPaymentAmount === "deposit" ? depositAmount : total;
-                      await recordPaymentMethodMutation.mutateAsync({
-                        orderId: orderId!,
-                        paymentMethod: selectedPaymentMethod,
-                        amount: paymentAmount,
-                        paymentType: selectedPaymentAmount === "deposit" ? "deposit" : "final_payment",
-                      });
+                      if (!selectedPaymentMethod) {
+                        toast.error("Please select a payment method");
+                        setIsProcessing(false);
+                        return;
+                      }
 
-                      toast.success(`Payment method ${selectedPaymentMethod} recorded!`);
-                      setTimeout(() => {
-                        setLocation(`/payment-success?orderId=${orderId}`);
-                      }, 1500);
+                      if (selectedPaymentMethod === "payfast") {
+                        // Redirect to PayFast for instant payment
+                        toast.success("Redirecting to PayFast...");
+                        // TODO: Implement PayFast redirect
+                      } else {
+                        // Show manual payment form
+                        await recordPaymentMethodMutation.mutateAsync({
+                          orderId: orderId!,
+                          paymentMethod: selectedPaymentMethod as "eft" | "bank_transfer",
+                          amount: paymentAmount,
+                          paymentType: selectedPaymentAmount === "deposit" ? "deposit" : "final_payment",
+                        });
+
+                        toast.success(`Payment method recorded! Please upload your proof.`);
+                        setTimeout(() => {
+                          setLocation(`/payment-success?orderId=${orderId}`);
+                        }, 1500);
+                      }
                     } catch (error) {
                       console.error("Error recording payment method:", error);
                       toast.error("Failed to record payment method. Please try again.");

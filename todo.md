@@ -1779,3 +1779,12 @@ Future enhancements (Phase 2):
 - [ ] Implement quote download as PDF
 - [ ] Create unit tests for quote acceptance flow
 - [ ] Test end-to-end quote workflow
+
+## Current Task - Simplify Payment Experience (PayFast Verified)
+- [x] Simplify payment method selection UI (remove complex options)
+- [x] Create simplified manual payment proof upload form (file + reference + date)
+- [x] Make PayFast the default/primary payment option
+- [x] Remove HTML template system from payment flow
+- [ ] Update payment confirmation page with clear next steps
+- [ ] Test simplified payment flow end-to-end
+- [ ] Verify PayFast integration works correctly
