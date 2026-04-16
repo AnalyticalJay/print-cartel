@@ -583,11 +583,13 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
   const [adminNotes, setAdminNotes] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isUpdatingPrice, setIsUpdatingPrice] = useState(false);
+  const [isSendingInvoice, setIsSendingInvoice] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'timeline' | 'notes'>('details');
 
   const orderQuery = trpc.admin.getOrderDetail.useQuery({ orderId });
   const updateStatusMutation = trpc.admin.updateOrderStatus.useMutation();
   const updatePriceMutation = trpc.admin.updateOrderPricing.useMutation();
+  const approveAndSendInvoiceMutation = trpc.admin.approveAndSendInvoice.useMutation();
 
   const handleUpdateStatus = async () => {
     if (!newStatus) {
@@ -642,6 +644,25 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
       console.error(error);
     } finally {
       setIsUpdatingPrice(false);
+    }
+  };
+
+  const handleSendInvoice = async () => {
+    setIsSendingInvoice(true);
+    try {
+      await approveAndSendInvoiceMutation.mutateAsync({
+        orderId,
+        adminNotes,
+      });
+
+      toast.success("Invoice approved and sent to customer");
+      orderQuery.refetch();
+      onOrderUpdated();
+    } catch (error) {
+      toast.error("Failed to send invoice");
+      console.error(error);
+    } finally {
+      setIsSendingInvoice(false);
     }
   };
 
@@ -854,24 +875,42 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
             </div>
           </div>
 
-          {/* Update Price */}
-          <div className="space-y-2 border-t pt-4">
-            <h3 className="font-semibold text-gray-900">Adjust Price</h3>
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                placeholder="Enter new price"
-                value={newPrice}
-                onChange={(e) => setNewPrice(e.target.value)}
-                step="0.01"
-                min="0"
-                className="flex-1"
-              />
-              <Button onClick={handleUpdatePrice} disabled={isUpdatingPrice || !newPrice} className="bg-green-600 hover:bg-green-700">
-                {isUpdatingPrice ? "Updating..." : "Update"}
-              </Button>
-            </div>
-          </div>
+              {/* Update Price */}
+              <div className="space-y-2 border-t pt-4">
+                <h3 className="font-semibold text-gray-900">Adjust Price</h3>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Enter new price"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    step="0.01"
+                    min="0"
+                    className="flex-1"
+                  />
+                  <Button onClick={handleUpdatePrice} disabled={isUpdatingPrice || !newPrice} className="bg-green-600 hover:bg-green-700">
+                    {isUpdatingPrice ? "Updating..." : "Update"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Send Invoice Button */}
+              {order.status === "pending" && (
+                <div className="space-y-2 border-t pt-4">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Send Invoice
+                  </h3>
+                  <p className="text-sm text-gray-600">Review the order details and send the invoice to the customer. This will approve the order and trigger the payment workflow.</p>
+                  <Button
+                    onClick={handleSendInvoice}
+                    disabled={isSendingInvoice}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    {isSendingInvoice ? "Sending Invoice..." : "Send Invoice & Approve Order"}
+                  </Button>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="timeline">
@@ -933,6 +972,24 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                   </Button>
                 </div>
               </div>
+
+              {/* Send Invoice Button */}
+              {order.status === "pending" && (
+                <div className="space-y-2 border-t pt-4">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Send Invoice
+                  </h3>
+                  <p className="text-sm text-gray-600">Review the order details and send the invoice to the customer. This will approve the order and trigger the payment workflow.</p>
+                  <Button
+                    onClick={handleSendInvoice}
+                    disabled={isSendingInvoice}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    {isSendingInvoice ? "Sending Invoice..." : "Send Invoice & Approve Order"}
+                  </Button>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>

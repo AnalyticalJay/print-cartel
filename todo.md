@@ -1816,3 +1816,18 @@ Future enhancements (Phase 2):
 - [ ] Update order status workflow: submitted → approved → production → completed
 - [ ] Add payment success notification email to customers
 - [ ] Test complete workflow end-to-end
+
+
+## Current Sprint - Phase 2: Invoice Approval Workflow
+- [x] Create approveAndSendInvoice tRPC procedure in server/admin-invoice-approval.ts
+- [x] Integrate invoice generation with S3 storage upload
+- [x] Add automatic email notification to customer upon approval
+- [x] Update order status to "approved" with invoice URL stored
+- [x] Integrate approveAndSendInvoice into admin router
+- [x] Add "Send Invoice" button to OrderDetailModal in AdminDashboard
+- [x] Implement handleSendInvoice function with loading state
+- [x] Add button visibility check (only show for pending orders)
+- [x] Write and run 21 unit tests for invoice approval workflow (all passing)
+- [ ] Create admin Payments tracking tab to monitor payment statuses
+- [ ] Remove legacy Quotes workflow from UI and database
+- [ ] Simplify email workflow to only send "Reviewing" then "Invoice" emails
