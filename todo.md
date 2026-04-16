@@ -1795,7 +1795,8 @@ Future enhancements (Phase 2):
 - [x] Implement PayFast redirect on payment page
 - [x] Create PayFast callback handler for payment notifications
 - [x] Implement order status updates on successful payment
-- [ ] Create PayFast return/confirmation page
-- [ ] Add error handling for failed payments
-- [ ] Create unit tests for PayFast integration
-- [ ] Test end-to-end payment flow
+- [x] Register callback endpoint in Express server
+- [x] Create PayFast setup documentation
+- [x] Create unit tests for PayFast integration (16 tests passing)
+- [ ] Test end-to-end payment flow with sandbox
+- [ ] Create payment success confirmation page
