@@ -191,4 +191,13 @@
   .btn-gradient-dark {
     @apply bg-gradient-to-r from-[#07cbd9] via-[#05a8b8] to-[#0395a0] hover:from-[#06b8c7] hover:via-[#04b5c5] hover:to-[#0395a0];
   }
+
+  /* Global button styling - apply cyan-to-blue gradient to all accent buttons */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[role="button"] {
+    &.bg-accent {
+      @apply bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300;
+    }
+  }
 }

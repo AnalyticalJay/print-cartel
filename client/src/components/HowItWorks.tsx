@@ -27,7 +27,7 @@ const steps: Step[] = [
     number: 3,
   },
   {
-    icon: "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-preview-order-3d-3pHF5Sp8Asq8U4nXtNj4pf.webp",
+    icon: "https://d36hbw14aib5lz.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-preview-order-3d-aGSps95cNpBxMVzVVTvjAq.webp",
     title: "Preview & Order",
     description: "Review your design and submit your order with confidence",
     number: 4,
@@ -128,14 +128,14 @@ export function HowItWorks() {
 
                 {/* Icon */}
                 <motion.div
-                  className="mb-6"
+                  className="mb-6 flex items-center justify-center"
                   variants={iconVariants}
                   whileHover="hover"
                 >
                   <img
                     src={step.icon}
                     alt={step.title}
-                    className="w-24 h-24 object-contain drop-shadow-lg"
+                    className="w-24 h-24 object-contain drop-shadow-lg bg-transparent"
                   />
                 </motion.div>
 

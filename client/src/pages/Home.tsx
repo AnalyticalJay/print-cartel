@@ -107,7 +107,7 @@ export default function Home() {
               <Button
                 onClick={() => setLocation("/order")}
                 size="lg"
-                className="bg-accent text-accent-foreground hover:bg-accent/90 text-sm sm:text-base md:text-lg px-6 sm:px-10 py-3 sm:py-6 font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300 text-sm sm:text-base md:text-lg px-6 sm:px-10 py-3 sm:py-6 font-bold shadow-lg hover:shadow-xl"
               >
                 Start Your Order
               </Button>
@@ -236,7 +236,9 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <Button onClick={() => setLocation("/reseller")} size="lg" className="bg-primary hover:bg-primary/90 mt-6">
+              <Button
+                onClick={() => setLocation("/reseller")} size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300 mt-6"
+              >
                 Learn About Our Reseller Program
               </Button>
             </div>
@@ -269,7 +271,7 @@ export default function Home() {
           <Button
             onClick={() => setLocation("/order")}
             size="lg"
-            className="bg-accent text-accent-foreground hover:bg-accent/90 text-lg px-12 py-7 font-bold group shadow-lg"
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300 text-lg px-12 py-7 font-bold group shadow-lg"
           >
             Start Your Order
             <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
