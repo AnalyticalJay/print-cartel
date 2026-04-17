@@ -9,25 +9,25 @@ interface Step {
 
 const steps: Step[] = [
   {
-    icon: "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-choose-garment-3d-DCELWzXs8piXWm8uhzuGx2.webp",
+    icon: "https://d36hbw14aib5lz.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-choose-garment-3d-transparent-BeLbyoCn7jsdjGaT75ntwL.webp",
     title: "Choose Garment",
     description: "Select from our premium collection of high-quality apparel",
     number: 1,
   },
   {
-    icon: "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-select-options-3d-dyscytaP3T8nDLTFFqLKnN.webp",
+    icon: "https://d36hbw14aib5lz.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-select-options-3d-transparent-TD7qrJjAdfGqqsmgH6N4LY.webp",
     title: "Select Print Options",
     description: "Pick placement, size, and customize your design specifications",
     number: 2,
   },
   {
-    icon: "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-upload-design-3d-L4uzwNQMHezeth5Xbso5ih.webp",
+    icon: "https://d36hbw14aib5lz.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-upload-design-3d-transparent-eJnSmbpgu6GEd7M3rWoUWH.webp",
     title: "Upload Design",
     description: "Upload your artwork in your preferred format",
     number: 3,
   },
   {
-    icon: "https://d36hbw14aib5lz.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-preview-order-3d-aGSps95cNpBxMVzVVTvjAq.webp",
+    icon: "https://d36hbw14aib5lz.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/icon-preview-order-3d-transparent-2YFZwWPkw4jM9nxeq72cjB.webp",
     title: "Preview & Order",
     description: "Review your design and submit your order with confidence",
     number: 4,
