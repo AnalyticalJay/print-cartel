@@ -16,6 +16,7 @@ import { AdminTableSkeleton, DesignApprovalQueueSkeleton } from "@/components/Sk
 import { useLocation } from "wouter";
 import { AdminChatPanel } from "@/components/AdminChatPanel";
 import { ChatNotificationHandler } from "@/components/ChatNotificationHandler";
+import { OrderNotificationHandler } from "@/components/OrderNotificationHandler";
 
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
@@ -224,6 +225,9 @@ function AdminDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4" id="admin-dashboard">
+      {/* Real-time notification handlers */}
+      <ChatNotificationHandler />
+      <OrderNotificationHandler />
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

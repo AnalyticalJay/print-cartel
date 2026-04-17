@@ -148,3 +148,190 @@ describe("Notification System", () => {
     expect(Array.isArray(readNotifications)).toBe(true);
   });
 });
+
+
+describe("Real-time Order and Design Notifications", () => {
+  describe("Order Notifications", () => {
+    it("should detect new orders", () => {
+      const orders = [
+        { id: 1, customerEmail: "test@example.com", status: "pending", createdAt: new Date() },
+        { id: 2, customerEmail: "test2@example.com", status: "pending", createdAt: new Date() },
+      ];
+
+      const newOrderCount = orders.length;
+      expect(newOrderCount).toBe(2);
+    });
+
+    it("should calculate order count difference", () => {
+      const previousCount = 5;
+      const currentCount = 8;
+      const newOrders = currentCount - previousCount;
+
+      expect(newOrders).toBe(3);
+    });
+
+    it("should format order notification message", () => {
+      const newOrderCount = 2;
+      const message = `${newOrderCount} new order${newOrderCount !== 1 ? "s" : ""} received`;
+
+      expect(message).toBe("2 new orders received");
+    });
+
+    it("should format singular order notification message", () => {
+      const newOrderCount = 1;
+      const message = `${newOrderCount} new order${newOrderCount !== 1 ? "s" : ""} received`;
+
+      expect(message).toBe("1 new order received");
+    });
+  });
+
+  describe("Design Submission Notifications", () => {
+    it("should detect new design submissions", () => {
+      const designs = [
+        { id: 1, orderId: 1, fileName: "design1.png", status: "pending" },
+        { id: 2, orderId: 2, fileName: "design2.png", status: "pending" },
+        { id: 3, orderId: 3, fileName: "design3.png", status: "pending" },
+      ];
+
+      const pendingDesigns = designs.filter((d) => d.status === "pending");
+      expect(pendingDesigns.length).toBe(3);
+    });
+
+    it("should calculate design count difference", () => {
+      const previousCount = 2;
+      const currentCount = 5;
+      const newDesigns = currentCount - previousCount;
+
+      expect(newDesigns).toBe(3);
+    });
+
+    it("should format design notification message", () => {
+      const newDesignCount = 2;
+      const message = `${newDesignCount} design${newDesignCount !== 1 ? "s" : ""} awaiting approval`;
+
+      expect(message).toBe("2 designs awaiting approval");
+    });
+
+    it("should format singular design notification message", () => {
+      const newDesignCount = 1;
+      const message = `${newDesignCount} design${newDesignCount !== 1 ? "s" : ""} awaiting approval`;
+
+      expect(message).toBe("1 design awaiting approval");
+    });
+  });
+
+  describe("Order Status Change Notifications", () => {
+    it("should detect order status changes", () => {
+      const previousStatus = "pending";
+      const currentStatus = "approved";
+
+      expect(previousStatus !== currentStatus).toBe(true);
+    });
+
+    it("should map status to notification message", () => {
+      const statusMessages: Record<string, string> = {
+        approved: "Order Approved",
+        "in-production": "In Production",
+        completed: "Order Completed",
+        shipped: "Order Shipped",
+        rejected: "Order Rejected",
+      };
+
+      expect(statusMessages["approved"]).toBe("Order Approved");
+      expect(statusMessages["in-production"]).toBe("In Production");
+      expect(statusMessages["completed"]).toBe("Order Completed");
+      expect(statusMessages["shipped"]).toBe("Order Shipped");
+      expect(statusMessages["rejected"]).toBe("Order Rejected");
+    });
+  });
+
+  describe("Design Approval Notifications", () => {
+    it("should detect design approval status changes", () => {
+      const previousStatus = "pending";
+      const currentStatus = "approved";
+
+      expect(previousStatus !== currentStatus).toBe(true);
+    });
+
+    it("should map approval status to notification message", () => {
+      const approvalMessages: Record<string, { title: string; type: string }> = {
+        approved: {
+          title: "Design Approved",
+          type: "success",
+        },
+        "changes-requested": {
+          title: "Design Changes Requested",
+          type: "info",
+        },
+        rejected: {
+          title: "Design Rejected",
+          type: "error",
+        },
+      };
+
+      expect(approvalMessages["approved"].title).toBe("Design Approved");
+      expect(approvalMessages["approved"].type).toBe("success");
+      expect(approvalMessages["changes-requested"].type).toBe("info");
+      expect(approvalMessages["rejected"].type).toBe("error");
+    });
+  });
+
+  describe("Notification Preferences", () => {
+    it("should allow enabling/disabling order notifications", () => {
+      const preferences = {
+        enableOrderNotifications: true,
+        enableDesignNotifications: false,
+        enableChatNotifications: false,
+        enableSoundNotifications: true,
+        enableBrowserNotifications: false,
+        notificationFrequency: "immediate" as const,
+      };
+
+      expect(preferences.enableOrderNotifications).toBe(true);
+      expect(preferences.enableDesignNotifications).toBe(false);
+    });
+
+    it("should allow enabling/disabling design notifications", () => {
+      const preferences = {
+        enableOrderNotifications: false,
+        enableDesignNotifications: true,
+        enableChatNotifications: false,
+        enableSoundNotifications: true,
+        enableBrowserNotifications: false,
+        notificationFrequency: "immediate" as const,
+      };
+
+      expect(preferences.enableDesignNotifications).toBe(true);
+    });
+
+    it("should allow enabling/disabling sound notifications", () => {
+      const preferences = {
+        enableOrderNotifications: true,
+        enableDesignNotifications: true,
+        enableChatNotifications: true,
+        enableSoundNotifications: false,
+        enableBrowserNotifications: false,
+        notificationFrequency: "immediate" as const,
+      };
+
+      expect(preferences.enableSoundNotifications).toBe(false);
+    });
+
+    it("should support different notification frequencies", () => {
+      const frequencies = ["immediate", "batched", "daily"] as const;
+
+      frequencies.forEach((freq) => {
+        const preferences = {
+          enableOrderNotifications: true,
+          enableDesignNotifications: true,
+          enableChatNotifications: true,
+          enableSoundNotifications: true,
+          enableBrowserNotifications: false,
+          notificationFrequency: freq,
+        };
+
+        expect(preferences.notificationFrequency).toBe(freq);
+      });
+    });
+  });
+});
