@@ -25,6 +25,7 @@ import { OrderDetailTimeline } from "@/components/OrderDetailTimeline";
 import { PaymentVerificationPanel } from "@/components/PaymentVerificationPanel";
 import { PaymentsTab } from "@/components/PaymentsTab";
 import { AdvancedOrderDetailView } from "@/components/AdvancedOrderDetailView";
+import { DesignApprovalReviewTab } from "@/components/DesignApprovalReviewTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
@@ -68,7 +69,7 @@ export default function AdminDashboard() {
 function AdminDashboardContent() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'inventory' | 'invoices' | 'payments'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'chat' | 'communications' | 'inventory' | 'invoices' | 'payments' | 'design-approval'>('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -303,6 +304,18 @@ function AdminDashboardContent() {
               <span className="hidden sm:inline">Payments</span>
               <span className="sm:hidden">Pay</span>
             </button>
+            <button
+              onClick={() => setActiveTab('design-approval')}
+              className={`px-2 md:px-4 py-2 font-medium border-b-2 transition-colors text-xs md:text-sm whitespace-nowrap ${
+                activeTab === 'design-approval'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <FileText className="w-3 h-3 md:w-4 md:h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Design Approval</span>
+              <span className="sm:hidden">Design</span>
+            </button>
           </div>
         </div>
 
@@ -317,6 +330,9 @@ function AdminDashboardContent() {
 
         {/* Payments Tab */}
         {activeTab === 'payments' && <PaymentsTab />}
+
+        {/* Design Approval Tab */}
+        {activeTab === 'design-approval' && <DesignApprovalReviewTab />}
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (

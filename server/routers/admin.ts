@@ -1220,4 +1220,199 @@ export const adminRouter = router({
   rejectPayment,
   getReconciliationDetails,
   bulkVerifyPayments,
+
+  // Design Approval Procedures
+  getPendingDesignOrders: protectedProcedure
+    .input(z.object({ status: z.enum(["pending", "approved", "rejected"]).optional() }))
+    .query(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const ordersWithDesigns = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.status, "pending"));
+
+        const result = ordersWithDesigns.map((order) => ({
+          id: order.id,
+          orderNumber: `ORD-${order.id}`,
+          customerName: `${order.customerFirstName} ${order.customerLastName}`,
+          customerEmail: order.customerEmail,
+          status: "pending" as const,
+          createdAt: order.createdAt,
+          designs: [],
+        }));
+
+        return result;
+      } catch (error) {
+        console.error("Failed to fetch pending design orders:", error);
+        throw new Error("Failed to fetch pending design orders");
+      }
+    }),
+
+  approveDesigns: protectedProcedure
+    .input(
+      z.object({
+        orderId: z.number(),
+        adminId: z.number(),
+        approvalNotes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const order = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, input.orderId))
+          .limit(1);
+
+        if (!order.length) {
+          throw new Error(`Order ${input.orderId} not found`);
+        }
+
+        const approvalMarker = `[APPROVED_DESIGNS] Approved by admin at ${new Date().toISOString()}${input.approvalNotes ? ": " + input.approvalNotes : ""}`;
+
+        await db
+          .update(orders)
+          .set({
+            paymentVerificationNotes: approvalMarker,
+            updatedAt: new Date(),
+          })
+          .where(eq(orders.id, input.orderId));
+
+        try {
+          const customerName = `${order[0].customerFirstName} ${order[0].customerLastName}`;
+          await sendStatusUpdateEmail(order[0].id, order[0].customerEmail, customerName, "approved");
+        } catch (emailError) {
+          console.error("Failed to send approval email:", emailError);
+        }
+
+        return { success: true, message: "Designs approved successfully" };
+      } catch (error) {
+        console.error("Failed to approve designs:", error);
+        throw error;
+      }
+    }),
+
+  requestDesignChanges: protectedProcedure
+    .input(
+      z.object({
+        orderId: z.number(),
+        adminId: z.number(),
+        changeRequests: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const order = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, input.orderId))
+          .limit(1);
+
+        if (!order.length) {
+          throw new Error(`Order ${input.orderId} not found`);
+        }
+
+        const changeMarker = `[CHANGES_REQUESTED] Requested at ${new Date().toISOString()}: ${input.changeRequests}`;
+
+        await db
+          .update(orders)
+          .set({
+            paymentVerificationNotes: changeMarker,
+            updatedAt: new Date(),
+          })
+          .where(eq(orders.id, input.orderId));
+
+        try {
+          const customerName = `${order[0].customerFirstName} ${order[0].customerLastName}`;
+          await sendStatusUpdateEmail(order[0].id, order[0].customerEmail, customerName, "pending");
+        } catch (emailError) {
+          console.error("Failed to send change request email:", emailError);
+        }
+
+        return { success: true, message: "Change request sent successfully" };
+      } catch (error) {
+        console.error("Failed to request design changes:", error);
+        throw error;
+      }
+    }),
+
+  rejectDesigns: protectedProcedure
+    .input(
+      z.object({
+        orderId: z.number(),
+        adminId: z.number(),
+        rejectionReason: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      try {
+        const order = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, input.orderId))
+          .limit(1);
+
+        if (!order.length) {
+          throw new Error(`Order ${input.orderId} not found`);
+        }
+
+        const rejectionMarker = `[DESIGNS_REJECTED] Rejected at ${new Date().toISOString()}: ${input.rejectionReason}`;
+
+        await db
+          .update(orders)
+          .set({
+            paymentVerificationNotes: rejectionMarker,
+            updatedAt: new Date(),
+          })
+          .where(eq(orders.id, input.orderId));
+
+        try {
+          const customerName = `${order[0].customerFirstName} ${order[0].customerLastName}`;
+          await sendStatusUpdateEmail(order[0].id, order[0].customerEmail, customerName, "pending");
+        } catch (emailError) {
+          console.error("Failed to send rejection email:", emailError);
+        }
+
+        return { success: true, message: "Designs rejected successfully" };
+      } catch (error) {
+        console.error("Failed to reject designs:", error);
+        throw error;
+      }
+    }),
 });
