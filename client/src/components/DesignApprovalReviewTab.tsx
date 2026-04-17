@@ -81,13 +81,16 @@ export function DesignApprovalReviewTab() {
   // Filter and search orders
   const filteredOrders = (ordersData || []).filter((order: any) => {
     const matchesSearch =
-      searchQuery === "" ||
-      order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      searchQuery === ""
+      || order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+      || order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase())
+      || order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesSearch;
   });
+
+  // Filter out orders with no designs
+  const ordersWithDesigns = filteredOrders.filter((order: any) => order.designs && order.designs.length > 0);
 
   const handleApprove = async () => {
     if (!selectedOrder) return;
@@ -174,7 +177,7 @@ export function DesignApprovalReviewTab() {
       </Card>
 
       {/* Orders List */}
-      {filteredOrders.length === 0 ? (
+      {ordersWithDesigns.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -188,7 +191,7 @@ export function DesignApprovalReviewTab() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {filteredOrders.map((order: any) => (
+          {ordersWithDesigns.map((order: any) => (
             <Card key={order.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">

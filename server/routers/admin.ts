@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb, getOrderStatusHistory, logOrderStatusChange } from "../db";
-import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users } from "../../drizzle/schema";
+import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users, designUploadsByQuantity, designQuantityTracker } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
@@ -1235,20 +1235,45 @@ export const adminRouter = router({
       }
 
       try {
+        // Get orders with pending status
         const ordersWithDesigns = await db
           .select()
           .from(orders)
           .where(eq(orders.status, "pending"));
 
-        const result = ordersWithDesigns.map((order) => ({
-          id: order.id,
-          orderNumber: `ORD-${order.id}`,
-          customerName: `${order.customerFirstName} ${order.customerLastName}`,
-          customerEmail: order.customerEmail,
-          status: "pending" as const,
-          createdAt: order.createdAt,
-          designs: [],
-        }));
+        // Fetch designs for each order
+        const result = await Promise.all(
+          ordersWithDesigns.map(async (order) => {
+            // Get design uploads for this order
+            const designUploads = await db
+              .select()
+              .from(designUploadsByQuantity)
+              .innerJoin(
+                designQuantityTracker,
+                eq(designUploadsByQuantity.designQuantityId, designQuantityTracker.id)
+              )
+              .where(eq(designQuantityTracker.lineItemId, order.id));
+
+            const designs = designUploads.map((du) => ({
+              id: du.designUploadsByQuantity.id,
+              fileName: du.designUploadsByQuantity.uploadedFileName,
+              fileUrl: du.designUploadsByQuantity.thumbnailUrl,
+              placementArea: `Placement ${du.designUploadsByQuantity.placementId}`,
+              quantity: du.designQuantityTracker.quantityNumber,
+              uploadedAt: du.designUploadsByQuantity.uploadedAt,
+            }));
+
+            return {
+              id: order.id,
+              orderNumber: `ORD-${order.id}`,
+              customerName: `${order.customerFirstName} ${order.customerLastName}`,
+              customerEmail: order.customerEmail,
+              status: "pending" as const,
+              createdAt: order.createdAt,
+              designs,
+            };
+          })
+        );
 
         return result;
       } catch (error) {
