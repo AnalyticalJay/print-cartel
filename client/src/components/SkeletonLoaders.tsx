@@ -273,6 +273,104 @@ export function ModalSkeleton() {
 }
 
 /**
+ * Admin Table Skeleton - Admin order table with checkboxes
+ */
+export function AdminTableSkeleton() {
+  return (
+    <div className="space-y-2 border border-slate-200 rounded-lg overflow-hidden">
+      {/* Header skeleton */}
+      <div className="flex gap-4 py-3 px-4 bg-gray-100 border-b">
+        <div className={cn("h-4 w-6 rounded", skeletonPulse)} />
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className={cn("h-4 flex-1 rounded", skeletonPulse)} />
+        ))}
+      </div>
+      
+      {/* Rows skeleton */}
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="flex gap-4 py-3 px-4 border-b border-slate-100 hover:bg-gray-50">
+          <div className={cn("h-4 w-6 rounded", skeletonPulse)} />
+          <div className={cn("h-4 w-12 rounded", skeletonPulse)} />
+          <div className={cn("h-4 flex-1 rounded", skeletonPulse)} />
+          <div className={cn("h-4 flex-1 rounded", skeletonPulse)} />
+          <div className={cn("h-4 w-12 rounded", skeletonPulse)} />
+          <div className={cn("h-4 w-20 rounded", skeletonPulse)} />
+          <div className={cn("h-4 w-16 rounded", skeletonPulse)} />
+          <div className={cn("h-4 w-24 rounded", skeletonPulse)} />
+          <div className={cn("h-4 w-16 rounded", skeletonPulse)} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Stat Card Skeleton - Loading state for dashboard stat cards
+ */
+export function StatCardSkeleton() {
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-3">
+      <div className={cn("h-4 w-24 rounded", skeletonPulse)} />
+      <div className={cn("h-8 w-16 rounded", skeletonPulse)} />
+    </div>
+  );
+}
+
+/**
+ * Stats Grid Skeleton - Multiple stat cards
+ */
+export function StatsGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {[...Array(5)].map((_, i) => (
+        <StatCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Design Approval Queue Skeleton - Loading state for design approval tab
+ */
+export function DesignApprovalQueueSkeleton() {
+  return (
+    <div className="space-y-4">
+      {/* Search and filter skeleton */}
+      <div className="bg-white rounded-lg p-4 border border-slate-200 space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className={cn("h-10 rounded", skeletonPulse)} />
+          <div className={cn("h-10 rounded", skeletonPulse)} />
+          <div className={cn("h-10 rounded", skeletonPulse)} />
+        </div>
+      </div>
+
+      {/* Design cards skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+            {/* Image skeleton */}
+            <div className={cn("w-full h-48", skeletonPulse)} />
+            
+            {/* Content skeleton */}
+            <div className="p-4 space-y-3">
+              <div className={cn("h-5 w-3/4 rounded", skeletonPulse)} />
+              <div className="space-y-2">
+                <div className={cn("h-3 w-full rounded", skeletonPulse)} />
+                <div className={cn("h-3 w-5/6 rounded", skeletonPulse)} />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <div className={cn("h-9 flex-1 rounded", skeletonPulse)} />
+                <div className={cn("h-9 flex-1 rounded", skeletonPulse)} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Image Skeleton - Placeholder for images
  */
 export function ImageSkeleton({ className }: { className?: string }) {

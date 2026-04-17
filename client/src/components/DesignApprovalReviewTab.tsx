@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/Toast";
 import { CheckCircle2, XCircle, AlertCircle, Download, Eye } from "lucide-react";
+import { DesignApprovalQueueSkeleton } from "@/components/SkeletonLoaders";
 
 interface DesignApprovalOrder {
   id: number;
@@ -129,11 +130,7 @@ export function DesignApprovalReviewTab() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <p className="text-gray-600">Loading design orders...</p>
-      </div>
-    );
+    return <DesignApprovalQueueSkeleton />;
   }
 
   return (

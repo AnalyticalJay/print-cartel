@@ -12,6 +12,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Download, Eye, Edit2, TrendingUp, Trash2, Mail, Calendar, MessageSquare, MessageCircle, FileText } from "lucide-react";
+import { AdminTableSkeleton, DesignApprovalQueueSkeleton } from "@/components/SkeletonLoaders";
 import { useLocation } from "wouter";
 import { AdminChatPanel } from "@/components/AdminChatPanel";
 import { ChatNotificationHandler } from "@/components/ChatNotificationHandler";
@@ -210,10 +211,12 @@ function AdminDashboardContent() {
   if (ordersQuery.isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <p className="text-gray-600">Loading orders...</p>
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Manage orders, update statuses, and adjust pricing</p>
           </div>
+          <AdminTableSkeleton />
         </div>
       </div>
     );
