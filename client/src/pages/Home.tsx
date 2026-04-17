@@ -7,6 +7,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 
 import { ProductSlider } from "@/components/ProductSlider";
 import { HowItWorks } from "@/components/HowItWorks";
+import { ProductSliderSkeleton } from "@/components/SkeletonLoaders";
 import { trpc } from "@/lib/trpc";
 
 function ProductShowcase() {
@@ -14,8 +15,8 @@ function ProductShowcase() {
 
   if (productsQuery.isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="py-12 px-4 max-w-6xl mx-auto">
+        <ProductSliderSkeleton />
       </div>
     );
   }

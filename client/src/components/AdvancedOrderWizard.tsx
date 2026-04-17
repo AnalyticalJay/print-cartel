@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, Upload, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Upload, Check, Loader2 } from "lucide-react";
+import { WizardStepSkeleton, OrderSummarySkeleton } from "./SkeletonLoaders";
 
 interface Product {
   id: number;
@@ -69,6 +70,7 @@ export function AdvancedOrderWizard() {
   const [currentStep, setCurrentStep] = useState<WizardStep>("garment");
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [currentLineItemIndex, setCurrentLineItemIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 1: Garment Selection
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
@@ -440,9 +442,26 @@ export function AdvancedOrderWizard() {
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
-                <Button className="flex-1">
-                  <Check className="w-4 h-4 mr-2" />
-                  Submit Order
+                <Button 
+                  className="flex-1" 
+                  disabled={isSubmitting}
+                  onClick={() => {
+                    setIsSubmitting(true);
+                    // Simulate submission delay
+                    setTimeout(() => setIsSubmitting(false), 2000);
+                  }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Submit Order
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
