@@ -26,15 +26,24 @@ function getEmailTransporter(): nodemailer.Transporter {
     throw new Error("SMTP configuration incomplete. Please set SMTP_HOST, SMTP_USER, SMTP_PASS, and SMTP_FROM_EMAIL");
   }
 
-  transporter = nodemailer.createTransport({
+  const transportConfig: any = {
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort === 465, // true for 465, false for other ports
+    secure: smtpPort === 465,
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
-  });
+  };
+
+  if (process.env.SMTP_SKIP_SSL_VERIFY === "true") {
+    transportConfig.tls = {
+      rejectUnauthorized: false,
+    };
+    console.warn("⚠️  WARNING: SSL certificate verification is disabled. Only use for testing!");
+  }
+
+  transporter = nodemailer.createTransport(transportConfig);
 
   return transporter;
 }
