@@ -115,9 +115,12 @@ class PayFastIntegration {
       const signature = this.generateSignature(paymentData);
       paymentData.signature = signature;
 
-      // Build payment URL
-      const params = new URLSearchParams(paymentData);
-      const paymentUrl = `${this.baseUrl}/eng/process?${params.toString()}`;
+      // Build payment URL - IMPORTANT: URLSearchParams encodes the query string,
+      // but we need to encode it manually to preserve the exact format PayFast expects
+      const queryParts = Object.entries(paymentData)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join("&");
+      const paymentUrl = `${this.baseUrl}/eng/process?${queryParts}`;
 
       return {
         success: true,
