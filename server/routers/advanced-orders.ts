@@ -6,6 +6,8 @@ import { createLineItemWithDesignVariation, getOrderWithAllDesigns } from "../or
 import { storagePut } from "../storage";
 import { eq } from "drizzle-orm";
 import { sendOrderConfirmationEmail } from "../order-confirmation-email";
+import { sendSalesNotificationEmail, prepareSalesNotification } from "../sales-notification-email";
+import { sendAdminNotificationEmail } from "../admin-notification-email";
 
 export const advancedOrdersRouter = router({
   /**
@@ -97,6 +99,35 @@ export const advancedOrdersRouter = router({
           });
         } catch (emailError) {
           console.error("Failed to send order confirmation email:", emailError);
+          // Don't fail the order creation if email fails
+        }
+
+        // Send sales notification email to sales team
+        try {
+          const firstOrderId = createdOrders[0]?.orderId || 0;
+          const salesData = await prepareSalesNotification(firstOrderId);
+          if (salesData) {
+            await sendSalesNotificationEmail(salesData);
+          }
+        } catch (salesEmailError) {
+          console.error("Failed to send sales notification email:", salesEmailError);
+          // Don't fail the order creation if email fails
+        }
+
+        // Send admin notification email
+        try {
+          const firstOrderId = createdOrders[0]?.orderId || 0;
+          await sendAdminNotificationEmail({
+            orderId: firstOrderId,
+            customerName: `${input.customerFirstName} ${input.customerLastName}`,
+            customerEmail: input.customerEmail,
+            quantity: createdOrders.reduce((sum, o) => sum + o.quantity, 0),
+            totalPrice: createdOrders.length * 100,
+            designFiles: [],
+            orderDate: new Date(),
+          });
+        } catch (adminEmailError) {
+          console.error("Failed to send admin notification email:", adminEmailError);
           // Don't fail the order creation if email fails
         }
 
