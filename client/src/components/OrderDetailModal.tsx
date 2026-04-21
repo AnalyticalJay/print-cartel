@@ -79,59 +79,60 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Order #{order.id}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-white z-10">
+          <DialogTitle className="text-2xl">Order #{order.id}</DialogTitle>
+          <DialogDescription className="text-base">
             {order.customerFirstName} {order.customerLastName} • {order.createdAt && new Date(order.createdAt).toLocaleDateString("en-ZA")}
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="summary" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5 px-6 pt-4 bg-transparent border-b">
             <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="payment">Payment</TabsTrigger>
             <TabsTrigger value="notes">Notes</TabsTrigger>
           </TabsList>
 
           {/* Summary Tab */}
-          <TabsContent value="summary" className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <TabsContent value="summary" className="space-y-4 px-6 py-4">
+            <div className="grid grid-cols-3 gap-4">
               {/* Customer Information */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Customer</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Customer Info</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
-                    <p className="text-sm text-gray-600">Name</p>
-                    <p className="font-semibold">
+                    <p className="text-xs text-gray-600 uppercase">Name</p>
+                    <p className="font-semibold text-sm">
                       {order.customerFirstName} {order.customerLastName}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Email</p>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold break-all">{order.customerEmail}</p>
+                    <p className="text-xs text-gray-600 uppercase">Email</p>
+                    <div className="flex items-start gap-2">
+                      <p className="font-semibold text-sm break-all">{order.customerEmail}</p>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={handleCopyEmail}
-                        className="h-6 w-6 p-0"
+                        className="h-5 w-5 p-0 flex-shrink-0"
                       >
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-3 h-3" />
                       </Button>
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Phone</p>
-                    <p className="font-semibold">{order.customerPhone}</p>
+                    <p className="text-xs text-gray-600 uppercase">Phone</p>
+                    <p className="font-semibold text-sm">{order.customerPhone}</p>
                   </div>
                   {order.customerCompany && (
                     <div>
-                      <p className="text-sm text-gray-600">Company</p>
-                      <p className="font-semibold">{order.customerCompany}</p>
+                      <p className="text-xs text-gray-600 uppercase">Company</p>
+                      <p className="font-semibold text-sm">{order.customerCompany}</p>
                     </div>
                   )}
                 </CardContent>
@@ -139,56 +140,82 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
 
               {/* Order Status */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Status</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Status</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">Order Status</p>
+                    <p className="text-xs text-gray-600 uppercase mb-1">Order Status</p>
                     <Badge className={getStatusColor(order.status)}>
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                     </Badge>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">Payment Status</p>
+                    <p className="text-xs text-gray-600 uppercase mb-1">Payment Status</p>
                     <Badge className={getPaymentStatusColor(order.paymentStatus)}>
                       {order.paymentStatus?.replace(/_/g, " ").toUpperCase()}
                     </Badge>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Quantity</p>
-                    <p className="font-semibold">{order.quantity} units</p>
+                    <p className="text-xs text-gray-600 uppercase">Quantity</p>
+                    <p className="font-semibold text-sm">{order.quantity} units</p>
                   </div>
                 </CardContent>
               </Card>
-            </div>
 
-            {/* Order Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Order Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
+              {/* Pricing Summary */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Pricing</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   <div>
-                    <p className="text-sm text-gray-600">Total Price</p>
+                    <p className="text-xs text-gray-600 uppercase">Total Price</p>
                     <p className="font-semibold text-lg">
                       R{parseFloat(order.totalPriceEstimate).toFixed(2)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Amount Paid</p>
-                    <p className="font-semibold text-lg">
+                    <p className="text-xs text-gray-600 uppercase">Amount Paid</p>
+                    <p className="font-semibold text-lg text-green-600">
                       R{parseFloat(order.amountPaid || 0).toFixed(2)}
                     </p>
                   </div>
-                </div>
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase">Amount Due</p>
+                    <p className="font-semibold text-lg text-red-600">
+                      R{(parseFloat(order.totalPriceEstimate) - parseFloat(order.amountPaid || 0)).toFixed(2)}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Details Tab */}
+          <TabsContent value="details" className="space-y-4 px-6 py-4">
+            {/* Order Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Order Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 {order.deliveryAddress && (
                   <div>
-                    <p className="text-sm text-gray-600">Delivery Address</p>
+                    <p className="text-xs text-gray-600 uppercase mb-1">Delivery Address</p>
                     <p className="font-semibold">{order.deliveryAddress}</p>
                   </div>
                 )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase mb-1">Garment Color</p>
+                    <p className="font-semibold">{order.garmentColor || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase mb-1">Garment Size</p>
+                    <p className="font-semibold">{order.garmentSize || "N/A"}</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -196,7 +223,7 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
             {order.invoiceUrl && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Invoice</CardTitle>
+                  <CardTitle className="text-base">Invoice</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Button
@@ -213,12 +240,12 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
           </TabsContent>
 
           {/* Timeline Tab */}
-          <TabsContent value="timeline">
+          <TabsContent value="timeline" className="px-6 py-4">
             <OrderDetailTimeline order={order} />
           </TabsContent>
 
           {/* Payment Tab */}
-          <TabsContent value="payment" className="space-y-4">
+          <TabsContent value="payment" className="space-y-4 px-6 py-4">
             <PaymentStatusDisplay 
               paymentStatus={(order.paymentStatus as any) || "unpaid"}
               totalAmount={parseFloat(String(order.totalPriceEstimate))}
@@ -228,10 +255,10 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
           </TabsContent>
 
           {/* Notes Tab */}
-          <TabsContent value="notes" className="space-y-4">
+          <TabsContent value="notes" className="space-y-4 px-6 py-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Admin Notes</CardTitle>
+                <CardTitle className="text-base">Admin Notes</CardTitle>
                 <CardDescription>Internal notes about this order</CardDescription>
               </CardHeader>
               <CardContent>
@@ -248,7 +275,7 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
             {order.quoteRejectionReason && (
               <Card className="border-red-200 bg-red-50">
                 <CardHeader>
-                  <CardTitle className="text-lg text-red-900">Quote Rejection Reason</CardTitle>
+                  <CardTitle className="text-base text-red-900">Quote Rejection Reason</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-red-800">{order.quoteRejectionReason}</p>
@@ -259,7 +286,7 @@ export function OrderDetailModal({ order, isOpen, onClose }: OrderDetailModalPro
             {order.paymentVerificationNotes && (
               <Card className="border-green-200 bg-green-50">
                 <CardHeader>
-                  <CardTitle className="text-lg text-green-900">Payment Verification Notes</CardTitle>
+                  <CardTitle className="text-base text-green-900">Payment Verification Notes</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-green-800">{order.paymentVerificationNotes}</p>
