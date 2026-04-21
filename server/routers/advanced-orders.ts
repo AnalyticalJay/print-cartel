@@ -5,6 +5,7 @@ import { orders, designQuantityTracker, designUploadsByQuantity, lineItemDesignV
 import { createLineItemWithDesignVariation, getOrderWithAllDesigns } from "../order-wizard";
 import { storagePut } from "../storage";
 import { eq } from "drizzle-orm";
+import { sendOrderConfirmationEmail } from "../order-confirmation-email";
 
 export const advancedOrdersRouter = router({
   /**
@@ -82,6 +83,21 @@ export const advancedOrdersRouter = router({
             orderId,
             ...lineItem,
           });
+        }
+
+        // Send confirmation email to customer
+        try {
+          const totalPrice = createdOrders.length * 100; // Placeholder - actual price calculated later
+          await sendOrderConfirmationEmail({
+            orderId: createdOrders[0]?.orderId || 0,
+            customerName: `${input.customerFirstName} ${input.customerLastName}`,
+            customerEmail: input.customerEmail,
+            totalPrice,
+            estimatedDelivery: "5-7 business days",
+          });
+        } catch (emailError) {
+          console.error("Failed to send order confirmation email:", emailError);
+          // Don't fail the order creation if email fails
         }
 
         return {
