@@ -5,6 +5,7 @@ import { orders, paymentRecords } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { PayFastIntegration } from "../payfast-integration";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
+import { sendPaymentReceiptEmailWithRetry } from "../send-payment-receipt";
 import { checkAndProgressOrder } from "../auto-progression";
 
 // Initialize PayFast integration
@@ -248,27 +249,47 @@ export const paymentRouter = router({
             // Don't fail the payment verification if auto-progression fails
           }
 
-          // Send payment confirmation email to customer
+          // Send payment receipt email to customer with retry logic
           try {
-            await sendPaymentConfirmationEmail(
+            const totalAmount = parseFloat(order.totalPriceEstimate);
+            const remainingBalance = Math.max(0, totalAmount - paidAmount);
+            const estimatedDeliveryDate = new Date();
+            estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 7);
+
+            await sendPaymentReceiptEmailWithRetry(
               order.customerEmail,
-              `${order.customerFirstName} ${order.customerLastName}`,
-              orderId,
-              `INV-${orderId}`,
-              paidAmount,
-              parseFloat(order.totalPriceEstimate),
-              Math.max(0, parseFloat(order.totalPriceEstimate) - paidAmount),
-              new Date().toLocaleDateString("en-ZA", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+              {
+                orderId,
+                invoiceNumber: `INV-${orderId}`,
+                customerName: `${order.customerFirstName} ${order.customerLastName}`,
+                customerEmail: order.customerEmail,
+                paymentDate: new Date().toLocaleDateString("en-ZA", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                paymentMethod: "payfast",
+                amountPaid: paidAmount,
+                totalOrderAmount: totalAmount,
+                remainingBalance,
+                garmentType: "Custom Apparel",
+                quantity: order.quantity || 1,
+                color: undefined,
+                size: undefined,
+                deliveryMethod: (order.deliveryMethod as "delivery" | "collection") || "delivery",
+                deliveryAddress: order.deliveryAddress || undefined,
+                estimatedDeliveryDate: estimatedDeliveryDate.toLocaleDateString("en-ZA", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }),
+              }
             );
-            console.log(`✓ Payment confirmation email sent to ${order.customerEmail}`);
+            console.log(`✓ Payment receipt email sent to ${order.customerEmail}`);
           } catch (emailError) {
-            console.error(`Failed to send payment confirmation email for order ${orderId}:`, emailError);
+            console.error(`Failed to send payment receipt email for order ${orderId}:`, emailError);
           }
 
           console.log(`✓ Payment verified for order ${orderId}: ${paidAmount} ZAR`);
