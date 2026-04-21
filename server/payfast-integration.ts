@@ -62,6 +62,7 @@ class PayFastIntegration {
 
   /**
    * Generate MD5 signature for PayFast request
+   * IMPORTANT: PayFast requires the query string WITHOUT URL encoding for signature calculation
    */
   private generateSignature(data: Record<string, string>): string {
     // Sort data alphabetically
@@ -74,14 +75,14 @@ class PayFastIntegration {
         return acc;
       }, {} as Record<string, string>);
 
-    // Create query string
+    // Create query string WITHOUT URL encoding (PayFast requirement)
     let queryString = Object.entries(sortedData)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .map(([key, value]) => `${key}=${value}`)
       .join("&");
 
-    // Add passphrase
+    // Add passphrase (NOT encoded)
     if (this.config.passphrase) {
-      queryString += `&passphrase=${encodeURIComponent(this.config.passphrase)}`;
+      queryString += `&passphrase=${this.config.passphrase}`;
     }
 
     // Generate MD5 hash

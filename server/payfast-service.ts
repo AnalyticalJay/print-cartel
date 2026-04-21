@@ -20,27 +20,28 @@ interface PayFastPaymentData {
 
 /**
  * Generate PayFast payment signature
+ * IMPORTANT: PayFast requires the query string WITHOUT URL encoding for signature calculation
  */
 export function generatePayFastSignature(
   data: Record<string, string | number>,
   passphrase: string
 ): string {
-  // Convert data to query string format
+  // Convert data to query string format WITHOUT encoding (PayFast requirement)
   let queryString = "";
   Object.keys(data)
     .sort()
     .forEach((key) => {
       if (data[key] !== "" && data[key] !== null && data[key] !== undefined) {
-        queryString += `${key}=${encodeURIComponent(String(data[key]))}&`;
+        queryString += `${key}=${String(data[key])}&`;
       }
     });
 
   // Remove trailing ampersand
   queryString = queryString.slice(0, -1);
 
-  // Add passphrase
+  // Add passphrase (NOT encoded)
   if (passphrase) {
-    queryString += `&passphrase=${encodeURIComponent(passphrase)}`;
+    queryString += `&passphrase=${passphrase}`;
   }
 
   // Generate MD5 hash
