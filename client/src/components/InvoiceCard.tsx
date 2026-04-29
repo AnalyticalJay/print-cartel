@@ -143,24 +143,10 @@ export function InvoiceCard({
               <span className="text-gray-600">Subtotal:</span>
               <span className="font-medium">R{totalPrice.toFixed(2)}</span>
             </div>
-            {paymentMethod === "deposit" && depositAmount && (
-              <>
-                <div className="flex justify-between border-t pt-2">
-                  <span className="text-gray-600">Deposit Required:</span>
-                  <span className="font-medium text-blue-600">R{depositAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Final Payment:</span>
-                  <span className="font-medium">R{(totalPrice - depositAmount).toFixed(2)}</span>
-                </div>
-              </>
-            )}
-            {paymentMethod !== "deposit" && (
-              <div className="flex justify-between border-t pt-2">
-                <span className="text-gray-600">Total Due:</span>
-                <span className="font-bold text-lg">R{totalPrice.toFixed(2)}</span>
-              </div>
-            )}
+            <div className="flex justify-between border-t pt-2">
+              <span className="text-gray-600">Total Due:</span>
+              <span className="font-bold text-lg">R{totalPrice.toFixed(2)}</span>
+            </div>
           </div>
         </div>
 

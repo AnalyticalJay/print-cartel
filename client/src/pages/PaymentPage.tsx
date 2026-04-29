@@ -115,11 +115,7 @@ export function PaymentPage() {
     ? parseFloat(order.totalPriceEstimate) 
     : order.totalPriceEstimate || 0;
 
-  const depositAmount = order.depositAmount ? (typeof order.depositAmount === "string"
-    ? parseFloat(order.depositAmount)
-    : order.depositAmount) : undefined;
 
-  const depositPaid = depositAmount || 0;
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -161,23 +157,13 @@ export function PaymentPage() {
                 </div>
               </div>
 
-              {/* Deposit Payment Tracker */}
-              {order.status === "approved" || order.status === "quoted" ? (
-                <DepositPaymentTracker
-                  orderId={order.id}
-                  totalPrice={totalPrice}
-                  depositPercentage={50}
-                  depositPaid={depositPaid}
-                  finalPaymentPaid={0}
-                  orderStatus={order.status as any}
-                />
-              ) : null}
+
 
               {/* Payment Section */}
               <PaymentSection
                 orderId={order.id}
                 totalAmount={totalPrice}
-                depositAmount={depositAmount || 0}
+                depositAmount={0}
                 amountPaid={0}
                 paymentStatus={order.paymentStatus || "unpaid"}
                 invoiceUrl={order.invoiceUrl || ""}

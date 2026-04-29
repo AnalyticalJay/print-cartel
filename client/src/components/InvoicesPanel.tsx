@@ -49,7 +49,6 @@ export function InvoicesPanel() {
 
   const getPaymentStatus = (invoice: any) => {
     if (invoice.paymentStatus === "paid") return "Paid";
-    if (invoice.paymentStatus === "deposit_paid") return "Deposit Paid";
     return "Unpaid";
   };
 
@@ -57,8 +56,6 @@ export function InvoicesPanel() {
     switch (status) {
       case "Paid":
         return "bg-green-100 text-green-800";
-      case "Deposit Paid":
-        return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
     }

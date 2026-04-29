@@ -122,12 +122,7 @@ export function PaymentMethodDetails({
             <span className="text-gray-600">Payment Amount:</span>
             <span className="text-2xl font-bold text-gray-900">R{amount.toFixed(2)}</span>
           </div>
-          {isDeposit && (
-            <div className="text-sm text-amber-600 flex items-center gap-2 mt-2">
-              <AlertCircle className="h-4 w-4" />
-              This is a deposit payment. Final payment will be due upon completion.
-            </div>
-          )}
+
         </div>
 
         {/* Processing Time */}

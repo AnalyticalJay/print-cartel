@@ -1998,3 +1998,16 @@ Future enhancements (Phase 2):
 - [x] Verify payment receipt email system with SMTP integration
 - [x] Test payment flow from order creation to receipt email
 - [x] All payment tests passing - ready for customer testing
+
+
+## Current Sprint - Phase 15: Remove Deposit Payment Display from UI (COMPLETED)
+- [x] Remove DepositPaymentTracker component from AccountDashboard
+- [x] Remove deposit payment logic from PaymentPage
+- [x] Update MobileOrderTimeline to remove "Awaiting deposit payment" message
+- [x] Update PaymentStatusDisplay to remove deposit_paid status option
+- [x] Remove deposit payment display from InvoiceCard
+- [x] Remove deposit payment status from InvoicesPanel
+- [x] Remove deposit payment badge from PaymentReconciliationModal
+- [x] Remove deposit payment message from PaymentMethodDetails
+- [x] Verify server compiles without errors
+- [x] Test with new order to confirm full payment only display

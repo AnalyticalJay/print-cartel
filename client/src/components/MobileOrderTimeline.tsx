@@ -44,7 +44,7 @@ export function MobileOrderTimeline({ currentStatus, createdAt, updatedAt, order
       label: "Quote Approved",
       date: updatedAt,
       completed: ["approved", "in-production", "completed", "shipped"].includes(currentStatus),
-      description: orderDetails?.depositPaid ? "Deposit received. Order confirmed." : "Awaiting deposit payment.",
+      description: "Quote approved. Ready for production.",
     },
     {
       status: "in-production",

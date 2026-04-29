@@ -355,21 +355,7 @@ export default function AccountDashboard() {
                       />
                     </div>
 
-                    {/* Deposit Payment Tracker - Show for approved or quoted status */}
-                    {(selectedOrder.status === "approved") && (
-                      <div className="border-t border-gray-700 pt-4 md:pt-6">
-                        <DepositPaymentTracker
-                          orderId={selectedOrder.id}
-                          totalPrice={parseFloat(String(selectedOrder.totalPriceEstimate || "0"))}
-                          depositPercentage={30}
-                          depositPaid={selectedOrder.amountPaid ? parseFloat(String(selectedOrder.amountPaid)) : 0}
-                          finalPaymentPaid={0}
-                          orderStatus={selectedOrder.status}
-                          onPayDeposit={handlePayDeposit}
-                          onPayFinal={handlePayFinal}
-                        />
-                      </div>
-                    )}
+
 
                     {/* Payment Proof Templates */}
 

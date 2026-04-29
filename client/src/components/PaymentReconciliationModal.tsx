@@ -137,9 +137,7 @@ export function PaymentReconciliationModal({
                     className={
                       order.paymentStatus === "paid"
                         ? "bg-green-100 text-green-800"
-                        : order.paymentStatus === "deposit_paid"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
+                        : "bg-red-100 text-red-800"
                     }
                   >
                     {order.paymentStatus}
@@ -199,7 +197,7 @@ export function PaymentReconciliationModal({
                 <div key={payment.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                   <div>
                     <p className="text-sm font-medium">
-                      {payment.paymentType === "deposit" ? "Deposit" : "Final Payment"} - {payment.paymentMethod}
+                      Payment - {payment.paymentMethod}
                     </p>
                     <p className="text-xs text-gray-500">
                       {new Date(payment.createdAt).toLocaleDateString()} •{" "}

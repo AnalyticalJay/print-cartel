@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
 
 interface PaymentStatusDisplayProps {
-  paymentStatus: "unpaid" | "deposit_paid" | "paid";
+  paymentStatus: "unpaid" | "paid";
   totalAmount: number;
   amountPaid: number;
   depositAmount?: number;
@@ -28,8 +28,6 @@ export function PaymentStatusDisplay({
     switch (paymentStatus) {
       case "paid":
         return "text-green-400";
-      case "deposit_paid":
-        return "text-yellow-400";
       case "unpaid":
         return "text-red-400";
       default:
@@ -41,8 +39,6 @@ export function PaymentStatusDisplay({
     switch (paymentStatus) {
       case "paid":
         return "Fully Paid";
-      case "deposit_paid":
-        return "Deposit Paid";
       case "unpaid":
         return "Unpaid";
       default:
@@ -54,8 +50,6 @@ export function PaymentStatusDisplay({
     switch (paymentStatus) {
       case "paid":
         return <CheckCircle className="w-5 h-5" />;
-      case "deposit_paid":
-        return <Clock className="w-5 h-5" />;
       case "unpaid":
         return <AlertCircle className="w-5 h-5" />;
       default:
@@ -110,14 +104,7 @@ export function PaymentStatusDisplay({
             </div>
           )}
 
-          {depositAmount && paymentStatus === "unpaid" && (
-            <div className="flex justify-between text-gray-300 pt-2 border-t border-slate-700">
-              <span>Deposit Required (50%):</span>
-              <span className="font-medium text-yellow-400">
-                R{depositAmount.toFixed(2)}
-              </span>
-            </div>
-          )}
+
 
           {dueDate && (
             <div className="flex justify-between text-gray-300 pt-2 border-t border-slate-700">
@@ -138,11 +125,7 @@ export function PaymentStatusDisplay({
         </div>
       )}
 
-      {paymentStatus === "deposit_paid" && (
-        <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-700 rounded text-yellow-300 text-sm">
-          Deposit received. Final payment of R{amountDue.toFixed(2)} is due before production starts.
-        </div>
-      )}
+
 
       {paymentStatus === "paid" && (
         <div className="mt-4 p-3 bg-green-900/20 border border-green-700 rounded text-green-300 text-sm">
