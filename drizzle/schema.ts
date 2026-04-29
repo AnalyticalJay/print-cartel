@@ -633,3 +633,41 @@ export const designSummaryCache = mysqlTable("designSummaryCache", {
 
 export type DesignSummaryCache = typeof designSummaryCache.$inferSelect;
 export type InsertDesignSummaryCache = typeof designSummaryCache.$inferInsert;
+
+
+// PayFast ITN Retry Queue - Tracks failed ITN callbacks for retry processing
+export const payFastItnRetryQueue = mysqlTable(
+  "payFastItnRetryQueue",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    orderId: int("orderId").notNull().references(() => orders.id, { onDelete: "cascade" }),
+    transactionId: varchar("transactionId", { length: 255 }).notNull(),
+    itnData: json("itnData").notNull(), // Full ITN payload from PayFast
+    status: mysqlEnum("status", ["pending", "processing", "completed", "failed", "abandoned"]).default("pending").notNull(),
+    attemptCount: int("attemptCount").default(0).notNull(),
+    maxAttempts: int("maxAttempts").default(5).notNull(),
+    nextRetryAt: timestamp("nextRetryAt"),
+    lastAttemptAt: timestamp("lastAttemptAt"),
+    lastErrorMessage: text("lastErrorMessage"),
+    failureReason: mysqlEnum("failureReason", [
+      "signature_verification_failed",
+      "order_not_found",
+      "payment_already_processed",
+      "database_error",
+      "email_send_failed",
+      "unknown_error",
+      "timeout"
+    ]),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => ({
+    orderIdIdx: index("idx_payfast_itn_orderId").on(table.orderId),
+    statusIdx: index("idx_payfast_itn_status").on(table.status),
+    nextRetryIdx: index("idx_payfast_itn_nextRetry").on(table.nextRetryAt),
+    transactionIdIdx: index("idx_payfast_itn_transactionId").on(table.transactionId),
+  })
+);
+
+export type PayFastItnRetryQueue = typeof payFastItnRetryQueue.$inferSelect;
+export type InsertPayFastItnRetryQueue = typeof payFastItnRetryQueue.$inferInsert;

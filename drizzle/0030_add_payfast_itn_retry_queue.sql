@@ -1,0 +1,20 @@
+CREATE TABLE `payFastItnRetryQueue` (
+`id` int AUTO_INCREMENT PRIMARY KEY NOT NULL,
+`orderId` int NOT NULL,
+`transactionId` varchar(255) NOT NULL,
+`itnData` json NOT NULL,
+`status` enum('pending','processing','completed','failed','abandoned') NOT NULL DEFAULT 'pending',
+`attemptCount` int NOT NULL DEFAULT 0,
+`maxAttempts` int NOT NULL DEFAULT 5,
+`nextRetryAt` timestamp,
+`lastAttemptAt` timestamp,
+`lastErrorMessage` text,
+`failureReason` enum('signature_verification_failed','order_not_found','payment_already_processed','database_error','email_send_failed','unknown_error','timeout'),
+`createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+`updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+CONSTRAINT `payFastItnRetryQueue_orderId_orders_id_fk` FOREIGN KEY (`orderId`) REFERENCES `orders`(`id`) ON DELETE cascade,
+INDEX `idx_payfast_itn_orderId` (`orderId`),
+INDEX `idx_payfast_itn_status` (`status`),
+INDEX `idx_payfast_itn_nextRetry` (`nextRetryAt`),
+INDEX `idx_payfast_itn_transactionId` (`transactionId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

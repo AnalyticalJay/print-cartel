@@ -2011,3 +2011,16 @@ Future enhancements (Phase 2):
 - [x] Remove deposit payment message from PaymentMethodDetails
 - [x] Verify server compiles without errors
 - [x] Test with new order to confirm full payment only display
+
+
+## Payment Retry System (Phase 15)
+- [x] Create PayFastItnRetryQueue database table with proper schema
+- [x] Implement PayFastItnRetryService with exponential backoff algorithm
+- [x] Add retry queue management (queue, process, manual retry)
+- [x] Implement exponential backoff with jitter (1 min base, 24 hour max)
+- [x] Create retry statistics tracking and monitoring
+- [x] Write comprehensive unit tests for retry logic (14 tests passing)
+- [ ] Integrate retry service with PayFast notification handler
+- [ ] Create scheduled task for processing pending retries
+- [ ] Add admin UI for viewing and managing retry queue
+- [ ] Implement alerts for abandoned payments after max retries
