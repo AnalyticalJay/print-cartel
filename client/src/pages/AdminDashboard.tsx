@@ -783,7 +783,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
             <div className="space-y-3 border-t border-gray-700 pt-4">
               <h3 className="font-semibold text-cyan-400">Print Placements</h3>
               <div className="space-y-2">
-                {order.prints.map((print, index) => (
+                {order.prints.map((print: any, index: number) => (
                   <div key={index} className="bg-gray-800 p-3 rounded-lg border border-gray-700">
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
@@ -818,7 +818,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
             <div className="space-y-3 border-t border-gray-700 pt-4">
               <h3 className="font-semibold text-cyan-400">Uploaded Designs</h3>
               <div className="space-y-2">
-                {order.prints.map((print, index) => (
+                {order.prints.map((print: any, index: number) => (
                   <div key={index} className="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-cyan-500 transition">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">

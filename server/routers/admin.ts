@@ -40,6 +40,7 @@ export const adminRouter = router({
   // Get detailed order with all prints and related data
   getOrderDetail: protectedProcedure
     .input(z.object({ orderId: z.number() }))
+    .output(z.any())
     .query(async ({ input, ctx }) => {
       if (ctx.user?.role !== "admin") {
         throw new Error("Unauthorized: Admin access required");
@@ -105,14 +106,18 @@ export const adminRouter = router({
           })
         );
 
-        return {
+        const result = {
           ...order[0],
           totalPriceEstimate: parseFloat(order[0].totalPriceEstimate as any),
+          amountPaid: order[0].amountPaid ? parseFloat(order[0].amountPaid as any) : 0,
+          depositAmount: order[0].depositAmount ? parseFloat(order[0].depositAmount as any) : 0,
           product: product[0] || null,
           color: color[0] || null,
           size: size[0] || null,
           prints: printsWithDetails,
         };
+        console.log("Order detail result:", result);
+        return result;
       } catch (error) {
         console.error("Failed to fetch order detail:", error);
         throw new Error("Failed to fetch order detail");
