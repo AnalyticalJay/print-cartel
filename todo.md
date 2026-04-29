@@ -1985,3 +1985,16 @@ Future enhancements (Phase 2):
 - [ ] Integrate into admin dashboard Orders tab
 - [ ] Write and run tests
 - [ ] Save checkpoint and deliver
+
+
+## Current Sprint - Phase 14: PayFast Payment Integration Testing & Simplification (COMPLETED)
+- [x] Simplify payment system to full payment only (removed deposit/split payment options)
+- [x] Verify PayFast signature generation with correct passphrase (-.Redemption_2026)
+- [x] Test PayFast URL generation with live production credentials (Merchant ID: 19428362)
+- [x] Create comprehensive payment integration tests (7 tests passing)
+- [x] Verify signature verification for PayFast callbacks
+- [x] Test multiple payment amounts (R100, R500, R1000, R5000, R10000)
+- [x] Confirm live production mode (not sandbox)
+- [x] Verify payment receipt email system with SMTP integration
+- [x] Test payment flow from order creation to receipt email
+- [x] All payment tests passing - ready for customer testing

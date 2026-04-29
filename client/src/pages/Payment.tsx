@@ -5,34 +5,28 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, AlertCircle, CheckCircle, CreditCard } from "lucide-react";
+import { ArrowLeft, AlertCircle, CheckCircle, CreditCard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { SimplifiedPaymentMethodSelector, type PaymentMethodType } from "@/components/SimplifiedPaymentMethodSelector";
 import { SimplifiedPaymentProofUpload } from "@/components/SimplifiedPaymentProofUpload";
-
-type PaymentType = "deposit" | "full_payment";
 
 export default function Payment() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<PaymentType>("deposit");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const recordPaymentMethodMutation = trpc.payment.recordPaymentMethod.useMutation();
+  const initiatePayFastMutation = trpc.payfast.generatePaymentUrl.useMutation();
 
-  // Get order ID and payment type from URL query parameters
+  // Get order ID from URL query parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("orderId");
-    const type = params.get("type");
     if (id) {
       setOrderId(parseInt(id));
     }
-      if (type === "deposit" || type === "full_payment") {
-        setSelectedPaymentAmount(type as PaymentType);
-      }
   }, []);
 
   // Fetch order details
@@ -97,7 +91,44 @@ export default function Payment() {
   const subtotal = parseFloat(order.totalPriceEstimate);
   const delivery = order.deliveryCharge ? parseFloat(order.deliveryCharge) : 0;
   const total = subtotal + delivery;
-  const depositAmount = order.depositAmount ? parseFloat(order.depositAmount) : total * 0.5;
+
+  const handlePaymentMethodSelect = async (method: string) => {
+    setSelectedPaymentMethod(method as PaymentMethodType);
+    setIsProcessing(true);
+
+    try {
+      if (method === "payfast") {
+        // Initiate PayFast payment
+        const result = await initiatePayFastMutation.mutateAsync({
+          orderId: orderId || 0,
+          amount: total,
+          returnUrl: `${window.location.origin}/payment/payfast-return?orderId=${orderId}`,
+          cancelUrl: `${window.location.origin}/dashboard`,
+          notifyUrl: `${window.location.origin}/api/payfast/callback`,
+        });
+
+        // Redirect to PayFast
+        window.location.href = result.paymentUrl;
+      } else if (method === "bank_transfer") {
+        // Record manual payment method
+        await recordPaymentMethodMutation.mutateAsync({
+          orderId: orderId || 0,
+          paymentMethod: "bank_transfer",
+          amount: total,
+          paymentType: "final_payment",
+        });
+
+        toast.success("Payment method recorded. Please upload proof of payment.");
+        setLocation(`/payment/manual-upload?orderId=${orderId}`);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Failed to process payment. Please try again.");
+      setSelectedPaymentMethod(null);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
@@ -159,50 +190,42 @@ export default function Payment() {
                   <CreditCard className="h-5 w-5" />
                   Payment Method
                 </CardTitle>
+                <CardDescription>Choose how you'd like to pay</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <label className="flex items-center gap-3 rounded-lg border p-4 cursor-pointer hover:bg-slate-50">
-                    <input
-                      type="radio"
-                      name="payment-amount"
-                      value="deposit"
-                      checked={selectedPaymentAmount === "deposit"}
-                      onChange={(e) => setSelectedPaymentAmount(e.target.value as "deposit")}
-                      className="h-4 w-4"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium">Deposit Payment</p>
-                      <p className="text-sm text-gray-600">
-                        Pay R{depositAmount.toFixed(2)} now, R{(total - depositAmount).toFixed(2)} later
-                      </p>
+                  {/* PayFast Option */}
+                  <button
+                    onClick={() => handlePaymentMethodSelect("payfast")}
+                    disabled={isProcessing}
+                    className="w-full flex items-center gap-3 rounded-lg border-2 border-transparent p-4 cursor-pointer hover:bg-slate-50 hover:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex-1 text-left">
+                      <p className="font-medium">Pay with PayFast</p>
+                      <p className="text-sm text-gray-600">Credit card, bank transfer, or other methods</p>
                     </div>
-                  </label>
+                    {isProcessing && selectedPaymentMethod === "payfast" && (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    )}
+                  </button>
 
-                  <label className="flex items-center gap-3 rounded-lg border p-4 cursor-pointer hover:bg-slate-50">
-                    <input
-                      type="radio"
-                      name="payment-amount"
-                      value="full_payment"
-                      checked={selectedPaymentAmount === "full_payment"}
-                      onChange={(e) => setSelectedPaymentAmount(e.target.value as "full_payment")}
-                      className="h-4 w-4"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium">Full Payment</p>
-                      <p className="text-sm text-gray-600">Pay the full amount now</p>
+                  {/* Manual Payment Option */}
+                  <button
+                    onClick={() => handlePaymentMethodSelect("bank_transfer")}
+                    disabled={isProcessing}
+                    className="w-full flex items-center gap-3 rounded-lg border-2 border-transparent p-4 cursor-pointer hover:bg-slate-50 hover:border-green-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex-1 text-left">
+                      <p className="font-medium">Manual Bank Transfer</p>
+                      <p className="text-sm text-gray-600">Transfer to our bank account and upload proof</p>
                     </div>
-                  </label>
+                    {isProcessing && selectedPaymentMethod === "bank_transfer" && (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    )}
+                  </button>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Payment Method Selection */}
-            <SimplifiedPaymentMethodSelector
-              selectedMethod={selectedPaymentMethod}
-              onMethodSelect={setSelectedPaymentMethod}
-              isLoading={isProcessing}
-            />
 
             <p className="text-xs text-gray-600">
               After making the payment, please allow 1-2 business days for confirmation. We'll send you an email
@@ -228,95 +251,18 @@ export default function Payment() {
                       <span>R{delivery.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="border-t pt-2 flex justify-between font-bold">
-                    <span>Total:</span>
-                    <span>R{total.toFixed(2)}</span>
+                  <div className="border-t pt-2 flex justify-between font-bold text-lg">
+                    <span>Total Due:</span>
+                    <span className="text-green-600">R{total.toFixed(2)}</span>
                   </div>
                 </div>
 
-                {selectedPaymentAmount === "deposit" && (
-                  <div className="space-y-2 rounded-lg bg-blue-50 p-3 text-sm">
-                    <div className="flex justify-between font-medium text-blue-900">
-                      <span>Due Now:</span>
-                      <span>R{depositAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-blue-700">
-                      <span>Due Later:</span>
-                      <span>R{(total - depositAmount).toFixed(2)}</span>
-                    </div>
-                  </div>
-                )}
-
-                <Button
-                  onClick={async () => {
-                    setIsProcessing(true);
-                    try {
-                      const paymentAmount = selectedPaymentAmount === "deposit" ? depositAmount : total;
-                      if (!selectedPaymentMethod) {
-                        toast.error("Please select a payment method");
-                        setIsProcessing(false);
-                        return;
-                      }
-
-                      if (selectedPaymentMethod === "payfast") {
-                        // Generate PayFast payment URL
-                        const returnUrl = `${window.location.origin}/payment-success?orderId=${orderId}`;
-                        const cancelUrl = `${window.location.origin}/payment?orderId=${orderId}`;
-                        const notifyUrl = `${window.location.origin}/api/payfast/callback`;
-
-                        try {
-                          const generatePaymentUrlMutation = trpc.payfast.generatePaymentUrl.useMutation();
-                          const response = await generatePaymentUrlMutation.mutateAsync({
-                            orderId: orderId!,
-                            amount: paymentAmount,
-                            returnUrl,
-                            cancelUrl,
-                            notifyUrl,
-                          });
-
-                          toast.success("Redirecting to PayFast...");
-                          setTimeout(() => {
-                            window.location.href = response.paymentUrl;
-                          }, 500);
-                        } catch (error) {
-                          console.error("PayFast error:", error);
-                          toast.error("Failed to process PayFast payment. Please try again.");
-                          setIsProcessing(false);
-                        }
-                      } else {
-                        // Show manual payment form
-                        await recordPaymentMethodMutation.mutateAsync({
-                          orderId: orderId!,
-                          paymentMethod: selectedPaymentMethod as "eft" | "bank_transfer",
-                          amount: paymentAmount,
-                          paymentType: selectedPaymentAmount === "deposit" ? "deposit" : "final_payment",
-                        });
-
-                        toast.success(`Payment method recorded! Please upload your proof.`);
-                        setTimeout(() => {
-                          setLocation(`/payment-success?orderId=${orderId}`);
-                        }, 1500);
-                      }
-                    } catch (error) {
-                      console.error("Error recording payment method:", error);
-                      toast.error("Failed to record payment method. Please try again.");
-                      setIsProcessing(false);
-                    }
-                  }}
-                  disabled={isProcessing}
-                  className="w-full bg-cyan-500 hover:bg-cyan-600"
-                >
-                  {isProcessing ? "Processing..." : "Confirm Payment Method"}
-                </Button>
-
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation("/dashboard")}
-                  disabled={isProcessing}
-                  className="w-full"
-                >
-                  Back to Dashboard
-                </Button>
+                <div className="rounded-lg bg-amber-50 p-3 text-sm border border-amber-200">
+                  <p className="text-amber-900 font-medium">Full Payment Required</p>
+                  <p className="text-amber-700 text-xs mt-1">
+                    The full invoice amount must be paid before production begins.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>

@@ -59,7 +59,7 @@ export function buildPayFastPaymentUrl(
     ? "https://sandbox.payfast.co.za/eng/process"
     : "https://www.payfast.co.za/eng/process";
 
-  // Build payment data object
+  // PayFast signature calculation MUST include ALL fields
   const data: Record<string, string | number> = {
     merchant_id: config.merchantId,
     merchant_key: config.merchantKey,
@@ -69,13 +69,15 @@ export function buildPayFastPaymentUrl(
     name_first: paymentData.customerName.split(" ")[0],
     name_last: paymentData.customerName.split(" ").slice(1).join(" ") || "",
     email_address: paymentData.customerEmail,
-    m_payment_id: `order_${paymentData.orderId}`,
+    m_payment_id: `order-${paymentData.orderId}`,
     amount: paymentData.amount.toFixed(2),
-    item_name: paymentData.description,
-    item_description: `Order #${paymentData.orderId}`,
+    item_name: `Invoice for Order #${paymentData.orderId}`,
+    item_description: `Payment for DTF printing order`,
+    custom_int1: paymentData.orderId,
+    custom_str1: paymentData.customerEmail,
   };
 
-  // Generate signature
+  // Generate signature with ALL fields
   const signature = generatePayFastSignature(data, config.passphrase);
   data.signature = signature;
 

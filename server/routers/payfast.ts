@@ -29,18 +29,28 @@ export const payfastRouter = router({
         const merchantId = process.env.PAYFAST_MERCHANT_ID;
         const merchantKey = process.env.PAYFAST_MERCHANT_KEY;
         const passphrase = process.env.PAYFAST_PASSPHRASE;
+        const isSandbox = process.env.PAYFAST_SANDBOX === "true";
 
         if (!merchantId || !merchantKey || !passphrase) {
           throw new Error("PayFast credentials not configured");
         }
 
+        // Log payment initiation for debugging
+        console.log(`[PayFast] Initiating payment for order ${input.orderId}`, {
+          mode: isSandbox ? "SANDBOX" : "LIVE",
+          amount: input.amount,
+          merchantId: merchantId.substring(0, 4) + "...",
+        })
+
         // Build payment URL
+        // IMPORTANT: Use PAYFAST_SANDBOX env var, not NODE_ENV
+        // NODE_ENV=development doesn't mean sandbox mode - we use live credentials in dev
         const paymentUrl = buildPayFastPaymentUrl(
           {
             merchantId,
             merchantKey,
             passphrase,
-            sandbox: process.env.NODE_ENV === "development",
+            sandbox: process.env.PAYFAST_SANDBOX === "true",
           },
           {
             orderId: input.orderId,
@@ -53,6 +63,11 @@ export const payfastRouter = router({
             notifyUrl: input.notifyUrl,
           }
         );
+
+        // Log the generated URL for debugging
+        console.log(`[PayFast] Generated payment URL:`);
+        console.log(paymentUrl);
+        console.log(`[PayFast] URL length: ${paymentUrl.length}`);
 
         return { paymentUrl };
       } catch (error) {

@@ -8,13 +8,15 @@ import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 import { sendPaymentReceiptEmailWithRetry } from "../send-payment-receipt";
 import { checkAndProgressOrder } from "../auto-progression";
 
-// Initialize PayFast integration
-const payfast = new PayFastIntegration({
-  merchantId: process.env.PAYFAST_MERCHANT_ID || "",
-  merchantKey: process.env.PAYFAST_MERCHANT_KEY || "",
-  passphrase: process.env.PAYFAST_PASSPHRASE || "",
-  isSandbox: process.env.PAYFAST_SANDBOX === "true",
-});
+// Helper function to get PayFast integration with current env vars
+function getPayFastIntegration() {
+  return new PayFastIntegration({
+    merchantId: process.env.PAYFAST_MERCHANT_ID || "",
+    merchantKey: process.env.PAYFAST_MERCHANT_KEY || "",
+    passphrase: process.env.PAYFAST_PASSPHRASE || "",
+    isSandbox: process.env.PAYFAST_SANDBOX === "true",
+  });
+}
 
 export const paymentRouter = router({
   // Initiate PayFast payment
@@ -51,7 +53,8 @@ export const paymentRouter = router({
           throw new Error("Unauthorized: Order does not belong to this user");
         }
 
-        // Generate payment URL
+        // Generate payment URL with fresh PayFast instance
+        const payfast = getPayFastIntegration();
         const paymentUrl = payfast.getPaymentUrl({
           orderId: input.orderId,
           amount: input.amount,
@@ -194,6 +197,7 @@ export const paymentRouter = router({
         if (!db) throw new Error("Database not available");
 
         // Verify signature
+        const payfast = getPayFastIntegration();
         const isValid = payfast.verifyNotificationSignature(input as any);
         if (!isValid) {
           console.error("Invalid PayFast signature");

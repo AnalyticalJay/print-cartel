@@ -85,8 +85,14 @@ class PayFastIntegration {
       queryString += `&passphrase=${this.config.passphrase}`;
     }
 
+    // DEBUG: Log the passphrase being used
+    console.log(`[PayFast] Passphrase: ${this.config.passphrase}`);
+    console.log(`[PayFast] Query string for signature: ${queryString}`);
+
     // Generate MD5 hash
-    return crypto.createHash("md5").update(queryString).digest("hex");
+    const signature = crypto.createHash("md5").update(queryString).digest("hex");
+    console.log(`[PayFast] Generated signature: ${signature}`);
+    return signature;
   }
 
   /**
@@ -245,8 +251,12 @@ class PayFastIntegration {
     const signature = this.generateSignature(paymentData);
     paymentData.signature = signature;
 
-    const params = new URLSearchParams(paymentData);
-    return `${this.baseUrl}/eng/process?${params.toString()}`;
+    // IMPORTANT: Must use manual encoding to match signature calculation
+    // URLSearchParams would double-encode and break the signature
+    const queryParts = Object.entries(paymentData)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join("&");
+    return `${this.baseUrl}/eng/process?${queryParts}`;
   }
 }
 
