@@ -6,8 +6,21 @@ export interface InvoiceData {
   orderId: number;
   invoiceNumber: string;
   totalPrice: number;
-  depositAmount?: number;
+  deliveryCharge?: number;
   paymentMethod?: string;
+  paymentStatus: "unpaid" | "paid";
+  customerFirstName: string;
+  customerLastName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerCompany?: string;
+  product?: { name: string };
+  color?: { colorName: string };
+  size?: { sizeName: string };
+  quantity?: number;
+  deliveryMethod?: "collection" | "delivery";
+  deliveryAddress?: string;
+  status?: string;
 }
 
 /**
@@ -121,13 +134,7 @@ export async function generateAndUploadInvoice(invoiceData: InvoiceData): Promis
     doc.setFontSize(9);
     yPosition += 7;
 
-    if (invoiceData.paymentMethod === "deposit" && invoiceData.depositAmount) {
-      doc.text(`Deposit Required: R${invoiceData.depositAmount.toFixed(2)}`, margin, yPosition);
-      yPosition += 7;
-      doc.text(`Final Payment: R${(total - invoiceData.depositAmount).toFixed(2)}`, margin, yPosition);
-    } else {
-      doc.text(`Full Payment Required: R${total.toFixed(2)}`, margin, yPosition);
-    }
+    doc.text(`Full Payment Required: R${total.toFixed(2)}`, margin, yPosition);
 
     yPosition += 15;
     doc.setFontSize(8);
@@ -159,27 +166,16 @@ export function generateInvoiceEmailHTML(
   orderId: number,
   customerName: string,
   totalPrice: number,
-  depositAmount?: number,
+  deliveryCharge?: number,
   paymentMethod?: string
 ): string {
-  const delivery = 0; // You can fetch this from order if needed
+  const delivery = deliveryCharge || 0;
   const total = totalPrice + delivery;
 
-  let paymentTermsHtml = "";
-  if (paymentMethod === "deposit" && depositAmount) {
-    paymentTermsHtml = `
-      <p><strong>Payment Terms:</strong></p>
-      <ul>
-        <li>Deposit Required: <strong>R${depositAmount.toFixed(2)}</strong></li>
-        <li>Final Payment: <strong>R${(total - depositAmount).toFixed(2)}</strong></li>
-      </ul>
-    `;
-  } else {
-    paymentTermsHtml = `
-      <p><strong>Payment Terms:</strong></p>
-      <p>Full Payment Required: <strong>R${total.toFixed(2)}</strong></p>
-    `;
-  }
+  const paymentTermsHtml = `
+    <p><strong>Payment Terms:</strong></p>
+    <p>Full Payment Required: <strong>R${total.toFixed(2)}</strong></p>
+  `;
 
   return `
     <!DOCTYPE html>

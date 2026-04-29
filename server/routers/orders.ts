@@ -259,8 +259,12 @@ export const ordersRouter = router({
               orderId: input.orderId,
               invoiceNumber,
               totalPrice: parseFloat(order.totalPriceEstimate),
-              depositAmount: order.depositAmount ? parseFloat(order.depositAmount) : undefined,
-              paymentMethod: order.paymentMethod || undefined,
+              deliveryCharge: order.deliveryCharge ? parseFloat(order.deliveryCharge) : undefined,
+              paymentStatus: (order.paymentStatus === "paid" ? "paid" : "unpaid") as "unpaid" | "paid",
+              customerFirstName: order.customerFirstName,
+              customerLastName: order.customerLastName,
+              customerEmail: order.customerEmail,
+              customerPhone: order.customerPhone,
             });
 
             // Send invoice email to customer
@@ -269,8 +273,8 @@ export const ordersRouter = router({
               customerEmail: order.customerEmail,
               customerName: `${order.customerFirstName} ${order.customerLastName}`,
               totalPrice: parseFloat(order.totalPriceEstimate),
-              depositAmount: order.depositAmount ? parseFloat(order.depositAmount) : undefined,
-              paymentMethod: order.paymentMethod || undefined,
+              deliveryCharge: order.deliveryCharge ? parseFloat(order.deliveryCharge) : undefined,
+              paymentMethod: "full_payment",
               invoicePdfUrl: invoiceUrl,
             });
 
@@ -280,8 +284,8 @@ export const ordersRouter = router({
               customerEmail: order.customerEmail,
               customerName: `${order.customerFirstName} ${order.customerLastName}`,
               totalPrice: parseFloat(order.totalPriceEstimate),
-              depositAmount: order.depositAmount ? parseFloat(order.depositAmount) : undefined,
-              paymentMethod: order.paymentMethod || undefined,
+              deliveryCharge: order.deliveryCharge ? parseFloat(order.deliveryCharge) : undefined,
+              paymentMethod: "full_payment",
             });
           } catch (invoiceError) {
             console.error("Failed to generate or send invoice:", invoiceError);

@@ -991,7 +991,7 @@ export const adminRouter = router({
           orderId: orderData.id,
           invoicePdfUrl: url,
           totalPrice: parseFloat(orderData.totalPriceEstimate as any),
-          depositAmount: parseFloat(orderData.depositAmount as any) || 0,
+          deliveryCharge: orderData.deliveryCharge ? parseFloat(orderData.deliveryCharge as any) : undefined,
         });
 
         console.log(`✓ Manual invoice created and sent for order ${input.orderId}`);
@@ -1038,8 +1038,8 @@ export const adminRouter = router({
           orderId: orderData.id,
           invoicePdfUrl: orderData.invoiceUrl,
           totalPrice: parseFloat(orderData.totalPriceEstimate as any),
-          depositAmount: parseFloat(orderData.depositAmount as any) || 0,
-          paymentMethod: orderData.paymentMethod || "full_payment",
+          deliveryCharge: orderData.deliveryCharge ? parseFloat(orderData.deliveryCharge as any) : undefined,
+          paymentMethod: "full_payment",
         });
 
         // Update order timestamp to track resend

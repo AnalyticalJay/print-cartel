@@ -102,14 +102,7 @@ export async function generateInvoicePDF(orderId: number): Promise<Buffer> {
   doc.setFontSize(9);
   yPosition += 7;
 
-  if (order.paymentMethod === "deposit") {
-    const depositAmount = order.depositAmount ? parseFloat(order.depositAmount) : total * 0.5;
-    doc.text(`Deposit Required: R${depositAmount.toFixed(2)}`, margin, yPosition);
-    yPosition += 7;
-    doc.text(`Final Payment: R${(total - depositAmount).toFixed(2)}`, margin, yPosition);
-  } else {
-    doc.text(`Full Payment Required: R${total.toFixed(2)}`, margin, yPosition);
-  }
+  doc.text(`Full Payment Required: R${total.toFixed(2)}`, margin, yPosition);
 
   yPosition += 15;
   doc.setFontSize(9);
@@ -136,22 +129,10 @@ export async function getInvoiceEmailContent(orderId: number): Promise<{ subject
   const delivery = order.deliveryCharge ? parseFloat(order.deliveryCharge) : 0;
   const total = subtotal + delivery;
 
-  let paymentTermsHtml = "";
-  if (order.paymentMethod === "deposit") {
-    const depositAmount = order.depositAmount ? parseFloat(order.depositAmount) : total * 0.5;
-    paymentTermsHtml = `
-      <p><strong>Payment Terms:</strong></p>
-      <ul>
-        <li>Deposit Required: <strong>R${depositAmount.toFixed(2)}</strong></li>
-        <li>Final Payment: <strong>R${(total - depositAmount).toFixed(2)}</strong></li>
-      </ul>
-    `;
-  } else {
-    paymentTermsHtml = `
-      <p><strong>Payment Terms:</strong></p>
-      <p>Full Payment Required: <strong>R${total.toFixed(2)}</strong></p>
-    `;
-  }
+  const paymentTermsHtml = `
+    <p><strong>Payment Terms:</strong></p>
+    <p>Full Payment Required: <strong>R${total.toFixed(2)}</strong></p>
+  `;
 
   const html = `
     <!DOCTYPE html>

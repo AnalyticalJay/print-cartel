@@ -6,7 +6,7 @@ export interface InvoiceEmailData {
   customerEmail: string;
   customerName: string;
   totalPrice: number;
-  depositAmount?: number;
+  deliveryCharge?: number;
   paymentMethod?: string;
   invoicePdfUrl?: string;
 }
@@ -22,7 +22,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData): Promise<boolean>
       data.orderId,
       data.customerName,
       data.totalPrice,
-      data.depositAmount,
+      data.deliveryCharge,
       data.paymentMethod
     );
 
@@ -84,8 +84,7 @@ export async function sendInvoiceNotificationToAdmin(data: InvoiceEmailData): Pr
             <p><strong>Email:</strong> ${data.customerEmail}</p>
             <p><strong>Order ID:</strong> #${data.orderId}</p>
             <p><strong>Invoice Total:</strong> R${data.totalPrice.toFixed(2)}</p>
-            ${data.depositAmount ? `<p><strong>Deposit Required:</strong> R${data.depositAmount.toFixed(2)}</p>` : ""}
-            <p><strong>Payment Method:</strong> ${data.paymentMethod === "deposit" ? "Deposit + Final Payment" : "Full Payment"}</p>
+            <p><strong>Payment Method:</strong> Full Payment</p>
           </div>
 
           <p>The customer has been notified and can accept or decline the invoice from their dashboard.</p>

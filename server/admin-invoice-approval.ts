@@ -47,8 +47,13 @@ export const approveAndSendInvoice = protectedProcedure
           orderId: order.id,
           invoiceNumber: invoiceData.invoiceNumber,
           totalPrice: invoiceData.totalAmount,
-          depositAmount: invoiceData.depositAmount,
-          paymentMethod: order.paymentMethod || "full_payment",
+          deliveryCharge: order.deliveryCharge ? parseFloat(order.deliveryCharge) : undefined,
+          paymentStatus: (order.paymentStatus === "paid" ? "paid" : "unpaid") as "unpaid" | "paid",
+          customerFirstName: order.customerFirstName,
+          customerLastName: order.customerLastName,
+          customerEmail: order.customerEmail,
+          customerPhone: order.customerPhone,
+          customerCompany: order.customerCompany || undefined,
         });
       }
 
@@ -70,8 +75,8 @@ export const approveAndSendInvoice = protectedProcedure
         orderId: order.id,
         invoicePdfUrl: invoiceUrl,
         totalPrice: parseFloat(order.totalPriceEstimate as any),
-        depositAmount: parseFloat(order.depositAmount as any) || parseFloat(order.totalPriceEstimate as any) * 0.5,
-        paymentMethod: order.paymentMethod || "full_payment",
+        deliveryCharge: order.deliveryCharge ? parseFloat(order.deliveryCharge) : undefined,
+        paymentMethod: "full_payment",
       });
 
       return {
