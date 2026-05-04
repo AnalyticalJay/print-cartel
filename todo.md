@@ -2104,3 +2104,14 @@ Future enhancements (Phase 2):
 - [x] Add inline image thumbnail to artwork card for PNG/JPG/GIF/WEBP files
 - [x] Show a non-image file icon for non-image types (PDF, AI, etc.)
 - [x] Add expandable/lightbox click on thumbnail to view full size
+
+## Current Sprint - Design Approval Workflow
+- [x] Add designApprovalStatus column to orderPrints table (pending/approved/changes_requested)
+- [x] Add designApprovalNotes column to orderPrints for revision notes
+- [x] Run db:push migration
+- [x] Add updatePrintApprovalStatus tRPC procedure in admin router
+- [x] Update getOrderDetail to return approval status per print
+- [x] Add Approve / Request Changes buttons to artwork card UI
+- [x] Show approval status badge on each artwork card
+- [x] Send customer email notification when changes are requested
+- [x] Write tests for approval workflow

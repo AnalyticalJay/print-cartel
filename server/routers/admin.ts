@@ -1631,4 +1631,52 @@ export const adminRouter = router({
       })),
     };
   }),
+
+  // Update per-print design approval status
+  updatePrintApprovalStatus: protectedProcedure
+    .input(
+      z.object({
+        printId: z.number(),
+        status: z.enum(["pending", "approved", "changes_requested"]),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: Admin access required");
+      }
+
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Fetch the print to get the orderId for the email
+      const print = await db.select().from(orderPrints).where(eq(orderPrints.id, input.printId)).limit(1);
+      if (!print.length) throw new Error("Print not found");
+
+      const now = new Date();
+      await db
+        .update(orderPrints)
+        .set({
+          designApprovalStatus: input.status,
+          designApprovalNotes: input.notes ?? null,
+          designApprovedAt: input.status === "approved" ? now : null,
+          designReviewedBy: ctx.user?.email || ctx.user?.firstName || "Admin",
+        })
+        .where(eq(orderPrints.id, input.printId));
+
+      // Optionally notify the customer when changes are requested
+      if (input.status === "changes_requested") {
+        try {
+          const order = await db.select().from(orders).where(eq(orders.id, print[0].orderId)).limit(1);
+          if (order.length) {
+            const customerName = `${order[0].customerFirstName} ${order[0].customerLastName}`;
+            await sendStatusUpdateEmail(order[0].id, order[0].customerEmail, customerName, "pending");
+          }
+        } catch (emailError) {
+          console.error("Failed to send design change request email:", emailError);
+        }
+      }
+
+      return { success: true, printId: input.printId, status: input.status };
+    }),
 });

@@ -159,6 +159,11 @@ export const orderPrints = mysqlTable("orderPrints", {
   uploadedFileName: varchar("uploadedFileName", { length: 255 }).notNull(),
   fileSize: int("fileSize"),
   mimeType: varchar("mimeType", { length: 100 }),
+  // Design approval workflow
+  designApprovalStatus: varchar("designApprovalStatus", { length: 50 }).default("pending").notNull(),
+  designApprovalNotes: text("designApprovalNotes"),
+  designApprovedAt: timestamp("designApprovedAt"),
+  designReviewedBy: varchar("designReviewedBy", { length: 255 }),
 });
 
 export type OrderPrint = typeof orderPrints.$inferSelect;

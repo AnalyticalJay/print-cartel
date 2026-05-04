@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download, Eye, TrendingUp, Mail, MessageSquare, FileText, Users, Package, BarChart3, ShoppingCart, FileDown, ExternalLink, Image } from "lucide-react";
+import { Download, Eye, TrendingUp, Mail, MessageSquare, FileText, Users, Package, BarChart3, ShoppingCart, FileDown, ExternalLink, Image, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
 import { AdminTableSkeleton } from "@/components/SkeletonLoaders";
 import { AdminInventoryManager } from "@/components/AdminInventoryManager";
 import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
@@ -524,12 +524,41 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
   const [isSendingInvoice, setIsSendingInvoice] = useState(false);
   const [isResendingInvoice, setIsResendingInvoice] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "timeline" | "actions">("details");
+  // Design approval state
+  const [approvalLoadingPrintId, setApprovalLoadingPrintId] = useState<number | null>(null);
+  const [changesDialogPrintId, setChangesDialogPrintId] = useState<number | null>(null);
+  const [changesNotes, setChangesNotes] = useState("");
 
   const orderQuery = trpc.admin.getOrderDetail.useQuery({ orderId });
   const updateStatusMutation = trpc.admin.updateOrderStatus.useMutation();
   const updatePriceMutation = trpc.admin.updateOrderPricing.useMutation();
   const approveAndSendInvoiceMutation = trpc.admin.approveAndSendInvoice.useMutation();
   const createManualInvoiceMutation = trpc.admin.createManualInvoice.useMutation();
+  const updatePrintApprovalMutation = trpc.admin.updatePrintApprovalStatus.useMutation();
+
+  const handleApprovePrint = async (printId: number) => {
+    setApprovalLoadingPrintId(printId);
+    try {
+      await updatePrintApprovalMutation.mutateAsync({ printId, status: "approved" });
+      toast.success("Design approved");
+      orderQuery.refetch();
+    } catch { toast.error("Failed to approve design"); }
+    finally { setApprovalLoadingPrintId(null); }
+  };
+
+  const handleRequestChanges = async () => {
+    if (!changesDialogPrintId) return;
+    if (!changesNotes.trim()) return toast.error("Please describe the required changes");
+    setApprovalLoadingPrintId(changesDialogPrintId);
+    try {
+      await updatePrintApprovalMutation.mutateAsync({ printId: changesDialogPrintId, status: "changes_requested", notes: changesNotes.trim() });
+      toast.success("Change request saved and customer notified");
+      setChangesDialogPrintId(null);
+      setChangesNotes("");
+      orderQuery.refetch();
+    } catch { toast.error("Failed to request changes"); }
+    finally { setApprovalLoadingPrintId(null); }
+  };
 
   const handleUpdateStatus = async () => {
     if (!newStatus) return toast.error("Please select a status");
@@ -748,6 +777,15 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                       const isImage = print.mimeType
                         ? print.mimeType.startsWith("image/")
                         : /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(print.uploadedFileName || "");
+                      const approvalStatus: string = print.designApprovalStatus || "pending";
+                      const isLoadingThis = approvalLoadingPrintId === print.id;
+
+                      const approvalBadge = {
+                        approved: { label: "Approved", icon: CheckCircle, cls: "bg-green-100 text-green-700 border-green-200" },
+                        changes_requested: { label: "Changes Requested", icon: AlertCircle, cls: "bg-amber-100 text-amber-700 border-amber-200" },
+                        pending: { label: "Pending Review", icon: XCircle, cls: "bg-gray-100 text-gray-500 border-gray-200" },
+                      }[approvalStatus] ?? { label: "Pending Review", icon: XCircle, cls: "bg-gray-100 text-gray-500 border-gray-200" };
+
                       return (
                         <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden text-sm">
                           {/* Thumbnail strip for image files */}
@@ -773,7 +811,6 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                                   }
                                 }}
                               />
-                              {/* Hover overlay */}
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                                   <ExternalLink className="w-3 h-3" /> View full size
@@ -781,6 +818,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                               </div>
                             </div>
                           )}
+
                           {/* File info row */}
                           <div className="flex items-center justify-between gap-3 p-3">
                             <div className="flex items-center gap-2 min-w-0">
@@ -802,38 +840,84 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                               {print.uploadedFilePath && (
                                 <>
                                   {!isImage && (
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="text-xs h-7 px-2 gap-1"
-                                      onClick={() => window.open(print.uploadedFilePath, "_blank")}
-                                      title="Preview in new tab"
-                                    >
-                                      <ExternalLink className="w-3 h-3" />
-                                      Preview
+                                    <Button variant="outline" size="sm" className="text-xs h-7 px-2 gap-1"
+                                      onClick={() => window.open(print.uploadedFilePath, "_blank")} title="Preview in new tab">
+                                      <ExternalLink className="w-3 h-3" /> Preview
                                     </Button>
                                   )}
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
+                                  <Button variant="outline" size="sm"
                                     className="text-xs h-7 px-2 gap-1 text-orange-700 border-orange-300 hover:bg-orange-50"
                                     onClick={() => {
                                       const a = document.createElement("a");
                                       a.href = print.uploadedFilePath;
                                       a.download = print.uploadedFileName || "artwork";
-                                      a.target = "_blank";
-                                      a.rel = "noopener noreferrer";
-                                      document.body.appendChild(a);
-                                      a.click();
-                                      document.body.removeChild(a);
+                                      a.target = "_blank"; a.rel = "noopener noreferrer";
+                                      document.body.appendChild(a); a.click(); document.body.removeChild(a);
                                       toast.success(`Downloading ${print.uploadedFileName || "artwork"}`);
-                                    }}
-                                    title="Download file"
-                                  >
-                                    <FileDown className="w-3 h-3" />
-                                    Download
+                                    }} title="Download file">
+                                    <FileDown className="w-3 h-3" /> Download
                                   </Button>
                                 </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Design Approval Row */}
+                          <div className="border-t border-gray-200 px-3 py-2 flex items-center justify-between gap-2 bg-white">
+                            {/* Status badge */}
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${approvalBadge.cls}`}>
+                              <approvalBadge.icon className="w-3 h-3" />
+                              {approvalBadge.label}
+                            </span>
+                            {/* Approval notes if present */}
+                            {approvalStatus === "changes_requested" && print.designApprovalNotes && (
+                              <span className="text-xs text-amber-700 italic truncate max-w-[180px]" title={print.designApprovalNotes}>
+                                "{print.designApprovalNotes}"
+                              </span>
+                            )}
+                            {/* Action buttons */}
+                            <div className="flex gap-1 ml-auto flex-shrink-0">
+                              {approvalStatus !== "approved" && (
+                                <Button
+                                  size="sm"
+                                  className="text-xs h-7 px-2 gap-1 bg-green-600 hover:bg-green-700 text-white"
+                                  disabled={isLoadingThis}
+                                  onClick={() => handleApprovePrint(print.id)}
+                                >
+                                  {isLoadingThis ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+                                  Approve
+                                </Button>
+                              )}
+                              {approvalStatus !== "changes_requested" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs h-7 px-2 gap-1 text-amber-700 border-amber-300 hover:bg-amber-50"
+                                  disabled={isLoadingThis}
+                                  onClick={() => { setChangesDialogPrintId(print.id); setChangesNotes(""); }}
+                                >
+                                  <AlertCircle className="w-3 h-3" />
+                                  Request Changes
+                                </Button>
+                              )}
+                              {approvalStatus !== "pending" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs h-7 px-2 gap-1 text-gray-500 border-gray-300 hover:bg-gray-50"
+                                  disabled={isLoadingThis}
+                                  onClick={async () => {
+                                    setApprovalLoadingPrintId(print.id);
+                                    try {
+                                      await updatePrintApprovalMutation.mutateAsync({ printId: print.id, status: "pending" });
+                                      toast.success("Design reset to pending");
+                                      orderQuery.refetch();
+                                    } catch { toast.error("Failed to reset"); }
+                                    finally { setApprovalLoadingPrintId(null); }
+                                  }}
+                                >
+                                  Reset
+                                </Button>
                               )}
                             </div>
                           </div>
@@ -841,6 +925,34 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                       );
                     })}
                   </div>
+
+                  {/* Request Changes Dialog */}
+                  {changesDialogPrintId !== null && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+                        <h3 className="font-semibold text-gray-900 mb-1">Request Design Changes</h3>
+                        <p className="text-sm text-gray-500 mb-4">Describe what needs to be changed. The customer will be notified.</p>
+                        <Textarea
+                          placeholder="e.g. Please increase the logo size, the text is too small to read at this print size..."
+                          value={changesNotes}
+                          onChange={(e) => setChangesNotes(e.target.value)}
+                          rows={4}
+                          className="mb-4"
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <Button variant="outline" onClick={() => { setChangesDialogPrintId(null); setChangesNotes(""); }}>Cancel</Button>
+                          <Button
+                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                            disabled={!changesNotes.trim() || approvalLoadingPrintId === changesDialogPrintId}
+                            onClick={handleRequestChanges}
+                          >
+                            {approvalLoadingPrintId === changesDialogPrintId ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                            Send Change Request
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

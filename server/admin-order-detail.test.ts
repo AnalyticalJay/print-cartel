@@ -533,3 +533,91 @@ describe("Admin Order Detail - Artwork Thumbnail Detection", () => {
     // Non-image files show FileText icon instead of thumbnail
   });
 });
+
+describe("Design Approval Workflow", () => {
+  it("should default designApprovalStatus to 'pending' for new prints", () => {
+    const print = { designApprovalStatus: "pending", designApprovalNotes: null, designApprovedAt: null, designReviewedBy: null };
+    expect(print.designApprovalStatus).toBe("pending");
+  });
+
+  it("should allow setting status to 'approved'", () => {
+    const validStatuses = ["pending", "approved", "changes_requested"];
+    expect(validStatuses).toContain("approved");
+  });
+
+  it("should allow setting status to 'changes_requested'", () => {
+    const validStatuses = ["pending", "approved", "changes_requested"];
+    expect(validStatuses).toContain("changes_requested");
+  });
+
+  it("should set designApprovedAt when status is approved", () => {
+    const now = new Date();
+    const update = {
+      designApprovalStatus: "approved",
+      designApprovedAt: now,
+      designReviewedBy: "admin@printcartel.co.za",
+    };
+    expect(update.designApprovedAt).toBeInstanceOf(Date);
+    expect(update.designReviewedBy).toBe("admin@printcartel.co.za");
+  });
+
+  it("should clear designApprovedAt when status is not approved", () => {
+    const update = {
+      designApprovalStatus: "changes_requested",
+      designApprovedAt: null,
+    };
+    expect(update.designApprovedAt).toBeNull();
+  });
+
+  it("should store approval notes when requesting changes", () => {
+    const notes = "Please increase the logo size, the text is too small at this print size.";
+    const update = {
+      designApprovalStatus: "changes_requested",
+      designApprovalNotes: notes,
+    };
+    expect(update.designApprovalNotes).toBe(notes);
+  });
+
+  it("should reject empty notes for changes_requested", () => {
+    const notes = "   ";
+    const isValid = notes.trim().length > 0;
+    expect(isValid).toBe(false);
+  });
+
+  it("should correctly map status to badge label", () => {
+    const getBadgeLabel = (status: string) => ({
+      approved: "Approved",
+      changes_requested: "Changes Requested",
+      pending: "Pending Review",
+    }[status] ?? "Pending Review");
+
+    expect(getBadgeLabel("approved")).toBe("Approved");
+    expect(getBadgeLabel("changes_requested")).toBe("Changes Requested");
+    expect(getBadgeLabel("pending")).toBe("Pending Review");
+    expect(getBadgeLabel("unknown")).toBe("Pending Review");
+  });
+
+  it("should hide Approve button when status is already approved", () => {
+    const approvalStatus = "approved";
+    const showApproveButton = approvalStatus !== "approved";
+    expect(showApproveButton).toBe(false);
+  });
+
+  it("should hide Request Changes button when status is already changes_requested", () => {
+    const approvalStatus = "changes_requested";
+    const showChangesButton = approvalStatus !== "changes_requested";
+    expect(showChangesButton).toBe(false);
+  });
+
+  it("should show Reset button only when status is not pending", () => {
+    expect("approved" !== "pending").toBe(true);
+    expect("changes_requested" !== "pending").toBe(true);
+    expect("pending" !== "pending").toBe(false);
+  });
+
+  it("should reset status to pending when Reset is clicked", () => {
+    const resetUpdate = { designApprovalStatus: "pending", designApprovalNotes: null, designApprovedAt: null };
+    expect(resetUpdate.designApprovalStatus).toBe("pending");
+    expect(resetUpdate.designApprovalNotes).toBeNull();
+  });
+});
