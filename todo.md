@@ -2092,3 +2092,10 @@ Future enhancements (Phase 2):
 - [x] Updated AdminDashboard Garment & Customization section to render line items for multi-item orders and legacy single-item view for old orders
 - [x] Added 8 new tests for multi-item order detection and line item display (24 total in admin-order-detail.test.ts)
 - [x] Zero TypeScript errors
+
+## Current Sprint - Artwork Download Links in Admin Order Detail
+- [x] Understand how artwork files are linked to line items (orderLineItems vs orderPrints)
+- [x] Update getOrderDetail to return artwork file paths per line item
+- [x] Add download button to each line item card in admin modal
+- [x] Add "Download All Artwork" button for orders with multiple files
+- [x] Write tests for artwork download link logic

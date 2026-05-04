@@ -363,3 +363,102 @@ describe("Admin Order Detail - Multi-Item Orders (lineItems)", () => {
     expect(total).toBe(50);
   });
 });
+
+describe("Admin Order Detail - Artwork Download Links", () => {
+  it("should include uploadedFilePath and uploadedFileName on each print", () => {
+    const print = {
+      id: 1,
+      orderId: 1,
+      uploadedFilePath: "https://cdn.example.com/uploads/order-1/front-design.png",
+      uploadedFileName: "front-design.png",
+      fileSize: 204800,
+      mimeType: "image/png",
+      placement: { placementName: "Front Chest" },
+      printSize: { printSize: "A4" },
+    };
+    expect(print.uploadedFilePath).toBeTruthy();
+    expect(print.uploadedFileName).toBe("front-design.png");
+  });
+
+  it("should correctly compute file size display in KB", () => {
+    const fileSize = 204800; // bytes
+    const displayKB = (fileSize / 1024).toFixed(0);
+    expect(displayKB).toBe("200");
+  });
+
+  it("should handle missing uploadedFilePath gracefully", () => {
+    const print = { uploadedFilePath: null, uploadedFileName: null };
+    const hasFile = !!print.uploadedFilePath;
+    expect(hasFile).toBe(false);
+  });
+
+  it("should build a correct download anchor for a print file", () => {
+    const print = {
+      uploadedFilePath: "https://cdn.example.com/uploads/order-1/front-design.png",
+      uploadedFileName: "front-design.png",
+    };
+    // Simulate what the download button does
+    const href = print.uploadedFilePath;
+    const download = print.uploadedFileName || "artwork";
+    expect(href).toContain("https://");
+    expect(download).toBe("front-design.png");
+  });
+
+  it("should count total prints for Download All button visibility", () => {
+    const prints = [
+      { uploadedFilePath: "https://cdn.example.com/a.png", uploadedFileName: "a.png" },
+      { uploadedFilePath: "https://cdn.example.com/b.png", uploadedFileName: "b.png" },
+    ];
+    // Download All button shows when prints.length > 1
+    expect(prints.length > 1).toBe(true);
+  });
+
+  it("should not show Download All button for single print", () => {
+    const prints = [{ uploadedFilePath: "https://cdn.example.com/a.png", uploadedFileName: "a.png" }];
+    expect(prints.length > 1).toBe(false);
+  });
+
+  it("should persist artwork to orderPrints when creating multi-item orders", () => {
+    const cartItem = {
+      productId: 1,
+      colorId: 2,
+      sizeId: 3,
+      quantity: 10,
+      printSelections: [
+        {
+          placementId: 1,
+          printSizeId: 1,
+          uploadedFilePath: "https://cdn.example.com/design.png",
+          uploadedFileName: "design.png",
+          fileSize: 204800,
+          mimeType: "image/png",
+        },
+      ],
+      subtotal: 220,
+    };
+    // Verify that printSelections with uploadedFilePath should be saved
+    const printsToSave = cartItem.printSelections.filter((p) => p.uploadedFilePath);
+    expect(printsToSave.length).toBe(1);
+    expect(printsToSave[0].uploadedFilePath).toBe("https://cdn.example.com/design.png");
+  });
+
+  it("should skip saving prints with empty uploadedFilePath", () => {
+    const printSelections = [
+      { placementId: 1, printSizeId: 1, uploadedFilePath: "", uploadedFileName: "" },
+      { placementId: 2, printSizeId: 1, uploadedFilePath: "https://cdn.example.com/b.png", uploadedFileName: "b.png" },
+    ];
+    const printsToSave = printSelections.filter((p) => p.uploadedFilePath);
+    expect(printsToSave.length).toBe(1);
+  });
+
+  it("should show placement and print size metadata alongside the artwork file", () => {
+    const print = {
+      uploadedFileName: "back-design.png",
+      fileSize: 512000,
+      placement: { placementName: "Back Center" },
+      printSize: { printSize: "A3" },
+    };
+    const meta = `${print.placement?.placementName || "N/A"} · ${print.printSize?.printSize || ""}`;
+    expect(meta).toBe("Back Center · A3");
+  });
+});

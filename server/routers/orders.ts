@@ -174,8 +174,20 @@ export const ordersRouter = router({
             subtotal,
           });
 
-          // Print selections are now stored in line items
-          // Keep this for backward compatibility if needed
+          // Also persist artwork files to orderPrints so admin can download them
+          for (const printSel of cartItem.printSelections) {
+            if (printSel.uploadedFilePath) {
+              await createOrderPrint({
+                orderId,
+                printSizeId: printSel.printSizeId,
+                placementId: printSel.placementId,
+                uploadedFilePath: printSel.uploadedFilePath,
+                uploadedFileName: printSel.uploadedFileName,
+                fileSize: printSel.fileSize,
+                mimeType: printSel.mimeType,
+              });
+            }
+          }
         }
 
         // Send confirmation email
