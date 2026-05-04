@@ -11,41 +11,43 @@ interface PayFastPaymentData {
   orderId: number;
   amount: number;
   customerEmail: string;
-  customerName: string;
-  description: string;
+  customerFirstName: string;
+  customerLastName: string;
+  description?: string;
   returnUrl: string;
   cancelUrl: string;
   notifyUrl: string;
 }
 
 /**
- * Generate PayFast payment signature
- * IMPORTANT: PayFast requires the query string WITHOUT URL encoding for signature calculation
+ * Generate PayFast payment signature.
+ *
+ * CRITICAL: Parameters must be in INSERTION ORDER (NOT alphabetical).
+ * PayFast validates the signature against the exact order fields appear in the form.
+ * Empty/null/undefined values are excluded. Passphrase is appended last.
  */
 export function generatePayFastSignature(
-  data: Record<string, string | number>,
+  data: Record<string, string>,
   passphrase: string
 ): string {
-  // Convert data to query string format WITHOUT encoding (PayFast requirement)
-  let queryString = "";
-  Object.keys(data)
-    .sort()
-    .forEach((key) => {
-      if (data[key] !== "" && data[key] !== null && data[key] !== undefined) {
-        queryString += `${key}=${String(data[key])}&`;
-      }
-    });
+  const parts: string[] = [];
 
-  // Remove trailing ampersand
-  queryString = queryString.slice(0, -1);
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== "" && value !== null && value !== undefined) {
+      parts.push(`${key}=${value}`);
+    }
+  }
 
-  // Add passphrase (NOT encoded)
+  let queryString = parts.join("&");
+
   if (passphrase) {
     queryString += `&passphrase=${passphrase}`;
   }
 
-  // Generate MD5 hash
-  return crypto.createHash("md5").update(queryString).digest("hex");
+  console.log(`[PayFast] Signature input: ${queryString}`);
+  const signature = crypto.createHash("md5").update(queryString).digest("hex");
+  console.log(`[PayFast] Signature: ${signature}`);
+  return signature;
 }
 
 /**
@@ -59,38 +61,40 @@ export function buildPayFastPaymentUrl(
     ? "https://sandbox.payfast.co.za/eng/process"
     : "https://www.payfast.co.za/eng/process";
 
-  // PayFast signature calculation MUST include ALL fields
-  const data: Record<string, string | number> = {
-    merchant_id: config.merchantId,
-    merchant_key: config.merchantKey,
-    return_url: paymentData.returnUrl,
-    cancel_url: paymentData.cancelUrl,
-    notify_url: paymentData.notifyUrl,
-    name_first: paymentData.customerName.split(" ")[0],
-    name_last: paymentData.customerName.split(" ").slice(1).join(" ") || "",
-    email_address: paymentData.customerEmail,
-    m_payment_id: `order-${paymentData.orderId}`,
-    amount: paymentData.amount.toFixed(2),
-    item_name: `Invoice for Order #${paymentData.orderId}`,
-    item_description: `Payment for DTF printing order`,
-    custom_int1: paymentData.orderId,
-    custom_str1: paymentData.customerEmail,
-  };
+  // Build ordered data - ORDER MATTERS for PayFast signature
+  const data: Record<string, string> = {};
+  data["merchant_id"] = config.merchantId;
+  data["merchant_key"] = config.merchantKey;
+  data["return_url"] = paymentData.returnUrl;
+  data["cancel_url"] = paymentData.cancelUrl;
+  data["notify_url"] = paymentData.notifyUrl;
+  data["name_first"] = paymentData.customerFirstName;
+  data["name_last"] = paymentData.customerLastName;
+  data["email_address"] = paymentData.customerEmail;
+  data["m_payment_id"] = `order-${paymentData.orderId}`;
+  data["amount"] = paymentData.amount.toFixed(2);
+  data["item_name"] = `Invoice for Order #${paymentData.orderId}`;
+  data["item_description"] = "Payment for DTF printing order";
+  data["custom_int1"] = paymentData.orderId.toString();
+  data["custom_str1"] = paymentData.customerEmail;
 
-  // Generate signature with ALL fields
+  // Generate signature using raw values in insertion order
   const signature = generatePayFastSignature(data, config.passphrase);
-  data.signature = signature;
+  data["signature"] = signature;
 
-  // Build query string
-  const queryString = Object.keys(data)
-    .map((key) => `${key}=${encodeURIComponent(String(data[key]))}`)
+  // Build URL with URL-encoded values
+  const queryString = Object.entries(data)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join("&");
 
-  return `${baseUrl}?${queryString}`;
+  const url = `${baseUrl}?${queryString}`;
+  console.log(`[PayFast] Payment URL generated for order ${paymentData.orderId}`);
+  return url;
 }
 
 /**
- * Verify PayFast callback signature
+ * Verify PayFast ITN signature.
+ * data should be the notification fields WITHOUT the signature field, in original order.
  */
 export function verifyPayFastSignature(
   data: Record<string, string>,
@@ -98,7 +102,11 @@ export function verifyPayFastSignature(
   passphrase: string
 ): boolean {
   const calculatedSignature = generatePayFastSignature(data, passphrase);
-  return calculatedSignature === signature;
+  const isValid = calculatedSignature === signature;
+  if (!isValid) {
+    console.error(`[PayFast] Signature mismatch. Expected: ${calculatedSignature}, Got: ${signature}`);
+  }
+  return isValid;
 }
 
 /**
@@ -131,10 +139,11 @@ export interface PayFastCallbackData {
 }
 
 /**
- * Extract order ID from PayFast callback data
+ * Extract order ID from PayFast callback data.
+ * Supports both "order-123" and "order_123" formats.
  */
 export function extractOrderIdFromPayment(paymentId: string): number | null {
-  const match = paymentId.match(/order_(\d+)/);
+  const match = paymentId.match(/order[-_](\d+)/);
   return match ? parseInt(match[1], 10) : null;
 }
 

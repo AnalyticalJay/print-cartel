@@ -1445,4 +1445,161 @@ export const adminRouter = router({
         throw error;
       }
     }),
+
+  // Get all unique customers derived from orders
+  getCustomers: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const allOrders = await db
+      .select({
+        customerEmail: orders.customerEmail,
+        customerFirstName: orders.customerFirstName,
+        customerLastName: orders.customerLastName,
+        customerPhone: orders.customerPhone,
+        customerCompany: orders.customerCompany,
+        createdAt: orders.createdAt,
+        totalPriceEstimate: orders.totalPriceEstimate,
+        amountPaid: orders.amountPaid,
+        paymentStatus: orders.paymentStatus,
+        status: orders.status,
+        id: orders.id,
+      })
+      .from(orders)
+      .orderBy(orders.createdAt);
+
+    // Group by email to get unique customers
+    const customerMap = new Map<string, {
+      email: string;
+      firstName: string;
+      lastName: string;
+      phone: string;
+      company: string | null;
+      firstOrderDate: Date;
+      lastOrderDate: Date;
+      totalOrders: number;
+      totalSpent: number;
+      paidOrders: number;
+    }>();
+
+    for (const order of allOrders) {
+      const existing = customerMap.get(order.customerEmail);
+      const amount = parseFloat(order.amountPaid as any) || 0;
+      const isPaid = order.paymentStatus === "paid";
+
+      if (!existing) {
+        customerMap.set(order.customerEmail, {
+          email: order.customerEmail,
+          firstName: order.customerFirstName,
+          lastName: order.customerLastName,
+          phone: order.customerPhone,
+          company: order.customerCompany || null,
+          firstOrderDate: order.createdAt,
+          lastOrderDate: order.createdAt,
+          totalOrders: 1,
+          totalSpent: isPaid ? amount : 0,
+          paidOrders: isPaid ? 1 : 0,
+        });
+      } else {
+        existing.totalOrders += 1;
+        if (isPaid) {
+          existing.totalSpent += amount;
+          existing.paidOrders += 1;
+        }
+        if (order.createdAt > existing.lastOrderDate) {
+          existing.lastOrderDate = order.createdAt;
+        }
+      }
+    }
+
+    return Array.from(customerMap.values()).sort(
+      (a, b) => b.lastOrderDate.getTime() - a.lastOrderDate.getTime()
+    );
+  }),
+
+  // Get revenue analytics and order statistics
+  getRevenueAnalytics: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const allOrders = await db
+      .select({
+        id: orders.id,
+        status: orders.status,
+        paymentStatus: orders.paymentStatus,
+        totalPriceEstimate: orders.totalPriceEstimate,
+        amountPaid: orders.amountPaid,
+        createdAt: orders.createdAt,
+        deliveryMethod: orders.deliveryMethod,
+      })
+      .from(orders)
+      .orderBy(orders.createdAt);
+
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const recentOrders = allOrders.filter(o => o.createdAt >= thirtyDaysAgo);
+    const weekOrders = allOrders.filter(o => o.createdAt >= sevenDaysAgo);
+
+    const totalRevenue = allOrders
+      .filter(o => o.paymentStatus === "paid")
+      .reduce((sum, o) => sum + (parseFloat(o.amountPaid as any) || 0), 0);
+
+    const pendingRevenue = allOrders
+      .filter(o => o.paymentStatus !== "paid" && o.status !== "cancelled")
+      .reduce((sum, o) => sum + (parseFloat(o.totalPriceEstimate as any) || 0), 0);
+
+    const monthlyRevenue = recentOrders
+      .filter(o => o.paymentStatus === "paid")
+      .reduce((sum, o) => sum + (parseFloat(o.amountPaid as any) || 0), 0);
+
+    // Build monthly breakdown for last 6 months
+    const monthlyBreakdown: Record<string, { orders: number; revenue: number }> = {};
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.toLocaleString("en-ZA", { month: "short", year: "numeric" });
+      monthlyBreakdown[key] = { orders: 0, revenue: 0 };
+    }
+
+    for (const order of allOrders) {
+      const key = order.createdAt.toLocaleString("en-ZA", { month: "short", year: "numeric" });
+      if (monthlyBreakdown[key]) {
+        monthlyBreakdown[key].orders += 1;
+        if (order.paymentStatus === "paid") {
+          monthlyBreakdown[key].revenue += parseFloat(order.amountPaid as any) || 0;
+        }
+      }
+    }
+
+    const statusBreakdown = {
+      pending: allOrders.filter(o => o.status === "pending").length,
+      quoted: allOrders.filter(o => o.status === "quoted").length,
+      approved: allOrders.filter(o => o.status === "approved").length,
+      inProduction: allOrders.filter(o => o.status === "in-production").length,
+      completed: allOrders.filter(o => o.status === "completed").length,
+      shipped: allOrders.filter(o => o.status === "shipped").length,
+      cancelled: allOrders.filter(o => o.status === "cancelled").length,
+    };
+
+    return {
+      totalOrders: allOrders.length,
+      totalRevenue,
+      pendingRevenue,
+      monthlyRevenue,
+      weeklyOrders: weekOrders.length,
+      monthlyOrders: recentOrders.length,
+      averageOrderValue: allOrders.length > 0
+        ? allOrders.reduce((sum, o) => sum + (parseFloat(o.totalPriceEstimate as any) || 0), 0) / allOrders.length
+        : 0,
+      statusBreakdown,
+      monthlyBreakdown: Object.entries(monthlyBreakdown).map(([month, data]) => ({
+        month,
+        orders: data.orders,
+        revenue: data.revenue,
+      })),
+    };
+  }),
 });

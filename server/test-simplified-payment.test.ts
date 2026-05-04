@@ -1,23 +1,29 @@
+/**
+ * Simplified Payment Flow Tests
+ * Tests the PayFast payment integration with the new buildPayFastPaymentUrl interface
+ */
 import { describe, it, expect } from "vitest";
-import { PayFastIntegration } from "./payfast-integration";
-import crypto from "crypto";
+import {
+  buildPayFastPaymentUrl,
+  generatePayFastSignature,
+  verifyPayFastSignature,
+} from "./payfast-service";
+
+const TEST_CONFIG = {
+  merchantId: "19428362",
+  merchantKey: "x9mjrsxlwirog",
+  passphrase: "-.Redemption_2026",
+  sandbox: false,
+};
 
 describe("Simplified Payment Flow Test", () => {
   it("should generate valid PayFast payment URL with correct signature", () => {
-    const payfast = new PayFastIntegration({
-      merchantId: "19428362",
-      merchantKey: "x9mjrsxlwirog",
-      passphrase: "-.Redemption_2026",
-      isSandbox: false,
-    });
-
-    const paymentUrl = payfast.getPaymentUrl({
+    const paymentUrl = buildPayFastPaymentUrl(TEST_CONFIG, {
       orderId: 12345,
       amount: 500,
       customerEmail: "test@printcartel.co.za",
-      customerName: "Test Customer",
-      itemName: "Invoice for Order #12345",
-      itemDescription: "Payment for DTF printing order",
+      customerFirstName: "Test",
+      customerLastName: "Customer",
       returnUrl: "https://printcartel.co.za/order/success",
       cancelUrl: "https://printcartel.co.za/order/cancel",
       notifyUrl: "https://printcartel.co.za/api/payfast/notify",
@@ -36,55 +42,28 @@ describe("Simplified Payment Flow Test", () => {
   });
 
   it("should verify PayFast notification signature correctly", () => {
-    const payfast = new PayFastIntegration({
-      merchantId: "19428362",
-      merchantKey: "x9mjrsxlwirog",
-      passphrase: "-.Redemption_2026",
-      isSandbox: false,
-    });
+    // Build notification data in insertion order (as PayFast sends it)
+    const notificationData: Record<string, string> = {};
+    notificationData["m_payment_id"] = "order-12345";
+    notificationData["pf_payment_id"] = "1234567890";
+    notificationData["payment_status"] = "COMPLETE";
+    notificationData["item_name"] = "Invoice for Order #12345";
+    notificationData["item_description"] = "Payment for DTF printing order";
+    notificationData["amount_gross"] = "500.00";
+    notificationData["amount_fee"] = "50.00";
+    notificationData["amount_net"] = "450.00";
+    notificationData["custom_int1"] = "12345";
+    notificationData["custom_str1"] = "test@printcartel.co.za";
+    notificationData["name_first"] = "Test";
+    notificationData["name_last"] = "Customer";
+    notificationData["email_address"] = "test@printcartel.co.za";
+    notificationData["merchant_id"] = "19428362";
 
-    // Create test notification data
-    const notificationData = {
-      m_payment_id: "order-12345",
-      pf_payment_id: "1234567890",
-      payment_status: "COMPLETE",
-      item_name: "Invoice for Order #12345",
-      item_description: "Payment for DTF printing order",
-      amount_gross: "500.00",
-      amount_fee: "50.00",
-      amount_net: "450.00",
-      custom_int1: "12345",
-      custom_str1: "test@printcartel.co.za",
-      name_first: "Test",
-      name_last: "Customer",
-      email_address: "test@printcartel.co.za",
-      merchant_id: "19428362",
-    };
-
-    // Generate valid signature
-    const sortedData = Object.keys(notificationData)
-      .sort()
-      .reduce((acc, key) => {
-        if (notificationData[key as keyof typeof notificationData]) {
-          acc[key] = notificationData[key as keyof typeof notificationData];
-        }
-        return acc;
-      }, {} as Record<string, string>);
-
-    let queryString = Object.entries(sortedData)
-      .map(([key, value]) => `${key}=${value}`)
-      .join("&");
-
-    queryString += "&passphrase=-.Redemption_2026";
-
-    const signature = crypto.createHash("md5").update(queryString).digest("hex");
+    // Generate signature in insertion order (NOT alphabetical - PayFast requirement)
+    const signature = generatePayFastSignature(notificationData, "-.Redemption_2026");
 
     // Verify signature
-    const isValid = payfast.verifyNotificationSignature({
-      ...notificationData,
-      signature,
-    } as any);
-
+    const isValid = verifyPayFastSignature(notificationData, signature, "-.Redemption_2026");
     expect(isValid).toBe(true);
     console.log("✓ PayFast signature verification passed");
     console.log(`  Signature: ${signature}`);
@@ -139,20 +118,12 @@ describe("Simplified Payment Flow Test", () => {
   });
 
   it("should validate payment URL parameters", () => {
-    const payfast = new PayFastIntegration({
-      merchantId: "19428362",
-      merchantKey: "x9mjrsxlwirog",
-      passphrase: "-.Redemption_2026",
-      isSandbox: false,
-    });
-
-    const paymentUrl = payfast.getPaymentUrl({
+    const paymentUrl = buildPayFastPaymentUrl(TEST_CONFIG, {
       orderId: 99999,
       amount: 1500.5,
       customerEmail: "customer@example.com",
-      customerName: "John Doe",
-      itemName: "Order Invoice",
-      itemDescription: "Test payment",
+      customerFirstName: "John",
+      customerLastName: "Doe",
       returnUrl: "https://printcartel.co.za/order/success",
       cancelUrl: "https://printcartel.co.za/order/cancel",
       notifyUrl: "https://printcartel.co.za/api/payfast/notify",
@@ -177,23 +148,15 @@ describe("Simplified Payment Flow Test", () => {
   });
 
   it("should handle multiple payment amounts", () => {
-    const payfast = new PayFastIntegration({
-      merchantId: "19428362",
-      merchantKey: "x9mjrsxlwirog",
-      passphrase: "-.Redemption_2026",
-      isSandbox: false,
-    });
-
     const testAmounts = [100, 500, 1000, 5000, 10000];
 
     testAmounts.forEach((amount) => {
-      const paymentUrl = payfast.getPaymentUrl({
+      const paymentUrl = buildPayFastPaymentUrl(TEST_CONFIG, {
         orderId: Math.floor(Math.random() * 100000),
         amount,
         customerEmail: "test@printcartel.co.za",
-        customerName: "Test Customer",
-        itemName: "Test Invoice",
-        itemDescription: "Test payment",
+        customerFirstName: "Test",
+        customerLastName: "Customer",
         returnUrl: "https://printcartel.co.za/order/success",
         cancelUrl: "https://printcartel.co.za/order/cancel",
         notifyUrl: "https://printcartel.co.za/api/payfast/notify",
@@ -211,20 +174,12 @@ describe("Simplified Payment Flow Test", () => {
   });
 
   it("should verify live production mode is configured", () => {
-    const payfast = new PayFastIntegration({
-      merchantId: "19428362",
-      merchantKey: "x9mjrsxlwirog",
-      passphrase: "-.Redemption_2026",
-      isSandbox: false,
-    });
-
-    const paymentUrl = payfast.getPaymentUrl({
+    const paymentUrl = buildPayFastPaymentUrl(TEST_CONFIG, {
       orderId: 12345,
       amount: 500,
       customerEmail: "test@printcartel.co.za",
-      customerName: "Test Customer",
-      itemName: "Test Invoice",
-      itemDescription: "Test payment",
+      customerFirstName: "Test",
+      customerLastName: "Customer",
       returnUrl: "https://printcartel.co.za/order/success",
       cancelUrl: "https://printcartel.co.za/order/cancel",
       notifyUrl: "https://printcartel.co.za/api/payfast/notify",

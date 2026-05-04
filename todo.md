@@ -2048,3 +2048,17 @@ Future enhancements (Phase 2):
 - [x] Support for delivery methods (collection/delivery) in invoices
 - [x] Invoice number generation from order ID and timestamp
 - [x] All 33 invoice generation tests passing
+
+## Phase 18 - PayFast Fix & Admin Dashboard Overhaul
+- [x] Fixed PayFast 400 signature error - root cause was alphabetical parameter sorting (wrong) vs insertion order (correct per PayFast spec)
+- [x] Rewrote payfast-service.ts with correct parameter insertion order for signature generation
+- [x] Updated payfast-integration.ts to use customerFirstName/customerLastName (separate fields)
+- [x] Updated payfast router to use new interface
+- [x] Streamlined admin dashboard to 4 clean tabs: Orders, Customers, Products, Reports
+- [x] Removed non-functional tabs: Messages, Inventory, Invoices, Payments, Design Approval
+- [x] Added getCustomers procedure to admin router with order stats per customer
+- [x] Added getRevenueAnalytics procedure to admin router with monthly breakdown
+- [x] Built Customers tab with full table: name, email, company, phone, orders, spent, first/last order
+- [x] Built Reports tab with revenue stats, order status breakdown, and monthly revenue chart
+- [x] Updated all PayFast test files to use new interface (43 tests passing)
+- [x] Zero TypeScript errors

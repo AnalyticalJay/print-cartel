@@ -23,7 +23,8 @@ describe("PayFast E2E Payment Flow", () => {
       orderId: 12345,
       amount: 500.0,
       customerEmail: "customer@printcartel.co.za",
-      customerName: "John Smith",
+      customerFirstName: "John",
+      customerLastName: "Smith",
       description: "Print Cartel Order #12345",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=12345",
       cancelUrl: "https://printcartel.co.za/payment?orderId=12345",
@@ -37,7 +38,7 @@ describe("PayFast E2E Payment Flow", () => {
     expect(paymentUrl).toContain("https://sandbox.payfast.co.za/eng/process?");
     expect(paymentUrl).toContain("merchant_id=19428362");
     expect(paymentUrl).toContain("merchant_key=x9mjrsxlwirog");
-    expect(paymentUrl).toContain("order_12345");
+    expect(paymentUrl).toContain("order-12345");
     expect(paymentUrl).toContain("amount=500.00");
     expect(paymentUrl).toContain("signature=");
 
@@ -48,20 +49,22 @@ describe("PayFast E2E Payment Flow", () => {
     if (signatureMatch) {
       const signature = signatureMatch[1];
 
-      // Reconstruct the data that was signed
+      // Reconstruct the data that was signed (must match exact order and values from buildPayFastPaymentUrl)
       const signedData = {
         merchant_id: config.merchantId,
         merchant_key: config.merchantKey,
         return_url: paymentData.returnUrl,
         cancel_url: paymentData.cancelUrl,
         notify_url: paymentData.notifyUrl,
-        name_first: "John",
-        name_last: "Smith",
+        name_first: paymentData.customerFirstName,
+        name_last: paymentData.customerLastName,
         email_address: paymentData.customerEmail,
-        m_payment_id: "order_12345",
+        m_payment_id: `order-${paymentData.orderId}`,
         amount: "500.00",
-        item_name: paymentData.description,
-        item_description: "Order #12345",
+        item_name: `Invoice for Order #${paymentData.orderId}`,
+        item_description: "Payment for DTF printing order",
+        custom_int1: String(paymentData.orderId),
+        custom_str1: paymentData.customerEmail,
       };
 
       // Verify the signature is valid
@@ -70,7 +73,7 @@ describe("PayFast E2E Payment Flow", () => {
     }
   });
 
-  it("should handle deposit payments correctly", () => {
+  it("should handle partial amount payments correctly", () => {
     const config = {
       merchantId: testMerchantId,
       merchantKey: testMerchantKey,
@@ -79,14 +82,15 @@ describe("PayFast E2E Payment Flow", () => {
     };
 
     const totalAmount = 1000.0;
-    const depositAmount = totalAmount * 0.5; // 50% deposit
+    const partialAmount = totalAmount * 0.5; // 50% of total
 
     const paymentData = {
       orderId: 54321,
-      amount: depositAmount,
+      amount: partialAmount,
       customerEmail: "customer@example.com",
-      customerName: "Jane Doe",
-      description: "Print Cartel Order #54321 - Deposit",
+      customerFirstName: "Jane",
+      customerLastName: "Doe",
+      description: "Print Cartel Order #54321",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=54321",
       cancelUrl: "https://printcartel.co.za/payment?orderId=54321",
       notifyUrl: "https://printcartel.co.za/api/payfast/callback",
@@ -96,7 +100,7 @@ describe("PayFast E2E Payment Flow", () => {
 
     // Verify deposit amount is correct
     expect(paymentUrl).toContain("amount=500.00");
-    expect(paymentUrl).toContain("order_54321");
+    expect(paymentUrl).toContain("order-54321");
   });
 
   it("should handle full payment correctly", () => {
@@ -113,7 +117,8 @@ describe("PayFast E2E Payment Flow", () => {
       orderId: 99999,
       amount: fullAmount,
       customerEmail: "customer@example.com",
-      customerName: "Bob Johnson",
+      customerFirstName: "Bob",
+      customerLastName: "Johnson",
       description: "Print Cartel Order #99999 - Full Payment",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=99999",
       cancelUrl: "https://printcartel.co.za/payment?orderId=99999",
@@ -124,7 +129,7 @@ describe("PayFast E2E Payment Flow", () => {
 
     // Verify full amount is correct
     expect(paymentUrl).toContain("amount=2500.00");
-    expect(paymentUrl).toContain("order_99999");
+    expect(paymentUrl).toContain("order-99999");
   });
 
   it("should handle special characters in customer names", () => {
@@ -139,7 +144,8 @@ describe("PayFast E2E Payment Flow", () => {
       orderId: 11111,
       amount: 750.0,
       customerEmail: "customer@example.com",
-      customerName: "Jean-Pierre O'Brien",
+      customerFirstName: "Jean-Pierre",
+      customerLastName: "O'Brien",
       description: "Print Cartel Order #11111",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=11111",
       cancelUrl: "https://printcartel.co.za/payment?orderId=11111",
@@ -165,7 +171,8 @@ describe("PayFast E2E Payment Flow", () => {
       orderId: 22222,
       amount: 1200.0,
       customerEmail: "customer@example.com",
-      customerName: "Alice Smith",
+      customerFirstName: "Alice",
+      customerLastName: "Smith",
       description: "Print Cartel Order #22222",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=22222",
       cancelUrl: "https://printcartel.co.za/payment?orderId=22222",
@@ -191,7 +198,8 @@ describe("PayFast E2E Payment Flow", () => {
       orderId: 33333,
       amount: 500.0,
       customerEmail: "customer1@example.com",
-      customerName: "Customer One",
+      customerFirstName: "Customer",
+      customerLastName: "One",
       description: "Order 1",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=33333",
       cancelUrl: "https://printcartel.co.za/payment?orderId=33333",
@@ -202,7 +210,8 @@ describe("PayFast E2E Payment Flow", () => {
       orderId: 44444,
       amount: 500.0,
       customerEmail: "customer2@example.com",
-      customerName: "Customer Two",
+      customerFirstName: "Customer",
+      customerLastName: "Two",
       description: "Order 2",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=44444",
       cancelUrl: "https://printcartel.co.za/payment?orderId=44444",
@@ -237,7 +246,8 @@ describe("PayFast E2E Payment Flow", () => {
       orderId: 55555,
       amount: 1500.0,
       customerEmail: "customer@example.com",
-      customerName: "Test Customer",
+      customerFirstName: "Test",
+      customerLastName: "Customer",
       description: "Test Order",
       returnUrl: "https://printcartel.co.za/payment-success?orderId=55555",
       cancelUrl: "https://printcartel.co.za/payment?orderId=55555",
@@ -283,7 +293,8 @@ describe("PayFast E2E Payment Flow", () => {
         orderId: 66666,
         amount: input,
         customerEmail: "customer@example.com",
-        customerName: "Test Customer",
+        customerFirstName: "Test",
+      customerLastName: "Customer",
         description: "Test Order",
         returnUrl: "https://printcartel.co.za/payment-success?orderId=66666",
         cancelUrl: "https://printcartel.co.za/payment?orderId=66666",
