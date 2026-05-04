@@ -743,62 +743,103 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                       </Button>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    {order.prints.map((print: any, i: number) => (
-                      <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-8 h-8 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
-                              <Image className="w-4 h-4 text-orange-600" />
+                  <div className="space-y-3">
+                    {order.prints.map((print: any, i: number) => {
+                      const isImage = print.mimeType
+                        ? print.mimeType.startsWith("image/")
+                        : /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(print.uploadedFileName || "");
+                      return (
+                        <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden text-sm">
+                          {/* Thumbnail strip for image files */}
+                          {isImage && print.uploadedFilePath && (
+                            <div
+                              className="relative w-full bg-gray-200 cursor-zoom-in group"
+                              style={{ height: "140px" }}
+                              onClick={() => window.open(print.uploadedFilePath, "_blank")}
+                              title="Click to view full size"
+                            >
+                              <img
+                                src={print.uploadedFilePath}
+                                alt={print.uploadedFileName || "artwork"}
+                                className="w-full h-full object-contain"
+                                loading="lazy"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                                  const parent = e.currentTarget.parentElement;
+                                  if (parent) {
+                                    parent.style.height = "40px";
+                                    parent.classList.add("flex", "items-center", "justify-center");
+                                    parent.innerHTML = '<span class="text-xs text-gray-400">Preview unavailable</span>';
+                                  }
+                                }}
+                              />
+                              {/* Hover overlay */}
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                                  <ExternalLink className="w-3 h-3" /> View full size
+                                </div>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-gray-900 truncate">{print.uploadedFileName || "artwork"}</p>
-                              <p className="text-gray-500 text-xs">
-                                {print.placement?.placementName || "N/A"}
-                                {print.printSize?.printSize ? ` · ${print.printSize.printSize}` : ""}
-                                {print.fileSize ? ` · ${(print.fileSize / 1024).toFixed(0)} KB` : ""}
-                              </p>
+                          )}
+                          {/* File info row */}
+                          <div className="flex items-center justify-between gap-3 p-3">
+                            <div className="flex items-center gap-2 min-w-0">
+                              {!isImage && (
+                                <div className="w-8 h-8 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
+                                  <FileText className="w-4 h-4 text-orange-600" />
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="font-medium text-gray-900 truncate">{print.uploadedFileName || "artwork"}</p>
+                                <p className="text-gray-500 text-xs">
+                                  {print.placement?.placementName || "N/A"}
+                                  {print.printSize?.printSize ? ` · ${print.printSize.printSize}` : ""}
+                                  {print.fileSize ? ` · ${(print.fileSize / 1024).toFixed(0)} KB` : ""}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex gap-1 flex-shrink-0">
-                            {print.uploadedFilePath && (
-                              <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-xs h-7 px-2 gap-1"
-                                  onClick={() => window.open(print.uploadedFilePath, "_blank")}
-                                  title="Preview in new tab"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  Preview
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-xs h-7 px-2 gap-1 text-orange-700 border-orange-300 hover:bg-orange-50"
-                                  onClick={() => {
-                                    const a = document.createElement("a");
-                                    a.href = print.uploadedFilePath;
-                                    a.download = print.uploadedFileName || "artwork";
-                                    a.target = "_blank";
-                                    a.rel = "noopener noreferrer";
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-                                    toast.success(`Downloading ${print.uploadedFileName || "artwork"}`);
-                                  }}
-                                  title="Download file"
-                                >
-                                  <FileDown className="w-3 h-3" />
-                                  Download
-                                </Button>
-                              </>
-                            )}
+                            <div className="flex gap-1 flex-shrink-0">
+                              {print.uploadedFilePath && (
+                                <>
+                                  {!isImage && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-xs h-7 px-2 gap-1"
+                                      onClick={() => window.open(print.uploadedFilePath, "_blank")}
+                                      title="Preview in new tab"
+                                    >
+                                      <ExternalLink className="w-3 h-3" />
+                                      Preview
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs h-7 px-2 gap-1 text-orange-700 border-orange-300 hover:bg-orange-50"
+                                    onClick={() => {
+                                      const a = document.createElement("a");
+                                      a.href = print.uploadedFilePath;
+                                      a.download = print.uploadedFileName || "artwork";
+                                      a.target = "_blank";
+                                      a.rel = "noopener noreferrer";
+                                      document.body.appendChild(a);
+                                      a.click();
+                                      document.body.removeChild(a);
+                                      toast.success(`Downloading ${print.uploadedFileName || "artwork"}`);
+                                    }}
+                                    title="Download file"
+                                  >
+                                    <FileDown className="w-3 h-3" />
+                                    Download
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

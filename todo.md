@@ -2099,3 +2099,8 @@ Future enhancements (Phase 2):
 - [x] Add download button to each line item card in admin modal
 - [x] Add "Download All Artwork" button for orders with multiple files
 - [x] Write tests for artwork download link logic
+
+## Current Sprint - Artwork Thumbnail Preview in Admin Order Detail
+- [x] Add inline image thumbnail to artwork card for PNG/JPG/GIF/WEBP files
+- [x] Show a non-image file icon for non-image types (PDF, AI, etc.)
+- [x] Add expandable/lightbox click on thumbnail to view full size

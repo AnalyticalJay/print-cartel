@@ -462,3 +462,74 @@ describe("Admin Order Detail - Artwork Download Links", () => {
     expect(meta).toBe("Back Center · A3");
   });
 });
+
+describe("Admin Order Detail - Artwork Thumbnail Detection", () => {
+  const isImageFile = (mimeType: string | null | undefined, fileName: string | null | undefined): boolean => {
+    if (mimeType) return mimeType.startsWith("image/");
+    return /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(fileName || "");
+  };
+
+  it("should detect PNG as an image by mimeType", () => {
+    expect(isImageFile("image/png", "design.png")).toBe(true);
+  });
+
+  it("should detect JPEG as an image by mimeType", () => {
+    expect(isImageFile("image/jpeg", "design.jpg")).toBe(true);
+  });
+
+  it("should detect WEBP as an image by mimeType", () => {
+    expect(isImageFile("image/webp", "design.webp")).toBe(true);
+  });
+
+  it("should detect GIF as an image by mimeType", () => {
+    expect(isImageFile("image/gif", "animation.gif")).toBe(true);
+  });
+
+  it("should detect SVG as an image by mimeType", () => {
+    expect(isImageFile("image/svg+xml", "logo.svg")).toBe(true);
+  });
+
+  it("should fall back to file extension when mimeType is null", () => {
+    expect(isImageFile(null, "design.PNG")).toBe(true);
+    expect(isImageFile(null, "design.jpg")).toBe(true);
+    expect(isImageFile(null, "design.jpeg")).toBe(true);
+    expect(isImageFile(null, "design.webp")).toBe(true);
+    expect(isImageFile(null, "design.gif")).toBe(true);
+  });
+
+  it("should NOT detect PDF as an image", () => {
+    expect(isImageFile("application/pdf", "design.pdf")).toBe(false);
+  });
+
+  it("should NOT detect AI file as an image", () => {
+    expect(isImageFile("application/postscript", "design.ai")).toBe(false);
+  });
+
+  it("should NOT detect unknown extension as an image", () => {
+    expect(isImageFile(null, "design.psd")).toBe(false);
+  });
+
+  it("should handle undefined filename gracefully", () => {
+    expect(isImageFile(null, undefined)).toBe(false);
+    expect(isImageFile(null, "")).toBe(false);
+  });
+
+  it("should show thumbnail only when both isImage and uploadedFilePath are truthy", () => {
+    const print = { mimeType: "image/png", uploadedFilePath: "https://cdn.example.com/design.png", uploadedFileName: "design.png" };
+    const showThumbnail = isImageFile(print.mimeType, print.uploadedFileName) && !!print.uploadedFilePath;
+    expect(showThumbnail).toBe(true);
+  });
+
+  it("should NOT show thumbnail when uploadedFilePath is missing", () => {
+    const print = { mimeType: "image/png", uploadedFilePath: null, uploadedFileName: "design.png" };
+    const showThumbnail = isImageFile(print.mimeType, print.uploadedFileName) && !!print.uploadedFilePath;
+    expect(showThumbnail).toBe(false);
+  });
+
+  it("should show file icon (not thumbnail) for non-image files", () => {
+    const print = { mimeType: "application/pdf", uploadedFilePath: "https://cdn.example.com/design.pdf", uploadedFileName: "design.pdf" };
+    const isImage = isImageFile(print.mimeType, print.uploadedFileName);
+    expect(isImage).toBe(false);
+    // Non-image files show FileText icon instead of thumbnail
+  });
+});
