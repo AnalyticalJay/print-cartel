@@ -62,7 +62,7 @@ describe("End-to-End Payment Flow", () => {
     const payfast = new PayFastIntegration({
       merchantId: "19428362",
       merchantKey: "x9mjrsxlwirog",
-      passphrase: "-.Redemption_2026",
+      passphrase: process.env.PAYFAST_PASSPHRASE || "",
       isSandbox: false,
     });
 
@@ -91,7 +91,7 @@ describe("End-to-End Payment Flow", () => {
     const payfast = new PayFastIntegration({
       merchantId: "19428362",
       merchantKey: "x9mjrsxlwirog",
-      passphrase: "-.Redemption_2026",
+      passphrase: process.env.PAYFAST_PASSPHRASE || "",
       isSandbox: false,
     });
 
@@ -127,7 +127,7 @@ describe("End-to-End Payment Flow", () => {
       .map(([key, value]) => `${key}=${value}`)
       .join("&");
 
-    queryString += "&passphrase=-.Redemption_2026";
+    if (process.env.PAYFAST_PASSPHRASE) queryString += `&passphrase=${process.env.PAYFAST_PASSPHRASE}`;
 
     const signature = crypto.createHash("md5").update(queryString).digest("hex");
 

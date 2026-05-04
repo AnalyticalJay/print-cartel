@@ -12,7 +12,7 @@ import {
 const TEST_CONFIG = {
   merchantId: "19428362",
   merchantKey: "x9mjrsxlwirog",
-  passphrase: "-.Redemption_2026",
+  passphrase: process.env.PAYFAST_PASSPHRASE || "",
   sandbox: false,
 };
 
@@ -60,10 +60,10 @@ describe("Simplified Payment Flow Test", () => {
     notificationData["merchant_id"] = "19428362";
 
     // Generate signature in insertion order (NOT alphabetical - PayFast requirement)
-    const signature = generatePayFastSignature(notificationData, "-.Redemption_2026");
+    const signature = generatePayFastSignature(notificationData, process.env.PAYFAST_PASSPHRASE || "");
 
     // Verify signature
-    const isValid = verifyPayFastSignature(notificationData, signature, "-.Redemption_2026");
+    const isValid = verifyPayFastSignature(notificationData, signature, process.env.PAYFAST_PASSPHRASE || "");
     expect(isValid).toBe(true);
     console.log("✓ PayFast signature verification passed");
     console.log(`  Signature: ${signature}`);

@@ -5,7 +5,7 @@ describe("PayFast Integration Tests", () => {
   let payfast: PayFastIntegration;
   const merchantId = process.env.PAYFAST_MERCHANT_ID || "19428362";
   const merchantKey = process.env.PAYFAST_MERCHANT_KEY || "x9mjrsxlwirog";
-  const passphrase = process.env.PAYFAST_PASSPHRASE || "-.Redemption_2026";
+  const passphrase = process.env.PAYFAST_PASSPHRASE || process.env.PAYFAST_PASSPHRASE || "";
 
   beforeAll(() => {
     payfast = new PayFastIntegration({

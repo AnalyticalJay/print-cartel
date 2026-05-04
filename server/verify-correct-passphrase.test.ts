@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 import crypto from "crypto";
 
 describe("PayFast Passphrase Verification", () => {
-  it("should verify the correct passphrase generates valid signature", () => {
+  it("should verify the PAYFAST_PASSPHRASE env var is set and generates a valid signature", () => {
     const passphrase = process.env.PAYFAST_PASSPHRASE;
-    expect(passphrase).toBe("-.Redemption_2026");
+    expect(passphrase).toBeDefined();
+    expect(passphrase!.length).toBeGreaterThan(0);
 
     // Test signature generation with correct passphrase
     const testData = {
@@ -40,8 +41,9 @@ describe("PayFast Passphrase Verification", () => {
     expect(signature).toMatch(/^[a-f0-9]{32}$/i);
   });
 
-  it("should confirm passphrase is NOT the old incorrect value", () => {
+  it("should confirm passphrase is a non-empty string", () => {
     const passphrase = process.env.PAYFAST_PASSPHRASE;
-    expect(passphrase).not.toBe("-,Redemption_2026"); // Old incorrect value with comma
+    expect(typeof passphrase).toBe("string");
+    expect((passphrase || "").length).toBeGreaterThan(0);
   });
 });

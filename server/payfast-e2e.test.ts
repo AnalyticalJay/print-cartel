@@ -9,7 +9,7 @@ import { buildPayFastPaymentUrl, verifyPayFastSignature } from "./payfast-servic
 describe("PayFast E2E Payment Flow", () => {
   const testMerchantId = "19428362";
   const testMerchantKey = "x9mjrsxlwirog";
-  const testPassphrase = "-.Redemption_2026";
+  const testPassphrase = process.env.PAYFAST_PASSPHRASE || "";
 
   it("should generate valid payment URL with correct signature", () => {
     const config = {

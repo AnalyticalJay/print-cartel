@@ -1989,8 +1989,8 @@ Future enhancements (Phase 2):
 
 ## Current Sprint - Phase 14: PayFast Payment Integration Testing & Simplification (COMPLETED)
 - [x] Simplify payment system to full payment only (removed deposit/split payment options)
-- [x] Verify PayFast signature generation with correct passphrase (-.Redemption_2026)
-- [x] Test PayFast URL generation with live production credentials (Merchant ID: 19428362)
+- [x] Verify PayFast signature generation with correct passphrase (stored securely in PAYFAST_PASSPHRASE env var)
+- [x] Test PayFast URL generation with live production credentials
 - [x] Create comprehensive payment integration tests (7 tests passing)
 - [x] Verify signature verification for PayFast callbacks
 - [x] Test multiple payment amounts (R100, R500, R1000, R5000, R10000)

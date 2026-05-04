@@ -8,7 +8,7 @@ import {
 } from "./payfast-service";
 
 describe("PayFast Service", () => {
-  const testPassphrase = "-.Redemption_2026";
+  const testPassphrase = process.env.PAYFAST_PASSPHRASE || "";
   const testMerchantId = "19428362";
   const testMerchantKey = "x9mjrsxlwirog";
 

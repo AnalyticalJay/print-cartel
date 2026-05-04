@@ -10,7 +10,7 @@ describe("PayFast Signature Generation", () => {
   // Test credentials (from environment)
   const merchantId = "19428362";
   const merchantKey = "x9mjrsxlwirog";
-  const passphrase = "-,Redemption_2026";
+  const passphrase = process.env.PAYFAST_PASSPHRASE || "";
 
   /**
    * Generate signature using the current implementation approach
