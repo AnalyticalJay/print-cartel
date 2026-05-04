@@ -380,7 +380,7 @@ function CustomersTab() {
                 </thead>
                 <tbody className="divide-y">
                   {filtered.map((c: any) => (
-                    <tr key={c.id} className="hover:bg-gray-50">
+                    <tr key={c.email} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium text-gray-900">{c.firstName} {c.lastName}</td>
                       <td className="px-4 py-3 text-gray-600">{c.email}</td>
                       <td className="px-4 py-3 text-gray-600">{c.company || "—"}</td>

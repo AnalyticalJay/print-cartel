@@ -77,6 +77,8 @@ export function buildPayFastPaymentUrl(
   data["item_description"] = "Payment for DTF printing order";
   data["custom_int1"] = paymentData.orderId.toString();
   data["custom_str1"] = paymentData.customerEmail;
+  // Explicitly set ZAR currency so PayFast always charges in South African Rand
+  data["currency"] = "ZAR";
 
   // Generate signature using raw values in insertion order
   const signature = generatePayFastSignature(data, config.passphrase);
