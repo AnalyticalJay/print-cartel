@@ -168,8 +168,8 @@ export const ordersRouter = router({
             colorId: cartItem.colorId,
             sizeId: cartItem.sizeId,
             quantity: cartItem.quantity,
-            placementId: cartItem.printSelections[0]?.placementId || 1,
-            printSizeId: cartItem.printSelections[0]?.printSizeId || 1,
+            placementId: cartItem.printSelections[0]?.placementId ?? 0,
+            printSizeId: cartItem.printSelections[0]?.printSizeId ?? 0,
             unitPrice,
             subtotal,
           });

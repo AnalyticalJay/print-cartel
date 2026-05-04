@@ -2125,3 +2125,9 @@ Future enhancements (Phase 2):
 - [x] Show artwork uploads with design approval status per order
 - [x] Show change request notes from admin to customer
 - [x] Write tests for customer order detail improvements
+
+## Bug Fix - Placement & Print Size N/A in Admin Order Detail
+- [x] Diagnose why placement/printSize show N/A (root cause: cart items not storing printSelections, fallback to ID=1 which doesn't exist in DB)
+- [x] Fix OrderWizard handleAddToCart to store full printSelections on cart item
+- [x] Remove || 1 fallback in createMultiItem (use 0 instead to avoid silent wrong data)
+- [x] Add graceful fallback in AdminDashboard UI for legacy orders with unresolvable IDs

@@ -700,8 +700,8 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                             </div>
                           </div>
                           <div><p className="text-gray-500">Size</p><p className="font-medium">{item.size?.sizeName || "N/A"}</p></div>
-                          <div><p className="text-gray-500">Placement</p><p className="font-medium">{item.placement?.placementName || "N/A"}</p></div>
-                          <div><p className="text-gray-500">Print Size</p><p className="font-medium">{item.printSize?.printSize || "N/A"}</p></div>
+                          <div><p className="text-gray-500">Placement</p><p className="font-medium">{item.placement?.placementName || (item.placementId > 0 ? `ID: ${item.placementId}` : "See artwork")}</p></div>
+                          <div><p className="text-gray-500">Print Size</p><p className="font-medium">{item.printSize?.printSize || (item.printSizeId > 0 ? `ID: ${item.printSizeId}` : "See artwork")}</p></div>
                           <div><p className="text-gray-500">Subtotal</p><p className="font-semibold text-green-700">R{Number(item.subtotal).toFixed(2)}</p></div>
                         </div>
                       </div>

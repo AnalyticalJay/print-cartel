@@ -257,6 +257,15 @@ export default function OrderWizard() {
       sizeName: selectedSize?.sizeName,
       placementName: selectedPlacement?.placementName,
       printSizeName: selectedPrintSize?.printSize,
+      // Store all print selections so submission can use the real DB IDs
+      printSelections: orderData.printSelections.map((p) => ({
+        placementId: p.placementId,
+        printSizeId: p.printSizeId,
+        designFile: p.designFile,
+        designFileName: p.designFileName,
+        uploadedFilePath: p.uploadedFilePath,
+        uploadedFileName: p.uploadedFileName,
+      })),
     });
 
     toast.success(`Added ${orderData.quantity} ${selectedProduct?.name}(s) to cart`);
