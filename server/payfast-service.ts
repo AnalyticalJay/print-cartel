@@ -20,10 +20,24 @@ interface PayFastPaymentData {
 }
 
 /**
+ * PHP-style urlencode: spaces become +, other special chars become %XX.
+ * PayFast's server-side recomputation uses PHP urlencode, so we must match it.
+ */
+function phpUrlencode(str: string): string {
+  return encodeURIComponent(str)
+    .replace(/%20/g, "+")
+    .replace(/!/g, "%21")
+    .replace(/'/g, "%27")
+    .replace(/\(/g, "%28")
+    .replace(/\)/g, "%29")
+    .replace(/\*/g, "%2A");
+}
+
+/**
  * Generate PayFast payment signature.
  *
  * CRITICAL: Parameters must be in INSERTION ORDER (NOT alphabetical).
- * PayFast validates the signature against the exact order fields appear in the form.
+ * Values must be PHP-style URL-encoded (spaces as +) to match PayFast's recomputation.
  * Empty/null/undefined values are excluded. Passphrase is appended last.
  */
 export function generatePayFastSignature(
@@ -34,14 +48,14 @@ export function generatePayFastSignature(
 
   for (const [key, value] of Object.entries(data)) {
     if (value !== "" && value !== null && value !== undefined) {
-      parts.push(`${key}=${value}`);
+      parts.push(`${key}=${phpUrlencode(value)}`);
     }
   }
 
   let queryString = parts.join("&");
 
   if (passphrase) {
-    queryString += `&passphrase=${passphrase}`;
+    queryString += `&passphrase=${phpUrlencode(passphrase)}`;
   }
 
   console.log(`[PayFast] Signature input: ${queryString}`);
@@ -77,10 +91,8 @@ export function buildPayFastPaymentUrl(
   data["item_description"] = "Payment for DTF printing order";
   data["custom_int1"] = paymentData.orderId.toString();
   data["custom_str1"] = paymentData.customerEmail;
-  // Explicitly set ZAR currency so PayFast always charges in South African Rand
-  data["currency"] = "ZAR";
 
-  // Generate signature using raw values in insertion order
+  // Generate signature BEFORE adding currency (currency is not signed per PayFast spec)
   const signature = generatePayFastSignature(data, config.passphrase);
   data["signature"] = signature;
 

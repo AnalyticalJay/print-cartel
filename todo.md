@@ -2137,3 +2137,9 @@ Future enhancements (Phase 2):
 - [x] Update email to include placement name and print size per line item
 - [x] Ensure placement/printSize names are resolved from DB before sending
 - [x] Write tests for updated email content
+
+## Bug Fix - PayFast Signature Mismatch
+- [x] Review PayFast signature generation code
+- [x] Fix parameter ordering and passphrase handling per PayFast spec
+- [x] Verify signature matches using test parameters from the real URL
+- [x] Write tests for signature generation
