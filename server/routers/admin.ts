@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb, getOrderStatusHistory, logOrderStatusChange } from "../db";
-import { orders, orderPrints, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users, designUploadsByQuantity, designQuantityTracker } from "../../drizzle/schema";
+import { orders, orderPrints, orderLineItems, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users, designUploadsByQuantity, designQuantityTracker } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
@@ -106,6 +106,34 @@ export const adminRouter = router({
           })
         );
 
+        // For multi-item orders (productId=0), fetch line items with enriched product/color/size
+        const isMultiItemOrder = order[0].productId === 0;
+        const lineItemsWithDetails = isMultiItemOrder
+          ? await Promise.all(
+              (await db.select().from(orderLineItems).where(eq(orderLineItems.orderId, input.orderId))).map(
+                async (item) => {
+                  const [itemProduct, itemColor, itemSize, itemPlacement, itemPrintSize] = await Promise.all([
+                    db.select().from(products).where(eq(products.id, item.productId)).limit(1),
+                    db.select().from(productColors).where(eq(productColors.id, item.colorId)).limit(1),
+                    db.select().from(productSizes).where(eq(productSizes.id, item.sizeId)).limit(1),
+                    db.select().from(printPlacements).where(eq(printPlacements.id, item.placementId)).limit(1),
+                    db.select().from(printOptions).where(eq(printOptions.id, item.printSizeId)).limit(1),
+                  ]);
+                  return {
+                    ...item,
+                    unitPrice: parseFloat(item.unitPrice as any),
+                    subtotal: parseFloat(item.subtotal as any),
+                    product: itemProduct[0] || null,
+                    color: itemColor[0] || null,
+                    size: itemSize[0] || null,
+                    placement: itemPlacement[0] || null,
+                    printSize: itemPrintSize[0] || null,
+                  };
+                }
+              )
+            )
+          : [];
+
         const result = {
           ...order[0],
           totalPriceEstimate: parseFloat(order[0].totalPriceEstimate as any),
@@ -115,8 +143,9 @@ export const adminRouter = router({
           color: color[0] || null,
           size: size[0] || null,
           prints: printsWithDetails,
+          lineItems: lineItemsWithDetails,
+          isMultiItemOrder,
         };
-        console.log("Order detail result:", result);
         return result;
       } catch (error) {
         console.error("Failed to fetch order detail:", error);

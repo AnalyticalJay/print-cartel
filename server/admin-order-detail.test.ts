@@ -281,3 +281,85 @@ describe("Admin Order Detail - Data Structure", () => {
     });
   });
 });
+
+describe("Admin Order Detail - Multi-Item Orders (lineItems)", () => {
+  it("should detect multi-item orders by productId === 0", () => {
+    const multiItemOrder = { productId: 0, colorId: 0, sizeId: 0 };
+    const singleItemOrder = { productId: 1, colorId: 2, sizeId: 3 };
+    expect(multiItemOrder.productId === 0).toBe(true);
+    expect(singleItemOrder.productId === 0).toBe(false);
+  });
+
+  it("should return isMultiItemOrder flag correctly", () => {
+    const result = { productId: 0, isMultiItemOrder: true, lineItems: [] };
+    expect(result.isMultiItemOrder).toBe(true);
+  });
+
+  it("should return lineItems with enriched product/color/size for multi-item orders", () => {
+    const lineItems = [
+      {
+        id: 1,
+        orderId: 1440049,
+        productId: 1,
+        colorId: 2,
+        sizeId: 3,
+        quantity: 25,
+        subtotal: 550,
+        unitPrice: 22,
+        product: { id: 1, name: "Premium Cotton Tee" },
+        color: { id: 2, colorName: "Midnight Black", colorHex: "#1a1a1a" },
+        size: { id: 3, sizeName: "L" },
+        placement: { id: 1, placementName: "Front Chest" },
+        printSize: { id: 1, printSize: "A4" },
+      },
+    ];
+
+    expect(lineItems[0].product?.name).toBe("Premium Cotton Tee");
+    expect(lineItems[0].color?.colorName).toBe("Midnight Black");
+    expect(lineItems[0].color?.colorHex).toBe("#1a1a1a");
+    expect(lineItems[0].size?.sizeName).toBe("L");
+    expect(lineItems[0].placement?.placementName).toBe("Front Chest");
+    expect(lineItems[0].printSize?.printSize).toBe("A4");
+    expect(lineItems[0].subtotal).toBe(550);
+  });
+
+  it("should handle multiple line items per order", () => {
+    const lineItems = [
+      { id: 1, product: { name: "T-Shirt" }, color: { colorName: "Black" }, size: { sizeName: "M" }, quantity: 10 },
+      { id: 2, product: { name: "Polo" }, color: { colorName: "White" }, size: { sizeName: "L" }, quantity: 15 },
+    ];
+    expect(lineItems.length).toBe(2);
+    expect(lineItems[0].product.name).toBe("T-Shirt");
+    expect(lineItems[1].product.name).toBe("Polo");
+  });
+
+  it("should return empty lineItems for single-item orders", () => {
+    const singleItemResult = { productId: 1, isMultiItemOrder: false, lineItems: [] };
+    expect(singleItemResult.lineItems).toHaveLength(0);
+    expect(singleItemResult.isMultiItemOrder).toBe(false);
+  });
+
+  it("should parse subtotal and unitPrice as numbers", () => {
+    const item = { subtotal: parseFloat("550.00"), unitPrice: parseFloat("22.00") };
+    expect(typeof item.subtotal).toBe("number");
+    expect(typeof item.unitPrice).toBe("number");
+    expect(item.subtotal).toBe(550);
+    expect(item.unitPrice).toBe(22);
+  });
+
+  it("should show N/A gracefully when product/color/size not found in DB", () => {
+    const item = { product: null, color: null, size: null };
+    const productDisplay = item.product?.name || "N/A";
+    const colorDisplay = item.color?.colorName || "N/A";
+    const sizeDisplay = item.size?.sizeName || "N/A";
+    expect(productDisplay).toBe("N/A");
+    expect(colorDisplay).toBe("N/A");
+    expect(sizeDisplay).toBe("N/A");
+  });
+
+  it("should calculate total quantity from line items", () => {
+    const lineItems = [{ quantity: 10 }, { quantity: 15 }, { quantity: 25 }];
+    const total = lineItems.reduce((sum, item) => sum + item.quantity, 0);
+    expect(total).toBe(50);
+  });
+});

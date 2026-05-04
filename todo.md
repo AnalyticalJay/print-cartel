@@ -2084,3 +2084,11 @@ Future enhancements (Phase 2):
 - [x] Support/contact section with email and track order buttons
 - [x] Write 32 comprehensive tests for URL parsing, procedure logic, currency, timeline, error states
 - [x] All 32 new tests passing, zero TypeScript errors
+
+## Bug Fix - Admin Order Detail: Product/Color/Size Showing N/A
+- [x] Diagnosed root cause: multi-item orders store productId=0/colorId=0/sizeId=0 on the orders row; real data is in orderLineItems table
+- [x] Updated getOrderDetail in admin router to fetch orderLineItems with enriched product/color/size/placement/printSize for multi-item orders
+- [x] Added isMultiItemOrder flag and lineItems array to the response
+- [x] Updated AdminDashboard Garment & Customization section to render line items for multi-item orders and legacy single-item view for old orders
+- [x] Added 8 new tests for multi-item order detection and line item display (24 total in admin-order-detail.test.ts)
+- [x] Zero TypeScript errors

@@ -650,32 +650,70 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                 </div>
               </div>
 
-              {/* Garment */}
+              {/* Garment & Customization */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Garment & Customization</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
-                  <div><p className="text-gray-500">Product</p><p className="font-medium">{order.product?.name || "N/A"}</p></div>
-                  <div><p className="text-gray-500">Quantity</p><p className="font-medium">{order.quantity}</p></div>
-                  <div>
-                    <p className="text-gray-500">Color</p>
-                    <div className="flex items-center gap-2">
-                      {order.color?.colorHex && <div className="w-4 h-4 rounded border" style={{ backgroundColor: order.color.colorHex }} />}
-                      <p className="font-medium">{order.color?.colorName || "N/A"}</p>
+
+                {/* Multi-item order: show each line item */}
+                {order.isMultiItemOrder && order.lineItems && order.lineItems.length > 0 ? (
+                  <div className="space-y-3">
+                    {order.lineItems.map((item: any, i: number) => (
+                      <div key={i} className="bg-gray-50 p-4 rounded-lg text-sm border border-gray-200">
+                        <p className="font-semibold text-gray-700 mb-2">Item {i + 1}</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div><p className="text-gray-500">Product</p><p className="font-medium">{item.product?.name || "N/A"}</p></div>
+                          <div><p className="text-gray-500">Quantity</p><p className="font-medium">{item.quantity}</p></div>
+                          <div>
+                            <p className="text-gray-500">Color</p>
+                            <div className="flex items-center gap-2">
+                              {item.color?.colorHex && <div className="w-4 h-4 rounded border" style={{ backgroundColor: item.color.colorHex }} />}
+                              <p className="font-medium">{item.color?.colorName || "N/A"}</p>
+                            </div>
+                          </div>
+                          <div><p className="text-gray-500">Size</p><p className="font-medium">{item.size?.sizeName || "N/A"}</p></div>
+                          <div><p className="text-gray-500">Placement</p><p className="font-medium">{item.placement?.placementName || "N/A"}</p></div>
+                          <div><p className="text-gray-500">Print Size</p><p className="font-medium">{item.printSize?.printSize || "N/A"}</p></div>
+                          <div><p className="text-gray-500">Subtotal</p><p className="font-semibold text-green-700">R{Number(item.subtotal).toFixed(2)}</p></div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="grid grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
+                      <div><p className="text-gray-500">Total Quantity</p><p className="font-medium">{order.quantity}</p></div>
+                      <div><p className="text-gray-500">Total Price</p><p className="font-semibold text-green-700">R{Number(order.totalPriceEstimate).toFixed(2)}</p></div>
+                      <div>
+                        <p className="text-gray-500">Status</p>
+                        <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
+                          {order.status}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                  <div><p className="text-gray-500">Size</p><p className="font-medium">{order.size?.sizeName || "N/A"}</p></div>
-                  <div><p className="text-gray-500">Total Price</p><p className="font-semibold text-green-700">R{Number(order.totalPriceEstimate).toFixed(2)}</p></div>
-                  <div>
-                    <p className="text-gray-500">Status</p>
-                    <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
-                      {order.status}
-                    </Badge>
+                ) : (
+                  /* Single-item order: show product/color/size directly */
+                  <div className="grid grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
+                    <div><p className="text-gray-500">Product</p><p className="font-medium">{order.product?.name || "N/A"}</p></div>
+                    <div><p className="text-gray-500">Quantity</p><p className="font-medium">{order.quantity}</p></div>
+                    <div>
+                      <p className="text-gray-500">Color</p>
+                      <div className="flex items-center gap-2">
+                        {order.color?.colorHex && <div className="w-4 h-4 rounded border" style={{ backgroundColor: order.color.colorHex }} />}
+                        <p className="font-medium">{order.color?.colorName || "N/A"}</p>
+                      </div>
+                    </div>
+                    <div><p className="text-gray-500">Size</p><p className="font-medium">{order.size?.sizeName || "N/A"}</p></div>
+                    <div><p className="text-gray-500">Total Price</p><p className="font-semibold text-green-700">R{Number(order.totalPriceEstimate).toFixed(2)}</p></div>
+                    <div>
+                      <p className="text-gray-500">Status</p>
+                      <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
+                        {order.status}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
-              {/* Print Placements */}
-              {order.prints && order.prints.length > 0 && (
+              {/* Print Placements (legacy single-item orders) */}
+              {!order.isMultiItemOrder && order.prints && order.prints.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Print Placements</h3>
                   <div className="space-y-2">
