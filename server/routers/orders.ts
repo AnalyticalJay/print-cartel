@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { orders, paymentRecords, products, productColors, productSizes, orderPrints, printPlacements, printOptions } from "../../drizzle/schema";
+import { orders, paymentRecords, products, productColors, productSizes, orderPrints, printPlacements, printOptions, orderLineItems } from "../../drizzle/schema";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
 import { generateAndUploadInvoice } from "../invoice-generator";
@@ -740,5 +740,85 @@ export const ordersRouter = router({
         console.error("Failed to fetch order by payment ID:", error);
         throw error;
       }
+    }),
+
+  // Get full order detail for the authenticated customer (includes prints, line items, payment status)
+  getMyOrderDetail: protectedProcedure
+    .input(z.object({ orderId: z.number() }))
+    .output(z.any())
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const orderResult = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+      if (!orderResult.length) throw new Error("Order not found");
+      const order = orderResult[0];
+
+      // Security: only the order owner can view it
+      if (order.customerEmail !== ctx.user?.email) {
+        throw new Error("Unauthorized: Order does not belong to this user");
+      }
+
+      // Fetch prints with placement, print size, and approval status
+      const prints = await db.select().from(orderPrints).where(eq(orderPrints.orderId, input.orderId));
+      const enrichedPrints = await Promise.all(
+        prints.map(async (print) => {
+          const [placement, printSize] = await Promise.all([
+            db.select().from(printPlacements).where(eq(printPlacements.id, print.placementId)).limit(1),
+            db.select().from(printOptions).where(eq(printOptions.id, print.printSizeId)).limit(1),
+          ]);
+          return {
+            ...print,
+            fileSize: print.fileSize ? Number(print.fileSize) : null,
+            placement: placement[0] || null,
+            printSize: printSize[0] || null,
+          };
+        })
+      );
+
+      // Fetch line items for multi-item orders
+      const lineItemsRaw = await db.select().from(orderLineItems).where(eq(orderLineItems.orderId, input.orderId));
+      const enrichedLineItems = await Promise.all(
+        lineItemsRaw.map(async (item) => {
+          const [product, color, size] = await Promise.all([
+            db.select().from(products).where(eq(products.id, item.productId)).limit(1),
+            db.select().from(productColors).where(eq(productColors.id, item.colorId)).limit(1),
+            db.select().from(productSizes).where(eq(productSizes.id, item.sizeId)).limit(1),
+          ]);
+          return {
+            ...item,
+            unitPrice: parseFloat(item.unitPrice as any),
+            subtotal: parseFloat(item.subtotal as any),
+            product: product[0] || null,
+            color: color[0] || null,
+            size: size[0] || null,
+          };
+        })
+      );
+
+      // Fetch single-item product/color/size
+      const [product, color, size] = await Promise.all([
+        order.productId ? db.select().from(products).where(eq(products.id, order.productId)).limit(1) : Promise.resolve([]),
+        order.colorId ? db.select().from(productColors).where(eq(productColors.id, order.colorId)).limit(1) : Promise.resolve([]),
+        order.sizeId ? db.select().from(productSizes).where(eq(productSizes.id, order.sizeId)).limit(1) : Promise.resolve([]),
+      ]);
+
+      // Fetch payment records
+      const payments = await db.select().from(paymentRecords).where(eq(paymentRecords.orderId, input.orderId));
+
+      return {
+        ...order,
+        totalPriceEstimate: parseFloat(order.totalPriceEstimate as any),
+        amountPaid: parseFloat(order.amountPaid as any) || 0,
+        depositAmount: parseFloat(order.depositAmount as any) || 0,
+        deliveryCharge: parseFloat(order.deliveryCharge as any) || 0,
+        product: (product as any[])[0] || null,
+        color: (color as any[])[0] || null,
+        size: (size as any[])[0] || null,
+        prints: enrichedPrints,
+        lineItems: enrichedLineItems,
+        paymentRecords: payments,
+        isMultiItemOrder: order.productId === 0,
+      };
     }),
 });

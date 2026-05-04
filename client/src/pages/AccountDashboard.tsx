@@ -8,82 +8,27 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { Download, Eye, LogOut, ArrowLeft, MessageSquare, Settings, Bell } from "lucide-react";
-import { OrderTimeline } from "@/components/OrderTimeline";
-import { MobileOrderTimeline } from "@/components/MobileOrderTimeline";
-import { OrderMockupPreview } from "@/components/OrderMockupPreview";
+import { Eye, LogOut, ArrowLeft, MessageSquare, Settings, Bell, Package, ChevronRight } from "lucide-react";
+// Eye is used in the Orders tab trigger
 import { ChatSection } from "@/components/ChatSection";
-import { CustomerChatBox } from "@/components/CustomerChatBox";
 import { ReferralProgram } from "@/components/ReferralProgram";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
-import { DepositPaymentTracker } from "@/components/DepositPaymentTracker";
+import { CustomerOrderDetailModal } from "@/components/CustomerOrderDetailModal";
 
 
-import { formatCurrency } from "@/lib/utils";
-import { toast } from "sonner";
 
-interface OrderWithPrints {
-  id: number;
-  userId?: number | null;
-  productId: number;
-  colorId: number;
-  sizeId: number;
-  quantity: number;
-  customerFirstName: string;
-  customerLastName: string;
-  customerEmail: string;
-  customerPhone: string;
-  customerCompany: string | null;
-  additionalNotes: string | null;
-  totalPriceEstimate: string | number;
-  status: "pending" | "approved" | "in-production" | "completed" | "shipped" | "cancelled" | "quoted";
-  paymentMethod?: "deposit" | "full_payment" | null;
-  depositAmount?: string | number | null;
-  amountPaid?: string | number | null;
-  createdAt: Date;
-  updatedAt: Date;
-  prints?: Array<{
-    id: number;
-    orderId: number;
-    printSizeId: number;
-    placementId: number;
-    uploadedFilePath: string;
-    uploadedFileName: string;
-    fileSize: number | null;
-    mimeType: string | null;
-  }>;
-  lineItems?: Array<{
-    quantity: number;
-  }>;
-}
 
 export default function AccountDashboard() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
-  const [showChat, setShowChat] = useState(false);
-
 
   // Fetch orders for authenticated user
   const ordersQuery = trpc.orders.getByEmail.useQuery(
     { email: user?.email || "" },
     { enabled: !!user?.email }
   );
-
-  // Fetch quotes for authenticated user
-  const handlePayDeposit = () => {
-    if (selectedOrder) {
-      setLocation(`/payment?orderId=${selectedOrder.id}&type=deposit`);
-    }
-  };
-
-  const handlePayFinal = () => {
-    if (selectedOrder) {
-      setLocation(`/payment?orderId=${selectedOrder.id}&type=final`);
-    }
-  };
 
   const handleLogout = async () => {
     await logout();
@@ -92,19 +37,21 @@ export default function AccountDashboard() {
 
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, string> = {
-      pending: "bg-yellow-500 text-white",
-      approved: "bg-purple-500 text-white",
-      "in-production": "bg-orange-500 text-white",
-      completed: "bg-green-500 text-white",
-      shipped: "bg-green-500 text-white",
-      cancelled: "bg-red-500 text-white",
+      pending: "bg-yellow-500/20 text-yellow-400 border border-yellow-600",
+      quoted: "bg-blue-500/20 text-blue-400 border border-blue-600",
+      approved: "bg-purple-500/20 text-purple-400 border border-purple-600",
+      "in-production": "bg-orange-500/20 text-orange-400 border border-orange-600",
+      completed: "bg-green-500/20 text-green-400 border border-green-600",
+      shipped: "bg-green-500/20 text-green-400 border border-green-600",
+      cancelled: "bg-red-500/20 text-red-400 border border-red-600",
     };
-    return statusColors[status] || "bg-gray-500 text-white";
+    return statusColors[status] || "bg-gray-700 text-gray-300 border border-gray-600";
   };
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
       pending: "Pending Review",
+      quoted: "Quote Sent",
       approved: "Approved",
       "in-production": "In Production",
       completed: "Completed",
@@ -115,22 +62,11 @@ export default function AccountDashboard() {
   };
 
   const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+    return new Date(date).toLocaleDateString("en-ZA", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
-  };
-
-  const handleDownloadFile = (filePath: string, fileName: string) => {
-    const link = document.createElement("a");
-    link.href = filePath;
-    link.download = fileName;
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("Download started");
   };
 
   if (!user) {
@@ -251,53 +187,57 @@ export default function AccountDashboard() {
               <h2 className="text-3xl font-bold mb-6">Your Orders</h2>
 
               {ordersQuery.isLoading ? (
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="py-8">
-                    <p className="text-center text-gray-200">Loading your orders...</p>
-                  </CardContent>
-                </Card>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-gray-800 border border-gray-700 rounded-xl p-5 animate-pulse">
+                      <div className="h-4 bg-gray-700 rounded w-1/3 mb-3" />
+                      <div className="h-3 bg-gray-700 rounded w-1/2" />
+                    </div>
+                  ))}
+                </div>
               ) : ordersQuery.data && ordersQuery.data.length > 0 ? (
-                <div className="grid gap-4">
+                <div className="space-y-3">
                   {ordersQuery.data.map((order) => (
-                    <Card
+                    <button
                       key={order.id}
-                      className="bg-gray-800 border-gray-700 hover:border-gray-600 cursor-pointer transition"
-                      onClick={() => setSelectedOrder(order)}
+                      className="w-full text-left bg-gray-800 border border-gray-700 hover:border-cyan-600 rounded-xl p-4 transition-all group"
+                      onClick={() => setSelectedOrderId(order.id)}
                     >
-                      <CardContent className="py-6">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-lg font-semibold">Order #{order.id}</h3>
-                              <Badge className={getStatusColor(order.status)}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Package className="w-5 h-5 text-cyan-400" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-white text-sm">Order #{order.id}</span>
+                              <Badge className={`text-xs ${getStatusColor(order.status)}`}>
                                 {getStatusLabel(order.status)}
                               </Badge>
+                              {(order.paymentStatus === 'unpaid' || !order.paymentStatus) &&
+                                ['quoted', 'approved'].includes(order.status) && (
+                                <Badge className="text-xs bg-orange-500/20 text-orange-400 border border-orange-600">
+                                  Payment Due
+                                </Badge>
+                              )}
                             </div>
-                            <p className="text-gray-200 text-sm mb-2">
-                              Submitted: {formatDate(order.createdAt)}
-                            </p>
-                            <p className="text-white font-semibold">
-                              Quantity: {order.quantity} | Total: {order.totalPriceEstimate}
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {formatDate(order.createdAt)} · R{parseFloat(String(order.totalPriceEstimate)).toFixed(2)}
                             </p>
                           </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-gray-600 text-gray-300 hover:text-white"
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Details
-                          </Button>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-cyan-400 transition-colors flex-shrink-0" />
+                      </div>
+                    </button>
                   ))}
                 </div>
               ) : (
                 <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="py-8">
-                    <p className="text-center text-gray-200 mb-4">No orders yet. Start your first order!</p>
-                    <Button onClick={() => setLocation("/order")} className="w-full bg-blue-600 hover:bg-blue-700">
+                  <CardContent className="py-12 text-center">
+                    <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-300 font-medium mb-1">No orders yet</p>
+                    <p className="text-gray-500 text-sm mb-4">Start your first custom DTF print order</p>
+                    <Button onClick={() => setLocation("/order")} className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold">
                       Place an Order
                     </Button>
                   </CardContent>
@@ -305,86 +245,12 @@ export default function AccountDashboard() {
               )}
             </div>
 
-            {/* Order Details Modal */}
-            {selectedOrder && (
-              <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-2 md:p-4 z-50 overflow-y-auto">
-                <Card className="bg-gray-800 border-gray-700 w-full max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto my-4 md:my-0">
-                  <CardHeader className="flex flex-row items-center justify-between border-b border-gray-700">
-                    <CardTitle className="text-white">Order Details</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedOrder(null)}
-                      className="text-gray-200 hover:text-white"
-                    >
-                      ✕
-                    </Button>
-                  </CardHeader>
-                  <CardContent className="space-y-4 md:space-y-6 pt-4 md:pt-6">
-                    <div>
-                      <p className="text-xs md:text-sm text-gray-200">Order ID</p>
-                      <p className="font-medium text-base md:text-lg text-white">#{selectedOrder.id}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs md:text-sm text-gray-200">Status</p>
-                      <Badge className={getStatusColor(selectedOrder.status)}>
-                        {getStatusLabel(selectedOrder.status)}
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 md:gap-4">
-                      <div>
-                        <p className="text-xs md:text-sm text-gray-200">Order Date</p>
-                        <p className="font-medium text-sm md:text-base text-white">{formatDate(selectedOrder.createdAt)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs md:text-sm text-gray-200">Total Price</p>
-                        <p className="text-base md:text-lg font-semibold text-white">R{parseFloat(String(selectedOrder.totalPriceEstimate)).toFixed(2)}</p>
-                      </div>
-                    </div>
-                    {/* Mobile Order Timeline */}
-                    <div className="border-t border-gray-700 pt-4 md:pt-6">
-                      <MobileOrderTimeline
-                        currentStatus={selectedOrder.status}
-                        createdAt={selectedOrder.createdAt}
-                        updatedAt={selectedOrder.updatedAt}
-                        orderDetails={{
-                          quantity: selectedOrder.quantity,
-                          totalPrice: String(selectedOrder.totalPriceEstimate),
-                          depositPaid: false,
-                        }}
-                      />
-                    </div>
-
-
-
-                    {/* Payment Proof Templates */}
-
-
-                    <div className="border-t border-gray-700 pt-4 md:pt-6">
-                      <p className="text-xs md:text-sm text-gray-200 mb-3 md:mb-4 font-semibold uppercase tracking-wide">Design Files</p>
-                      <div className="space-y-2">
-                        {selectedOrder.prints && selectedOrder.prints.length > 0 ? (
-                          selectedOrder.prints.map((print, idx) => (
-                            <div key={idx} className="flex items-center justify-between bg-gray-700 p-2 md:p-3 rounded gap-2">
-                              <span className="text-xs md:text-sm truncate">{print.uploadedFileName}</span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDownloadFile(print.uploadedFilePath, print.uploadedFileName)}
-                                className="border-gray-600 text-gray-300 hover:text-white flex-shrink-0"
-                              >
-                                <Download className="w-3 h-3 md:w-4 md:h-4" />
-                              </Button>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-gray-200 text-xs md:text-sm">No files uploaded yet</p>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+            {/* Order Detail Modal */}
+            {selectedOrderId && (
+              <CustomerOrderDetailModal
+                orderId={selectedOrderId}
+                onClose={() => setSelectedOrderId(null)}
+              />
             )}
           </TabsContent>
 

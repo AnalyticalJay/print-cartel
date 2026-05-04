@@ -2115,3 +2115,13 @@ Future enhancements (Phase 2):
 - [x] Show approval status badge on each artwork card
 - [x] Send customer email notification when changes are requested
 - [x] Write tests for approval workflow
+
+## Current Sprint - Customer Dashboard Order Detail Refinement
+- [x] Audit existing customer dashboard and MyAccount page structure
+- [x] Build horizontal sliding order status timeline component
+- [x] Show invoice/quote status and payment progress in order detail
+- [x] Add Pay Now (full payment) button for approved/invoiced orders
+- [x] Wire Pay Now to PayFast payment flow
+- [x] Show artwork uploads with design approval status per order
+- [x] Show change request notes from admin to customer
+- [x] Write tests for customer order detail improvements
