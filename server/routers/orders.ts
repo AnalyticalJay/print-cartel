@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { orders, paymentRecords } from "../../drizzle/schema";
+import { orders, paymentRecords, products, productColors, productSizes, orderPrints, printPlacements, printOptions } from "../../drizzle/schema";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
 import { generateAndUploadInvoice } from "../invoice-generator";
@@ -628,6 +628,104 @@ export const ordersRouter = router({
         return records;
       } catch (error) {
         console.error("Failed to fetch payment records:", error);
+        throw error;
+      }
+    }),
+
+  /**
+   * Public procedure: fetch order details by PayFast m_payment_id.
+   * Used by the /payment/success page after PayFast redirects back.
+   * m_payment_id format: "order-{orderId}"
+   * Returns enriched order data (product, color, size, prints) without
+   * requiring the user to be authenticated — PayFast may redirect before
+   * the session cookie is fully established.
+   */
+  getByPaymentId: publicProcedure
+    .input(z.object({ mPaymentId: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Parse orderId from "order-{id}" format
+        const match = input.mPaymentId.match(/order[-_](\d+)/);
+        if (!match) throw new Error("Invalid payment ID format");
+        const orderId = parseInt(match[1], 10);
+
+        // Fetch the order
+        const orderResult = await db
+          .select()
+          .from(orders)
+          .where(eq(orders.id, orderId))
+          .limit(1);
+
+        if (!orderResult.length) throw new Error("Order not found");
+        const order = orderResult[0];
+
+        // Fetch product details
+        const productResult = await db
+          .select()
+          .from(products)
+          .where(eq(products.id, order.productId))
+          .limit(1);
+        const product = productResult[0] ?? null;
+
+        // Fetch color details
+        const colorResult = await db
+          .select()
+          .from(productColors)
+          .where(eq(productColors.id, order.colorId))
+          .limit(1);
+        const color = colorResult[0] ?? null;
+
+        // Fetch size details
+        const sizeResult = await db
+          .select()
+          .from(productSizes)
+          .where(eq(productSizes.id, order.sizeId))
+          .limit(1);
+        const size = sizeResult[0] ?? null;
+
+        // Fetch order prints with placement and print size info
+        const printsResult = await db
+          .select()
+          .from(orderPrints)
+          .where(eq(orderPrints.orderId, orderId));
+
+        const enrichedPrints = await Promise.all(
+          printsResult.map(async (print) => {
+            const placementResult = await db
+              .select()
+              .from(printPlacements)
+              .where(eq(printPlacements.id, print.placementId))
+              .limit(1);
+            const printSizeResult = await db
+              .select()
+              .from(printOptions)
+              .where(eq(printOptions.id, print.printSizeId))
+              .limit(1);
+            return {
+              ...print,
+              placementName: placementResult[0]?.placementName ?? "Unknown",
+              printSize: printSizeResult[0]?.printSize ?? "Unknown",
+            };
+          })
+        );
+
+        return {
+          order: {
+            ...order,
+            totalPriceEstimate: parseFloat(order.totalPriceEstimate as any),
+            amountPaid: parseFloat(order.amountPaid as any) || 0,
+            deliveryCharge: parseFloat(order.deliveryCharge as any) || 0,
+          },
+          product,
+          color,
+          size,
+          prints: enrichedPrints,
+        };
+      } catch (error) {
+        console.error("Failed to fetch order by payment ID:", error);
         throw error;
       }
     }),

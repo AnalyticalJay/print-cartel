@@ -2070,3 +2070,17 @@ Future enhancements (Phase 2):
 - [x] Show success toast on email sent
 - [x] Show error toast if email fails
 - [x] Write tests for sendInvoice procedure
+
+
+## Current Sprint - Payment Success Page
+- [x] Add `getByPaymentId` public tRPC procedure to orders router (fetches enriched order data by m_payment_id)
+- [x] Procedure returns order + product + color + size + prints (with placement names and print sizes)
+- [x] Rewrite PaymentSuccess.tsx to read m_payment_id from URL (PayFast format: order-{id})
+- [x] Support legacy ?orderId= param as fallback
+- [x] Display customer details, payment summary, order items with colour swatch
+- [x] Display print placements with downloadable artwork links
+- [x] Display delivery/collection details with estimated dates
+- [x] Production timeline with 5 steps (Confirmation Email marked as done)
+- [x] Support/contact section with email and track order buttons
+- [x] Write 32 comprehensive tests for URL parsing, procedure logic, currency, timeline, error states
+- [x] All 32 new tests passing, zero TypeScript errors
