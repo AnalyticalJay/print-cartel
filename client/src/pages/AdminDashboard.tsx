@@ -522,12 +522,14 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isUpdatingPrice, setIsUpdatingPrice] = useState(false);
   const [isSendingInvoice, setIsSendingInvoice] = useState(false);
+  const [isResendingInvoice, setIsResendingInvoice] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "timeline" | "actions">("details");
 
   const orderQuery = trpc.admin.getOrderDetail.useQuery({ orderId });
   const updateStatusMutation = trpc.admin.updateOrderStatus.useMutation();
   const updatePriceMutation = trpc.admin.updateOrderPricing.useMutation();
   const approveAndSendInvoiceMutation = trpc.admin.approveAndSendInvoice.useMutation();
+  const createManualInvoiceMutation = trpc.admin.createManualInvoice.useMutation();
 
   const handleUpdateStatus = async () => {
     if (!newStatus) return toast.error("Please select a status");
@@ -560,11 +562,21 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
     setIsSendingInvoice(true);
     try {
       await approveAndSendInvoiceMutation.mutateAsync({ orderId, adminNotes });
-      toast.success("Invoice sent to customer");
+      toast.success("✅ Invoice sent & order approved!");
       orderQuery.refetch();
       onOrderUpdated();
     } catch { toast.error("Failed to send invoice"); }
     finally { setIsSendingInvoice(false); }
+  };
+
+  const handleResendInvoice = async () => {
+    setIsResendingInvoice(true);
+    try {
+      await createManualInvoiceMutation.mutateAsync({ orderId });
+      toast.success("✅ Invoice resent to customer!");
+      orderQuery.refetch();
+    } catch { toast.error("Failed to resend invoice"); }
+    finally { setIsResendingInvoice(false); }
   };
 
   if (orderQuery.isLoading) {
@@ -582,12 +594,37 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
       <Card className="w-full max-w-4xl my-8">
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-start gap-3">
             <div>
               <CardTitle className="text-xl">Order #{order.id}</CardTitle>
               <CardDescription>{order.customerFirstName} {order.customerLastName} · {order.customerEmail}</CardDescription>
             </div>
-            <Button onClick={onClose} variant="ghost" size="sm" className="text-gray-500">✕</Button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {(order.status === "pending" || order.status === "quoted") && (
+                <Button
+                  onClick={handleSendInvoice}
+                  disabled={isSendingInvoice}
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white gap-1.5"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  {isSendingInvoice ? "Sending..." : "Send Invoice"}
+                </Button>
+              )}
+              {order.status !== "pending" && order.status !== "quoted" && order.status !== "cancelled" && (
+                <Button
+                  onClick={handleResendInvoice}
+                  disabled={isResendingInvoice}
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 border-purple-300 text-purple-700 hover:bg-purple-50"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  {isResendingInvoice ? "Sending..." : "Resend Invoice"}
+                </Button>
+              )}
+              <Button onClick={onClose} variant="ghost" size="sm" className="text-gray-500">✕</Button>
+            </div>
           </div>
         </CardHeader>
 
@@ -732,17 +769,28 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
               </div>
 
               {/* Send Invoice */}
-              {(order.status === "pending" || order.status === "quoted") && (
-                <div className="border-t pt-4">
-                  <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                    <Mail className="w-4 h-4" /> Send Invoice to Customer
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-3">This will approve the order and send a payment invoice to the customer.</p>
-                  <Button onClick={handleSendInvoice} disabled={isSendingInvoice} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                    {isSendingInvoice ? "Sending..." : "Send Invoice & Approve Order"}
-                  </Button>
-                </div>
-              )}
+              <div className="border-t pt-4">
+                <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                  <Mail className="w-4 h-4" /> Invoice
+                </h3>
+                {(order.status === "pending" || order.status === "quoted") ? (
+                  <>
+                    <p className="text-sm text-gray-500 mb-3">Approve this order and send a payment invoice to the customer.</p>
+                    <Button onClick={handleSendInvoice} disabled={isSendingInvoice} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                      {isSendingInvoice ? "Sending..." : "Send Invoice & Approve Order"}
+                    </Button>
+                  </>
+                ) : order.status !== "cancelled" ? (
+                  <>
+                    <p className="text-sm text-gray-500 mb-3">Regenerate and resend the invoice to the customer's email.</p>
+                    <Button onClick={handleResendInvoice} disabled={isResendingInvoice} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                      {isResendingInvoice ? "Sending..." : "Resend Invoice to Customer"}
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-400">Invoice cannot be sent for cancelled orders.</p>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

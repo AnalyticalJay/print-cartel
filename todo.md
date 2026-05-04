@@ -2062,3 +2062,11 @@ Future enhancements (Phase 2):
 - [x] Built Reports tab with revenue stats, order status breakdown, and monthly revenue chart
 - [x] Updated all PayFast test files to use new interface (43 tests passing)
 - [x] Zero TypeScript errors
+
+## Phase 19 - Send Invoice Button
+- [x] Verify/create sendInvoice tRPC procedure in admin router
+- [x] Add Send Invoice button to admin order detail modal
+- [x] Show loading spinner while email is sending
+- [x] Show success toast on email sent
+- [x] Show error toast if email fails
+- [x] Write tests for sendInvoice procedure
