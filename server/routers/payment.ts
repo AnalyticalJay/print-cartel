@@ -3,20 +3,12 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { orders, paymentRecords } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
-import { PayFastIntegration } from "../payfast-integration";
+import { buildPayFastPaymentUrl, verifyPayFastSignature } from "../payfast-service";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 import { sendPaymentReceiptEmailWithRetry } from "../send-payment-receipt";
 import { checkAndProgressOrder } from "../auto-progression";
 
-// Helper function to get PayFast integration with current env vars
-function getPayFastIntegration() {
-  return new PayFastIntegration({
-    merchantId: process.env.PAYFAST_MERCHANT_ID || "",
-    merchantKey: process.env.PAYFAST_MERCHANT_KEY || "",
-    passphrase: process.env.PAYFAST_PASSPHRASE || "",
-    isSandbox: process.env.PAYFAST_SANDBOX === "true",
-  });
-}
+
 
 export const paymentRouter = router({
   // Initiate PayFast payment
@@ -53,20 +45,25 @@ export const paymentRouter = router({
           throw new Error("Unauthorized: Order does not belong to this user");
         }
 
-        // Generate payment URL with fresh PayFast instance
-        const payfast = getPayFastIntegration();
-        const paymentUrl = payfast.getPaymentUrl({
-          orderId: input.orderId,
-          amount: input.amount,
-          customerEmail: order.customerEmail,
-          customerFirstName: order.customerFirstName || "Customer",
-          customerLastName: order.customerLastName || ".",
-          itemName: `Invoice for Order #${input.orderId}`,
-          itemDescription: `Payment for DTF printing order`,
-          returnUrl: input.returnUrl,
-          cancelUrl: input.cancelUrl,
-          notifyUrl: input.notifyUrl,
-        });
+        // Generate payment URL using the canonical PHP-encoded signature implementation
+        const paymentUrl = buildPayFastPaymentUrl(
+          {
+            merchantId: process.env.PAYFAST_MERCHANT_ID || "",
+            merchantKey: process.env.PAYFAST_MERCHANT_KEY || "",
+            passphrase: process.env.PAYFAST_PASSPHRASE || "",
+            sandbox: process.env.PAYFAST_SANDBOX === "true",
+          },
+          {
+            orderId: input.orderId,
+            amount: input.amount,
+            customerEmail: order.customerEmail,
+            customerFirstName: order.customerFirstName || "Customer",
+            customerLastName: order.customerLastName || ".",
+            returnUrl: input.returnUrl,
+            cancelUrl: input.cancelUrl,
+            notifyUrl: input.notifyUrl,
+          }
+        );
 
         return {
           success: true,
@@ -197,9 +194,13 @@ export const paymentRouter = router({
         const db = await getDb();
         if (!db) throw new Error("Database not available");
 
-        // Verify signature
-        const payfast = getPayFastIntegration();
-        const isValid = payfast.verifyNotificationSignature(input as any);
+        // Verify signature using the canonical PHP-encoded implementation
+        const { signature: receivedSig, ...notifData } = input as any;
+        const isValid = verifyPayFastSignature(
+          notifData,
+          receivedSig,
+          process.env.PAYFAST_PASSPHRASE || ""
+        );
         if (!isValid) {
           console.error("Invalid PayFast signature");
           return { success: false, error: "Invalid signature" };

@@ -2143,3 +2143,13 @@ Future enhancements (Phase 2):
 - [x] Fix parameter ordering and passphrase handling per PayFast spec
 - [x] Verify signature matches using test parameters from the real URL
 - [x] Write tests for signature generation
+
+
+## PayFast Consolidation (Session: May 2026)
+- [x] Audit all PayFast-related files and identify duplicates
+- [x] Fix server/routers/payment.ts to use buildPayFastPaymentUrl + verifyPayFastSignature from payfast-service.ts
+- [x] Fix server/payfast-itn-retry.ts to use verifyPayFastSignature from payfast-service.ts (was using broken PayFastIntegration class)
+- [x] Delete server/payfast-integration.ts (duplicate/broken implementation)
+- [x] Remove test-payfast-live.mjs, test-payfast-callback.sh, test-payfast-sandbox.sh
+- [x] Confirm 0 TypeScript errors after consolidation
+- [x] Confirm all 78 PayFast + admin tests passing

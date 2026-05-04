@@ -1,7 +1,7 @@
 import { db } from "../drizzle/client";
 import { payFastItnRetryQueue, orders } from "../drizzle/schema";
 import { eq, and, lt } from "drizzle-orm";
-import { PayFastIntegration, PayFastNotification } from "./payfast-integration";
+import { verifyPayFastSignature } from "./payfast-service";
 
 /**
  * PayFast ITN Retry Service
@@ -158,15 +158,13 @@ export class PayFastItnRetryService {
     try {
       const itnData = retry.itnData as Record<string, any>;
 
-      // Verify signature
-      const config = {
-        merchantId: process.env.PAYFAST_MERCHANT_ID || "",
-        merchantKey: process.env.PAYFAST_MERCHANT_KEY || "",
-        passphrase: process.env.PAYFAST_PASSPHRASE || "",
-        isSandbox: process.env.PAYFAST_SANDBOX === "true",
-      };
-      const payfast = new PayFastIntegration(config);
-      const isValidSignature = payfast.verifyNotificationSignature(itnData as PayFastNotification);
+      // Verify signature using the canonical PHP-encoded implementation
+      const { signature: receivedSig, ...notifData } = itnData;
+      const isValidSignature = verifyPayFastSignature(
+        notifData,
+        receivedSig,
+        process.env.PAYFAST_PASSPHRASE || ""
+      );
 
       if (!isValidSignature) {
         throw new Error("Invalid ITN signature");
