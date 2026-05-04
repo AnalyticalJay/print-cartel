@@ -2153,3 +2153,13 @@ Future enhancements (Phase 2):
 - [x] Remove test-payfast-live.mjs, test-payfast-callback.sh, test-payfast-sandbox.sh
 - [x] Confirm 0 TypeScript errors after consolidation
 - [x] Confirm all 78 PayFast + admin tests passing
+
+## Admin ITN Retry Dashboard
+- [x] Add getItnRetryStats tRPC procedure (admin-only) returning queue stats
+- [x] Add getItnRetryQueue tRPC procedure (admin-only) returning paginated retry records with order info
+- [x] Add manualRetry tRPC mutation (admin-only) to manually trigger a retry by ID
+- [x] Build ITN Retry tab in AdminDashboard with stats cards (pending/processing/completed/failed/abandoned)
+- [x] Build retry queue table with columns: Order ID, Transaction ID, Status, Attempts, Next Retry, Last Error, Actions
+- [x] Add Manual Retry button per row (only for failed/abandoned entries)
+- [x] Add status badge colour coding (pending=blue, processing=yellow, completed=green, failed=red, abandoned=gray)
+- [x] Write vitest tests for new admin procedures (25 tests passing)

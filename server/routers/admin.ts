@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb, getOrderStatusHistory, logOrderStatusChange } from "../db";
-import { orders, orderPrints, orderLineItems, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users, designUploadsByQuantity, designQuantityTracker } from "../../drizzle/schema";
+import { orders, orderPrints, orderLineItems, printOptions, printPlacements, products, productColors, productSizes, paymentProofs, users, designUploadsByQuantity, designQuantityTracker, payFastItnRetryQueue } from "../../drizzle/schema";
+import { PayFastItnRetryService } from "../payfast-itn-retry";
 import { eq, and, desc } from "drizzle-orm";
 import { sendStatusUpdateEmail } from "../email";
 import { createInvoice } from "../invoice";
@@ -1678,5 +1679,73 @@ export const adminRouter = router({
       }
 
       return { success: true, printId: input.printId, status: input.status };
+    }),
+
+  // ── ITN Retry Queue ────────────────────────────────────────────────────────
+
+  getItnRetryStats: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+    const stats = await PayFastItnRetryService.getRetryStats();
+    return stats ?? { pending: 0, processing: 0, completed: 0, failed: 0, abandoned: 0, totalRetries: 0 };
+  }),
+
+  getItnRetryQueue: protectedProcedure
+    .input(
+      z.object({
+        status: z.enum(["pending", "processing", "completed", "failed", "abandoned", "all"]).default("all"),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const baseSelect = {
+        id: payFastItnRetryQueue.id,
+        orderId: payFastItnRetryQueue.orderId,
+        transactionId: payFastItnRetryQueue.transactionId,
+        status: payFastItnRetryQueue.status,
+        attemptCount: payFastItnRetryQueue.attemptCount,
+        maxAttempts: payFastItnRetryQueue.maxAttempts,
+        nextRetryAt: payFastItnRetryQueue.nextRetryAt,
+        lastAttemptAt: payFastItnRetryQueue.lastAttemptAt,
+        lastErrorMessage: payFastItnRetryQueue.lastErrorMessage,
+        failureReason: payFastItnRetryQueue.failureReason,
+        createdAt: payFastItnRetryQueue.createdAt,
+        updatedAt: payFastItnRetryQueue.updatedAt,
+        customerEmail: orders.customerEmail,
+        customerFirstName: orders.customerFirstName,
+        customerLastName: orders.customerLastName,
+        amountPaid: orders.amountPaid,
+      };
+
+      const baseQuery = db
+        .select(baseSelect)
+        .from(payFastItnRetryQueue)
+        .leftJoin(orders, eq(payFastItnRetryQueue.orderId, orders.id));
+
+      const results =
+        input.status === "all"
+          ? await baseQuery.orderBy(desc(payFastItnRetryQueue.createdAt)).limit(input.limit).offset(input.offset)
+          : await db
+              .select(baseSelect)
+              .from(payFastItnRetryQueue)
+              .leftJoin(orders, eq(payFastItnRetryQueue.orderId, orders.id))
+              .where(eq(payFastItnRetryQueue.status, input.status as any))
+              .orderBy(desc(payFastItnRetryQueue.createdAt))
+              .limit(input.limit)
+              .offset(input.offset);
+
+      return results;
+    }),
+
+  manualItnRetry: protectedProcedure
+    .input(z.object({ retryId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+      await PayFastItnRetryService.manualRetry(input.retryId);
+      return { success: true, retryId: input.retryId };
     }),
 });

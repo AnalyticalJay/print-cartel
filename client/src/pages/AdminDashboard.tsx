@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download, Eye, TrendingUp, Mail, MessageSquare, FileText, Users, Package, BarChart3, ShoppingCart, FileDown, ExternalLink, Image, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Download, Eye, TrendingUp, Mail, MessageSquare, FileText, Users, Package, BarChart3, ShoppingCart, FileDown, ExternalLink, Image, CheckCircle, XCircle, AlertCircle, Loader2, RefreshCw, RotateCcw, Clock, Ban } from "lucide-react";
 import { AdminTableSkeleton } from "@/components/SkeletonLoaders";
 import { AdminInventoryManager } from "@/components/AdminInventoryManager";
 import { PaymentStatusDisplay } from "@/components/PaymentStatusDisplay";
@@ -23,7 +23,7 @@ import { OrderNotificationHandler } from "@/components/OrderNotificationHandler"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type OrderStatus = "pending" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
-type AdminTab = "orders" | "customers" | "products" | "reports";
+type AdminTab = "orders" | "customers" | "products" | "reports" | "itn-retry";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -121,6 +121,7 @@ function AdminDashboardContent() {
     { id: "customers", label: "Customers", icon: <Users className="w-4 h-4" /> },
     { id: "products", label: "Products", icon: <Package className="w-4 h-4" /> },
     { id: "reports", label: "Reports", icon: <BarChart3 className="w-4 h-4" /> },
+    { id: "itn-retry", label: "ITN Retry", icon: <RefreshCw className="w-4 h-4" /> },
   ];
 
   return (
@@ -318,6 +319,9 @@ function AdminDashboardContent() {
 
         {/* ── REPORTS TAB ── */}
         {activeTab === "reports" && <ReportsTab />}
+
+        {/* ── ITN RETRY TAB ── */}
+        {activeTab === "itn-retry" && <ItnRetryTab />}
       </div>
     </div>
   );
@@ -504,6 +508,181 @@ function ReportsTab() {
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+// ─── ITN Retry Tab ───────────────────────────────────────────────────────────
+function ItnRetryTab() {
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "processing" | "completed" | "failed" | "abandoned">("all");
+  const statsQuery = trpc.admin.getItnRetryStats.useQuery();
+  const queueQuery = trpc.admin.getItnRetryQueue.useQuery({ status: statusFilter, limit: 50, offset: 0 });
+  const retryMutation = trpc.admin.manualItnRetry.useMutation({
+    onSuccess: () => {
+      toast.success("Retry queued — it will be processed shortly");
+      queueQuery.refetch();
+      statsQuery.refetch();
+    },
+    onError: (err) => toast.error(`Retry failed: ${err.message}`),
+  });
+
+  const statusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      pending: "bg-blue-100 text-blue-800",
+      processing: "bg-yellow-100 text-yellow-800",
+      completed: "bg-green-100 text-green-800",
+      failed: "bg-red-100 text-red-800",
+      abandoned: "bg-gray-200 text-gray-700",
+    };
+    return map[status] || "bg-gray-100 text-gray-600";
+  };
+
+  const stats = statsQuery.data;
+
+  return (
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { label: "Pending", value: stats?.pending ?? 0, icon: <Clock className="w-4 h-4 text-blue-500" />, color: "text-blue-700" },
+          { label: "Processing", value: stats?.processing ?? 0, icon: <Loader2 className="w-4 h-4 text-yellow-500" />, color: "text-yellow-700" },
+          { label: "Completed", value: stats?.completed ?? 0, icon: <CheckCircle className="w-4 h-4 text-green-500" />, color: "text-green-700" },
+          { label: "Failed", value: stats?.failed ?? 0, icon: <XCircle className="w-4 h-4 text-red-500" />, color: "text-red-700" },
+          { label: "Abandoned", value: stats?.abandoned ?? 0, icon: <Ban className="w-4 h-4 text-gray-500" />, color: "text-gray-700" },
+        ].map((s) => (
+          <Card key={s.label} className="py-3">
+            <CardContent className="px-4 py-0">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-gray-500">{s.label}</p>
+                {s.icon}
+              </div>
+              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Filter + Refresh */}
+      <Card>
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="processing">Processing</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="abandoned">Abandoned</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" onClick={() => { queueQuery.refetch(); statsQuery.refetch(); }}>
+              <RefreshCw className="w-4 h-4 mr-2" /> Refresh
+            </Button>
+            <span className="text-sm text-gray-500 ml-auto">
+              {queueQuery.data?.length ?? 0} record{(queueQuery.data?.length ?? 0) !== 1 ? "s" : ""}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Queue Table */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle>ITN Callback Retry Queue</CardTitle>
+          <CardDescription>
+            PayFast Instant Transaction Notifications that failed and are queued for retry. Use Manual Retry to immediately re-queue a failed or abandoned entry.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {queueQuery.isLoading ? (
+            <p className="text-center text-gray-500 py-10">Loading retry queue...</p>
+          ) : !queueQuery.data || queueQuery.data.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <CheckCircle className="w-10 h-10 mx-auto mb-3 text-green-400" />
+              <p className="font-medium">No ITN retry records found</p>
+              <p className="text-sm mt-1">All payment callbacks have been processed successfully.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">ID</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Order</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Customer</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Amount</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Status</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Attempts</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Next Retry</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Last Error</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Created</th>
+                    <th className="px-3 py-3 text-left font-semibold text-gray-700">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {queueQuery.data.map((row) => (
+                    <tr key={row.id} className="hover:bg-gray-50">
+                      <td className="px-3 py-3 text-gray-500 font-mono text-xs">{row.id}</td>
+                      <td className="px-3 py-3">
+                        <span className="font-semibold text-gray-900">#{row.orderId}</span>
+                        <div className="text-xs text-gray-400 font-mono truncate max-w-[100px]" title={row.transactionId}>
+                          {row.transactionId}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="font-medium text-gray-900">{row.customerFirstName} {row.customerLastName}</div>
+                        <div className="text-xs text-gray-500">{row.customerEmail}</div>
+                      </td>
+                      <td className="px-3 py-3 font-semibold text-gray-900">
+                        {row.amountPaid ? `R${Number(row.amountPaid).toFixed(2)}` : "—"}
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadge(row.status)}`}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 text-center text-gray-700">
+                        {row.attemptCount}/{row.maxAttempts}
+                      </td>
+                      <td className="px-3 py-3 text-xs text-gray-600">
+                        {row.nextRetryAt ? new Date(row.nextRetryAt).toLocaleString() : "—"}
+                      </td>
+                      <td className="px-3 py-3 max-w-[180px]">
+                        {row.lastErrorMessage ? (
+                          <span className="text-xs text-red-600 truncate block" title={row.lastErrorMessage}>
+                            {row.lastErrorMessage.length > 60 ? row.lastErrorMessage.slice(0, 60) + "…" : row.lastErrorMessage}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-3 text-xs text-gray-500">
+                        {new Date(row.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-3 py-3">
+                        {(row.status === "failed" || row.status === "abandoned") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs border-orange-300 text-orange-700 hover:bg-orange-50"
+                            disabled={retryMutation.isPending}
+                            onClick={() => retryMutation.mutate({ retryId: row.id })}
+                          >
+                            <RotateCcw className="w-3 h-3 mr-1" />
+                            Retry
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
