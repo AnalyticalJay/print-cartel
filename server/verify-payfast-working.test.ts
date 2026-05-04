@@ -5,7 +5,7 @@ describe("PayFast Payment System - Complete Verification", () => {
   const payfast = new PayFastIntegration({
     merchantId: process.env.PAYFAST_MERCHANT_ID || "19428362",
     merchantKey: process.env.PAYFAST_MERCHANT_KEY || "x9mjrsxlwirog",
-    passphrase: process.env.PAYFAST_PASSPHRASE || "-,Redemption_2026",
+    passphrase: process.env.PAYFAST_PASSPHRASE || "-.Redemption_2026",
     isSandbox: process.env.PAYFAST_SANDBOX === "true",
   });
 

@@ -8,7 +8,7 @@ import crypto from "crypto";
 
 const MERCHANT_ID = "19428362";
 const MERCHANT_KEY = "x9mjrsxlwirog";
-const PASSPHRASE = "-,Redemption_2026";
+const PASSPHRASE = "-.Redemption_2026";
 
 // Data from the actual URL
 const actualData = {
