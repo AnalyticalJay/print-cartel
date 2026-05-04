@@ -99,15 +99,44 @@ export const ordersRouter = router({
 
         // Send confirmation email
         try {
+          const db = await getDb();
+          // Resolve product, color, size, placement, printSize names for the email
+          let productName = "Custom DTF Print Order";
+          let colorName: string | undefined;
+          let sizeName: string | undefined;
+          const emailLineItems: Array<{ productName: string; colorName?: string; sizeName?: string; quantity: number; placementName?: string; printSizeName?: string }> = [];
+          if (db) {
+            const [prod] = await db.select().from(products).where(eq(products.id, input.productId)).limit(1);
+            const [col] = await db.select().from(productColors).where(eq(productColors.id, input.colorId)).limit(1);
+            const [sz] = await db.select().from(productSizes).where(eq(productSizes.id, input.sizeId)).limit(1);
+            if (prod) productName = prod.name;
+            if (col) colorName = col.colorName;
+            if (sz) sizeName = sz.sizeName;
+            // Resolve placement and printSize for each print
+            for (const print of input.prints) {
+              const [placement] = await db.select().from(printPlacements).where(eq(printPlacements.id, print.placementId)).limit(1);
+              const [printOpt] = await db.select().from(printOptions).where(eq(printOptions.id, print.printSizeId)).limit(1);
+              emailLineItems.push({
+                productName,
+                colorName,
+                sizeName,
+                quantity: input.quantity,
+                placementName: placement?.placementName,
+                printSizeName: printOpt?.printSize,
+              });
+            }
+          }
           await sendOrderConfirmationEmail({
             orderId,
             customerName: input.customerFirstName,
             customerEmail: input.customerEmail,
-            productName: "Custom DTF Print Order",
+            productName,
             quantity: input.quantity,
             totalPrice: input.totalPriceEstimate,
             status: "pending",
             orderDate: new Date(),
+            lineItems: emailLineItems.length > 0 ? emailLineItems : undefined,
+            trackingUrl: `https://printcartel.co.za/account`,
           });
         } catch (error) {
           console.error("Failed to send confirmation email:", error);
@@ -192,6 +221,32 @@ export const ordersRouter = router({
 
         // Send confirmation email
         try {
+          const db = await getDb();
+          const multiEmailLineItems: Array<{ productName: string; colorName?: string; sizeName?: string; quantity: number; placementName?: string; printSizeName?: string }> = [];
+          if (db) {
+            for (const cartItem of input.cartItems) {
+              const [prod] = await db.select().from(products).where(eq(products.id, cartItem.productId)).limit(1);
+              const [col] = await db.select().from(productColors).where(eq(productColors.id, cartItem.colorId)).limit(1);
+              const [sz] = await db.select().from(productSizes).where(eq(productSizes.id, cartItem.sizeId)).limit(1);
+              const firstSel = cartItem.printSelections[0];
+              let placementName: string | undefined;
+              let printSizeName: string | undefined;
+              if (firstSel) {
+                const [placement] = await db.select().from(printPlacements).where(eq(printPlacements.id, firstSel.placementId)).limit(1);
+                const [printOpt] = await db.select().from(printOptions).where(eq(printOptions.id, firstSel.printSizeId)).limit(1);
+                placementName = placement?.placementName;
+                printSizeName = printOpt?.printSize;
+              }
+              multiEmailLineItems.push({
+                productName: prod?.name || "Custom DTF Print",
+                colorName: col?.colorName,
+                sizeName: sz?.sizeName,
+                quantity: cartItem.quantity,
+                placementName,
+                printSizeName,
+              });
+            }
+          }
           await sendOrderConfirmationEmail({
             orderId,
             customerName: `${input.customerFirstName} ${input.customerLastName}`,
@@ -202,6 +257,8 @@ export const ordersRouter = router({
             totalPrice: input.totalPriceEstimate,
             status: "pending",
             orderDate: new Date(),
+            lineItems: multiEmailLineItems.length > 0 ? multiEmailLineItems : undefined,
+            trackingUrl: `https://printcartel.co.za/account`,
           });
         } catch (error) {
           console.error("Failed to send confirmation email:", error);

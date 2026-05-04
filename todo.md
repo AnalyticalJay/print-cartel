@@ -2131,3 +2131,9 @@ Future enhancements (Phase 2):
 - [x] Fix OrderWizard handleAddToCart to store full printSelections on cart item
 - [x] Remove || 1 fallback in createMultiItem (use 0 instead to avoid silent wrong data)
 - [x] Add graceful fallback in AdminDashboard UI for legacy orders with unresolvable IDs
+
+## Current Sprint - Order Confirmation Email Placement & Print Size
+- [x] Find the order confirmation email template/function
+- [x] Update email to include placement name and print size per line item
+- [x] Ensure placement/printSize names are resolved from DB before sending
+- [x] Write tests for updated email content

@@ -25,6 +25,16 @@ export function getTransporter() {
   return transporter;
 }
 
+export interface OrderLineItemEmailData {
+  productName: string;
+  colorName?: string;
+  sizeName?: string;
+  quantity: number;
+  placementName?: string;
+  printSizeName?: string;
+  subtotal?: number;
+}
+
 export interface OrderEmailData {
   orderId: number;
   customerName: string;
@@ -37,6 +47,7 @@ export interface OrderEmailData {
   orderDate: Date;
   estimatedDelivery?: Date;
   trackingUrl?: string;
+  lineItems?: OrderLineItemEmailData[];
 }
 
 export interface StatusUpdateEmailData {
@@ -116,6 +127,34 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
                 </div>
                 ` : ''}
               </div>
+
+              ${data.lineItems && data.lineItems.length > 0 ? `
+              <div class="order-details" style="margin-top: 20px;">
+                <h3 style="margin-top: 0; color: #FF6B35;">Garment & Print Details</h3>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                  <thead>
+                    <tr style="background-color: #FF6B35; color: white;">
+                      <th style="padding: 8px 10px; text-align: left;">Product</th>
+                      <th style="padding: 8px 10px; text-align: center;">Qty</th>
+                      <th style="padding: 8px 10px; text-align: left;">Colour</th>
+                      <th style="padding: 8px 10px; text-align: left;">Size</th>
+                      <th style="padding: 8px 10px; text-align: left;">Placement</th>
+                      <th style="padding: 8px 10px; text-align: left;">Print Size</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data.lineItems.map((item, i) => `
+                    <tr style="background-color: ${i % 2 === 0 ? '#ffffff' : '#f9f9f9'}; border-bottom: 1px solid #eee;">
+                      <td style="padding: 8px 10px;">${item.productName}</td>
+                      <td style="padding: 8px 10px; text-align: center;">${item.quantity}</td>
+                      <td style="padding: 8px 10px;">${item.colorName || '—'}</td>
+                      <td style="padding: 8px 10px;">${item.sizeName || '—'}</td>
+                      <td style="padding: 8px 10px;">${item.placementName || '—'}</td>
+                      <td style="padding: 8px 10px;">${item.printSizeName || '—'}</td>
+                    </tr>`).join('')}
+                  </tbody>
+                </table>
+              </div>` : ''}
 
               <p>You can track your order status anytime by visiting our website.</p>
               ${data.trackingUrl ? `<a href="${data.trackingUrl}" class="button">Track Your Order</a>` : ''}
