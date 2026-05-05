@@ -318,15 +318,19 @@ export function PaymentSuccess() {
                             <span className="font-medium text-gray-800">{print.placementName}</span>
                             <span className="text-gray-500 ml-2">— {print.printSize}</span>
                           </div>
-                          <a
-                            href={print.uploadedFilePath}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            <Download className="h-3 w-3" />
-                            {print.uploadedFileName}
-                          </a>
+                          {print.uploadedFilePath ? (
+                            <a
+                              href={print.uploadedFilePath}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              <Download className="h-3 w-3" />
+                              {print.uploadedFileName ?? "Download"}
+                            </a>
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">No file uploaded</span>
+                          )}
                         </div>
                       ))}
                     </div>

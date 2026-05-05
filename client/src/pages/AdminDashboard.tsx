@@ -932,6 +932,15 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
   const order = orderQuery.data;
   if (!order) return null;
 
+  // Gate Send Invoice on artwork approval
+  const printsWithArtwork = (order.prints || []).filter((p: any) => p.uploadedFilePath);
+  const allArtworkApproved =
+    printsWithArtwork.length === 0 ||
+    printsWithArtwork.every((p: any) => p.designApprovalStatus === "approved");
+  const pendingArtworkCount = printsWithArtwork.filter(
+    (p: any) => p.designApprovalStatus !== "approved"
+  ).length;
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
       <Card className="w-full max-w-4xl my-8">
@@ -943,15 +952,24 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {(order.status === "pending" || order.status === "quoted") && (
-                <Button
-                  onClick={handleSendInvoice}
-                  disabled={isSendingInvoice}
-                  size="sm"
-                  className="bg-purple-600 hover:bg-purple-700 text-white gap-1.5"
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                  {isSendingInvoice ? "Sending..." : "Send Invoice"}
-                </Button>
+                <div className="relative group">
+                  <Button
+                    onClick={handleSendInvoice}
+                    disabled={isSendingInvoice || !allArtworkApproved}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white gap-1.5 disabled:opacity-50"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    {isSendingInvoice ? "Sending..." : "Send Invoice"}
+                  </Button>
+                  {!allArtworkApproved && (
+                    <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-50">
+                      <div className="bg-gray-900 border border-amber-600 text-amber-300 text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-xl">
+                        ⚠️ {pendingArtworkCount} artwork file{pendingArtworkCount !== 1 ? "s" : ""} pending approval
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
               {order.status !== "pending" && order.status !== "quoted" && order.status !== "cancelled" && (
                 <Button

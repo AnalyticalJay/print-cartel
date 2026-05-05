@@ -211,6 +211,13 @@
       "when": 1777924213096,
       "tag": "0031_glossy_black_tom",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1777966535116,
+      "tag": "0032_boring_talisman",
+      "breakpoints": true
     }
   ]
 }

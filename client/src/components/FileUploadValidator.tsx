@@ -3,15 +3,17 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, AlertCircle, CheckCircle, FileIcon } from "lucide-react";
+import { Upload, X, AlertCircle, CheckCircle, FileIcon, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 interface FileUploadValidatorProps {
   placement: string;
   printSize: string;
-  onFileUpload: (file: File) => void;
+  /** Called after successful S3 upload with the file object AND the S3 URL */
+  onFileUpload: (file: File, s3Url: string) => void;
   uploadedFileName?: string;
+  uploadedFileUrl?: string;
   onRemoveFile?: () => void;
 }
 
@@ -20,15 +22,14 @@ export function FileUploadValidator({
   printSize,
   onFileUpload,
   uploadedFileName,
+  uploadedFileUrl,
   onRemoveFile,
 }: FileUploadValidatorProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const validateFileMutation = trpc.files.validateFile.useQuery(
-    { fileData: new Uint8Array(), fileName: "", mimeType: "" },
-    { enabled: false }
-  );
+
+  const uploadMutation = trpc.files.upload.useMutation();
 
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
@@ -48,28 +49,44 @@ export function FileUploadValidator({
   };
 
   const validateAndUploadFile = async (file: File) => {
-    // Quick client-side validation
+    // Client-side validation
     const maxFileSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxFileSize) {
       toast.error("File size exceeds 50MB limit");
       return;
     }
-
     if (file.size === 0) {
       toast.error("File is empty");
       return;
     }
 
-    // Accept file and pass to parent
-    onFileUpload(file);
-    toast.success(`File "${file.name}" selected`);
+    setIsUploading(true);
+    try {
+      // Read file as Uint8Array and upload to S3
+      const arrayBuffer = await file.arrayBuffer();
+      const fileData = new Uint8Array(arrayBuffer);
+
+      const result = await uploadMutation.mutateAsync({
+        fileName: file.name,
+        fileData,
+        mimeType: file.type || "application/octet-stream",
+      });
+
+      // Pass both the file and the S3 URL back to parent
+      onFileUpload(file, result.url);
+      toast.success(`"${file.name}" uploaded successfully`);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      toast.error("Upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       await validateAndUploadFile(files[0]);
@@ -81,10 +98,12 @@ export function FileUploadValidator({
     if (files && files.length > 0) {
       await validateAndUploadFile(files[0]);
     }
+    // Reset input so same file can be re-selected
+    e.currentTarget.value = "";
   };
 
   const handleClick = () => {
-    fileInputRef.current?.click();
+    if (!isUploading) fileInputRef.current?.click();
   };
 
   return (
@@ -111,10 +130,12 @@ export function FileUploadValidator({
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onClick={handleClick}
-              className={`border-2 border-dashed rounded-lg p-6 md:p-8 text-center cursor-pointer transition-all active:bg-accent/10 ${
-                isDragging
-                  ? "border-accent bg-accent/10"
-                  : "border-gray-600 hover:border-gray-500 bg-gray-600/30 hover:bg-gray-600/50"
+              className={`border-2 border-dashed rounded-lg p-6 md:p-8 text-center transition-all ${
+                isUploading
+                  ? "border-accent/50 bg-accent/5 cursor-wait"
+                  : isDragging
+                  ? "border-accent bg-accent/10 cursor-copy"
+                  : "border-gray-600 hover:border-gray-500 bg-gray-600/30 hover:bg-gray-600/50 cursor-pointer active:bg-accent/10"
               }`}
             >
               <input
@@ -122,17 +143,30 @@ export function FileUploadValidator({
                 type="file"
                 onChange={handleFileSelect}
                 className="hidden"
-                accept="image/*,.pdf"
+                accept="image/*,.pdf,.ai,.eps,.svg"
+                disabled={isUploading}
               />
 
-              <Upload className="w-8 md:w-10 h-8 md:h-10 mx-auto text-gray-300 mb-2 md:mb-3" />
-              <p className="text-white font-semibold mb-1 text-sm md:text-base">
-                Drag and drop your file here
-              </p>
-              <p className="text-gray-300 text-xs md:text-sm mb-2 md:mb-3">or click to browse</p>
-              <p className="text-gray-400 text-xs">
-                Supported: PNG, JPG, PDF, WebP • Max 50MB
-              </p>
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-8 md:w-10 h-8 md:h-10 mx-auto text-accent mb-2 md:mb-3 animate-spin" />
+                  <p className="text-white font-semibold mb-1 text-sm md:text-base">
+                    Uploading artwork...
+                  </p>
+                  <p className="text-gray-300 text-xs md:text-sm">Please wait</p>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-8 md:w-10 h-8 md:h-10 mx-auto text-gray-300 mb-2 md:mb-3" />
+                  <p className="text-white font-semibold mb-1 text-sm md:text-base">
+                    Drag and drop your file here
+                  </p>
+                  <p className="text-gray-300 text-xs md:text-sm mb-2 md:mb-3">or click to browse</p>
+                  <p className="text-gray-400 text-xs">
+                    Supported: PNG, JPG, PDF, AI, EPS, SVG • Max 50MB
+                  </p>
+                </>
+              )}
             </div>
           ) : (
             <div className="border border-accent/50 rounded-lg p-3 md:p-4 bg-accent/5">
@@ -143,7 +177,19 @@ export function FileUploadValidator({
                     <p className="text-white font-semibold truncate text-xs md:text-sm">
                       {uploadedFileName}
                     </p>
-                    <p className="text-accent text-xs">File ready for upload</p>
+                    {uploadedFileUrl ? (
+                      <a
+                        href={uploadedFileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-accent text-xs hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Uploaded to server ✓
+                      </a>
+                    ) : (
+                      <p className="text-yellow-400 text-xs">Pending upload...</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 md:gap-2 ml-2 flex-shrink-0">

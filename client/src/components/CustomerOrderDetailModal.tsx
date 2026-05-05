@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   X, Download, ExternalLink, CheckCircle, AlertCircle, Clock, Loader2,
   CreditCard, Package, Truck, Star, FileText, ChevronLeft, ChevronRight,
-  Image as ImageIcon, AlertTriangle, Banknote,
+  Image as ImageIcon, AlertTriangle, Banknote, Upload, RefreshCw,
 } from "lucide-react";
 
 interface CustomerOrderDetailModalProps {
@@ -69,10 +69,54 @@ function ApprovalBadge({ status, notes }: { status: string; notes?: string | nul
 export function CustomerOrderDetailModal({ orderId, onClose }: CustomerOrderDetailModalProps) {
   const orderQuery = trpc.orders.getMyOrderDetail.useQuery({ orderId });
   const initiatePaymentMutation = trpc.payment.initiatePayFastPayment.useMutation();
+  const uploadFileMutation = trpc.files.upload.useMutation();
+  const updatePrintArtworkMutation = trpc.orders.updatePrintArtwork.useMutation();
+  const utils = trpc.useUtils();
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
+  const [uploadingPrintId, setUploadingPrintId] = useState<number | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const handleArtworkUpload = async (print: any, file: File) => {
+    if (!file) return;
+    // Validate file type
+    const allowedTypes = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml", "application/pdf", "application/postscript", "image/vnd.adobe.photoshop"];
+    const allowedExtensions = /\.(png|jpe?g|gif|webp|svg|pdf|ai|eps|psd)$/i;
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.test(file.name)) {
+      toast.error("Invalid file type. Please upload PNG, JPG, PDF, AI, EPS, or PSD.");
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("File too large. Maximum size is 50MB.");
+      return;
+    }
+    setUploadingPrintId(print.id);
+    try {
+      // Convert file to Uint8Array for upload
+      const arrayBuffer = await file.arrayBuffer();
+      const fileData = new Uint8Array(arrayBuffer);
+      const uploadResult = await uploadFileMutation.mutateAsync({
+        fileName: file.name,
+        fileData,
+        mimeType: file.type || "application/octet-stream",
+      });
+      await updatePrintArtworkMutation.mutateAsync({
+        printId: print.id,
+        orderId,
+        uploadedFilePath: uploadResult.url,
+        uploadedFileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+      });
+      toast.success("Artwork uploaded successfully! Admin will review it shortly.");
+      utils.orders.getMyOrderDetail.invalidate({ orderId });
+    } catch (err: any) {
+      toast.error(err?.message || "Upload failed. Please try again.");
+    } finally {
+      setUploadingPrintId(null);
+    }
+  };
 
   const order = orderQuery.data;
 
@@ -488,7 +532,51 @@ export function CustomerOrderDetailModal({ orderId, onClose }: CustomerOrderDeta
                           </div>
                         )}
 
-                        {/* File info */}
+                        {/* No artwork placeholder with upload button */}
+                        {!print.uploadedFilePath && (
+                          <div className="p-4 flex flex-col items-center justify-center gap-3 bg-gray-800/60 border-2 border-dashed border-gray-600 rounded-xl">
+                            <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                              <Upload className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-sm font-medium text-gray-300">
+                                {print.placement?.placementName || `Design ${i + 1}`}
+                                {print.printSize?.printSize ? ` · ${print.printSize.printSize}` : ""}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-0.5">No artwork uploaded yet</p>
+                            </div>
+                            <label className="cursor-pointer">
+                              <input
+                                type="file"
+                                className="hidden"
+                                accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.pdf,.ai,.eps,.psd"
+                                disabled={uploadingPrintId === print.id}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleArtworkUpload(print, file);
+                                  e.target.value = "";
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                className="gap-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs"
+                                disabled={uploadingPrintId === print.id}
+                                asChild
+                              >
+                                <span>
+                                  {uploadingPrintId === print.id ? (
+                                    <><Loader2 className="w-3 h-3 animate-spin" /> Uploading…</>
+                                  ) : (
+                                    <><Upload className="w-3 h-3" /> Upload Artwork</>
+                                  )}
+                                </span>
+                              </Button>
+                            </label>
+                          </div>
+                        )}
+
+                        {/* File info (when artwork exists) */}
+                        {print.uploadedFilePath && (
                         <div className="p-3">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0">
@@ -506,11 +594,11 @@ export function CustomerOrderDetailModal({ orderId, onClose }: CustomerOrderDeta
                                 </p>
                               </div>
                             </div>
-                            {print.uploadedFilePath && (
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="text-xs h-7 px-2 gap-1 border-gray-600 text-gray-300 hover:text-white flex-shrink-0"
+                                className="text-xs h-7 px-2 gap-1 border-gray-600 text-gray-300 hover:text-white"
                                 onClick={() => {
                                   const a = document.createElement("a");
                                   a.href = print.uploadedFilePath;
@@ -524,7 +612,38 @@ export function CustomerOrderDetailModal({ orderId, onClose }: CustomerOrderDeta
                               >
                                 <Download className="w-3 h-3" /> Download
                               </Button>
-                            )}
+                              {/* Re-upload button — only for pending/changes_requested and non-locked statuses */}
+                              {["pending", "quoted"].includes(order.status) && approvalStatus !== "approved" && (
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.pdf,.ai,.eps,.psd"
+                                    disabled={uploadingPrintId === print.id}
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleArtworkUpload(print, file);
+                                      e.target.value = "";
+                                    }}
+                                  />
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs h-7 px-2 gap-1 border-amber-700 text-amber-400 hover:text-amber-300"
+                                    disabled={uploadingPrintId === print.id}
+                                    asChild
+                                  >
+                                    <span>
+                                      {uploadingPrintId === print.id ? (
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                      ) : (
+                                        <><RefreshCw className="w-3 h-3" /> Replace</>
+                                      )}
+                                    </span>
+                                  </Button>
+                                </label>
+                              )}
+                            </div>
                           </div>
 
                           {/* Approval status */}
@@ -532,6 +651,7 @@ export function CustomerOrderDetailModal({ orderId, onClose }: CustomerOrderDeta
                             <ApprovalBadge status={approvalStatus} notes={print.designApprovalNotes} />
                           </div>
                         </div>
+                        )}
                       </div>
                     );
                   })}

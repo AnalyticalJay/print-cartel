@@ -155,8 +155,8 @@ export const orderPrints = mysqlTable("orderPrints", {
   orderId: int("orderId").notNull(),
   printSizeId: int("printSizeId").notNull(),
   placementId: int("placementId").notNull(),
-  uploadedFilePath: varchar("uploadedFilePath", { length: 500 }).notNull(),
-  uploadedFileName: varchar("uploadedFileName", { length: 255 }).notNull(),
+  uploadedFilePath: varchar("uploadedFilePath", { length: 500 }),
+  uploadedFileName: varchar("uploadedFileName", { length: 255 }),
   fileSize: int("fileSize"),
   mimeType: varchar("mimeType", { length: 100 }),
   // Design approval workflow

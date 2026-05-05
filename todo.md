@@ -2206,3 +2206,14 @@ Future enhancements (Phase 2):
 - [x] Add testSmtpConnection and sendTestEmail procedures to admin router
 - [x] Add Settings tab to admin dashboard with SMTP connection test and send test email UI
 - [ ] Verify email delivery works end-to-end (user to test via Settings tab)
+
+
+## Artwork Approval & Payment Workflow (May 2026)
+- [x] Fix artwork not displaying in admin order detail (root cause: uploadedFilePath never uploaded to S3)
+- [x] Fix FileUploadValidator to upload to S3 immediately and store URL
+- [x] Update OrderWizard to store S3 URL as uploadedFilePath on print selection
+- [x] Make uploadedFilePath nullable in schema (allow orders without artwork, push migration)
+- [x] Add updatePrintArtwork procedure so customers can re-upload artwork from account dashboard
+- [x] Add artwork re-upload UI in CustomerOrderDetailModal
+- [x] Gate admin Send Invoice button on all artwork being approved (tooltip shows pending count)
+- [x] Customer Pay Now / EFT flow verified correct in CustomerOrderDetailModal

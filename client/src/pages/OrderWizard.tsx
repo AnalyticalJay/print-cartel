@@ -171,12 +171,14 @@ export default function OrderWizard() {
     });
   };
 
-  const handleFileUpload = (index: number, file: File) => {
+  const handleFileUpload = (index: number, file: File, s3Url: string) => {
     const updatedSelections = [...orderData.printSelections];
     updatedSelections[index] = {
       ...updatedSelections[index],
       designFile: file,
       designFileName: file.name,
+      uploadedFilePath: s3Url,
+      uploadedFileName: file.name,
     };
     setOrderData({
       ...orderData,
@@ -555,13 +557,16 @@ export default function OrderWizard() {
                         placement={placement?.placementName || "Unknown"}
                         printSize={option?.printSize || "Unknown"}
                         uploadedFileName={selection.designFileName}
-                        onFileUpload={(file) => handleFileUpload(index, file)}
+                        uploadedFileUrl={selection.uploadedFilePath}
+                        onFileUpload={(file, s3Url) => handleFileUpload(index, file, s3Url)}
                         onRemoveFile={() => {
                           const updated = [...orderData.printSelections];
                           updated[index] = {
                             ...updated[index],
                             designFile: undefined,
                             designFileName: undefined,
+                            uploadedFilePath: undefined,
+                            uploadedFileName: undefined,
                           };
                           setOrderData({ ...orderData, printSelections: updated });
                         }}

@@ -878,4 +878,48 @@ export const ordersRouter = router({
         isMultiItemOrder: order.productId === 0,
       };
     }),
+
+  // Allow customers to upload/replace artwork for a specific print on their order
+  updatePrintArtwork: protectedProcedure
+    .input(
+      z.object({
+        printId: z.number(),
+        orderId: z.number(),
+        uploadedFilePath: z.string().min(1),
+        uploadedFileName: z.string().min(1),
+        fileSize: z.number().optional(),
+        mimeType: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      // Verify the print belongs to an order owned by this user
+      const [print] = await db.select().from(orderPrints).where(eq(orderPrints.id, input.printId)).limit(1);
+      if (!print) throw new Error("Print not found");
+      const [order] = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+      if (!order) throw new Error("Order not found");
+      // Only allow if order belongs to this user
+      const isOwner = order.userId === ctx.user.id || order.customerEmail === ctx.user.email;
+      if (!isOwner) throw new Error("Unauthorized");
+      // Don't allow re-upload if order is already in production or beyond
+      if (["in-production", "completed", "shipped", "cancelled"].includes(order.status)) {
+        throw new Error("Cannot update artwork for an order that is already in production or completed");
+      }
+      await db
+        .update(orderPrints)
+        .set({
+          uploadedFilePath: input.uploadedFilePath,
+          uploadedFileName: input.uploadedFileName,
+          fileSize: input.fileSize ?? null,
+          mimeType: input.mimeType ?? null,
+          // Reset approval status when artwork is re-uploaded
+          designApprovalStatus: "pending",
+          designApprovalNotes: null,
+          designApprovedAt: null,
+          designReviewedBy: null,
+        })
+        .where(eq(orderPrints.id, input.printId));
+      return { success: true, printId: input.printId };
+    }),
 });
