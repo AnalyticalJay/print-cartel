@@ -2234,3 +2234,12 @@ Future enhancements (Phase 2):
 - [x] Fix Send Invoice button gating: require hasArtwork AND all approved (was incorrectly allowing invoice with 0 prints)
 - [x] Add dedicated sendArtworkChangesRequestedEmail function with placement/print size/filename/notes
 - [x] Write 20 vitest tests for the fixed submission flow (all passing)
+
+## Admin Order Detail Modal Responsive Fix (May 2026)
+- [ ] Fix modal: sticky header (order title + tabs + Send Invoice button), scrollable content body only
+- [ ] Ensure modal works on mobile (full screen) and desktop (max-w-4xl centered)
+
+## Admin Order Detail Modal Responsive Fix
+- [x] Fix modal layout: header (order title, tabs, Send Invoice) was being cut off at the top on desktop and mobile
+- [x] Implement sticky header with scrollable content area (flex column, overflow-hidden card, each TabsContent scrolls independently)
+- [x] Modal now uses full viewport height with 1rem margin, works on mobile (bottom sheet style) and desktop (centered)

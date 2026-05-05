@@ -944,13 +944,13 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
   ).length;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <Card className="w-full max-w-4xl my-8">
-        <CardHeader>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+      <Card className="w-full max-w-4xl sm:mx-4 flex flex-col" style={{ maxHeight: "calc(100dvh - 2rem)", height: "calc(100dvh - 2rem)" }}>
+        <CardHeader className="flex-shrink-0 border-b border-gray-100 pb-3">
           <div className="flex justify-between items-start gap-3">
-            <div>
+            <div className="min-w-0">
               <CardTitle className="text-xl">Order #{order.id}</CardTitle>
-              <CardDescription>{order.customerFirstName} {order.customerLastName} · {order.customerEmail}</CardDescription>
+              <CardDescription className="truncate">{order.customerFirstName} {order.customerLastName} · {order.customerEmail}</CardDescription>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {(order.status === "pending" || order.status === "quoted") && (
@@ -992,16 +992,18 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
           </div>
         </CardHeader>
 
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+        <CardContent className="flex-1 overflow-hidden p-0">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex flex-col h-full">
+            <div className="flex-shrink-0 px-6 pt-4 pb-0">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="details">Order Details</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="actions">Actions</TabsTrigger>
             </TabsList>
+            </div>
 
             {/* ── Details ── */}
-            <TabsContent value="details" className="space-y-6">
+            <TabsContent value="details" className="flex-1 overflow-y-auto px-6 py-4 space-y-6 data-[state=inactive]:hidden">
               {/* Customer */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
@@ -1334,12 +1336,12 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
             </TabsContent>
 
             {/* ── Timeline ── */}
-            <TabsContent value="timeline">
+            <TabsContent value="timeline" className="flex-1 overflow-y-auto px-6 py-4 data-[state=inactive]:hidden">
               <OrderDetailTimeline order={order} />
             </TabsContent>
 
             {/* ── Actions ── */}
-            <TabsContent value="actions" className="space-y-5">
+            <TabsContent value="actions" className="flex-1 overflow-y-auto px-6 py-4 space-y-5 data-[state=inactive]:hidden">
               {/* Update Status */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Update Order Status</h3>
