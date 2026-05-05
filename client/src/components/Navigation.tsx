@@ -29,20 +29,20 @@ export function Navigation() {
   };
 
   return (
-    <nav className="border-b border-border bg-white sticky top-0 z-50">
+    <nav className="border-b border-border bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4">
         {/* Desktop Navigation */}
         <div className="hidden md:flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <img
               src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
               alt="Print Cartel Logo"
-              className="h-8 sm:h-10 object-contain cursor-pointer hover:opacity-80 transition-opacity"
+              className="h-8 sm:h-10 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200"
               onClick={() => handleNavigation("/")}
             />
             <div
-              className="text-lg sm:text-xl font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity"
+              className="text-lg sm:text-xl font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity duration-200"
               onClick={() => handleNavigation("/")}
             >
               Print Cartel
@@ -50,11 +50,11 @@ export function Navigation() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="flex gap-1 sm:gap-2 items-center">
+          <div className="flex gap-2 sm:gap-3 items-center">
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/reseller")}
-              className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+              className="text-sm text-foreground hover:bg-secondary hover:text-foreground font-semibold px-4 py-2 transition-colors duration-200"
             >
               For Resellers
             </Button>
@@ -63,12 +63,12 @@ export function Navigation() {
                 <Button
                   variant="ghost"
                   onClick={() => handleNavigation("/dashboard")}
-                  className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2 relative"
+                  className="text-sm text-foreground hover:bg-secondary hover:text-foreground font-semibold px-4 py-2 relative transition-colors duration-200"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   My Account
                   {unreadChatCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full p-0">
+                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full p-0 font-bold">
                       {unreadChatCount > 99 ? "99+" : unreadChatCount}
                     </Badge>
                   )}
@@ -77,14 +77,14 @@ export function Navigation() {
                   <Button
                     variant="ghost"
                     onClick={() => handleNavigation("/admin")}
-                    className="text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                    className="text-sm text-foreground hover:bg-secondary hover:text-foreground font-semibold px-4 py-2 transition-colors duration-200"
                   >
                     Admin
                   </Button>
                 )}
                 <Button
                   onClick={() => handleNavigation("/order")}
-                  className="text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-6 py-2"
+                  className="text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-md font-semibold px-6 py-2 transition-all duration-200"
                 >
                   Order Now
                 </Button>
@@ -92,7 +92,7 @@ export function Navigation() {
             ) : (
               <Button
                 onClick={() => window.location.href = getLoginUrl()}
-                className="text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-6 py-2"
+                className="text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-md font-semibold px-6 py-2 transition-all duration-200"
               >
                 Login / Register
               </Button>
@@ -107,11 +107,11 @@ export function Navigation() {
             <img
               src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663346956907/zvKZAvPjOrLorAIn.png"
               alt="Print Cartel Logo"
-              className="h-6 sm:h-8 object-contain cursor-pointer hover:opacity-80 transition-opacity"
+              className="h-6 sm:h-8 object-contain cursor-pointer hover:opacity-80 transition-opacity duration-200"
               onClick={() => handleNavigation("/")}
             />
             <div
-              className="text-base sm:text-lg font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity"
+              className="text-base sm:text-lg font-bold text-foreground cursor-pointer hover:opacity-80 transition-opacity duration-200"
               onClick={() => handleNavigation("/")}
             >
               Print Cartel
@@ -121,7 +121,7 @@ export function Navigation() {
           {/* Hamburger Menu */}
           <button
             onClick={toggleMobileMenu}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-secondary rounded-lg transition-colors duration-200"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
@@ -139,7 +139,7 @@ export function Navigation() {
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/reseller")}
-              className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+              className="w-full justify-start text-sm text-foreground hover:bg-secondary hover:text-foreground font-semibold px-4 py-2 transition-colors duration-200"
             >
               For Resellers
             </Button>
@@ -148,12 +148,12 @@ export function Navigation() {
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/dashboard")}
-              className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2 relative"
+              className="w-full justify-start text-sm text-foreground hover:bg-secondary hover:text-foreground font-semibold px-4 py-2 relative transition-colors duration-200"
             >
               <MessageCircle className="w-4 h-4 mr-2" />
               My Account
               {unreadChatCount > 0 && (
-                <Badge className="absolute right-4 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full p-0">
+                <Badge className="absolute right-4 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full p-0 font-bold">
                   {unreadChatCount > 99 ? "99+" : unreadChatCount}
                 </Badge>
               )}
@@ -164,7 +164,7 @@ export function Navigation() {
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/admin")}
-                className="w-full justify-start text-sm text-foreground hover:bg-gray-100 font-semibold px-4 py-2"
+                className="w-full justify-start text-sm text-foreground hover:bg-secondary hover:text-foreground font-semibold px-4 py-2 transition-colors duration-200"
               >
                 Admin
               </Button>
@@ -173,7 +173,7 @@ export function Navigation() {
             {/* Order Now */}
             <Button
               onClick={() => handleNavigation("/order")}
-              className="w-full justify-start text-sm bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-4 py-2"
+              className="w-full justify-start text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-md font-semibold px-4 py-2 transition-all duration-200"
             >
               Order Now
             </Button>
