@@ -5,7 +5,9 @@ import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { orders, paymentRecords, products, productColors, productSizes, orderPrints, printPlacements, printOptions, orderLineItems } from "../../drizzle/schema";
 import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
-import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../_core/email";
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../\_core/email";
+import { sendArtworkReUploadedEmail } from "../email";
+import { notifyOwner } from "../\_core/notification";
 import { generateAndUploadInvoice } from "../invoice-generator";
 import { sendInvoiceEmail, sendInvoiceNotificationToAdmin } from "../invoice-email";
 
@@ -931,6 +933,21 @@ export const ordersRouter = router({
           designReviewedBy: null,
         })
         .where(eq(orderPrints.id, input.printId));
+
+      // Notify admin that customer has re-uploaded artwork
+      await notifyOwner({
+        title: `Artwork Re-Uploaded — Order #${input.orderId}`,
+        content: `Customer ${order.customerFirstName} ${order.customerLastName} (${order.customerEmail}) has re-uploaded artwork for Order #${input.orderId}. File: ${input.uploadedFileName}. Please review in the admin dashboard.`,
+      }).catch(() => {}); // Non-blocking
+
+      // Send confirmation email to customer
+      await sendArtworkReUploadedEmail(
+        input.orderId,
+        order.customerEmail,
+        `${order.customerFirstName} ${order.customerLastName}`,
+        input.uploadedFileName
+      ).catch(() => {}); // Non-blocking
+
       return { success: true, printId: input.printId };
     }),
 });

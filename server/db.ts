@@ -150,7 +150,29 @@ export async function getOrderPrints(orderId: number) {
 export async function getOrdersByCustomerEmail(email: string) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(orders).where(eq(orders.customerEmail, email)).orderBy(desc(orders.id));
+  const orderRows = await db.select().from(orders).where(eq(orders.customerEmail, email)).orderBy(desc(orders.id));
+  // Attach prints (with approval status) to each order so the tracking page can show re-upload prompts
+  const ordersWithPrints = await Promise.all(
+    orderRows.map(async (order) => {
+      const prints = await db
+        .select({
+          id: orderPrints.id,
+          orderId: orderPrints.orderId,
+          printSizeId: orderPrints.printSizeId,
+          placementId: orderPrints.placementId,
+          uploadedFilePath: orderPrints.uploadedFilePath,
+          uploadedFileName: orderPrints.uploadedFileName,
+          fileSize: orderPrints.fileSize,
+          mimeType: orderPrints.mimeType,
+          designApprovalStatus: orderPrints.designApprovalStatus,
+          designApprovalNotes: orderPrints.designApprovalNotes,
+        })
+        .from(orderPrints)
+        .where(eq(orderPrints.orderId, order.id));
+      return { ...order, prints };
+    })
+  );
+  return ordersWithPrints;
 }
 
 export async function getConversationByOrderId(orderId: number) {

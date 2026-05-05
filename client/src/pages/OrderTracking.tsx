@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Download, Eye, CheckCircle2, Clock, AlertCircle, Truck, Package } from "lucide-react";
+import { Download, Eye, CheckCircle2, Clock, AlertCircle, Truck, Package, Upload, RefreshCw, XCircle } from "lucide-react";
 import { RealtimeOrderTracker } from "@/components/RealtimeOrderTracker";
 import { OrderStatusTimeline } from "@/components/OrderStatusTimeline";
 import { CustomerOrderStatusTimeline } from "@/components/CustomerOrderStatusTimeline";
@@ -36,10 +36,12 @@ interface OrderWithPrints {
     orderId: number;
     printSizeId: number;
     placementId: number;
-    uploadedFilePath: string;
-    uploadedFileName: string;
+    uploadedFilePath: string | null;
+    uploadedFileName: string | null;
     fileSize: number | null;
     mimeType: string | null;
+    designApprovalStatus?: string;
+    designApprovalNotes?: string | null;
   }>;
 }
 
@@ -49,6 +51,9 @@ export default function OrderTracking() {
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [previousStatuses, setPreviousStatuses] = useState<Record<number, string>>({});
+  const [reUploadingPrintId, setReUploadingPrintId] = useState<number | null>(null);
+  const [uploadingPrintId, setUploadingPrintId] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
   // Get status history for selected order
@@ -104,6 +109,56 @@ export default function OrderTracking() {
         return "bg-green-500 text-white";
       default:
         return "bg-gray-500 text-white";
+    }
+  };
+
+  const fileUploadMutation = trpc.files.upload.useMutation();
+  const updatePrintArtworkMutation = trpc.orders.updatePrintArtwork.useMutation({
+    onSuccess: () => {
+      toast.success("Artwork re-submitted successfully! Our team will review it shortly.");
+      setReUploadingPrintId(null);
+      setUploadingPrintId(null);
+      ordersQuery.refetch();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to re-submit artwork. Please try again.");
+      setUploadingPrintId(null);
+    },
+  });
+
+  const handleReUpload = async (printId: number, orderId: number, file: File) => {
+    setUploadingPrintId(printId);
+    try {
+      // Convert file to Uint8Array for upload
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const uploadResult = await fileUploadMutation.mutateAsync({
+        fileName: file.name,
+        fileData: uint8Array,
+        mimeType: file.type,
+      });
+      await updatePrintArtworkMutation.mutateAsync({
+        printId,
+        orderId,
+        uploadedFilePath: uploadResult.url,
+        uploadedFileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed. Please try again.");
+      setUploadingPrintId(null);
+    }
+  };
+
+  const getArtworkStatusBadge = (status?: string) => {
+    switch (status) {
+      case "approved":
+        return <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-green-800 text-green-200"><CheckCircle2 className="w-3 h-3" /> Approved</span>;
+      case "changes_requested":
+        return <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-red-900 text-red-200"><XCircle className="w-3 h-3" /> Changes Required</span>;
+      default:
+        return <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-yellow-800 text-yellow-200"><Clock className="w-3 h-3" /> Pending Review</span>;
     }
   };
 
@@ -280,33 +335,94 @@ export default function OrderTracking() {
                 {selectedOrder.prints && selectedOrder.prints.length > 0 && (
                   <div>
                     <h3 className="text-white font-semibold mb-3">Artwork Files</h3>
-                    <div className="space-y-2">
-                      {selectedOrder.prints.map((print, index) => (
-                        <div
-                          key={print.id}
-                          className="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
-                        >
-                          <div className="flex-1">
-                            <p className="text-white text-sm font-medium">{print.uploadedFileName}</p>
-                            <div className="flex gap-4 mt-1 text-xs text-gray-200">
-                              {print.fileSize && (
-                                <span>{(print.fileSize / 1024 / 1024).toFixed(2)} MB</span>
-                              )}
-                              {print.mimeType && <span>{print.mimeType}</span>}
+                    <div className="space-y-3">
+                      {selectedOrder.prints.map((print) => (
+                        <div key={print.id} className="bg-gray-700 rounded-lg overflow-hidden">
+                          {/* File row */}
+                          <div className="flex items-center justify-between p-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-white text-sm font-medium truncate">{print.uploadedFileName}</p>
+                                {getArtworkStatusBadge(print.designApprovalStatus)}
+                              </div>
+                              <div className="flex gap-4 mt-1 text-xs text-gray-200">
+                                {print.fileSize && (
+                                  <span>{(print.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                                )}
+                                {print.mimeType && <span>{print.mimeType}</span>}
+                              </div>
                             </div>
+                            <Button
+                              asChild
+                              variant="ghost"
+                              size="sm"
+                              className="ml-2 text-white hover:text-orange-500 flex-shrink-0"
+                              title="Download artwork file"
+                            >
+                              <a href={print.uploadedFilePath ?? '#'} download>
+                                <Download className="w-4 h-4" />
+                                <span className="ml-1 hidden sm:inline">Download</span>
+                              </a>
+                            </Button>
                           </div>
-                          <Button
-                            asChild
-                            variant="ghost"
-                            size="sm"
-                            className="ml-2 text-white hover:text-orange-500"
-                            title="Download artwork file"
-                          >
-                            <a href={print.uploadedFilePath} download>
-                              <Download className="w-4 h-4" />
-                              <span className="ml-1 hidden sm:inline">Download</span>
-                            </a>
-                          </Button>
+
+                          {/* Changes requested banner + re-upload */}
+                          {print.designApprovalStatus === "changes_requested" && (
+                            <div className="border-t border-gray-600 bg-red-950 bg-opacity-40 p-3">
+                              {print.designApprovalNotes && (
+                                <div className="mb-3">
+                                  <p className="text-red-300 text-xs font-semibold uppercase tracking-wide mb-1">Admin Feedback</p>
+                                  <p className="text-red-100 text-sm">{print.designApprovalNotes}</p>
+                                </div>
+                              )}
+                              {reUploadingPrintId === print.id ? (
+                                <div className="space-y-2">
+                                  <p className="text-yellow-200 text-xs">Select a corrected artwork file (PNG, JPG, PDF, AI, EPS, SVG — max 50MB):</p>
+                                  <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".png,.jpg,.jpeg,.pdf,.ai,.eps,.svg"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleReUpload(print.id, selectedOrder.id, file);
+                                    }}
+                                  />
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      disabled={uploadingPrintId === print.id}
+                                      onClick={() => fileInputRef.current?.click()}
+                                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                                    >
+                                      {uploadingPrintId === print.id ? (
+                                        <><RefreshCw className="w-3 h-3 mr-1 animate-spin" /> Uploading...</>
+                                      ) : (
+                                        <><Upload className="w-3 h-3 mr-1" /> Choose File</>
+                                      )}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="text-gray-400 hover:text-white"
+                                      onClick={() => setReUploadingPrintId(null)}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  disabled={uploadingPrintId === print.id}
+                                  onClick={() => setReUploadingPrintId(print.id)}
+                                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                                >
+                                  <Upload className="w-3 h-3 mr-1" /> Re-Upload Corrected Artwork
+                                </Button>
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

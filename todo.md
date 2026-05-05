@@ -2243,3 +2243,11 @@ Future enhancements (Phase 2):
 - [x] Fix modal layout: header (order title, tabs, Send Invoice) was being cut off at the top on desktop and mobile
 - [x] Implement sticky header with scrollable content area (flex column, overflow-hidden card, each TabsContent scrolls independently)
 - [x] Modal now uses full viewport height with 1rem margin, works on mobile (bottom sheet style) and desktop (centered)
+
+## Customer Artwork Re-Upload Feature
+- [x] Audit order tracking page to understand how prints/artwork data is currently fetched and displayed
+- [x] Add `reUploadArtwork` tRPC procedure (public/customer-facing) — validates order ownership by email, accepts new S3 URL, resets designApprovalStatus to "pending", clears adminNotes
+- [x] Build re-upload UI in customer order tracking page — show "Changes Requested" badge with admin notes, and a re-upload button that opens a file upload dialog
+- [x] Notify admin (notifyOwner) when customer re-uploads artwork
+- [x] Send customer confirmation email after successful re-upload
+- [x] Write 17 vitest tests for the artwork re-upload feature (all passing)

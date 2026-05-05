@@ -412,3 +412,55 @@ This is an automated email from Print Cartel.
     throw error;
   }
 }
+
+export async function sendArtworkReUploadedEmail(
+  orderId: number,
+  customerEmail: string,
+  customerName: string,
+  fileName: string
+) {
+  try {
+    const htmlContent = `
+      <html>
+        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <div style="max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #000; border-bottom: 3px solid #22c55e; padding-bottom: 10px;">
+              ✅ Artwork Re-Submitted — Order #${orderId}
+            </h2>
+            <p>Hi ${customerName},</p>
+            <p>Thank you for re-submitting your artwork. We have received your updated file and our design team will review it shortly.</p>
+            <div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <p style="margin: 0 0 8px 0;"><strong>Order:</strong> #${orderId}</p>
+              <p style="margin: 0;"><strong>File Submitted:</strong> ${fileName}</p>
+            </div>
+            <p>We will notify you once the artwork has been reviewed. If any further changes are needed, we will contact you again.</p>
+            <p style="margin-top: 16px;">
+              <a href="https://printcartel.co.za/account" style="display:inline-block;background:#000;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:bold;">
+                Track My Order
+              </a>
+            </p>
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;"/>
+            <p style="color: #999; font-size: 11px; text-align: center;">
+              This is an automated email from Print Cartel. Contact us at sales@printcartel.co.za for assistance.
+            </p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const textContent = `ARTWORK RE-SUBMITTED — Order #${orderId}\n\nHi ${customerName},\n\nThank you for re-submitting your artwork. We have received your updated file (${fileName}) and our design team will review it shortly.\n\nWe will notify you once the artwork has been reviewed.\n\nTrack your order: https://printcartel.co.za/account\n\nPrint Cartel Team`;
+
+    const transporter = getTransporter();
+    await transporter.sendMail({
+      from: SMTP_FROM_EMAIL,
+      to: customerEmail,
+      subject: `✅ Artwork Re-Submitted — Order #${orderId}`,
+      html: htmlContent,
+      text: textContent,
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send artwork re-upload confirmation email:", error);
+    return false;
+  }
+}
