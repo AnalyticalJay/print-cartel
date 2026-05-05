@@ -2183,3 +2183,8 @@ Future enhancements (Phase 2):
 - [x] Show order ID from URL params if available
 - [x] Provide buttons: Go to Dashboard, Try Payment Again
 - [x] Reassuring message that no charge was made
+
+## Admin Dashboard Bug Fixes
+- [x] Fix: Order status update not working in admin order detail
+- [x] Fix: Send Invoice button missing from admin order detail
+- [x] Fix: Artwork/file uploads not displaying in order details

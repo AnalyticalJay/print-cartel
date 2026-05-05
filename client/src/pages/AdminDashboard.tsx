@@ -22,7 +22,7 @@ import { ChatNotificationHandler } from "@/components/ChatNotificationHandler";
 import { OrderNotificationHandler } from "@/components/OrderNotificationHandler";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type OrderStatus = "pending" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
+type OrderStatus = "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled";
 type AdminTab = "orders" | "customers" | "products" | "reports" | "itn-retry";
 
 export default function AdminDashboard() {
@@ -197,9 +197,12 @@ function AdminDashboardContent() {
                     <SelectContent>
                       <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="quoted">Quoted</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
                       <SelectItem value="in-production">In Production</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="shipped">Shipped</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                   <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
@@ -921,6 +924,15 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
               </div>
 
               {/* Artwork Files — shown for all order types */}
+              {(!order.prints || order.prints.length === 0) && (
+                <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <span className="text-2xl">⚠️</span>
+                  <div>
+                    <p className="font-medium text-amber-800 text-sm">No artwork uploaded</p>
+                    <p className="text-amber-600 text-xs">The customer has not submitted any artwork files with this order.</p>
+                  </div>
+                </div>
+              )}
               {order.prints && order.prints.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -1183,9 +1195,11 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                     <SelectTrigger className="flex-1"><SelectValue placeholder="Select new status" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="quoted">Quoted</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
                       <SelectItem value="in-production">In Production</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="shipped">Shipped</SelectItem>
                       <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
@@ -1216,25 +1230,40 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
 
               {/* Send Invoice */}
               <div className="border-t pt-4">
-                <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                   <Mail className="w-4 h-4" /> Invoice
                 </h3>
-                {(order.status === "pending" || order.status === "quoted") ? (
-                  <>
-                    <p className="text-sm text-gray-500 mb-3">Approve this order and send a payment invoice to the customer.</p>
-                    <Button onClick={handleSendInvoice} disabled={isSendingInvoice} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                      {isSendingInvoice ? "Sending..." : "Send Invoice & Approve Order"}
-                    </Button>
-                  </>
-                ) : order.status !== "cancelled" ? (
-                  <>
-                    <p className="text-sm text-gray-500 mb-3">Regenerate and resend the invoice to the customer's email.</p>
-                    <Button onClick={handleResendInvoice} disabled={isResendingInvoice} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                      {isResendingInvoice ? "Sending..." : "Resend Invoice to Customer"}
-                    </Button>
-                  </>
-                ) : (
+                {order.status === "cancelled" ? (
                   <p className="text-sm text-gray-400">Invoice cannot be sent for cancelled orders.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {(order.status === "pending" || order.status === "quoted") && (
+                      <>
+                        <p className="text-sm text-gray-500">Approve this order and send a payment invoice to the customer.</p>
+                        <Button onClick={handleSendInvoice} disabled={isSendingInvoice} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                          <Mail className="w-4 h-4 mr-2" />
+                          {isSendingInvoice ? "Sending..." : "Send Invoice & Approve Order"}
+                        </Button>
+                      </>
+                    )}
+                    <p className="text-sm text-gray-500">
+                      {order.invoiceUrl ? "Resend the existing invoice to the customer's email." : "Generate and send a new invoice to the customer."}
+                    </p>
+                    <Button onClick={handleResendInvoice} disabled={isResendingInvoice} variant="outline" className="w-full border-purple-300 text-purple-700 hover:bg-purple-50">
+                      <Mail className="w-4 h-4 mr-2" />
+                      {isResendingInvoice ? "Sending..." : order.invoiceUrl ? "Resend Invoice to Customer" : "Generate & Send Invoice"}
+                    </Button>
+                    {order.invoiceUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs gap-1 text-gray-600"
+                        onClick={() => window.open(order.invoiceUrl, "_blank")}
+                      >
+                        <Download className="w-3.5 h-3.5" /> View / Download Invoice PDF
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
             </TabsContent>
