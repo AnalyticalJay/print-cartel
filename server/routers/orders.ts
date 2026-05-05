@@ -915,9 +915,19 @@ export const ordersRouter = router({
       // Only allow if order belongs to this user
       const isOwner = order.userId === ctx.user.id || order.customerEmail === ctx.user.email;
       if (!isOwner) throw new Error("Unauthorized");
-      // Don't allow re-upload if order is already in production or beyond
-      if (["in-production", "completed", "shipped", "cancelled"].includes(order.status)) {
-        throw new Error("Cannot update artwork for an order that is already in production or completed");
+      // Only allow re-upload while the order is still in "pending" review.
+      // Once quoted, approved, or further along the workflow, artwork is locked.
+      const ARTWORK_LOCKED_STATUSES = ["quoted", "approved", "in-production", "completed", "shipped", "cancelled"];
+      if (ARTWORK_LOCKED_STATUSES.includes(order.status)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            order.status === "quoted"
+              ? "Artwork cannot be changed once a quote has been issued. Please contact us at sales@printcartel.co.za if you need to make changes."
+              : order.status === "approved"
+              ? "Artwork cannot be changed once the order has been approved."
+              : "Artwork cannot be changed at this stage of the order.",
+        });
       }
       await db
         .update(orderPrints)

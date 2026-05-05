@@ -106,18 +106,40 @@ describe("updatePrintArtwork procedure", () => {
     });
   });
 
-  it("blocks re-upload for orders in production or beyond", () => {
-    const blockedStatuses = ["in-production", "completed", "shipped", "cancelled"];
-    const allowedStatuses = ["pending", "quoted", "approved"];
+  it("blocks re-upload for orders that are quoted, approved, in-production, completed, shipped, or cancelled", () => {
+    const ARTWORK_LOCKED_STATUSES = ["quoted", "approved", "in-production", "completed", "shipped", "cancelled"];
+    const blockedStatuses = ["quoted", "approved", "in-production", "completed", "shipped", "cancelled"];
+    const allowedStatuses = ["pending"];
 
     blockedStatuses.forEach((status) => {
-      const isBlocked = ["in-production", "completed", "shipped", "cancelled"].includes(status);
-      expect(isBlocked).toBe(true);
+      expect(ARTWORK_LOCKED_STATUSES.includes(status)).toBe(true);
     });
     allowedStatuses.forEach((status) => {
-      const isBlocked = ["in-production", "completed", "shipped", "cancelled"].includes(status);
-      expect(isBlocked).toBe(false);
+      expect(ARTWORK_LOCKED_STATUSES.includes(status)).toBe(false);
     });
+  });
+
+  it("returns a quoted-specific error message when order is quoted", () => {
+    const status = "quoted";
+    const message =
+      status === "quoted"
+        ? "Artwork cannot be changed once a quote has been issued. Please contact us at sales@printcartel.co.za if you need to make changes."
+        : status === "approved"
+        ? "Artwork cannot be changed once the order has been approved."
+        : "Artwork cannot be changed at this stage of the order.";
+    expect(message).toContain("quote has been issued");
+    expect(message).toContain("sales@printcartel.co.za");
+  });
+
+  it("returns an approved-specific error message when order is approved", () => {
+    const status = "approved";
+    const message =
+      status === "quoted"
+        ? "Artwork cannot be changed once a quote has been issued."
+        : status === "approved"
+        ? "Artwork cannot be changed once the order has been approved."
+        : "Artwork cannot be changed at this stage of the order.";
+    expect(message).toContain("order has been approved");
   });
 
   it("verifies order ownership before allowing re-upload", () => {

@@ -367,62 +367,76 @@ export default function OrderTracking() {
                           </div>
 
                           {/* Changes requested banner + re-upload */}
-                          {print.designApprovalStatus === "changes_requested" && (
-                            <div className="border-t border-gray-600 bg-red-950 bg-opacity-40 p-3">
-                              {print.designApprovalNotes && (
-                                <div className="mb-3">
-                                  <p className="text-red-300 text-xs font-semibold uppercase tracking-wide mb-1">Admin Feedback</p>
-                                  <p className="text-red-100 text-sm">{print.designApprovalNotes}</p>
-                                </div>
-                              )}
-                              {reUploadingPrintId === print.id ? (
-                                <div className="space-y-2">
-                                  <p className="text-yellow-200 text-xs">Select a corrected artwork file (PNG, JPG, PDF, AI, EPS, SVG — max 50MB):</p>
-                                  <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept=".png,.jpg,.jpeg,.pdf,.ai,.eps,.svg"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) handleReUpload(print.id, selectedOrder.id, file);
-                                    }}
-                                  />
-                                  <div className="flex gap-2">
-                                    <Button
-                                      size="sm"
-                                      disabled={uploadingPrintId === print.id}
-                                      onClick={() => fileInputRef.current?.click()}
-                                      className="bg-orange-500 hover:bg-orange-600 text-white"
-                                    >
-                                      {uploadingPrintId === print.id ? (
-                                        <><RefreshCw className="w-3 h-3 mr-1 animate-spin" /> Uploading...</>
-                                      ) : (
-                                        <><Upload className="w-3 h-3 mr-1" /> Choose File</>
-                                      )}
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="text-gray-400 hover:text-white"
-                                      onClick={() => setReUploadingPrintId(null)}
-                                    >
-                                      Cancel
-                                    </Button>
+                          {print.designApprovalStatus === "changes_requested" && (() => {
+                            const artworkLocked = ["quoted", "approved", "in-production", "completed", "shipped", "cancelled"].includes(selectedOrder.status);
+                            const lockMessage =
+                              selectedOrder.status === "quoted"
+                                ? "A quote has been issued — artwork is now locked. Contact us at sales@printcartel.co.za to request changes."
+                                : selectedOrder.status === "approved"
+                                ? "This order has been approved — artwork can no longer be changed."
+                                : "Artwork cannot be changed at this stage of the order.";
+                            return (
+                              <div className="border-t border-gray-600 bg-red-950 bg-opacity-40 p-3">
+                                {print.designApprovalNotes && (
+                                  <div className="mb-3">
+                                    <p className="text-red-300 text-xs font-semibold uppercase tracking-wide mb-1">Admin Feedback</p>
+                                    <p className="text-red-100 text-sm">{print.designApprovalNotes}</p>
                                   </div>
-                                </div>
-                              ) : (
-                                <Button
-                                  size="sm"
-                                  disabled={uploadingPrintId === print.id}
-                                  onClick={() => setReUploadingPrintId(print.id)}
-                                  className="bg-orange-500 hover:bg-orange-600 text-white"
-                                >
-                                  <Upload className="w-3 h-3 mr-1" /> Re-Upload Corrected Artwork
-                                </Button>
-                              )}
-                            </div>
-                          )}
+                                )}
+                                {artworkLocked ? (
+                                  <div className="flex items-start gap-2 text-yellow-200 text-xs bg-yellow-900 bg-opacity-40 rounded p-2">
+                                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                    <span>{lockMessage}</span>
+                                  </div>
+                                ) : reUploadingPrintId === print.id ? (
+                                  <div className="space-y-2">
+                                    <p className="text-yellow-200 text-xs">Select a corrected artwork file (PNG, JPG, PDF, AI, EPS, SVG — max 50MB):</p>
+                                    <input
+                                      ref={fileInputRef}
+                                      type="file"
+                                      accept=".png,.jpg,.jpeg,.pdf,.ai,.eps,.svg"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleReUpload(print.id, selectedOrder.id, file);
+                                      }}
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        disabled={uploadingPrintId === print.id}
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="bg-orange-500 hover:bg-orange-600 text-white"
+                                      >
+                                        {uploadingPrintId === print.id ? (
+                                          <><RefreshCw className="w-3 h-3 mr-1 animate-spin" /> Uploading...</>
+                                        ) : (
+                                          <><Upload className="w-3 h-3 mr-1" /> Choose File</>
+                                        )}
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-gray-400 hover:text-white"
+                                        onClick={() => setReUploadingPrintId(null)}
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    disabled={uploadingPrintId === print.id}
+                                    onClick={() => setReUploadingPrintId(print.id)}
+                                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                                  >
+                                    <Upload className="w-3 h-3 mr-1" /> Re-Upload Corrected Artwork
+                                  </Button>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
                       ))}
                     </div>

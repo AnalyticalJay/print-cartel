@@ -2251,3 +2251,8 @@ Future enhancements (Phase 2):
 - [x] Notify admin (notifyOwner) when customer re-uploads artwork
 - [x] Send customer confirmation email after successful re-upload
 - [x] Write 17 vitest tests for the artwork re-upload feature (all passing)
+
+## Re-Upload Restriction Refinement
+- [x] Server: block re-upload if order status is "quoted", "approved", "in-production", "completed", "shipped", or "cancelled" (only allow on "pending")
+- [x] Frontend: hide the re-upload button and show a clear "locked" message when the order is no longer in pending status
+- [x] Update vitest tests to cover the new blocked statuses (19 tests passing)
