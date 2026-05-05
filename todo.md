@@ -2223,3 +2223,14 @@ Future enhancements (Phase 2):
 - [x] Add admin artwork upload UI in AdminDashboard order detail — shown when no artwork exists for an order
 - [x] Pre-select placement and print size from order's existing line items
 - [x] Write 17 vitest tests for adminUploadArtwork (all passing)
+
+## Artwork Submission Flow Fix (May 2026)
+- [x] Audit OrderWizard: trace exactly how printSelections are built and what uploadedFilePath contains at submission time
+- [x] Fix FileUploadValidator: ensure S3 upload happens immediately on file select, block wizard progression if upload not complete
+- [x] Fix OrderWizard: block "Place Order" submission if any placement is missing a confirmed S3 URL
+- [x] Fix server orders router: make uploadedFilePath required (not optional) when inserting orderPrints
+- [x] Remove adminUploadArtwork procedure and AdminArtworkUpload UI component (not needed — artwork must always come from customer)
+- [x] Verify admin dashboard shows uploaded artwork thumbnails/links with approve/reject buttons
+- [x] Fix Send Invoice button gating: require hasArtwork AND all approved (was incorrectly allowing invoice with 0 prints)
+- [x] Add dedicated sendArtworkChangesRequestedEmail function with placement/print size/filename/notes
+- [x] Write 20 vitest tests for the fixed submission flow (all passing)

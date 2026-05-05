@@ -198,8 +198,8 @@ export default function OrderWizard() {
         return;
       }
     } else if (currentStep === 3) {
-      if (orderData.printSelections.some((p) => !p.designFileName)) {
-        toast.error("Please upload design files for all print selections");
+      if (orderData.printSelections.some((p) => !p.uploadedFilePath)) {
+        toast.error("Please wait for all artwork files to finish uploading before continuing");
         return;
       }
     } else if (currentStep === 4) {
@@ -230,6 +230,10 @@ export default function OrderWizard() {
       orderData.printSelections.length === 0
     ) {
       toast.error("Please complete the garment selection and placement before adding to cart");
+      return;
+    }
+    if (orderData.printSelections.some((p) => !p.uploadedFilePath)) {
+      toast.error("Please wait for all artwork files to finish uploading before adding to cart");
       return;
     }
 
@@ -290,6 +294,15 @@ export default function OrderWizard() {
       return;
     }
 
+    // Validate all artwork is uploaded before submission
+    const allCartPrints = cartItems.length > 0
+      ? cartItems.flatMap((item) => item.printSelections || [])
+      : orderData.printSelections;
+    if (allCartPrints.some((p: any) => !p.uploadedFilePath)) {
+      toast.error("All artwork files must be uploaded before placing the order");
+      return;
+    }
+
     // If cart has items, submit as multi-item order
     if (cartItems.length > 0) {
       // Prepare cart items for submission
@@ -301,8 +314,8 @@ export default function OrderWizard() {
         printSelections: (item.printSelections || []).map((p: any) => ({
           placementId: p.placementId,
           printSizeId: p.printSizeId,
-          uploadedFilePath: p.uploadedFilePath || "",
-          uploadedFileName: p.uploadedFileName || "",
+          uploadedFilePath: p.uploadedFilePath,
+          uploadedFileName: p.uploadedFileName || p.designFileName || "",
           fileSize: p.designFile?.size,
           mimeType: p.designFile?.type,
         })),
@@ -331,8 +344,8 @@ export default function OrderWizard() {
         prints: orderData.printSelections.map((p) => ({
           placementId: p.placementId,
           printSizeId: p.printSizeId,
-          uploadedFilePath: p.uploadedFilePath || "",
-          uploadedFileName: p.uploadedFileName || "",
+          uploadedFilePath: p.uploadedFilePath,
+          uploadedFileName: p.uploadedFileName || p.designFileName || "",
           fileSize: p.designFile?.size,
           mimeType: p.designFile?.type,
         })),

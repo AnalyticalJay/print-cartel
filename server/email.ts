@@ -310,3 +310,105 @@ This is an automated email from Print Cartel. Please do not reply to this email.
     throw error;
   }
 }
+
+/**
+ * Send a dedicated email to the customer when artwork is rejected / changes are requested.
+ * Clearly identifies which placement's artwork needs to be re-uploaded and why.
+ */
+export async function sendArtworkChangesRequestedEmail(
+  orderId: number,
+  customerEmail: string,
+  customerName: string,
+  placementName: string,
+  printSize: string,
+  fileName: string,
+  notes: string,
+  trackingUrl: string = "https://printcartel.co.za/account"
+) {
+  try {
+    const htmlContent = `
+      <html>
+        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <div style="max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #000; border-bottom: 3px solid #e63946; padding-bottom: 10px;">
+              ⚠️ Artwork Changes Required — Order #${orderId}
+            </h2>
+
+            <p>Hi ${customerName},</p>
+
+            <p>Thank you for your order. Our design team has reviewed your submitted artwork and requires changes before we can proceed to production.</p>
+
+            <div style="background-color: #fff3cd; border-left: 4px solid #e63946; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <p style="margin: 0 0 8px 0;"><strong>Artwork File:</strong> ${fileName}</p>
+              <p style="margin: 0 0 8px 0;"><strong>Placement:</strong> ${placementName}</p>
+              <p style="margin: 0 0 8px 0;"><strong>Print Size:</strong> ${printSize}</p>
+              <p style="margin: 0;"><strong>Reason / Changes Required:</strong><br/>${notes}</p>
+            </div>
+
+            <h3 style="color: #000; margin-top: 24px;">What to do next:</h3>
+            <ol style="padding-left: 20px; line-height: 2;">
+              <li>Review the feedback above and update your artwork accordingly.</li>
+              <li>Ensure your file meets our requirements: 300 DPI, PNG/PDF, RGB colour mode, 0.5cm bleed margin.</li>
+              <li>Place a new order with the corrected artwork file.</li>
+            </ol>
+
+            <p style="margin-top: 20px;">
+              If you have any questions or need assistance, please reply to this email or contact us at
+              <a href="mailto:sales@printcartel.co.za" style="color: #e63946;">sales@printcartel.co.za</a>.
+            </p>
+
+            <p style="margin-top: 16px;">
+              <a href="${trackingUrl}" style="display:inline-block;background:#000;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:bold;">
+                View My Orders
+              </a>
+            </p>
+
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;"/>
+            <p style="color: #999; font-size: 11px; text-align: center;">
+              This is an automated email from Print Cartel. Please do not reply to this email directly — contact us at sales@printcartel.co.za.
+            </p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const textContent = `
+ARTWORK CHANGES REQUIRED — Order #${orderId}
+
+Hi ${customerName},
+
+Our design team has reviewed your submitted artwork and requires changes before we can proceed to production.
+
+Artwork File: ${fileName}
+Placement: ${placementName}
+Print Size: ${printSize}
+Reason / Changes Required: ${notes}
+
+WHAT TO DO NEXT:
+1. Review the feedback above and update your artwork accordingly.
+2. Ensure your file meets our requirements: 300 DPI, PNG/PDF, RGB colour mode, 0.5cm bleed margin.
+3. Place a new order with the corrected artwork file.
+
+If you have any questions, contact us at sales@printcartel.co.za.
+
+View your orders: ${trackingUrl}
+
+---
+This is an automated email from Print Cartel.
+    `.trim();
+
+    const transporter = getTransporter();
+    await transporter.sendMail({
+      from: SMTP_FROM_EMAIL,
+      to: customerEmail,
+      subject: `Action Required: Artwork Changes Needed — Order #${orderId}`,
+      text: textContent,
+      html: htmlContent,
+    });
+
+    console.log(`Artwork changes requested email sent for order #${orderId} to ${customerEmail}`);
+  } catch (error) {
+    console.error("Failed to send artwork changes requested email:", error);
+    throw error;
+  }
+}

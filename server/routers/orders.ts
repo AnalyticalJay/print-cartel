@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { orders, paymentRecords, products, productColors, productSizes, orderPrints, printPlacements, printOptions, orderLineItems } from "../../drizzle/schema";
@@ -84,8 +85,14 @@ export const ordersRouter = router({
           totalPriceEstimate: input.totalPriceEstimate.toString(),
         });
 
-        // Create order prints
+        // Create order prints — uploadedFilePath must be a real S3 URL
         for (const print of input.prints) {
+          if (!print.uploadedFilePath || !print.uploadedFilePath.startsWith("http")) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `Artwork file for placement ${print.placementId} was not uploaded to storage. Please re-upload the file and try again.`,
+            });
+          }
           await createOrderPrint({
             orderId,
             printSizeId: print.printSizeId,
@@ -203,19 +210,23 @@ export const ordersRouter = router({
             subtotal,
           });
 
-          // Also persist artwork files to orderPrints so admin can download them
+          // Persist artwork files to orderPrints — uploadedFilePath must be a real S3 URL
           for (const printSel of cartItem.printSelections) {
-            if (printSel.uploadedFilePath) {
-              await createOrderPrint({
-                orderId,
-                printSizeId: printSel.printSizeId,
-                placementId: printSel.placementId,
-                uploadedFilePath: printSel.uploadedFilePath,
-                uploadedFileName: printSel.uploadedFileName,
-                fileSize: printSel.fileSize,
-                mimeType: printSel.mimeType,
+            if (!printSel.uploadedFilePath || !printSel.uploadedFilePath.startsWith("http")) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: `Artwork file for placement ${printSel.placementId} was not uploaded to storage. Please re-upload the file and try again.`,
               });
             }
+            await createOrderPrint({
+              orderId,
+              printSizeId: printSel.printSizeId,
+              placementId: printSel.placementId,
+              uploadedFilePath: printSel.uploadedFilePath,
+              uploadedFileName: printSel.uploadedFileName,
+              fileSize: printSel.fileSize,
+              mimeType: printSel.mimeType,
+            });
           }
         }
 
