@@ -19,6 +19,7 @@ import { AdvancedOrderWizard } from "./components/AdvancedOrderWizard";
 
 import { PayFastReturn } from "./pages/PayFastReturn";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
+import { PaymentCancel } from "./pages/PaymentCancel";
 import { PaymentPage } from "./pages/PaymentPage";
 
 function Router() {
@@ -40,6 +41,7 @@ function Router() {
       <Route path={"/payment"} component={PaymentPage} />
       <Route path={"/payment/payfast-return"} component={PayFastReturn} />
       <Route path={"/payment/success"} component={PaymentSuccess} />
+      <Route path={"/payment/cancel"} component={PaymentCancel} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

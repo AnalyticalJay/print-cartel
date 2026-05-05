@@ -2176,3 +2176,10 @@ Future enhancements (Phase 2):
 - [x] Enhance form labels and input field clarity
 - [x] Improve mobile responsiveness and touch targets
 - [x] Add visual feedback for interactive elements (hover/focus states)
+
+## Payment Cancel Page
+- [x] Create PaymentCancel page component at client/src/pages/PaymentCancel.tsx
+- [x] Register /payment/cancel route in App.tsx
+- [x] Show order ID from URL params if available
+- [x] Provide buttons: Go to Dashboard, Try Payment Again
+- [x] Reassuring message that no charge was made
