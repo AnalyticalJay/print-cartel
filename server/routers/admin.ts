@@ -1770,4 +1770,66 @@ export const adminRouter = router({
       });
       return { success: ok };
     }),
+
+  /**
+   * Admin: upload artwork on behalf of a customer for an order that has no artwork.
+   * Creates a new orderPrints record (or updates an existing one) with the S3 URL.
+   */
+  adminUploadArtwork: protectedProcedure
+    .input(
+      z.object({
+        orderId: z.number(),
+        /** If provided, update this existing print record; otherwise create a new one */
+        printId: z.number().optional(),
+        placementId: z.number(),
+        printSizeId: z.number(),
+        fileName: z.string(),
+        fileData: z.instanceof(Uint8Array),
+        mimeType: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Upload file to S3
+      const { storagePut } = await import("../storage");
+      const { nanoid } = await import("nanoid");
+      const ext = input.fileName.split(".").pop() || "bin";
+      const fileKey = `admin-uploads/${input.orderId}/${Date.now()}-${nanoid(8)}.${ext}`;
+      const { url } = await storagePut(fileKey, input.fileData, input.mimeType);
+
+      if (input.printId) {
+        // Update existing print record
+        await db
+          .update(orderPrints)
+          .set({
+            uploadedFilePath: url,
+            uploadedFileName: input.fileName,
+            fileSize: input.fileData.length,
+            mimeType: input.mimeType,
+            designApprovalStatus: "pending",
+            designApprovalNotes: null,
+            designApprovedAt: null,
+          })
+          .where(eq(orderPrints.id, input.printId));
+        return { success: true, url, printId: input.printId };
+      } else {
+        // Create a new print record
+        const result = await db.insert(orderPrints).values({
+          orderId: input.orderId,
+          placementId: input.placementId,
+          printSizeId: input.printSizeId,
+          uploadedFilePath: url,
+          uploadedFileName: input.fileName,
+          fileSize: input.fileData.length,
+          mimeType: input.mimeType,
+          designApprovalStatus: "pending",
+        });
+        const insertId = (result as any)[0]?.insertId ?? (result as any).insertId;
+        return { success: true, url, printId: insertId };
+      }
+    }),
 });

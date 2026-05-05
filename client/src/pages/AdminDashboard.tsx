@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1074,13 +1074,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
 
               {/* Artwork Files — shown for all order types */}
               {(!order.prints || order.prints.length === 0) && (
-                <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <span className="text-2xl">⚠️</span>
-                  <div>
-                    <p className="font-medium text-amber-800 text-sm">No artwork uploaded</p>
-                    <p className="text-amber-600 text-xs">The customer has not submitted any artwork files with this order.</p>
-                  </div>
-                </div>
+                <AdminArtworkUpload orderId={order.id} order={order} onUploaded={() => orderQuery.refetch()} />
               )}
               {order.prints && order.prints.length > 0 && (
                 <div>
@@ -1419,6 +1413,167 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
           </Tabs>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// ── Admin Artwork Upload ──────────────────────────────────────────────────────
+function AdminArtworkUpload({ orderId, order, onUploaded }: { orderId: number; order: any; onUploaded: () => void }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedPlacementId, setSelectedPlacementId] = useState<string>("");
+  const [selectedPrintSizeId, setSelectedPrintSizeId] = useState<string>("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const placementsQuery = trpc.products.printPlacements.useQuery();
+  const printOptionsQuery = trpc.products.printOptions.useQuery();
+  const adminUploadMutation = trpc.admin.adminUploadArtwork.useMutation();
+
+  // Pre-select from order's first line item if available
+  const firstLineItem = order?.lineItems?.[0];
+  const defaultPlacementId = firstLineItem?.placementId?.toString() || "";
+  const defaultPrintSizeId = firstLineItem?.printSizeId?.toString() || "";
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0];
+    if (file) setPendingFile(file);
+    e.currentTarget.value = "";
+  };
+
+  const handleUpload = async () => {
+    const placementId = parseInt(selectedPlacementId || defaultPlacementId);
+    const printSizeId = parseInt(selectedPrintSizeId || defaultPrintSizeId);
+    if (!pendingFile) return toast.error("Please select a file to upload");
+    if (!placementId || !printSizeId) return toast.error("Please select a placement and print size");
+
+    setIsUploading(true);
+    try {
+      const arrayBuffer = await pendingFile.arrayBuffer();
+      const fileData = new Uint8Array(arrayBuffer);
+      await adminUploadMutation.mutateAsync({
+        orderId,
+        placementId,
+        printSizeId,
+        fileName: pendingFile.name,
+        fileData,
+        mimeType: pendingFile.type || "application/octet-stream",
+      });
+      toast.success(`Artwork "${pendingFile.name}" uploaded successfully`);
+      setPendingFile(null);
+      setIsExpanded(false);
+      onUploaded();
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const placements = placementsQuery.data || [];
+  const printOptions = printOptionsQuery.data || [];
+
+  return (
+    <div className="border border-amber-200 rounded-lg overflow-hidden">
+      {/* Header banner */}
+      <div className="flex items-center justify-between gap-3 p-4 bg-amber-50">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="font-medium text-amber-800 text-sm">No artwork uploaded</p>
+            <p className="text-amber-600 text-xs">The customer has not submitted any artwork files with this order.</p>
+          </div>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="border-amber-400 text-amber-700 hover:bg-amber-100 text-xs gap-1 flex-shrink-0"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <Image className="w-3.5 h-3.5" />
+          {isExpanded ? "Cancel" : "Upload Artwork"}
+        </Button>
+      </div>
+
+      {/* Upload form */}
+      {isExpanded && (
+        <div className="p-4 bg-white border-t border-amber-200 space-y-3">
+          <p className="text-xs text-gray-500">Upload artwork on behalf of the customer. The file will be stored in S3 and appear in the artwork review section.</p>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-gray-700 block mb-1">Placement</label>
+              <Select
+                value={selectedPlacementId || defaultPlacementId}
+                onValueChange={setSelectedPlacementId}
+              >
+                <SelectTrigger className="text-xs h-8">
+                  <SelectValue placeholder="Select placement" />
+                </SelectTrigger>
+                <SelectContent>
+                  {placements.map((p: any) => (
+                    <SelectItem key={p.id} value={p.id.toString()} className="text-xs">
+                      {p.placementName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-700 block mb-1">Print Size</label>
+              <Select
+                value={selectedPrintSizeId || defaultPrintSizeId}
+                onValueChange={setSelectedPrintSizeId}
+              >
+                <SelectTrigger className="text-xs h-8">
+                  <SelectValue placeholder="Select print size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {printOptions.map((p: any) => (
+                    <SelectItem key={p.id} value={p.id.toString()} className="text-xs">
+                      {p.printSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div
+            className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
+              pendingFile ? "border-green-400 bg-green-50" : "border-gray-300 hover:border-gray-400 bg-gray-50"
+            }`}
+            onClick={() => !isUploading && fileInputRef.current?.click()}
+          >
+            <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} accept="image/*,.pdf,.ai,.eps,.svg" />
+            {pendingFile ? (
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-700 truncate max-w-xs">{pendingFile.name}</span>
+                <button onClick={(e) => { e.stopPropagation(); setPendingFile(null); }} className="text-red-400 hover:text-red-600 ml-1">
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <Download className="w-6 h-6 mx-auto text-gray-400 mb-1" />
+                <p className="text-xs text-gray-500">Click to select artwork file</p>
+                <p className="text-xs text-gray-400">PNG, JPG, PDF, AI, EPS, SVG • Max 50MB</p>
+              </>
+            )}
+          </div>
+
+          <Button
+            onClick={handleUpload}
+            disabled={!pendingFile || isUploading}
+            size="sm"
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white gap-1.5"
+          >
+            {isUploading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...</> : <><Image className="w-3.5 h-3.5" /> Upload Artwork</>}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

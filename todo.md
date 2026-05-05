@@ -2217,3 +2217,9 @@ Future enhancements (Phase 2):
 - [x] Add artwork re-upload UI in CustomerOrderDetailModal
 - [x] Gate admin Send Invoice button on all artwork being approved (tooltip shows pending count)
 - [x] Customer Pay Now / EFT flow verified correct in CustomerOrderDetailModal
+
+## Admin Artwork Upload for Legacy Orders (May 2026)
+- [x] Add adminUploadArtwork tRPC procedure (admin only) — creates or updates orderPrints record with S3 URL
+- [x] Add admin artwork upload UI in AdminDashboard order detail — shown when no artwork exists for an order
+- [x] Pre-select placement and print size from order's existing line items
+- [x] Write 17 vitest tests for adminUploadArtwork (all passing)
