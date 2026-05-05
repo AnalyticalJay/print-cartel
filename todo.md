@@ -2188,3 +2188,7 @@ Future enhancements (Phase 2):
 - [x] Fix: Order status update not working in admin order detail
 - [x] Fix: Send Invoice button missing from admin order detail
 - [x] Fix: Artwork/file uploads not displaying in order details
+
+## Admin Status Update Fix
+- [x] Diagnose why order status update fails in admin order detail modal
+- [x] Fix the root cause and verify end-to-end

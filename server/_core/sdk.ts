@@ -296,11 +296,18 @@ class SDKServer {
       throw ForbiddenError("User not found");
     }
 
-    await db.upsertUser({
-      openId: user.openId,
-      lastSignedIn: signedInAt,
-    });
+    // Auto-promote the project owner to admin on every authenticated request.
+    // This is idempotent — if already admin it's a no-op.
+    const isOwner = ENV.ownerOpenId && user.openId === ENV.ownerOpenId;
+    const correctRole: "admin" | "user" = isOwner ? "admin" : user.role;
 
+    if (correctRole !== user.role) {
+      // Role needs updating — set it and return the corrected user object
+      await db.updateUser(user.id, { role: correctRole, lastSignedIn: signedInAt });
+      return { ...user, role: correctRole };
+    }
+
+    await db.updateUser(user.id, { lastSignedIn: signedInAt });
     return user;
   }
 }
