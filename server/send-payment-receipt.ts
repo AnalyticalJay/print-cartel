@@ -3,50 +3,8 @@
  * Handles sending payment receipt emails to customers via SMTP
  */
 
-import nodemailer from "nodemailer";
+import { getTransporter, SMTP_FROM_EMAIL } from "./mailer";
 import { generatePaymentReceiptHTML, generatePaymentReceiptText, PaymentReceiptData } from "./payment-receipt-email";
-
-let transporter: nodemailer.Transporter | null = null;
-
-/**
- * Initialize email transporter with SMTP configuration
- */
-function getEmailTransporter(): nodemailer.Transporter {
-  if (transporter) {
-    return transporter;
-  }
-
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = parseInt(process.env.SMTP_PORT || "587");
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpFromEmail = process.env.SMTP_FROM_EMAIL;
-
-  if (!smtpHost || !smtpUser || !smtpPass || !smtpFromEmail) {
-    throw new Error("SMTP configuration incomplete. Please set SMTP_HOST, SMTP_USER, SMTP_PASS, and SMTP_FROM_EMAIL");
-  }
-
-  const transportConfig: any = {
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465,
-    auth: {
-      user: smtpUser,
-      pass: smtpPass,
-    },
-  };
-
-  if (process.env.SMTP_SKIP_SSL_VERIFY === "true") {
-    transportConfig.tls = {
-      rejectUnauthorized: false,
-    };
-    console.warn("⚠️  WARNING: SSL certificate verification is disabled. Only use for testing!");
-  }
-
-  transporter = nodemailer.createTransport(transportConfig);
-
-  return transporter;
-}
 
 /**
  * Send payment receipt email to customer
@@ -60,18 +18,14 @@ export async function sendPaymentReceiptEmail(
   error?: string;
 }> {
   try {
-    const transporter = getEmailTransporter();
-    const smtpFromEmail = process.env.SMTP_FROM_EMAIL;
-
-    if (!smtpFromEmail) {
-      throw new Error("SMTP_FROM_EMAIL not configured");
-    }
+    const transporter = getTransporter();
+    
 
     const htmlContent = generatePaymentReceiptHTML(receiptData);
     const textContent = generatePaymentReceiptText(receiptData);
 
     const mailOptions = {
-      from: `Print Cartel <${smtpFromEmail}>`,
+      from: `Print Cartel <${SMTP_FROM_EMAIL}>`,
       to: customerEmail,
       subject: `Payment Receipt - Invoice #${receiptData.invoiceNumber} | Print Cartel`,
       html: htmlContent,
@@ -213,7 +167,7 @@ export async function verifyEmailConfiguration(): Promise<{
   error?: string;
 }> {
   try {
-    const transporter = getEmailTransporter();
+    const transporter = getTransporter();
     await transporter.verify();
     console.log("✓ Email configuration verified successfully");
     return { configured: true };

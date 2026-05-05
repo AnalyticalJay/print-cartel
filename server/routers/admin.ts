@@ -1748,4 +1748,26 @@ export const adminRouter = router({
       await PayFastItnRetryService.manualRetry(input.retryId);
       return { success: true, retryId: input.retryId };
     }),
+
+  /** Test SMTP connection without sending an email */
+  testSmtpConnection: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+      const { testSmtpConnection } = await import("../mailer");
+      return testSmtpConnection();
+    }),
+
+  /** Send a test email to verify the full send path */
+  sendTestEmail: protectedProcedure
+    .input(z.object({ to: z.string().email() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== "admin") throw new Error("Unauthorized: Admin access required");
+      const { sendMail } = await import("../mailer");
+      const ok = await sendMail({
+        to: input.to,
+        subject: "Print Cartel \u2014 SMTP Test Email",
+        html: `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;"><h2 style="color:#20B2AA;">\u2705 SMTP Test Successful</h2><p>This is a test email from Print Cartel. If you received this, your SMTP configuration is working correctly.</p><p style="color:#666;font-size:12px;">Sent at: ${new Date().toISOString()}</p></div>`,
+      });
+      return { success: ok };
+    }),
 });

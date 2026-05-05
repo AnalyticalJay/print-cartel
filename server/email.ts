@@ -1,33 +1,9 @@
-import nodemailer from "nodemailer";
+import { getTransporter, SMTP_FROM_EMAIL } from "./mailer";
 import { getDb } from "./db";
 import { orders, orderPrints, products, printOptions, printPlacements } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
-const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
-const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587");
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
-const FROM_EMAIL = process.env.SMTP_FROM_EMAIL || "noreply@printcartel.co.za";
 const TO_EMAIL = "sales@printcartel.co.za";
-
-let transporter: nodemailer.Transporter | null = null;
-
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
-      secure: SMTP_PORT === 465,
-      auth: SMTP_USER && SMTP_PASS
-        ? {
-            user: SMTP_USER,
-            pass: SMTP_PASS,
-          }
-        : undefined,
-    });
-  }
-  return transporter;
-}
 
 interface OrderNotificationData {
   orderId: number;
@@ -39,10 +15,7 @@ interface OrderNotificationData {
 }
 
 export async function sendOrderNotificationEmail(data: OrderNotificationData) {
-  if (!SMTP_USER || !SMTP_PASS) {
-    console.warn("Email service not configured - skipping email send");
-    return;
-  }
+  // Credentials are managed centrally in mailer.ts
 
   try {
     const db = await getDb();
@@ -225,7 +198,7 @@ This is an automated email from Print Cartel. Please do not reply to this email.
     const transporter = getTransporter();
 
     await transporter.sendMail({
-      from: FROM_EMAIL,
+      from: SMTP_FROM_EMAIL,
       to: TO_EMAIL,
       replyTo: data.customerEmail,
       subject: `New Order Request #${data.orderId} from ${data.customerName}`,
@@ -247,11 +220,7 @@ export async function sendStatusUpdateEmail(
   newStatus: "pending" | "quoted" | "approved" | "in-production" | "completed" | "shipped" | "cancelled",
   quoteAmount?: number
 ) {
-  if (!SMTP_USER || !SMTP_PASS) {
-    console.warn("Email service not configured - skipping email send");
-    return;
-  }
-
+  // Credentials are managed centrally in mailer.ts
   try {
     const statusMessages: Record<string, string> = {
       pending: "Your order is being reviewed by our team.",
@@ -328,7 +297,7 @@ This is an automated email from Print Cartel. Please do not reply to this email.
     const transporter = getTransporter();
 
     await transporter.sendMail({
-      from: FROM_EMAIL,
+      from: SMTP_FROM_EMAIL,
       to: customerEmail,
       subject: `Order #${orderId} Status Update - ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
       text: textContent,

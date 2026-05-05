@@ -2192,3 +2192,17 @@ Future enhancements (Phase 2):
 ## Admin Status Update Fix
 - [x] Diagnose why order status update fails in admin order detail modal
 - [x] Fix the root cause and verify end-to-end
+
+## SMTP Email Delivery Fix
+- [ ] Audit current SMTP configuration (host, port, SSL settings)
+- [ ] Update SMTP credentials via secrets panel
+- [ ] Add SMTP test endpoint to verify connection
+- [ ] Verify emails send successfully end-to-end
+
+## SMTP Email Delivery Fix (Session - May 2026)
+- [x] Diagnose: 8 separate email files each creating own transporter with hardcoded settings
+- [x] Consolidate all 8 transporters into single shared server/mailer.ts module
+- [x] Update SMTP credentials via secrets panel
+- [x] Add testSmtpConnection and sendTestEmail procedures to admin router
+- [x] Add Settings tab to admin dashboard with SMTP connection test and send test email UI
+- [ ] Verify email delivery works end-to-end (user to test via Settings tab)

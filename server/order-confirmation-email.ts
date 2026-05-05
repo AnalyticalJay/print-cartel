@@ -1,33 +1,9 @@
-import nodemailer from "nodemailer";
+import { getTransporter, SMTP_FROM_EMAIL } from "./mailer";
 import { getDb } from "./db";
 import { orders, orderPrints, products, printOptions, printPlacements } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
-const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
-const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587");
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
-const FROM_EMAIL = process.env.SMTP_FROM_EMAIL || "noreply@printcartel.co.za";
 const APP_URL = process.env.VITE_APP_URL || "https://printcartel.co.za";
-
-let transporter: nodemailer.Transporter | null = null;
-
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
-      secure: SMTP_PORT === 465,
-      auth: SMTP_USER && SMTP_PASS
-        ? {
-            user: SMTP_USER,
-            pass: SMTP_PASS,
-          }
-        : undefined,
-    });
-  }
-  return transporter;
-}
 
 interface OrderConfirmationData {
   orderId: number;
@@ -45,10 +21,7 @@ interface OrderConfirmationData {
  * - Next steps
  */
 export async function sendOrderConfirmationEmail(data: OrderConfirmationData) {
-  if (!SMTP_USER || !SMTP_PASS) {
-    console.warn("Email service not configured - skipping order confirmation email");
-    return;
-  }
+  // Credentials are managed centrally in mailer.ts
 
   try {
     const db = await getDb();
@@ -288,7 +261,7 @@ This is an automated email. Please do not reply directly.
     const transporter = getTransporter();
 
     await transporter.sendMail({
-      from: FROM_EMAIL,
+      from: SMTP_FROM_EMAIL,
       to: data.customerEmail,
       subject: `Order Confirmation #${data.orderId} - Print Cartel`,
       text: textContent,
