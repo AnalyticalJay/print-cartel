@@ -270,7 +270,7 @@ export const adminRouter = router({
                 orderId: input.orderId,
                 orderAmount: totalAmount,
                 paymentMethods: ["eft", "creditcard"],
-                templateDownloadUrl: `${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://printcartel.co.za'}/account?tab=orders&order=${input.orderId}`,
+                templateDownloadUrl: `${process.env.VITE_FRONTEND_FORGE_API_URL || 'https://printcartel.co.za'}/track?order=${input.orderId}`,
               });
             } catch (templateEmailError) {
               console.warn("Failed to send payment proof template email:", templateEmailError);
@@ -1682,7 +1682,7 @@ export const adminRouter = router({
               printOpt?.printSize ?? "Unknown size",
               print[0].uploadedFileName ?? "artwork",
               input.notes ?? "Please review and re-upload your artwork meeting the design requirements.",
-              "https://printcartel.co.za/account"
+              "https://printcartel.co.za/track"
             );
           }
         } catch (emailError) {

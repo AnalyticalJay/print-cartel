@@ -2256,3 +2256,6 @@ Future enhancements (Phase 2):
 - [x] Server: block re-upload if order status is "quoted", "approved", "in-production", "completed", "shipped", or "cancelled" (only allow on "pending")
 - [x] Frontend: hide the re-upload button and show a clear "locked" message when the order is no longer in pending status
 - [x] Update vitest tests to cover the new blocked statuses (19 tests passing)
+
+## Email Link Fix
+- [x] Fix "Track Order" link in all emails: change /account to /track (fixed in email.ts, orders.ts, admin.ts — 6 occurrences total)
