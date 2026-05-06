@@ -263,6 +263,11 @@ export async function sendStatusUpdateEmail(
             <p style="margin-top: 20px;">
               You can track your order status anytime by visiting our order tracking page.
             </p>
+            <p style="margin-top: 16px;">
+              <a href="https://printcartel.co.za/track?order=${orderId}&email=${encodeURIComponent(customerEmail)}" style="display:inline-block;background:#000;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:bold;">
+                Track My Order
+              </a>
+            </p>
 
             <p style="margin-top: 30px; color: #666;">
               If you have any questions about your order, please do not hesitate to contact us.
@@ -277,22 +282,7 @@ export async function sendStatusUpdateEmail(
       </html>
     `;
 
-    const textContent = `
-ORDER STATUS UPDATE
-
-Hi ${customerName},
-
-${statusMessages[newStatus]}
-
-Order #${orderId}
-Status: ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}
-${quoteAmount ? `Quote Amount: R${quoteAmount.toFixed(2)}` : ""}
-
-If you have any questions, please contact us.
-
----
-This is an automated email from Print Cartel. Please do not reply to this email.
-    `;
+    const textContent = `ORDER STATUS UPDATE\n\nHi ${customerName},\n\n${statusMessages[newStatus]}\n\nOrder #${orderId}\nStatus: ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}\n${quoteAmount ? `Quote Amount: R${quoteAmount.toFixed(2)}` : ""}\n\nTrack your order: https://printcartel.co.za/track?order=${orderId}&email=${encodeURIComponent(customerEmail)}\n\nIf you have any questions, please contact us.\n\n---\nThis is an automated email from Print Cartel. Please do not reply to this email.`;
 
     const transporter = getTransporter();
 
@@ -323,7 +313,7 @@ export async function sendArtworkChangesRequestedEmail(
   printSize: string,
   fileName: string,
   notes: string,
-  trackingUrl: string = "https://printcartel.co.za/track"
+  trackingUrl: string = `https://printcartel.co.za/track?order=${orderId}&email=${encodeURIComponent(customerEmail)}`
 ) {
   try {
     const htmlContent = `
@@ -435,7 +425,7 @@ export async function sendArtworkReUploadedEmail(
             </div>
             <p>We will notify you once the artwork has been reviewed. If any further changes are needed, we will contact you again.</p>
             <p style="margin-top: 16px;">
-              <a href="https://printcartel.co.za/track" style="display:inline-block;background:#000;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:bold;">
+              <a href="https://printcartel.co.za/track?order=${orderId}&email=${encodeURIComponent(customerEmail)}" style="display:inline-block;background:#000;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:bold;">
                 Track My Order
               </a>
             </p>
@@ -448,13 +438,12 @@ export async function sendArtworkReUploadedEmail(
       </html>
     `;
 
-    const textContent = `ARTWORK RE-SUBMITTED — Order #${orderId}\n\nHi ${customerName},\n\nThank you for re-submitting your artwork. We have received your updated file (${fileName}) and our design team will review it shortly.\n\nWe will notify you once the artwork has been reviewed.\n\nTrack your order: https://printcartel.co.za/track\n\nPrint Cartel Team`;
-
+    const textContent = `ARTWORK RE-SUBMITTED — Order #${orderId}\n\nHi ${customerName},\n\nThank you for re-submitting your artwork. We have received your updated file (${fileName}) and our design team will review it shortly.\n\nWe will notify you once the artwork has been reviewed.\n\nTrack your order: https://printcartel.co.za/track?order=${orderId}&email=${encodeURIComponent(customerEmail)}\n\nPrint Cartel Team`;
     const transporter = getTransporter();
     await transporter.sendMail({
       from: SMTP_FROM_EMAIL,
       to: customerEmail,
-      subject: `✅ Artwork Re-Submitted — Order #${orderId}`,
+      subject: `Artwork Re-Submitted — Order #${orderId}`,
       html: htmlContent,
       text: textContent,
     });

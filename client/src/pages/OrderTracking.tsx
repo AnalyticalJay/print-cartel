@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -46,9 +46,18 @@ interface OrderWithPrints {
 }
 
 export default function OrderTracking() {
-  const [email, setEmail] = useState("");
-  const [searchedEmail, setSearchedEmail] = useState("");
+  // Read ?order= and ?email= query params from URL for deep-linking from emails
+  const urlParams = useMemo(() => new URLSearchParams(window.location.search), []);
+  const deepLinkOrderId = useMemo(() => {
+    const v = urlParams.get("order");
+    return v ? parseInt(v, 10) : null;
+  }, [urlParams]);
+  const deepLinkEmail = useMemo(() => urlParams.get("email") || "", [urlParams]);
+
+  const [email, setEmail] = useState(deepLinkEmail);
+  const [searchedEmail, setSearchedEmail] = useState(deepLinkEmail);
   const [selectedOrder, setSelectedOrder] = useState<OrderWithPrints | null>(null);
+  const deepLinkHandled = useRef(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [previousStatuses, setPreviousStatuses] = useState<Record<number, string>>({});
   const [reUploadingPrintId, setReUploadingPrintId] = useState<number | null>(null);
@@ -69,6 +78,17 @@ export default function OrderTracking() {
       refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
     }
   );
+
+  // Auto-select the order from the ?order= query param once results load
+  useEffect(() => {
+    if (deepLinkHandled.current) return;
+    if (!ordersQuery.data || !deepLinkOrderId) return;
+    const match = ordersQuery.data.find((o) => o.id === deepLinkOrderId);
+    if (match) {
+      setSelectedOrder(match as OrderWithPrints);
+      deepLinkHandled.current = true;
+    }
+  }, [ordersQuery.data, deepLinkOrderId]);
 
   // Monitor for status changes and send notifications
   useEffect(() => {

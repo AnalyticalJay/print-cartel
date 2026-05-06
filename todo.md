@@ -2262,3 +2262,7 @@ Future enhancements (Phase 2):
 
 ## Admin Modal Customer Info Mobile Fix
 - [x] Fix Customer Information grid: stack email/phone vertically on mobile (grid-cols-1 sm:grid-cols-2) + break-all on email
+
+## Email Deep-Link: Order ID Query Param
+- [x] Update all email tracking links to include ?order=ID&email=EMAIL (email.ts, orders.ts, admin.ts — all 8 links updated)
+- [x] Update OrderTracking page to read ?order= and ?email= params, pre-fill email, auto-trigger search, and auto-select the matching order

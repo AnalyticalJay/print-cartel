@@ -1682,7 +1682,7 @@ export const adminRouter = router({
               printOpt?.printSize ?? "Unknown size",
               print[0].uploadedFileName ?? "artwork",
               input.notes ?? "Please review and re-upload your artwork meeting the design requirements.",
-              "https://printcartel.co.za/track"
+              `https://printcartel.co.za/track?order=${print[0].orderId}&email=${encodeURIComponent(order[0].customerEmail)}`
             );
           }
         } catch (emailError) {

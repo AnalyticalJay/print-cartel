@@ -145,7 +145,7 @@ export const ordersRouter = router({
             status: "pending",
             orderDate: new Date(),
             lineItems: emailLineItems.length > 0 ? emailLineItems : undefined,
-            trackingUrl: `https://printcartel.co.za/track`,
+            trackingUrl: `https://printcartel.co.za/track?order=${orderId}&email=${encodeURIComponent(input.customerEmail)}`,
           });
         } catch (error) {
           console.error("Failed to send confirmation email:", error);
@@ -271,7 +271,7 @@ export const ordersRouter = router({
             status: "pending",
             orderDate: new Date(),
             lineItems: multiEmailLineItems.length > 0 ? multiEmailLineItems : undefined,
-            trackingUrl: `https://printcartel.co.za/track`,
+            trackingUrl: `https://printcartel.co.za/track?order=${orderId}&email=${encodeURIComponent(input.customerEmail)}`,
           });
         } catch (error) {
           console.error("Failed to send confirmation email:", error);
