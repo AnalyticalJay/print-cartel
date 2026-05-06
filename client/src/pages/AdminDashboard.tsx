@@ -1007,11 +1007,11 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
               {/* Customer */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
-                  <div><p className="text-gray-500">Email</p><p className="font-medium">{order.customerEmail}</p></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
+                  <div><p className="text-gray-500">Email</p><p className="font-medium break-all">{order.customerEmail}</p></div>
                   <div><p className="text-gray-500">Phone</p><p className="font-medium">{order.customerPhone || "—"}</p></div>
                   {order.customerCompany && (
-                    <div className="col-span-2"><p className="text-gray-500">Company</p><p className="font-medium">{order.customerCompany}</p></div>
+                    <div className="sm:col-span-2"><p className="text-gray-500">Company</p><p className="font-medium">{order.customerCompany}</p></div>
                   )}
                 </div>
               </div>
@@ -1026,7 +1026,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                     {order.lineItems.map((item: any, i: number) => (
                       <div key={i} className="bg-gray-50 p-4 rounded-lg text-sm border border-gray-200">
                         <p className="font-semibold text-gray-700 mb-2">Item {i + 1}</p>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div><p className="text-gray-500">Product</p><p className="font-medium">{item.product?.name || "N/A"}</p></div>
                           <div><p className="text-gray-500">Quantity</p><p className="font-medium">{item.quantity}</p></div>
                           <div>
@@ -1043,7 +1043,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                         </div>
                       </div>
                     ))}
-                    <div className="grid grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
                       <div><p className="text-gray-500">Total Quantity</p><p className="font-medium">{order.quantity}</p></div>
                       <div><p className="text-gray-500">Total Price</p><p className="font-semibold text-green-700">R{Number(order.totalPriceEstimate).toFixed(2)}</p></div>
                       <div>
@@ -1056,7 +1056,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                   </div>
                 ) : (
                   /* Single-item order: show product/color/size directly */
-                  <div className="grid grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
                     <div><p className="text-gray-500">Product</p><p className="font-medium">{order.product?.name || "N/A"}</p></div>
                     <div><p className="text-gray-500">Quantity</p><p className="font-medium">{order.quantity}</p></div>
                     <div>

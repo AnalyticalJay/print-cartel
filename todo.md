@@ -2259,3 +2259,6 @@ Future enhancements (Phase 2):
 
 ## Email Link Fix
 - [x] Fix "Track Order" link in all emails: change /account to /track (fixed in email.ts, orders.ts, admin.ts — 6 occurrences total)
+
+## Admin Modal Customer Info Mobile Fix
+- [x] Fix Customer Information grid: stack email/phone vertically on mobile (grid-cols-1 sm:grid-cols-2) + break-all on email
