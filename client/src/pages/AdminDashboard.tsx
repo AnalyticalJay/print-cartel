@@ -950,7 +950,7 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
           <div className="flex justify-between items-start gap-3">
             <div className="min-w-0">
               <CardTitle className="text-xl">Order #{order.id}</CardTitle>
-              <CardDescription className="truncate">{order.customerFirstName} {order.customerLastName} · {order.customerEmail}</CardDescription>
+              <CardDescription>{order.customerFirstName} {order.customerLastName}</CardDescription>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {(order.status === "pending" || order.status === "quoted") && (
