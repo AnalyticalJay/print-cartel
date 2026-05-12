@@ -13,7 +13,6 @@ import OrderTracking from "./pages/OrderTracking";
 import AccountDashboard from "./pages/AccountDashboard";
 import NotificationSettings from "./pages/NotificationSettings";
 import Reseller from "./pages/Reseller";
-import ResellersManagement from "./pages/ResellersManagement";
 
 import { PayFastReturn } from "./pages/PayFastReturn";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
@@ -27,7 +26,6 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/order"} component={OrderWizard} />
       <Route path={"/reseller"} component={Reseller} />
-      <Route path={"/admin/resellers"} component={ResellersManagement} />
       <Route path={"/track"} component={OrderTracking} />
       <Route path={"/dashboard"} component={AccountDashboard} />
       <Route path={"/profile"} component={AccountDashboard} />
