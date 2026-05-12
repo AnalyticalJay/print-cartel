@@ -14,7 +14,6 @@ import AccountDashboard from "./pages/AccountDashboard";
 import NotificationSettings from "./pages/NotificationSettings";
 import Reseller from "./pages/Reseller";
 import ResellersManagement from "./pages/ResellersManagement";
-import GangSheetPage from "./pages/GangSheetPage";
 
 import { PayFastReturn } from "./pages/PayFastReturn";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
@@ -29,7 +28,6 @@ function Router() {
       <Route path={"/order"} component={OrderWizard} />
       <Route path={"/reseller"} component={Reseller} />
       <Route path={"/admin/resellers"} component={ResellersManagement} />
-      <Route path={"/gang-sheet"} component={GangSheetPage} />
       <Route path={"/track"} component={OrderTracking} />
       <Route path={"/dashboard"} component={AccountDashboard} />
       <Route path={"/profile"} component={AccountDashboard} />

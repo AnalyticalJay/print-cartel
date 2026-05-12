@@ -227,55 +227,6 @@ export default function Reseller() {
         </div>
       </section>
 
-      {/* Gang Sheet Builder Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold text-foreground mb-4">Build Your Own Gang Sheets</h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                Use our intuitive Gang Sheet Builder to arrange multiple designs on a single DTF print sheet. Upload designs, position them visually, and submit your order directly to Print Cartel.
-              </p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-foreground">Drag-and-drop design arrangement</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-foreground">Visual canvas with grid guides</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-foreground">High-resolution export (300 DPI)</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-foreground">Support for PNG, JPG, and PDF files</span>
-                </li>
-              </ul>
-              <Button 
-                size="lg" 
-                className="gap-2"
-                onClick={() => window.location.href = '/gang-sheet'}
-              >
-                <Rocket className="w-4 h-4" />
-                Open Gang Sheet Builder
-              </Button>
-            </div>
-            <div className="bg-white rounded-lg border-2 border-primary/20 p-6 shadow-lg">
-              <div className="bg-gray-100 rounded aspect-video flex items-center justify-center">
-                <div className="text-center">
-                  <Zap className="w-12 h-12 text-primary mx-auto mb-2" />
-                  <p className="text-gray-600">Gang Sheet Canvas Preview</p>
-                  <p className="text-sm text-gray-300 mt-2">300mm × 1000mm</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Contact Form Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
         <div className="max-w-2xl mx-auto">

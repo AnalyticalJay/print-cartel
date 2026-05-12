@@ -8,7 +8,6 @@ import { filesRouter } from "./routers/files";
 import { adminRouter } from "./routers/admin";
 import { chatRouter } from "./routers/chat";
 import { resellerRouter } from "./routers/reseller";
-import { gangSheets } from "./routers/gangsheets";
 import { productionRouter } from "./routers/production";
 import { referralRouter } from "./routers/referral";
 import { templatesRouter } from "./routers/templates";
@@ -16,8 +15,6 @@ import { notificationsRouter } from "./routers/notifications";
 import { paymentRouter } from "./routers/payment";
 import { payfastRouter } from "./routers/payfast";
 import { adminAdvancedOrdersRouter } from "./routers/admin-advanced-orders";
-
-const gangSheetsRouter = gangSheets;
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -39,7 +36,6 @@ export const appRouter = router({
   admin: adminRouter,
   chat: chatRouter,
   reseller: resellerRouter,
-  gangSheets: gangSheetsRouter,
   production: productionRouter,
   referral: referralRouter,
   templates: templatesRouter,
