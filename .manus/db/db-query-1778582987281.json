@@ -1,0 +1,40 @@
+{
+  "query": "SELECT o.id, o.colorId, pc.colorName, pc.colorHex FROM orders o LEFT JOIN productColors pc ON pc.id = o.colorId ORDER BY o.id DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute SELECT o.id, o.colorId, pc.colorName, pc.colorHex FROM orders o LEFT JOIN productColors pc ON pc.id = o.colorId ORDER BY o.id DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "1740001",
+      "colorId": "120004",
+      "colorName": "Royal Blue",
+      "colorHex": "#4169E1"
+    },
+    {
+      "id": "1710001",
+      "colorId": "120001",
+      "colorName": "Black",
+      "colorHex": "#000000"
+    },
+    {
+      "id": "1680001",
+      "colorId": "120002",
+      "colorName": "White",
+      "colorHex": "#FFFFFF"
+    },
+    {
+      "id": "1620055",
+      "colorId": "1",
+      "colorName": "NULL",
+      "colorHex": "NULL"
+    },
+    {
+      "id": "1620050",
+      "colorId": "1",
+      "colorName": "NULL",
+      "colorHex": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcolorId\tcolorName\tcolorHex\n1740001\t120004\tRoyal Blue\t#4169E1\n1710001\t120001\tBlack\t#000000\n1680001\t120002\tWhite\t#FFFFFF\n1620055\t1\tNULL\tNULL\n1620050\t1\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 286
+}

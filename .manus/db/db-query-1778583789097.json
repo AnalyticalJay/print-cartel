@@ -1,0 +1,46 @@
+{
+  "query": "UPDATE products SET isActive = false WHERE imageUrl IS NULL OR imageUrl = ''; SELECT id, name, imageUrl, isActive FROM products ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 39BtYQyKHXzYXJi.7163615a4154 --database kDHKMkQxvxGGSdVdvmorSF --execute UPDATE products SET isActive = false WHERE imageUrl IS NULL OR imageUrl = ''; SELECT id, name, imageUrl, isActive FROM products ORDER BY id;",
+  "rows": [
+    {
+      "id": "120001",
+      "name": "Lightweight T-Shirt",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/lightweight-tshirt-h7WEUyxvFDArzAHvBPcWuf.webp",
+      "isActive": "1"
+    },
+    {
+      "id": "120002",
+      "name": "Men's Polo",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-polo-XbdH76qCa5uqZNajBPRRfM.webp",
+      "isActive": "1"
+    },
+    {
+      "id": "120003",
+      "name": "Men's Dry Fit Polo",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-dry-fit-polo-URXtkcC97dD5NqDy49NpNW.webp",
+      "isActive": "1"
+    },
+    {
+      "id": "120004",
+      "name": "Hoodie",
+      "imageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/hoodie-9vm3VeuhJMqePpwcTpPpgW.webp",
+      "isActive": "1"
+    },
+    {
+      "id": "180003",
+      "name": "Test T-Shirt for Email Notifications",
+      "imageUrl": "NULL",
+      "isActive": "0"
+    },
+    {
+      "id": "420006",
+      "name": "Test Product for Production",
+      "imageUrl": "NULL",
+      "isActive": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\timageUrl\tisActive\n120001\tLightweight T-Shirt\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/lightweight-tshirt-h7WEUyxvFDArzAHvBPcWuf.webp\t1\n120002\tMen's Polo\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-polo-XbdH76qCa5uqZNajBPRRfM.webp\t1\n120003\tMen's Dry Fit Polo\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/mens-dry-fit-polo-URXtkcC97dD5NqDy49NpNW.webp\t1\n120004\tHoodie\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663346956907/kDHKMkQxvxGGSdVdvmorSF/hoodie-9vm3VeuhJMqePpwcTpPpgW.webp\t1\n180003\tTest T-Shirt for Email Notifications\tNULL\t0\n420006\tTest Product for Production\tNULL\t0\n",
+  "stderr": "",
+  "execution_time_ms": 271
+}

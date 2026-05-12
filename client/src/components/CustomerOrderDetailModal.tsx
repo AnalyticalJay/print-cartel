@@ -167,7 +167,7 @@ export function CustomerOrderDetailModal({ orderId, onClose }: CustomerOrderDeta
         orderId: order.id,
         amount: amountDue,
         returnUrl: `${origin}/payment/success?m_payment_id=order-${order.id}`,
-        cancelUrl: `${origin}/account`,
+        cancelUrl: `${origin}/payment/cancel`,
         notifyUrl: `${origin}/api/payfast/notify`,
       });
       if (result.paymentUrl) {

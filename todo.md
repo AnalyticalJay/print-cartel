@@ -2266,3 +2266,19 @@ Future enhancements (Phase 2):
 ## Email Deep-Link: Order ID Query Param
 - [x] Update all email tracking links to include ?order=ID&email=EMAIL (email.ts, orders.ts, admin.ts — all 8 links updated)
 - [x] Update OrderTracking page to read ?order= and ?email= params, pre-fill email, auto-trigger search, and auto-select the matching order
+
+## Garment Colour Swatch in Admin Order Detail
+- [ ] Show colour swatch dot next to colour name in Garment & Customization section (admin order detail)
+
+## Front-End Audit Fixes (May 2026)
+- [ ] Fix CustomerOrderDetailModal.tsx cancelUrl: /account → /payment/cancel
+- [ ] Fix payment-proof-email.ts: two /account links → /track
+- [ ] Hide test products (id 180003, 420006) from public product slider/homepage
+- [ ] Fix "No image" fallback in ProductSlider to show a proper styled placeholder
+
+## Payment.tsx Broken Route Fix (May 2026)
+- [x] Fix Payment.tsx: replace setLocation('/payment/manual-upload?orderId=...') with inline showProofUpload state
+- [x] Show SimplifiedPaymentProofUpload component inline after bank transfer method is selected
+- [x] Add bank transfer details card (FNB account, branch code, reference) before the upload form
+- [x] On upload success, navigate to /track?order=ID&email=EMAIL (deep-link to order)
+- [x] Back button on proof upload view returns to payment method selection (no 404)

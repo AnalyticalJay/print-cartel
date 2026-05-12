@@ -4,8 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, AlertCircle, CheckCircle, CreditCard, Loader2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, CreditCard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { SimplifiedPaymentMethodSelector, type PaymentMethodType } from "@/components/SimplifiedPaymentMethodSelector";
 import { SimplifiedPaymentProofUpload } from "@/components/SimplifiedPaymentProofUpload";
@@ -16,6 +15,7 @@ export default function Payment() {
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showProofUpload, setShowProofUpload] = useState(false);
 
   const recordPaymentMethodMutation = trpc.payment.recordPaymentMethod.useMutation();
   const initiatePayFastMutation = trpc.payfast.generatePaymentUrl.useMutation();
@@ -118,8 +118,8 @@ export default function Payment() {
           paymentType: "final_payment",
         });
 
-        toast.success("Payment method recorded. Please upload proof of payment.");
-        setLocation(`/payment/manual-upload?orderId=${orderId}`);
+        toast.success("Payment method recorded. Please upload your proof of payment below.");
+        setShowProofUpload(true);
       }
     } catch (error) {
       console.error("Payment error:", error);
@@ -129,6 +129,78 @@ export default function Payment() {
       setIsProcessing(false);
     }
   };
+
+  // Show inline proof upload after bank transfer is selected
+  if (showProofUpload) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
+        <div className="mx-auto max-w-2xl">
+          {/* Header */}
+          <div className="mb-6 flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowProofUpload(false)}
+              className="rounded-full"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">Upload Proof of Payment</h1>
+              <p className="text-gray-600">Order #{orderId}</p>
+            </div>
+          </div>
+
+          {/* Bank Details */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Bank Transfer Details</CardTitle>
+              <CardDescription>Please transfer R{total.toFixed(2)} to the following account</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg bg-slate-50 p-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600 font-medium">Bank:</span>
+                  <span className="font-semibold">FNB (First National Bank)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 font-medium">Account Name:</span>
+                  <span className="font-semibold">Print Cartel</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 font-medium">Account Number:</span>
+                  <span className="font-semibold">62930475836</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 font-medium">Branch Code:</span>
+                  <span className="font-semibold">250655</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 font-medium">Reference:</span>
+                  <span className="font-semibold">Order #{orderId}</span>
+                </div>
+                <div className="flex justify-between border-t pt-2">
+                  <span className="text-gray-600 font-medium">Amount Due:</span>
+                  <span className="font-bold text-green-600 text-base">R{total.toFixed(2)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <SimplifiedPaymentProofUpload
+            orderId={orderId!}
+            amount={total}
+            onSuccess={() => {
+              setLocation(`/track?order=${orderId}&email=${encodeURIComponent(order.customerEmail)}`);
+            }}
+            onError={(err) => {
+              toast.error(err);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">

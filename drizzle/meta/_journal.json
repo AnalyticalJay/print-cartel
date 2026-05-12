@@ -218,6 +218,13 @@
       "when": 1777966535116,
       "tag": "0032_boring_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1778583782415,
+      "tag": "0033_motionless_lionheart",
+      "breakpoints": true
     }
   ]
 }

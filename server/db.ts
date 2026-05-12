@@ -16,7 +16,7 @@ export async function getDb() {
 export async function getAllProducts() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(products);
+  return await db.select().from(products).where(eq(products.isActive, true));
 }
 
 export async function getProductById(productId: number) {

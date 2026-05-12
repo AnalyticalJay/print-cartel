@@ -154,7 +154,7 @@ export async function sendPaymentProofTemplateEmail(data: PaymentProofEmailData)
 
           <!-- CTA Button -->
           <div style="margin: 30px 0; text-align: center;">
-            <a href="${templateDownloadUrl || "https://printcartel.co.za/account"}" style="display: inline-block; padding: 12px 30px; background-color: #0891b2; color: white; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">
+            <a href="${templateDownloadUrl || "https://printcartel.co.za/track"}" style="display: inline-block; padding: 12px 30px; background-color: #0891b2; color: white; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">
               Access Templates in Dashboard
             </a>
           </div>
@@ -275,7 +275,7 @@ export async function sendPaymentProofSubmissionEmail(data: {
 
           <!-- Status Check -->
           <div style="margin: 20px 0; text-align: center;">
-            <a href="https://printcartel.co.za/account" style="display: inline-block; padding: 12px 30px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">
+            <a href="https://printcartel.co.za/track" style="display: inline-block; padding: 12px 30px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">
               Check Order Status
             </a>
           </div>
