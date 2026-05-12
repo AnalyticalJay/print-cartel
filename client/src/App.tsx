@@ -15,7 +15,6 @@ import NotificationSettings from "./pages/NotificationSettings";
 import Reseller from "./pages/Reseller";
 import ResellersManagement from "./pages/ResellersManagement";
 import GangSheetPage from "./pages/GangSheetPage";
-import { AdvancedOrderWizard } from "./components/AdvancedOrderWizard";
 
 import { PayFastReturn } from "./pages/PayFastReturn";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
@@ -28,7 +27,6 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/order"} component={OrderWizard} />
-      <Route path={"/order/advanced"} component={AdvancedOrderWizard} />
       <Route path={"/reseller"} component={Reseller} />
       <Route path={"/admin/resellers"} component={ResellersManagement} />
       <Route path={"/gang-sheet"} component={GangSheetPage} />
