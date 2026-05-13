@@ -28,6 +28,16 @@ function ProductShowcase() {
   return <ProductSlider products={productsQuery.data} />;
 }
 
+// Helper: fire a GA4 event for homepage CTA clicks
+function trackCTA(label: string) {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'cta_click', {
+      event_category: 'Homepage',
+      event_label: label,
+    });
+  }
+}
+
 export default function Home() {
   const [, setLocation] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -106,7 +116,7 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex gap-3 sm:gap-4 flex-wrap justify-center">
               <Button
-                onClick={() => setLocation("/order")}
+                onClick={() => { trackCTA('Hero – Start Your Order'); setLocation('/order'); }}
                 size="lg"
                 className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300 text-sm sm:text-base md:text-lg px-6 sm:px-10 py-3 sm:py-6 font-bold shadow-lg hover:shadow-xl"
               >
@@ -231,7 +241,9 @@ export default function Home() {
                 </div>
               </div>
               <Button
-                onClick={() => setLocation("/reseller")} size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300 mt-6"
+                onClick={() => { trackCTA('Reseller Section – Learn About Our Reseller Program'); setLocation('/reseller'); }}
+                size="lg"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300 mt-6"
               >
                 Learn About Our Reseller Program
               </Button>
@@ -263,7 +275,7 @@ export default function Home() {
             Create your first custom order today and see the difference quality makes.
           </p>
           <Button
-            onClick={() => setLocation("/order")}
+            onClick={() => { trackCTA('Bottom CTA – Start Your Order'); setLocation('/order'); }}
             size="lg"
             className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-lg transition-all duration-300 text-lg px-12 py-7 font-bold group shadow-lg"
           >
