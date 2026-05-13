@@ -28,6 +28,16 @@ export function Navigation() {
     setOpenDropdown(null);
   };
 
+  const trackAndNavigate = (label: string, path: string) => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'cta_click', {
+        event_category: 'Navigation',
+        event_label: label,
+      });
+    }
+    handleNavigation(path);
+  };
+
   return (
     <nav className="border-b border-border bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4">
@@ -83,7 +93,7 @@ export function Navigation() {
                   </Button>
                 )}
                 <Button
-                  onClick={() => handleNavigation("/order")}
+                  onClick={() => trackAndNavigate('Nav – Order Now (Desktop)', '/order')}
                   className="text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-md font-semibold px-6 py-2 transition-all duration-200"
                 >
                   Order Now
@@ -172,7 +182,7 @@ export function Navigation() {
 
             {/* Order Now */}
             <Button
-              onClick={() => handleNavigation("/order")}
+              onClick={() => trackAndNavigate('Nav – Order Now (Mobile)', '/order')}
               className="w-full justify-start text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-md font-semibold px-4 py-2 transition-all duration-200"
             >
               Order Now
