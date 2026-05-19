@@ -1,0 +1,54 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "db",
+    "server",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://39BtYQyKHXzYXJi.7163615a4154:NZIPP89VUg4Xqh0ZFv12@gateway02.us-east-1.prod.aws.tidbcloud.com:4000/kDHKMkQxvxGGSdVdvmorSF?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663346956907/kDHKMkQxvxGGSdVdvmorSF",
+    "access_key_id": "ASIAZV3A2ECZLACH2BYS",
+    "secret_access_key": "PncHWQCN4IjMeRbIu8YuHrV3QzObQeDutQqopE8z",
+    "session_token": "IQoJb3JpZ2luX2VjEAgaCXVzLWVhc3QtMSJHMEUCIDpr4m+JfR6JEHfX9Emm/4Yf9JDTq9XtP6IgByWw1ecbAiEAplPnbR25w0IfqOv2ppk3Dzh8fYIl8/+YU3rzOXKTqeoq/wMI0P//////////ARAEGgw2NjUzODYwOTg4NjYiDBcDcMl79k6YZhj4uCrTAxvxk9H38mMgXG5fdvlUzAkv9IZ5/090WnKv3cKctXMRnFn0zQj6nGNap9Y+8TeXVgjNOmUMoqD5OoTKro6rMF/PRv19ZyN0Qdk2N8E2gQOySa1/tCu4GkQ3oWem2NodkHzoRdox5tE/TGFySUo9ErGsP7upfiuUL2ZJwpKZmbabYyXul/ArEteYsy6ej8iX8UYuqtQ3tEYOJjFJN0RqkBY6LIPYoVB4MeYWqx7s8lOy/gk7KGWicwK1VWSboMJGH0MU5ROhyhtFgwt4Fw/sdbuB7yWMHJEzdA+3fSCT3DKegnU++1mEBFbw6qHoIRZmhPMzHV840jb4oxlMxt4MitWH9bwuZ0hIu5jqpo6sLPs5wAPIBRaUx0RuWo3vo8fiohmOwnfA9DyEaa3ehJRl7Q/tQsU0jS3sy0WUHVVaCyDfYCEOeXiB/KIG5MtEzT4us8IAZ2H+MmR8Hkcey1L1dfb6aqH+qt9lu1ZJ5kfj/iE8FOiApMpuQ2ezY3fS6CD184loqsfN454ptOh03W57Xr2Leu78b4VELm5tbeQebhu7wRfB0bSOxgPsvG+xibo4I7/64It8sN/AIgbS0Eg8BKV9zfCMEEQjwf6DUJnFrJz0s5wJMLKXsNAGOp0BQdp0X+aCrKm+bT7d6rkavNw+SNk3vKIcfdlcF3JE+MgidJ5WYiXBb7e75KPuOnVgbR6KlNPWrvdYXa2RX2HJHs0/N4vVdjVSjtl0Pfd+s7L82xfnXgvIWjWLYlTBowaG3WUc/ChOQidBG6af9ew3LiWkYHh28ufEK8Of9JJ3ab/5FS42vTlgnqw/fKuDdCxke64TX7VdtcVooV/miQ==",
+    "expiration": "2026-05-19T19:05:22.000Z"
+  },
+  "name": "print-cartel",
+  "path": "/home/ubuntu/print-cartel",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "K9CeJ5cnw9bQNNua7epCcJ",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "8Q2pm3rJTujKztG4jLHg8f",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Jamie Woodhead",
+    "OWNER_OPEN_ID": "mJiz6MA5cSNg4qm95KeeXs",
+    "PAYFAST_MERCHANT_ID": "19428362",
+    "PAYFAST_MERCHANT_KEY": "x9mjrsxlwirog",
+    "PAYFAST_PASSPHRASE": "-.Redemption_2026",
+    "PAYFAST_SANDBOX": "false",
+    "SMTP_FROM_EMAIL": "sales@printcartel.co.za",
+    "SMTP_HOST": "smtp.printcartel.co.za",
+    "SMTP_PASS": "!@Redemption2026",
+    "SMTP_PORT": "465",
+    "SMTP_SKIP_SSL_VERIFY": "true",
+    "SMTP_USER": "sales@printcartel.co.za",
+    "VAPID_PRIVATE_KEY": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgl36q/vw2Aep1iFoPJH/fJOu2QykbH2XinyihPTu58hihRANCAARF1DkciZp9iuT26k/nMhjjs1U7lzsRJxw8Cz5WJxtd/zOsSGYhPSG2GfYToUqK0apLf1xMcnj8zYE8ERaxMsOB",
+    "VAPID_SUBJECT": "mailto:sales@printcartel.co.za",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "7f005830-fbc3-48bb-84d1-a72ac2eedc1a",
+    "VITE_APP_ID": "kDHKMkQxvxGGSdVdvmorSF",
+    "VITE_APP_LOGO": "https://files.manuscdn.com/user_upload_by_module/web_dev_logo/310519663346956907/FdRhqEAerWHYfgsC.png",
+    "VITE_APP_TITLE": "Print Cartel - Custom DTF Printing",
+    "VITE_FRONTEND_FORGE_API_KEY": "Bhodc5aXZsbYEWjfoB4Qgc",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im",
+    "VITE_VAPID_PUBLIC_KEY": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERdQ5HImafYrk9upP5zIY47NVO5c7ESccPAs+VicbXf8zrEhmIT0hthn2E6FKitGqS39cTHJ4/M2BPBEWsTLDgQ=="
+  },
+  "template_id": "web-db-user",
+  "test_command": "pnpm test"
+}
