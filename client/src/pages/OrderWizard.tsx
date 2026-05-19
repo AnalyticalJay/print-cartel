@@ -106,11 +106,17 @@ export default function OrderWizard() {
     onSuccess: () => {
       toast.success('Order placed successfully!');
       setCurrentStep(7);
-      // Fire GA4 conversion event
       if (typeof window !== 'undefined' && (window as any).gtag) {
+        // GA4 purchase event
         (window as any).gtag('event', 'purchase', {
           event_category: 'ecommerce',
           event_label: 'Order Submitted',
+        });
+        // Google Ads conversion event
+        (window as any).gtag('event', 'conversion', {
+          send_to: 'AW-11093603908/purchase',
+          value: 1.0,
+          currency: 'ZAR',
         });
       }
       setTimeout(() => setLocation('/dashboard'), 2000);
@@ -124,11 +130,17 @@ export default function OrderWizard() {
     onSuccess: () => {
       toast.success('Order placed successfully!');
       setCurrentStep(7);
-      // Fire GA4 conversion event
       if (typeof window !== 'undefined' && (window as any).gtag) {
+        // GA4 purchase event
         (window as any).gtag('event', 'purchase', {
           event_category: 'ecommerce',
           event_label: 'Order Submitted',
+        });
+        // Google Ads conversion event
+        (window as any).gtag('event', 'conversion', {
+          send_to: 'AW-11093603908/purchase',
+          value: 1.0,
+          currency: 'ZAR',
         });
       }
       setTimeout(() => setLocation('/dashboard'), 2000);
