@@ -65,7 +65,7 @@ const getBulkPricingLabel = (quantity: number): string => {
 export default function OrderWizard() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-  const { addItem, items: cartItems } = useOrderCart();
+  const { addItem, items: cartItems, getTotal } = useOrderCart();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [expandedPlacement, setExpandedPlacement] = useState<number | null>(null);
 
@@ -107,15 +107,18 @@ export default function OrderWizard() {
       toast.success('Order placed successfully!');
       setCurrentStep(7);
       if (typeof window !== 'undefined' && (window as any).gtag) {
+        const orderValue = parseFloat(totalPrice.toFixed(2));
         // GA4 purchase event
         (window as any).gtag('event', 'purchase', {
           event_category: 'ecommerce',
           event_label: 'Order Submitted',
+          value: orderValue,
+          currency: 'ZAR',
         });
         // Google Ads conversion event
         (window as any).gtag('event', 'conversion', {
           send_to: 'AW-11093603908/purchase',
-          value: 1.0,
+          value: orderValue,
           currency: 'ZAR',
         });
       }
@@ -131,15 +134,18 @@ export default function OrderWizard() {
       toast.success('Order placed successfully!');
       setCurrentStep(7);
       if (typeof window !== 'undefined' && (window as any).gtag) {
+        const orderValue = parseFloat((cartItems.length > 0 ? getTotal() : totalPrice).toFixed(2));
         // GA4 purchase event
         (window as any).gtag('event', 'purchase', {
           event_category: 'ecommerce',
           event_label: 'Order Submitted',
+          value: orderValue,
+          currency: 'ZAR',
         });
         // Google Ads conversion event
         (window as any).gtag('event', 'conversion', {
           send_to: 'AW-11093603908/purchase',
-          value: 1.0,
+          value: orderValue,
           currency: 'ZAR',
         });
       }
