@@ -18,6 +18,7 @@ import { useOrderCart } from "@/hooks/useOrderCart";
 import { OrderCartSummary } from "@/components/OrderCartSummary";
 import { PrintPlacementSelector } from "@/components/PrintPlacementSelector";
 import { FileUploadValidator } from "@/components/FileUploadValidator";
+import { VisualProductSelector } from "@/components/VisualProductSelector";
 
 type Step = 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -428,141 +429,34 @@ export default function OrderWizard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Step 1: Select Garment */}
+            {/* Step 1: Select Garment — Visual Selector */}
             {currentStep === 1 && (
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader className="pb-3 md:pb-4">
-                  <CardTitle className="text-lg md:text-xl text-white">Select Your Garment</CardTitle>
-                  <CardDescription className="text-xs md:text-sm">Choose product, color, size, and quantity</CardDescription>
-
-                </CardHeader>
-                <CardContent className="space-y-4 md:space-y-6">
-                  {/* Product Selection */}
-                  <div>
-                    <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Select Product</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                      {productsQuery.data?.map((product) => (
-                        <button
-                          key={product.id}
-                          onClick={() => setOrderData({ ...orderData, productId: product.id, colorId: null, sizeId: null })}
-                          className={`p-3 md:p-4 rounded-lg border-2 transition-all text-center active:scale-95 ${
-                            orderData.productId === product.id
-                              ? "border-accent bg-accent/20"
-                              : "border-gray-600 bg-gray-700 hover:border-gray-500"
-                          }`}
-                        >
-                          <p className="text-white font-semibold text-xs md:text-sm">{product.name}</p>
-                          <p className="text-gray-300 text-xs mt-1">{product.productType}</p>
-                          <p className="text-accent font-bold mt-2 text-sm md:text-base">R{product.basePrice}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Color Selection */}
-                  {orderData.productId && (
-                    <div>
-                      <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Select Color</Label>
-                      {productColors.length > 0 ? (
-                        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 md:gap-3">
-                          {productColors.map((color: any) => (
-                            <button
-                              key={color.id}
-                              onClick={() => setOrderData({ ...orderData, colorId: color.id })}
-                              className={`w-14 h-14 md:w-12 md:h-12 rounded-lg border-2 transition-all active:scale-95 ${
-                                orderData.colorId === color.id
-                                  ? "border-white"
-                                  : "border-gray-600"
-                              }`}
-                              style={{ backgroundColor: color.colorHex }}
-                              title={color.colorName}
-                              aria-label={`Select color: ${color.colorName}`}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-200">No colors available for this product</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Size Selection */}
-                  {orderData.productId && (
-                    <div>
-                      <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Select Size</Label>
-                      {productSizes.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-2">
-                          {productSizes.map((size: any) => (
-                            <button
-                              key={size.id}
-                              onClick={() => setOrderData({ ...orderData, sizeId: size.id })}
-                              className={`p-2 md:p-2 rounded-lg border-2 transition-all text-xs md:text-sm font-semibold active:scale-95 ${
-                                orderData.sizeId === size.id
-                                  ? "border-accent bg-accent text-black"
-                                  : "border-gray-600 bg-gray-700 text-white hover:border-gray-500"
-                              }`}
-                            >
-                              {size.sizeName}
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-200">No sizes available for this product</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Quantity */}
-                  <div>
-                    <Label className="text-white font-semibold mb-2 md:mb-3 block text-sm md:text-base">Quantity</Label>
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          setOrderData({
-                            ...orderData,
-                            quantity: Math.max(1, orderData.quantity - 1),
-                          })
-                        }
-                        variant="outline"
-                        size="icon"
-                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-12 w-12 md:h-10 md:w-10 active:scale-95"
-                      >
-                        <Minus className="w-5 md:w-4 h-5 md:h-4" />
-                      </Button>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={orderData.quantity}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (!isNaN(val) && val >= 1) {
-                            setOrderData({
-                              ...orderData,
-                              quantity: val,
-                            });
-                          }
-                        }}
-                        className="bg-gray-700 border-gray-600 text-white text-center font-semibold text-base md:text-lg flex-1"
-                      />
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          setOrderData({
-                            ...orderData,
-                            quantity: orderData.quantity + 1,
-                          })
-                        }
-                        variant="outline"
-                        size="icon"
-                        className="bg-gray-700 border-gray-600 hover:bg-gray-600 text-white h-12 w-12 md:h-10 md:w-10 active:scale-95"
-                      >
-                        <Plus className="w-5 md:w-4 h-5 md:h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div>
+                <div className="mb-4">
+                  <h2 className="text-xl md:text-2xl font-bold text-white">Select Your Garment</h2>
+                  <p className="text-gray-400 text-sm mt-1">Browse, swipe, and choose your product, colour, size &amp; quantity</p>
+                </div>
+                {productsQuery.isLoading ? (
+                  <div className="bg-gray-800 rounded-2xl h-96 animate-pulse" />
+                ) : (
+                  <VisualProductSelector
+                    products={productsQuery.data || []}
+                    colors={productColors}
+                    sizes={productSizes}
+                    selectedProductId={orderData.productId}
+                    selectedColorId={orderData.colorId}
+                    selectedSizeId={orderData.sizeId}
+                    quantity={orderData.quantity}
+                    isLoadingColors={colorsQuery.isLoading}
+                    isLoadingSizes={sizesQuery.isLoading}
+                    onSelectProduct={(id) => setOrderData({ ...orderData, productId: id, colorId: null, sizeId: null })}
+                    onSelectColor={(id) => setOrderData({ ...orderData, colorId: id })}
+                    onSelectSize={(id) => setOrderData({ ...orderData, sizeId: id })}
+                    onQuantityChange={(qty) => setOrderData({ ...orderData, quantity: qty })}
+                    onNext={handleNextStep}
+                  />
+                )}
+              </div>
             )}
 
             {/* Step 2: Print Placement & Size */}
