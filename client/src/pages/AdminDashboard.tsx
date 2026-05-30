@@ -161,21 +161,22 @@ function AdminDashboardContent() {
           </div>
         )}
 
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200">
-          <div className="flex gap-0">
+        {/* Tab Navigation — Mobile Optimized */}
+        <div className="border-b border-gray-200 overflow-x-auto">
+          <div className="flex gap-0 min-w-min">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-3 font-medium text-sm border-b-2 transition-colors ${
+                className={`flex items-center gap-1.5 px-3 sm:px-5 py-3 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? "border-blue-600 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
                 {tab.icon}
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
               </button>
             ))}
           </div>
@@ -184,17 +185,18 @@ function AdminDashboardContent() {
         {/* ── ORDERS TAB ── */}
         {activeTab === "orders" && (
           <>
-            {/* Filters */}
+            {/* Filters — Mobile Optimized */}
             <Card>
               <CardContent className="pt-4 pb-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div className="space-y-3 md:grid md:grid-cols-4 md:gap-3 md:space-y-0">
                   <Input
                     placeholder="Search name, email, order ID..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    className="text-base md:text-sm"
                   />
                   <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as OrderStatus | "all")}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="text-base md:text-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
@@ -206,20 +208,20 @@ function AdminDashboardContent() {
                       <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-                  <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+                  <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="text-base md:text-sm" />
+                  <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="text-base md:text-sm" />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Bulk Actions */}
+            {/* Bulk Actions — Mobile Optimized */}
             {selectedOrders.size > 0 && (
               <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center gap-3 flex-wrap">
+                  <div className="space-y-3 md:flex md:items-center md:gap-3 md:flex-wrap md:space-y-0">
                     <span className="text-sm font-medium">{selectedOrders.size} selected</span>
                     <Select value={bulkStatusUpdate || ""} onValueChange={(v) => setBulkStatusUpdate(v as OrderStatus)}>
-                      <SelectTrigger className="w-40"><SelectValue placeholder="Set status" /></SelectTrigger>
+                      <SelectTrigger className="w-full md:w-40 text-base md:text-sm"><SelectValue placeholder="Set status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="approved">Approved</SelectItem>
@@ -227,10 +229,10 @@ function AdminDashboardContent() {
                         <SelectItem value="completed">Completed</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button onClick={handleBulkUpdate} disabled={!bulkStatusUpdate || bulkUpdateMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={handleBulkUpdate} disabled={!bulkStatusUpdate || bulkUpdateMutation.isPending} className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-base md:text-sm py-2.5 md:py-2">
                       {bulkUpdateMutation.isPending ? "Updating..." : "Update Selected"}
                     </Button>
-                    <Button onClick={() => setSelectedOrders(new Set())} variant="outline">Clear</Button>
+                    <Button onClick={() => setSelectedOrders(new Set())} variant="outline" className="w-full md:w-auto text-base md:text-sm py-2.5 md:py-2">Clear</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -245,11 +247,11 @@ function AdminDashboardContent() {
                 {filteredOrders.length === 0 ? (
                   <p className="text-center text-gray-500 py-8">No orders found</p>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 border-b">
+                  <div className="overflow-x-auto -mx-6 sm:mx-0">
+                    <table className="w-full text-xs sm:text-sm">
+                      <thead className="bg-gray-50 border-b sticky top-0">
                         <tr>
-                          <th className="px-4 py-3 text-left">
+                          <th className="px-2 sm:px-4 py-3 text-left">
                             <Checkbox
                               checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
                               onCheckedChange={() => {
@@ -258,20 +260,20 @@ function AdminDashboardContent() {
                               }}
                             />
                           </th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Order ID</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Customer</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Email</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Qty</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Amount</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Date</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Action</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700">Order ID</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700 hidden sm:table-cell">Customer</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700 hidden md:table-cell">Email</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700">Qty</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700">Amount</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700 hidden lg:table-cell">Date</th>
+                          <th className="px-2 sm:px-4 py-3 text-left font-semibold text-gray-700">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
                         {filteredOrders.map((order) => (
                           <tr key={order.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-3">
+                            <td className="px-2 sm:px-4 py-3">
                               <Checkbox
                                 checked={selectedOrders.has(order.id)}
                                 onCheckedChange={() => {
@@ -281,18 +283,18 @@ function AdminDashboardContent() {
                                 }}
                               />
                             </td>
-                            <td className="px-4 py-3 font-medium text-gray-900">#{order.id}</td>
-                            <td className="px-4 py-3 text-gray-700">{order.customerFirstName} {order.customerLastName}</td>
-                            <td className="px-4 py-3 text-gray-600">{order.customerEmail}</td>
-                            <td className="px-4 py-3 text-gray-700">{order.quantity}</td>
-                            <td className="px-4 py-3 font-semibold text-gray-900">R{Number(order.totalPriceEstimate).toFixed(2)}</td>
-                            <td className="px-4 py-3">
-                              <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                            <td className="px-2 sm:px-4 py-3 font-medium text-gray-900">#{order.id}</td>
+                            <td className="px-2 sm:px-4 py-3 text-gray-700 hidden sm:table-cell text-xs sm:text-sm">{order.customerFirstName} {order.customerLastName}</td>
+                            <td className="px-2 sm:px-4 py-3 text-gray-600 hidden md:table-cell text-xs sm:text-sm">{order.customerEmail}</td>
+                            <td className="px-2 sm:px-4 py-3 text-gray-700">{order.quantity}</td>
+                            <td className="px-2 sm:px-4 py-3 font-semibold text-gray-900 text-xs sm:text-sm">R{Number(order.totalPriceEstimate).toFixed(2)}</td>
+                            <td className="px-2 sm:px-4 py-3">
+                              <Badge className={`${getStatusColor(order.status)} text-xs`}>{order.status}</Badge>
                             </td>
-                            <td className="px-4 py-3 text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
-                            <td className="px-4 py-3">
-                              <Button onClick={() => setSelectedOrderId(order.id)} variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
-                                <Eye className="w-4 h-4 mr-1" /> View
+                            <td className="px-2 sm:px-4 py-3 text-gray-600 hidden lg:table-cell text-xs sm:text-sm">{new Date(order.createdAt).toLocaleDateString()}</td>
+                            <td className="px-2 sm:px-4 py-3">
+                              <Button onClick={() => setSelectedOrderId(order.id)} variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50 text-xs sm:text-sm">
+                                <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">View</span>
                               </Button>
                             </td>
                           </tr>
@@ -994,39 +996,39 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
 
         <CardContent className="flex-1 overflow-hidden p-0">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex flex-col h-full">
-            <div className="flex-shrink-0 px-6 pt-4 pb-0">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="details">Order Details</TabsTrigger>
-              <TabsTrigger value="timeline">Timeline</TabsTrigger>
-              <TabsTrigger value="actions">Actions</TabsTrigger>
+            <div className="flex-shrink-0 px-4 sm:px-6 pt-3 sm:pt-4 pb-0 sticky top-0 bg-white z-10">
+            <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
+              <TabsTrigger value="details" className="text-xs sm:text-sm">Details</TabsTrigger>
+              <TabsTrigger value="timeline" className="text-xs sm:text-sm">Timeline</TabsTrigger>
+              <TabsTrigger value="actions" className="text-xs sm:text-sm">Actions</TabsTrigger>
             </TabsList>
             </div>
 
             {/* ── Details ── */}
-            <TabsContent value="details" className="flex-1 overflow-y-auto px-6 py-4 space-y-6 data-[state=inactive]:hidden">
+            <TabsContent value="details" className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 space-y-4 sm:space-y-6 data-[state=inactive]:hidden">
               {/* Customer */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
-                  <div><p className="text-gray-500">Email</p><p className="font-medium break-all">{order.customerEmail}</p></div>
-                  <div><p className="text-gray-500">Phone</p><p className="font-medium">{order.customerPhone || "—"}</p></div>
+                <h3 className="font-semibold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">Customer Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm bg-gray-50 p-3 sm:p-4 rounded-lg">
+                  <div><p className="text-gray-500 text-xs">Email</p><p className="font-medium break-all">{order.customerEmail}</p></div>
+                  <div><p className="text-gray-500 text-xs">Phone</p><p className="font-medium">{order.customerPhone || "—"}</p></div>
                   {order.customerCompany && (
-                    <div className="sm:col-span-2"><p className="text-gray-500">Company</p><p className="font-medium">{order.customerCompany}</p></div>
+                    <div className="sm:col-span-2"><p className="text-gray-500 text-xs">Company</p><p className="font-medium">{order.customerCompany}</p></div>
                   )}
                 </div>
               </div>
 
               {/* Garment & Customization */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Garment & Customization</h3>
+                <h3 className="font-semibold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">Garment & Customization</h3>
 
                 {/* Multi-item order: show each line item */}
                 {order.isMultiItemOrder && order.lineItems && order.lineItems.length > 0 ? (
                   <div className="space-y-3">
                     {order.lineItems.map((item: any, i: number) => (
-                      <div key={i} className="bg-gray-50 p-4 rounded-lg text-sm border border-gray-200">
-                        <p className="font-semibold text-gray-700 mb-2">Item {i + 1}</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div key={i} className="bg-gray-50 p-3 sm:p-4 rounded-lg text-xs sm:text-sm border border-gray-200">
+                        <p className="font-semibold text-gray-700 mb-2 text-xs sm:text-sm">Item {i + 1}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                           <div><p className="text-gray-500">Product</p><p className="font-medium">{item.product?.name || "N/A"}</p></div>
                           <div><p className="text-gray-500">Quantity</p><p className="font-medium">{item.quantity}</p></div>
                           <div>
@@ -1043,9 +1045,9 @@ function OrderDetailModal({ orderId, onClose, onOrderUpdated }: OrderDetailModal
                         </div>
                       </div>
                     ))}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg">
-                      <div><p className="text-gray-500">Total Quantity</p><p className="font-medium">{order.quantity}</p></div>
-                      <div><p className="text-gray-500">Total Price</p><p className="font-semibold text-green-700">R{Number(order.totalPriceEstimate).toFixed(2)}</p></div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm bg-gray-50 p-3 sm:p-4 rounded-lg">
+                      <div><p className="text-gray-500 text-xs">Total Quantity</p><p className="font-medium">{order.quantity}</p></div>
+                      <div><p className="text-gray-500 text-xs">Total Price</p><p className="font-semibold text-green-700">R{Number(order.totalPriceEstimate).toFixed(2)}</p></div>
                       <div>
                         <p className="text-gray-500">Status</p>
                         <Badge className={order.status === "pending" ? "bg-yellow-100 text-yellow-800" : order.status === "approved" ? "bg-purple-100 text-purple-800" : order.status === "in-production" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
