@@ -124,12 +124,20 @@ export function VisualProductSelector({
         {/* Image */}
         <div className="relative h-72 sm:h-96 md:h-[480px] flex items-center justify-center bg-white">
           {currentProduct.imageUrl ? (
-            <img
-              key={currentProduct.id}
-              src={currentProduct.imageUrl}
-              alt={currentProduct.name}
-              className="w-full h-full object-contain p-6 transition-opacity duration-300"
-            />
+            <>
+              <img
+                key={currentProduct.id}
+                src={currentProduct.imageUrl}
+                alt={currentProduct.name}
+                className="w-full h-full object-contain p-6 transition-opacity duration-300"
+              />
+              {/* Fabric/Weight Badge */}
+              {currentProduct.fabricType && (
+                <div className="absolute top-4 left-4 bg-black/80 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
+                  {currentProduct.fabricType}
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-gray-400 text-center">
               <p className="text-lg">No image available</p>
