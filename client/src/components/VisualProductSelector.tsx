@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface Product {
   id: number;
@@ -57,6 +58,7 @@ export function VisualProductSelector({
   onNext,
 }: VisualProductSelectorProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
@@ -312,7 +314,18 @@ export function VisualProductSelector({
       {/* ── Size selection ── */}
       {selectedProductId && (
         <div className="bg-gray-800 rounded-xl p-4 sm:p-5 space-y-3">
-          <p className="text-white font-semibold text-sm sm:text-base">Select Size</p>
+          <div className="flex items-center justify-between">
+            <p className="text-white font-semibold text-sm sm:text-base">Select Size</p>
+            <Button
+              onClick={() => setShowSizeGuide(true)}
+              variant="ghost"
+              size="sm"
+              className="text-accent hover:bg-gray-700 gap-1 h-auto py-1 px-2"
+            >
+              <Info className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Size Guide</span>
+            </Button>
+          </div>
           {isLoadingSizes ? (
             <div className="grid grid-cols-4 gap-2">
               {[...Array(8)].map((_, i) => (
@@ -340,6 +353,92 @@ export function VisualProductSelector({
           )}
         </div>
       )}
+
+      {/* ── Size Guide Modal ── */}
+      <Dialog open={showSizeGuide} onOpenChange={setShowSizeGuide}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Size Guide</DialogTitle>
+            <DialogDescription>Measurements in centimetres (cm)</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-semibold text-sm mb-3">Standard Apparel Sizes</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs sm:text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border px-2 py-2 text-left">Size</th>
+                      <th className="border px-2 py-2 text-left">Chest</th>
+                      <th className="border px-2 py-2 text-left">Length</th>
+                      <th className="border px-2 py-2 text-left">Sleeve</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border px-2 py-2 font-medium">XS</td>
+                      <td className="border px-2 py-2">43–46</td>
+                      <td className="border px-2 py-2">66–68</td>
+                      <td className="border px-2 py-2">18–19</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border px-2 py-2 font-medium">S</td>
+                      <td className="border px-2 py-2">46–51</td>
+                      <td className="border px-2 py-2">68–71</td>
+                      <td className="border px-2 py-2">19–20</td>
+                    </tr>
+                    <tr>
+                      <td className="border px-2 py-2 font-medium">M</td>
+                      <td className="border px-2 py-2">51–56</td>
+                      <td className="border px-2 py-2">71–74</td>
+                      <td className="border px-2 py-2">20–21</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border px-2 py-2 font-medium">L</td>
+                      <td className="border px-2 py-2">56–61</td>
+                      <td className="border px-2 py-2">74–76</td>
+                      <td className="border px-2 py-2">21–22</td>
+                    </tr>
+                    <tr>
+                      <td className="border px-2 py-2 font-medium">XL</td>
+                      <td className="border px-2 py-2">61–66</td>
+                      <td className="border px-2 py-2">76–79</td>
+                      <td className="border px-2 py-2">22–23</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border px-2 py-2 font-medium">2XL</td>
+                      <td className="border px-2 py-2">66–71</td>
+                      <td className="border px-2 py-2">79–81</td>
+                      <td className="border px-2 py-2">23–24</td>
+                    </tr>
+                    <tr>
+                      <td className="border px-2 py-2 font-medium">3XL</td>
+                      <td className="border px-2 py-2">71–76</td>
+                      <td className="border px-2 py-2">81–84</td>
+                      <td className="border px-2 py-2">24–25</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+              <h4 className="font-semibold text-sm mb-2">How to Measure</h4>
+              <ul className="text-xs sm:text-sm space-y-1 text-gray-700">
+                <li><strong>Chest:</strong> Measure across the widest part of the chest, armpit to armpit.</li>
+                <li><strong>Length:</strong> Measure from the shoulder seam down to the hem.</li>
+                <li><strong>Sleeve:</strong> Measure from the shoulder seam to the wrist.</li>
+              </ul>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-gray-700">
+                <strong>Note:</strong> These are approximate measurements. Actual garment dimensions may vary slightly by manufacturer. If you are between sizes, we recommend sizing up for a comfortable fit.
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Quantity ── */}
       {selectedProductId && (
