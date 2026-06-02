@@ -4,14 +4,23 @@ interface Placement {
   positionCoordinates?: any;
 }
 
+interface PrintSelection {
+  placementId: number;
+  printSizeId: number;
+  uploadedFilePath?: string;
+  uploadedFileName?: string;
+}
+
 interface GarmentPlacementPreviewProps {
   selectedPlacements: number[];
   allPlacements: Placement[];
+  printSelections?: PrintSelection[];
 }
 
 export function GarmentPlacementPreview({
   selectedPlacements,
   allPlacements,
+  printSelections = [],
 }: GarmentPlacementPreviewProps) {
   const placementColors: Record<string, string> = {
     "Front": "#3b82f6", // blue
@@ -47,59 +56,120 @@ export function GarmentPlacementPreview({
         Print Placement Preview
       </h3>
 
-      {/* Garment Silhouette */}
-      <div className="flex justify-center mb-4">
-        <svg
-          viewBox="0 0 100 100"
-          className="w-32 h-40 md:w-40 md:h-48"
-          style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))" }}
-        >
-          {/* Garment body outline */}
-          <g stroke="#9ca3af" strokeWidth="0.5" fill="none">
-            {/* Neck */}
-            <circle cx="50" cy="20" r="4" />
-            {/* Body */}
-            <path d="M 45 24 Q 40 28 40 40 L 40 75 Q 45 80 50 80 Q 55 80 60 75 L 60 40 Q 60 28 55 24 Z" />
-            {/* Left sleeve */}
-            <path d="M 40 30 Q 30 30 28 35 L 25 50 Q 25 55 28 60 Q 30 65 40 65" />
-            {/* Right sleeve */}
-            <path d="M 60 30 Q 70 30 72 35 L 75 50 Q 75 55 72 60 Q 70 65 60 65" />
-          </g>
+      {/* Garment Silhouette with Design Overlay */}
+      <div className="flex justify-center mb-4 relative">
+        <div className="relative w-32 h-40 md:w-40 md:h-48">
+          {/* SVG Garment */}
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full absolute inset-0"
+            style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))" }}
+          >
+            {/* Garment body outline */}
+            <g stroke="#9ca3af" strokeWidth="0.5" fill="none">
+              {/* Neck */}
+              <circle cx="50" cy="20" r="4" />
+              {/* Body */}
+              <path d="M 45 24 Q 40 28 40 40 L 40 75 Q 45 80 50 80 Q 55 80 60 75 L 60 40 Q 60 28 55 24 Z" />
+              {/* Left sleeve */}
+              <path d="M 40 30 Q 30 30 28 35 L 25 50 Q 25 55 28 60 Q 30 65 40 65" />
+              {/* Right sleeve */}
+              <path d="M 60 30 Q 70 30 72 35 L 75 50 Q 75 55 72 60 Q 70 65 60 65" />
+            </g>
 
-          {/* Placement highlights */}
-          {selectedPlacements.map((placementId) => {
-            const placement = allPlacements.find((p) => p.id === placementId);
-            if (!placement) return null;
+            {/* Placement highlights with clipping masks */}
+            <defs>
+              {selectedPlacements.map((placementId) => {
+                const placement = allPlacements.find((p) => p.id === placementId);
+                if (!placement) return null;
+                const path = getPlacementPath(placement.placementName);
+                return (
+                  <clipPath key={`clip-${placementId}`} id={`clip-${placementId}`}>
+                    <path d={path} />
+                  </clipPath>
+                );
+              })}
+            </defs>
 
-            const color =
-              placementColors[placement.placementName] || "#fbbf24";
-            const path = getPlacementPath(placement.placementName);
+            {/* Design overlays */}
+            {selectedPlacements.map((placementId) => {
+              const placement = allPlacements.find((p) => p.id === placementId);
+              const selection = printSelections.find(
+                (s) => s.placementId === placementId
+              );
+              if (!placement || !selection?.uploadedFilePath) return null;
 
-            return (
-              <g key={placementId}>
-                {/* Highlight path */}
-                <path
-                  d={path}
-                  fill={color}
-                  opacity="0.7"
-                  style={{
-                    filter: "drop-shadow(0 0 4px rgba(0, 0, 0, 0.5))",
-                  }}
-                />
-                {/* Animated border */}
-                <path
-                  d={path}
-                  stroke={color}
-                  strokeWidth="1"
-                  fill="none"
-                  style={{
-                    animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-                  }}
-                />
-              </g>
-            );
-          })}
-        </svg>
+              const color =
+                placementColors[placement.placementName] || "#fbbf24";
+              const path = getPlacementPath(placement.placementName);
+
+              return (
+                <g key={placementId}>
+                  {/* Design image with clipping */}
+                  <image
+                    href={selection.uploadedFilePath}
+                    x="0"
+                    y="0"
+                    width="100"
+                    height="100"
+                    clipPath={`url(#clip-${placementId})`}
+                    opacity="0.85"
+                    style={{
+                      filter: "drop-shadow(0 0 4px rgba(0, 0, 0, 0.5))",
+                    }}
+                  />
+                  {/* Animated border */}
+                  <path
+                    d={path}
+                    stroke={color}
+                    strokeWidth="1"
+                    fill="none"
+                    style={{
+                      animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                    }}
+                  />
+                </g>
+              );
+            })}
+
+            {/* Fallback color highlights if no design uploaded */}
+            {selectedPlacements.map((placementId) => {
+              const placement = allPlacements.find((p) => p.id === placementId);
+              const selection = printSelections.find(
+                (s) => s.placementId === placementId
+              );
+              if (!placement || selection?.uploadedFilePath) return null;
+
+              const color =
+                placementColors[placement.placementName] || "#fbbf24";
+              const path = getPlacementPath(placement.placementName);
+
+              return (
+                <g key={placementId}>
+                  {/* Color highlight */}
+                  <path
+                    d={path}
+                    fill={color}
+                    opacity="0.7"
+                    style={{
+                      filter: "drop-shadow(0 0 4px rgba(0, 0, 0, 0.5))",
+                    }}
+                  />
+                  {/* Animated border */}
+                  <path
+                    d={path}
+                    stroke={color}
+                    strokeWidth="1"
+                    fill="none"
+                    style={{
+                      animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                    }}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+        </div>
       </div>
 
       {/* Legend */}

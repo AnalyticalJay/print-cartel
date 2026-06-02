@@ -56,6 +56,7 @@ export function PrintPlacementSelector({
       <GarmentPlacementPreview
         selectedPlacements={selectedPlacementIds}
         allPlacements={placements}
+        printSelections={printSelections}
       />
       {/* Placement Selection */}
       <div className="space-y-2">
