@@ -3,9 +3,44 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, AlertCircle, CheckCircle, FileIcon, Loader2 } from "lucide-react";
+import { Upload, X, AlertCircle, CheckCircle, FileIcon, Loader2, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+
+// Check image resolution for print quality
+const checkImageResolution = async (file: File): Promise<{ width: number; height: number; warning?: string }> => {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith("image/")) {
+      resolve({ width: 0, height: 0 });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const width = img.naturalWidth;
+        const height = img.naturalHeight;
+        const totalPixels = width * height;
+        const minPixelsForPrint = 300000; // ~547x547 at 72dpi or 273x273 at 300dpi
+
+        let warning = undefined;
+        if (totalPixels < minPixelsForPrint) {
+          warning = `Low resolution detected (${width}×${height}px). For best print quality, use images at least 300 DPI or ${Math.ceil(Math.sqrt(minPixelsForPrint))}×${Math.ceil(Math.sqrt(minPixelsForPrint))} pixels.`;
+        } else if (width < 200 || height < 200) {
+          warning = `Image is quite small (${width}×${height}px). Consider using a larger image for better print quality.`;
+        }
+
+        resolve({ width, height, warning });
+      };
+      img.onerror = () => {
+        resolve({ width: 0, height: 0 });
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 interface FileUploadValidatorProps {
   placement: string;
@@ -27,6 +62,7 @@ export function FileUploadValidator({
 }: FileUploadValidatorProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [resolutionWarning, setResolutionWarning] = useState<string | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadMutation = trpc.files.upload.useMutation();
@@ -58,6 +94,17 @@ export function FileUploadValidator({
     if (file.size === 0) {
       toast.error("File is empty");
       return;
+    }
+
+    // Check image resolution for print quality
+    if (file.type.startsWith("image/")) {
+      const resolution = await checkImageResolution(file);
+      if (resolution.warning) {
+        setResolutionWarning(resolution.warning);
+        toast.warning(resolution.warning);
+      } else {
+        setResolutionWarning(undefined);
+      }
     }
 
     setIsUploading(true);
@@ -169,51 +216,60 @@ export function FileUploadValidator({
               )}
             </div>
           ) : (
-            <div className="border border-accent/50 rounded-lg p-3 md:p-4 bg-accent/5">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                  <FileIcon className="w-5 h-5 text-accent flex-shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-white font-semibold truncate text-xs md:text-sm">
-                      {uploadedFileName}
-                    </p>
-                    {uploadedFileUrl ? (
-                      <a
-                        href={uploadedFileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-accent text-xs hover:underline"
-                        onClick={(e) => e.stopPropagation()}
+            <div>
+              {/* Resolution Warning */}
+              {resolutionWarning && (
+                <div className="bg-yellow-900/40 border border-yellow-600/60 rounded-lg p-3 mb-3 flex gap-2">
+                  <AlertTriangle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-yellow-200 text-xs">{resolutionWarning}</p>
+                </div>
+              )}
+              <div className="border border-accent/50 rounded-lg p-3 md:p-4 bg-accent/5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                    <FileIcon className="w-5 h-5 text-accent flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-white font-semibold truncate text-xs md:text-sm">
+                        {uploadedFileName}
+                      </p>
+                      {uploadedFileUrl ? (
+                        <a
+                          href={uploadedFileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-accent text-xs hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Uploaded to server ✓
+                        </a>
+                      ) : (
+                        <p className="text-yellow-400 text-xs">Pending upload...</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                    <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
+                    <button
+                      onClick={handleClick}
+                      disabled={isUploading}
+                      className="text-xs md:text-sm px-2 md:px-3 py-1 rounded bg-accent/20 text-accent hover:bg-accent/30 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                      title="Replace with a different file"
+                      aria-label="Replace file"
+                    >
+                      Replace
+                    </button>
+                    {onRemoveFile && (
+                      <button
+                        onClick={onRemoveFile}
+                        disabled={isUploading}
+                        className="text-red-400 hover:text-red-300 p-1.5 md:p-1 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Remove file"
+                        aria-label="Remove file"
                       >
-                        Uploaded to server ✓
-                      </a>
-                    ) : (
-                      <p className="text-yellow-400 text-xs">Pending upload...</p>
+                        <X size={18} />
+                      </button>
                     )}
                   </div>
-                </div>
-                <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                  <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
-                  <button
-                    onClick={handleClick}
-                    disabled={isUploading}
-                    className="text-xs md:text-sm px-2 md:px-3 py-1 rounded bg-accent/20 text-accent hover:bg-accent/30 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                    title="Replace with a different file"
-                    aria-label="Replace file"
-                  >
-                    Replace
-                  </button>
-                  {onRemoveFile && (
-                    <button
-                      onClick={onRemoveFile}
-                      disabled={isUploading}
-                      className="text-red-400 hover:text-red-300 p-1.5 md:p-1 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Remove file"
-                      aria-label="Remove file"
-                    >
-                      <X size={18} />
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
