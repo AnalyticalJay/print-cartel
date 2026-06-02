@@ -409,21 +409,45 @@ export default function OrderWizard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-6 md:py-12 px-3 md:px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Step Indicator */}
-        <div className="mb-6 md:mb-8">
-          <div className="flex justify-between items-center mb-3 md:mb-4 gap-1">
+        {/* Progress Bar with Step Labels */}
+        <div className="mb-6 md:mb-8 bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <div className="flex justify-between items-center mb-4 gap-1">
             {[1, 1.5, 2, 3, 4, 5, 6, 7].map((step) => (
-              <div
-                key={step}
-                className={`flex-1 h-1.5 md:h-2 rounded-full transition-all ${
-                  step <= currentStep ? "bg-accent" : "bg-gray-600"
-                }`}
-              />
+              <div key={step} className="flex-1 h-2 rounded-full transition-all bg-gray-700" />
             ))}
           </div>
-          <p className="text-center text-gray-200 text-xs md:text-sm font-medium">
-            Step {currentStep === 1.5 ? "1" : currentStep} of 7
-          </p>
+          <div className="flex justify-between items-start gap-4">
+            <div>
+              <p className="text-white font-bold text-base md:text-lg">
+                {currentStep === 1 && "Select Your Garment"}
+                {currentStep === 1.5 && "Placement & Size"}
+                {currentStep === 2 && "Placement & Size"}
+                {currentStep === 3 && "Upload Design Files"}
+                {currentStep === 4 && "Customer Information"}
+                {currentStep === 5 && "Delivery Method"}
+                {currentStep === 6 && "Review Your Order"}
+                {currentStep === 7 && "Order Confirmed"}
+              </p>
+              <p className="text-gray-400 text-xs md:text-sm mt-1">
+                Step {currentStep === 1.5 ? "1" : currentStep} of 7
+              </p>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-accent/20 border-2 border-accent flex items-center justify-center">
+                <span className="text-accent font-bold text-lg md:text-xl">
+                  {Math.round(((currentStep === 1.5 ? 1 : currentStep) / 7) * 100)}%
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 h-1 bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-accent to-accent/70 rounded-full transition-all duration-300"
+              style={{
+                width: `${((currentStep === 1.5 ? 1 : currentStep) / 7) * 100}%`,
+              }}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
@@ -877,60 +901,77 @@ export default function OrderWizard() {
             )}
           </div>
 
-          {/* Order Summary Sidebar */}
+          {/* Sticky Price Summary Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="bg-gray-800 border-gray-700 sticky top-4">
-              <CardHeader className="pb-3 md:pb-4">
-                <CardTitle className="text-white text-base md:text-lg">Order Summary</CardTitle>
+            <Card className="bg-gray-800 border-gray-700 sticky top-4 shadow-lg">
+              <CardHeader className="pb-3 md:pb-4 border-b border-gray-700">
+                <CardTitle className="text-white text-base md:text-lg flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-accent" />
+                  Order Summary
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 md:space-y-4">
+              <CardContent className="space-y-3 md:space-y-4 pt-4">
                 {selectedProduct && (
                   <>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-200">Product:</span>
-                        <span className="text-white">{selectedProduct.name}</span>
+                    {/* Product Info */}
+                    <div className="bg-gray-700/50 rounded-lg p-3">
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-gray-300">Product:</span>
+                        <span className="text-white font-medium">{selectedProduct.name}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-200">Quantity:</span>
-                        <span className="text-white">{orderData.quantity}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-200">Base Price:</span>
-                        <span className="text-white">R{basePrice.toFixed(2)}</span>
+                        <span className="text-gray-300">Quantity:</span>
+                        <span className="text-accent font-bold text-base">{orderData.quantity}×</span>
                       </div>
                     </div>
 
-                    {orderData.printSelections.length > 0 && (
-                      <div className="border-t border-gray-600 pt-2">
-                        <div className="flex justify-between text-sm mb-2">
-                          <span className="text-gray-200">Print Surcharge:</span>
-                          <span className="text-white">R{printSizePrice.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-200">Subtotal:</span>
-                          <span className="text-white">R{subtotal.toFixed(2)}</span>
-                        </div>
+                    {/* Pricing Breakdown */}
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Base Price:</span>
+                        <span className="text-white">R{basePrice.toFixed(2)}</span>
                       </div>
-                    )}
 
-                    {bulkDiscount > 0 && (
-                      <div className="border-t border-gray-600 pt-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-accent">{getBulkPricingLabel(orderData.quantity)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm mt-2">
-                          <span className="text-accent">Discount:</span>
-                          <span className="text-accent">-R{discountAmount.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    )}
+                      {orderData.printSelections.length > 0 && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-gray-300">Print Surcharge:</span>
+                            <span className="text-white">+R{printSizePrice.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between font-medium text-gray-200">
+                            <span>Subtotal:</span>
+                            <span>R{subtotal.toFixed(2)}</span>
+                          </div>
+                        </>
+                      )}
 
-                    <div className="border-t border-gray-600 pt-2">
-                      <div className="flex justify-between font-bold">
-                        <span className="text-white">Total:</span>
-                        <span className="text-accent text-lg">R{totalPrice.toFixed(2)}</span>
+                      {bulkDiscount > 0 && (
+                        <div className="bg-accent/10 border border-accent/30 rounded p-2 mt-2">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-accent font-semibold">🎉 {getBulkPricingLabel(orderData.quantity)}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-accent">Discount:</span>
+                            <span className="text-accent font-bold">-R{discountAmount.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Total */}
+                    <div className="border-t border-gray-600 pt-3 mt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white font-semibold">Total:</span>
+                        <div className="text-right">
+                          <span className="text-accent text-2xl font-bold">R{totalPrice.toFixed(2)}</span>
+                          <p className="text-xs text-gray-400 mt-0.5">Excl. delivery</p>
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="bg-blue-900/30 border border-blue-700/50 rounded p-2 text-xs text-blue-200 text-center">
+                      ✓ Ready to proceed to next step
                     </div>
                   </>
                 )}
