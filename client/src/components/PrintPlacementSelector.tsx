@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, X } from "lucide-react";
+import { GarmentPlacementPreview } from "./GarmentPlacementPreview";
 
 interface PrintSelection {
   placementId: number;
@@ -47,9 +48,15 @@ export function PrintPlacementSelector({
   onRemoveSelection,
 }: PrintPlacementSelectorProps) {
   const [expandedPlacement, setExpandedPlacement] = useState<number | null>(null);
+  const selectedPlacementIds = printSelections.map((p) => p.placementId);
 
   return (
     <div className="space-y-2 md:space-y-4">
+      {/* Live Placement Preview */}
+      <GarmentPlacementPreview
+        selectedPlacements={selectedPlacementIds}
+        allPlacements={placements}
+      />
       {/* Placement Selection */}
       <div className="space-y-2">
         {placements.map((placement) => {
