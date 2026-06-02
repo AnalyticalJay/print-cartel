@@ -192,12 +192,22 @@ export function FileUploadValidator({
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 md:gap-2 ml-2 flex-shrink-0">
+                <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                   <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
+                  <button
+                    onClick={handleClick}
+                    disabled={isUploading}
+                    className="text-xs md:text-sm px-2 md:px-3 py-1 rounded bg-accent/20 text-accent hover:bg-accent/30 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    title="Replace with a different file"
+                    aria-label="Replace file"
+                  >
+                    Replace
+                  </button>
                   {onRemoveFile && (
                     <button
                       onClick={onRemoveFile}
-                      className="text-red-400 hover:text-red-300 p-1.5 md:p-1 active:scale-95"
+                      disabled={isUploading}
+                      className="text-red-400 hover:text-red-300 p-1.5 md:p-1 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Remove file"
                       aria-label="Remove file"
                     >
