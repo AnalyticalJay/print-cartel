@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import { Loader2, CheckCircle2 } from "lucide-react";
+
 interface Placement {
   id: number;
   placementName: string;
@@ -22,14 +25,53 @@ export function GarmentPlacementPreview({
   allPlacements,
   printSelections = [],
 }: GarmentPlacementPreviewProps) {
+  const [loadingPlacements, setLoadingPlacements] = useState<Set<number>>(
+    new Set()
+  );
+  const [successPlacements, setSuccessPlacements] = useState<Set<number>>(
+    new Set()
+  );
+
   const placementColors: Record<string, string> = {
-    "Front": "#3b82f6", // blue
-    "Back": "#8b5cf6", // purple
+    Front: "#3b82f6", // blue
+    Back: "#8b5cf6", // purple
     "Left Sleeve": "#ec4899", // pink
     "Right Sleeve": "#f97316", // orange
-    "Pocket": "#06b6d4", // cyan
-    "Collar": "#10b981", // emerald
+    Pocket: "#06b6d4", // cyan
+    Collar: "#10b981", // emerald
   };
+
+  // Track when designs are being loaded
+  useEffect(() => {
+    const newLoading = new Set<number>();
+    selectedPlacements.forEach((placementId) => {
+      const selection = printSelections.find(
+        (s) => s.placementId === placementId
+      );
+      if (selection?.uploadedFilePath && !successPlacements.has(placementId)) {
+        newLoading.add(placementId);
+      }
+    });
+    setLoadingPlacements(newLoading);
+  }, [printSelections, selectedPlacements, successPlacements]);
+
+  // Simulate design processing and show success
+  useEffect(() => {
+    if (loadingPlacements.size === 0) return;
+
+    const timers = Array.from(loadingPlacements).map((placementId) => {
+      return setTimeout(() => {
+        setLoadingPlacements((prev) => {
+          const next = new Set(prev);
+          next.delete(placementId);
+          return next;
+        });
+        setSuccessPlacements((prev) => new Set(prev).add(placementId));
+      }, 800);
+    });
+
+    return () => timers.forEach((timer) => clearTimeout(timer));
+  }, [loadingPlacements]);
 
   const getPlacementPath = (placementName: string): string => {
     switch (placementName) {
@@ -58,6 +100,37 @@ export function GarmentPlacementPreview({
 
       {/* Garment Silhouette with Design Overlay */}
       <div className="flex justify-center mb-4 relative">
+        {/* Loading/Success Indicators */}
+        <div className="absolute top-0 right-0 space-y-2 z-10">
+          {selectedPlacements.map((placementId) => {
+            const placement = allPlacements.find((p) => p.id === placementId);
+            const isLoading = loadingPlacements.has(placementId);
+            const isSuccess = successPlacements.has(placementId);
+
+            if (!isLoading && !isSuccess) return null;
+
+            return (
+              <div
+                key={placementId}
+                className="flex items-center gap-2 bg-gray-900/90 px-3 py-2 rounded-lg text-xs text-white border border-gray-600"
+              >
+                {isLoading && (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    <span>Processing...</span>
+                  </>
+                )}
+                {isSuccess && (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span className="text-green-400">Ready</span>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
         <div className="relative w-32 h-40 md:w-40 md:h-48">
           {/* SVG Garment */}
           <svg
@@ -125,7 +198,8 @@ export function GarmentPlacementPreview({
                     strokeWidth="1"
                     fill="none"
                     style={{
-                      animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                      animation:
+                        "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                     }}
                   />
                 </g>
@@ -162,7 +236,8 @@ export function GarmentPlacementPreview({
                     strokeWidth="1"
                     fill="none"
                     style={{
-                      animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                      animation:
+                        "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                     }}
                   />
                 </g>
