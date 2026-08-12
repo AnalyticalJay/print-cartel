@@ -42,6 +42,28 @@ export function normalizePreviewRotation(value: number): number {
   return ((value % 360) + 360) % 360;
 }
 
+export function snapPreviewOffset(value: number, regionSize: number, divisions = 4): number {
+  if (!Number.isFinite(value) || !Number.isFinite(regionSize) || regionSize <= 0 || divisions <= 0) {
+    return 0;
+  }
+
+  const step = regionSize / divisions;
+  return Number((Math.round(value / step) * step).toFixed(4));
+}
+
+export function snapPreviewPosition(
+  x: number,
+  y: number,
+  regionWidth: number,
+  regionHeight: number,
+  divisions = 4
+): { x: number; y: number } {
+  return {
+    x: snapPreviewOffset(x, regionWidth, divisions),
+    y: snapPreviewOffset(y, regionHeight, divisions),
+  };
+}
+
 /**
  * Returns the maximum safe percentage offset from the centre of a placement.
  * Rotation is included so the artwork's rotated corners remain inside the box.

@@ -2298,3 +2298,5 @@ Future enhancements (Phase 2):
 - [x] Add a toggleable alignment grid overlay inside the selected printable boundary for precise design positioning.
 
 - [x] Automatically adjust alignment-grid contrast based on garment color so grid lines remain clearly visible.
+
+- [x] Add snap-to-grid and snap-to-center alignment controls to the interactive garment preview.

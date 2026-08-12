@@ -5,6 +5,7 @@ import {
   getPlacementRegion,
   getPreviewOffsetLimits,
   normalizePreviewRotation,
+  snapPreviewPosition,
 } from "../client/src/lib/mockupGeometry";
 import {
   convertCentimetresToInches,
@@ -46,6 +47,11 @@ describe("interactive garment mockup geometry", () => {
     expect(getArtworkDimensions("A3", 1).heightCm).toBe(42);
     expect(convertCentimetresToInches(2.54)).toBe(1);
     expect(convertCentimetresToInches(21)).toBe(8.27);
+  });
+
+  it("snaps artwork offsets to printable grid increments", () => {
+    expect(snapPreviewPosition(8.9, -9.2, 40, 38)).toEqual({ x: 10, y: -9.5 });
+    expect(snapPreviewPosition(0.4, -0.2, 40, 38)).toEqual({ x: 0, y: 0 });
   });
 
   it("chooses dark lines for light garments and light lines for dark garments", () => {

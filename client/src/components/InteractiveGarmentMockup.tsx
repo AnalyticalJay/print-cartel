@@ -8,6 +8,7 @@ import {
   Plus,
   RotateCcw,
   RotateCw,
+  Crosshair,
 } from "lucide-react";
 import {
   clampPreviewPosition,
@@ -15,6 +16,7 @@ import {
   getPlacementRegion,
   getPreviewOffsetLimits,
   normalizePreviewRotation,
+  snapPreviewPosition,
 } from "@/lib/mockupGeometry";
 import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDimensions";
 import { getGridContrastColors } from "@/lib/gridContrast";
@@ -82,6 +84,7 @@ export function InteractiveGarmentMockup({
   const [isDragging, setIsDragging] = useState(false);
   const [dimensionUnit, setDimensionUnit] = useState<DimensionUnit>("cm");
   const [showAlignmentGrid, setShowAlignmentGrid] = useState(false);
+  const [snapToGrid, setSnapToGrid] = useState(false);
 
   const selectionByPlacement = useMemo(
     () => new Map(printSelections.map((selection) => [selection.placementId, selection])),
@@ -153,10 +156,16 @@ export function InteractiveGarmentMockup({
     const deltaX = ((event.clientX - drag.startClientX) / rect.width) * 100;
     const deltaY = ((event.clientY - drag.startClientY) / rect.height) * 100;
 
+    const nextX = clampPreviewPosition(drag.startX + deltaX, limits.x);
+    const nextY = clampPreviewPosition(drag.startY + deltaY, limits.y);
+    const snappedPosition = snapToGrid
+      ? snapPreviewPosition(nextX, nextY, region.width, region.height)
+      : { x: nextX, y: nextY };
+
     onPositionChange(
       drag.placementId,
-      clampPreviewPosition(drag.startX + deltaX, limits.x),
-      clampPreviewPosition(drag.startY + deltaY, limits.y)
+      clampPreviewPosition(snappedPosition.x, limits.x),
+      clampPreviewPosition(snappedPosition.y, limits.y)
     );
   };
 
@@ -410,11 +419,12 @@ export function InteractiveGarmentMockup({
               <p className="mt-1 truncate text-sm font-semibold text-white">
                 {placements.find((placement) => placement.id === activePlacementId)?.placementName}
               </p>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={showAlignmentGrid}
-                onClick={() => setShowAlignmentGrid((visible) => !visible)}
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={showAlignmentGrid}
+                  onClick={() => setShowAlignmentGrid((visible) => !visible)}
                 className={`mt-3 flex min-h-10 w-full items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
                   showAlignmentGrid
                     ? "border-accent/60 bg-accent/10 text-white"
@@ -425,9 +435,37 @@ export function InteractiveGarmentMockup({
                   <Grid3X3 className="h-4 w-4 text-accent" />
                   Alignment grid
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
-                  {showAlignmentGrid ? "On" : "Off"}
-                </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                    {showAlignmentGrid ? "On" : "Off"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={snapToGrid}
+                  onClick={() => setSnapToGrid((enabled) => !enabled)}
+                  className={`flex min-h-10 items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
+                    snapToGrid
+                      ? "border-accent/60 bg-accent/10 text-white"
+                      : "border-gray-700 bg-gray-900/50 text-gray-300 hover:border-gray-500"
+                  }`}
+                >
+                  <span className="flex items-center gap-2 text-xs font-semibold">
+                    <Grid3X3 className="h-4 w-4 text-accent" />
+                    Snap to grid
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                    {snapToGrid ? "On" : "Off"}
+                  </span>
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => onPositionChange(activePlacementId, 0, 0)}
+                className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-700 bg-gray-900/50 px-3 py-2 text-xs font-semibold text-gray-200 transition-colors hover:border-accent/60 hover:bg-accent/10 hover:text-white active:scale-[0.99]"
+              >
+                <Crosshair className="h-4 w-4 text-accent" />
+                Snap to center
               </button>
               <div className="mt-3 flex items-center justify-between gap-2">
                 <span className="text-xs text-gray-300">Size</span>
