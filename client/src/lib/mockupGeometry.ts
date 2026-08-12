@@ -34,9 +34,35 @@ export function clampPreviewPosition(value: number, limit = 24): number {
 }
 
 export function clampPreviewScale(value: number): number {
-  return Math.max(0.6, Math.min(1.5, value));
+  // A scale above 100% would make the artwork larger than its printable box.
+  return Math.max(0.6, Math.min(1, value));
 }
 
 export function normalizePreviewRotation(value: number): number {
   return ((value % 360) + 360) % 360;
+}
+
+/**
+ * Returns the maximum safe percentage offset from the centre of a placement.
+ * Rotation is included so the artwork's rotated corners remain inside the box.
+ */
+export function getPreviewOffsetLimits(
+  regionWidth: number,
+  regionHeight: number,
+  scale: number,
+  rotation: number
+): { x: number; y: number } {
+  const safeScale = Math.max(0, Math.min(1, scale));
+  const radians = (normalizePreviewRotation(rotation) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(radians));
+  const sin = Math.abs(Math.sin(radians));
+  const artworkWidth = regionWidth * safeScale;
+  const artworkHeight = regionHeight * safeScale;
+  const rotatedWidth = artworkWidth * cos + artworkHeight * sin;
+  const rotatedHeight = artworkWidth * sin + artworkHeight * cos;
+
+  return {
+    x: Math.max(0, (regionWidth - rotatedWidth) / 2),
+    y: Math.max(0, (regionHeight - rotatedHeight) / 2),
+  };
 }

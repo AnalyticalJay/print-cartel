@@ -2288,3 +2288,5 @@ Future enhancements (Phase 2):
 - [x] Add interactive garment mockup in the order wizard so uploaded artwork can be dragged and positioned within the selected placement, with responsive touch support and saved preview coordinates.
 
 - [x] Improve interactive garment preview with rotation arrows, reset rotation, and a clearer full-garment 3D-style presentation across desktop and mobile.
+
+- [x] Add visible printable-area boundary boxes and enforce artwork bounds while dragging in the interactive garment preview.

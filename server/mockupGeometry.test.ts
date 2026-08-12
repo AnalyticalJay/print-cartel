@@ -3,6 +3,7 @@ import {
   clampPreviewPosition,
   clampPreviewScale,
   getPlacementRegion,
+  getPreviewOffsetLimits,
   normalizePreviewRotation,
 } from "../client/src/lib/mockupGeometry";
 
@@ -22,8 +23,15 @@ describe("interactive garment mockup geometry", () => {
 
   it("keeps artwork scale within the supported range", () => {
     expect(clampPreviewScale(0.1)).toBe(0.6);
-    expect(clampPreviewScale(3)).toBe(1.5);
-    expect(clampPreviewScale(1.1)).toBe(1.1);
+    expect(clampPreviewScale(3)).toBe(1);
+    expect(clampPreviewScale(1.1)).toBe(1);
+  });
+
+  it("keeps rotated artwork inside the printable region", () => {
+    expect(getPreviewOffsetLimits(40, 38, 1, 0)).toEqual({ x: 0, y: 0 });
+    expect(getPreviewOffsetLimits(40, 38, 0.6, 0).x).toBeGreaterThan(0);
+    expect(getPreviewOffsetLimits(40, 38, 0.6, 45).x).toBeGreaterThanOrEqual(0);
+    expect(getPreviewOffsetLimits(40, 38, 0.6, 45).y).toBeGreaterThanOrEqual(0);
   });
 
   it("normalizes rotation controls to a 0-359 degree range", () => {

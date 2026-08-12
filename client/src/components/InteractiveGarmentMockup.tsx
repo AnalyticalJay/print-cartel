@@ -12,6 +12,7 @@ import {
   clampPreviewPosition,
   clampPreviewScale,
   getPlacementRegion,
+  getPreviewOffsetLimits,
   normalizePreviewRotation,
 } from "@/lib/mockupGeometry";
 
@@ -108,15 +109,21 @@ export function InteractiveGarmentMockup({
     event.preventDefault();
     const rect = stage.getBoundingClientRect();
     const placement = placements.find((item) => item.id === drag.placementId);
+    const selection = getSelection(drag.placementId);
     const region = placement ? getPlacementRegion(placement.placementName) : getPlacementRegion("Front");
-    const maxOffset = Math.max(8, Math.min(22, Math.min(region.width, region.height) * 0.65));
+    const limits = getPreviewOffsetLimits(
+      region.width,
+      region.height,
+      selection?.previewScale ?? 1,
+      selection?.previewRotation ?? 0
+    );
     const deltaX = ((event.clientX - drag.startClientX) / rect.width) * 100;
     const deltaY = ((event.clientY - drag.startClientY) / rect.height) * 100;
 
     onPositionChange(
       drag.placementId,
-      clampPreviewPosition(drag.startX + deltaX, maxOffset),
-      clampPreviewPosition(drag.startY + deltaY, maxOffset)
+      clampPreviewPosition(drag.startX + deltaX, limits.x),
+      clampPreviewPosition(drag.startY + deltaY, limits.y)
     );
   };
 
@@ -204,9 +211,6 @@ export function InteractiveGarmentMockup({
             const selection = getSelection(placement.id);
             const isActive = activePlacementId === placement.id;
             const hasArtwork = Boolean(selection?.uploadedFilePath);
-            const scale = selection?.previewScale ?? 1;
-            const previewX = selection?.previewX ?? 0;
-            const previewY = selection?.previewY ?? 0;
 
             return (
               <button
@@ -226,11 +230,17 @@ export function InteractiveGarmentMockup({
                   width: `${region.width}%`,
                   height: `${region.height}%`,
                 }}
-                aria-label={`Select ${placement.placementName} placement`}
+                aria-label={`Printable area for ${placement.placementName}`}
+                title={`${placement.placementName} printable area`}
               >
                 <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-950/85 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                   {placement.placementName}
                 </span>
+                {isActive && (
+                  <span className="pointer-events-none absolute inset-x-1/2 top-1/2 w-max -translate-x-1/2 -translate-y-1/2 rounded bg-accent/90 px-2 py-1 text-[10px] font-bold text-gray-950 shadow-sm">
+                    Printable area
+                  </span>
+                )}
                 {!hasArtwork && isActive && (
                   <span className="pointer-events-none flex h-full items-center justify-center px-1 text-center text-[10px] font-medium text-gray-700">
                     Upload artwork
@@ -250,6 +260,9 @@ export function InteractiveGarmentMockup({
             const previewX = selection.previewX ?? 0;
             const previewY = selection.previewY ?? 0;
             const rotation = selection.previewRotation ?? 0;
+            const limits = getPreviewOffsetLimits(region.width, region.height, scale, rotation);
+            const safePreviewX = clampPreviewPosition(previewX, limits.x);
+            const safePreviewY = clampPreviewPosition(previewY, limits.y);
 
             return (
               <div
@@ -258,8 +271,8 @@ export function InteractiveGarmentMockup({
                   isActive ? "border-accent shadow-[0_0_0_3px_rgba(255,212,0,0.3)]" : "border-emerald-500/80"
                 } ${isDragging && isActive ? "cursor-grabbing" : "cursor-grab"}`}
                 style={{
-                  left: `${region.left + region.width / 2 + previewX}%`,
-                  top: `${region.top + region.height / 2 + previewY}%`,
+                  left: `${region.left + region.width / 2 + safePreviewX}%`,
+                  top: `${region.top + region.height / 2 + safePreviewY}%`,
                   width: `${region.width * scale}%`,
                   height: `${region.height * scale}%`,
                   transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
@@ -295,10 +308,14 @@ export function InteractiveGarmentMockup({
           })}
 
           {printSelections.length === 0 && (
-            <div className="absolute inset-x-4 bottom-4 rounded-lg bg-black/65 px-3 py-2 text-center text-xs text-white">
+            <div className="absolute inset-x-4 bottom-4 rounded-lg bg-black/70 px-3 py-2 text-center text-xs text-white">
               Select a placement above to begin your design preview.
             </div>
           )}
+
+          <div className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/70 bg-gray-950/75 px-3 py-1 text-[10px] font-semibold text-white shadow-sm backdrop-blur-sm">
+            Dashed box = printable area · artwork stays inside
+          </div>
         </div>
 
         <div className="space-y-3">
