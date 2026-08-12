@@ -2292,3 +2292,5 @@ Future enhancements (Phase 2):
 - [x] Add visible printable-area boundary boxes and enforce artwork bounds while dragging in the interactive garment preview.
 
 - [x] Display estimated real-time artwork width and height in centimetres while scaling inside the printable boundary.
+
+- [x] Add a centimetres/inches toggle to the live artwork-dimensions readout in the interactive garment preview.

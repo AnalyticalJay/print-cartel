@@ -15,7 +15,7 @@ import {
   getPreviewOffsetLimits,
   normalizePreviewRotation,
 } from "@/lib/mockupGeometry";
-import { getArtworkDimensions } from "@/lib/mockupDimensions";
+import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDimensions";
 
 interface Placement {
   id: number;
@@ -26,6 +26,8 @@ interface PrintOption {
   id: number;
   printSize: string;
 }
+
+type DimensionUnit = "cm" | "in";
 
 export interface InteractivePrintSelection {
   placementId: number;
@@ -76,6 +78,7 @@ export function InteractiveGarmentMockup({
     printSelections[0]?.placementId ?? placements[0]?.id ?? null
   );
   const [isDragging, setIsDragging] = useState(false);
+  const [dimensionUnit, setDimensionUnit] = useState<DimensionUnit>("cm");
 
   const selectionByPlacement = useMemo(
     () => new Map(printSelections.map((selection) => [selection.placementId, selection])),
@@ -89,6 +92,12 @@ export function InteractiveGarmentMockup({
     activePrintOption?.printSize,
     activeSelection?.previewScale ?? 1
   );
+  const displayedArtworkDimensions = dimensionUnit === "cm"
+    ? { width: activeArtworkDimensions.widthCm, height: activeArtworkDimensions.heightCm }
+    : {
+        width: convertCentimetresToInches(activeArtworkDimensions.widthCm),
+        height: convertCentimetresToInches(activeArtworkDimensions.heightCm),
+      };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
     const selection = getSelection(placementId);
@@ -403,12 +412,24 @@ export function InteractiveGarmentMockup({
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent">Estimated print size</p>
                     <p className="mt-1 text-lg font-bold text-white">
-                      {activeArtworkDimensions.widthCm} cm × {activeArtworkDimensions.heightCm} cm
+                      {displayedArtworkDimensions.width} {dimensionUnit} × {displayedArtworkDimensions.height} {dimensionUnit}
                     </p>
                   </div>
-                  <span className="rounded-full bg-gray-950/40 px-2 py-1 text-[10px] font-semibold text-gray-200">
-                    {activeArtworkDimensions.label}
-                  </span>
+                  <div className="flex items-center gap-1 rounded-full bg-gray-950/40 p-1" role="group" aria-label="Artwork dimension units">
+                    {(["cm", "in"] as const).map((unit) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        onClick={() => setDimensionUnit(unit)}
+                        className={`min-h-7 rounded-full px-2.5 text-[10px] font-bold uppercase transition-colors ${
+                          dimensionUnit === unit ? "bg-accent text-gray-950" : "text-gray-300 hover:bg-gray-700"
+                        }`}
+                        aria-pressed={dimensionUnit === unit}
+                      >
+                        {unit}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <p className="mt-2 text-[11px] leading-relaxed text-gray-300">
                   Updates as you resize. This is an estimate based on the selected print size and current scale.

@@ -30,3 +30,7 @@ export function getArtworkDimensions(printSize: string | undefined, scale: numbe
     heightCm: Number((base.heightCm * safeScale).toFixed(1)),
   };
 }
+
+export function convertCentimetresToInches(valueCm: number): number {
+  return Number((valueCm / 2.54).toFixed(2));
+}
