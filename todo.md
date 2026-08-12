@@ -2282,3 +2282,5 @@ Future enhancements (Phase 2):
 - [x] Add bank transfer details card (FNB account, branch code, reference) before the upload form
 - [x] On upload success, navigate to /track?order=ID&email=EMAIL (deep-link to order)
 - [x] Back button on proof upload view returns to payment method selection (no 404)
+
+- [x] Add optional AI-powered background removal for uploaded artwork, with preview, processing state, keep-original fallback, and transparent output upload.

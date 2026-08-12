@@ -12,10 +12,11 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663346956907/kDHKMkQxvxGGSdVdvmorSF",
-    "access_key_id": "ASIAZV3A2ECZLACH2BYS",
-    "secret_access_key": "PncHWQCN4IjMeRbIu8YuHrV3QzObQeDutQqopE8z",
-    "session_token": "IQoJb3JpZ2luX2VjEAgaCXVzLWVhc3QtMSJHMEUCIDpr4m+JfR6JEHfX9Emm/4Yf9JDTq9XtP6IgByWw1ecbAiEAplPnbR25w0IfqOv2ppk3Dzh8fYIl8/+YU3rzOXKTqeoq/wMI0P//////////ARAEGgw2NjUzODYwOTg4NjYiDBcDcMl79k6YZhj4uCrTAxvxk9H38mMgXG5fdvlUzAkv9IZ5/090WnKv3cKctXMRnFn0zQj6nGNap9Y+8TeXVgjNOmUMoqD5OoTKro6rMF/PRv19ZyN0Qdk2N8E2gQOySa1/tCu4GkQ3oWem2NodkHzoRdox5tE/TGFySUo9ErGsP7upfiuUL2ZJwpKZmbabYyXul/ArEteYsy6ej8iX8UYuqtQ3tEYOJjFJN0RqkBY6LIPYoVB4MeYWqx7s8lOy/gk7KGWicwK1VWSboMJGH0MU5ROhyhtFgwt4Fw/sdbuB7yWMHJEzdA+3fSCT3DKegnU++1mEBFbw6qHoIRZmhPMzHV840jb4oxlMxt4MitWH9bwuZ0hIu5jqpo6sLPs5wAPIBRaUx0RuWo3vo8fiohmOwnfA9DyEaa3ehJRl7Q/tQsU0jS3sy0WUHVVaCyDfYCEOeXiB/KIG5MtEzT4us8IAZ2H+MmR8Hkcey1L1dfb6aqH+qt9lu1ZJ5kfj/iE8FOiApMpuQ2ezY3fS6CD184loqsfN454ptOh03W57Xr2Leu78b4VELm5tbeQebhu7wRfB0bSOxgPsvG+xibo4I7/64It8sN/AIgbS0Eg8BKV9zfCMEEQjwf6DUJnFrJz0s5wJMLKXsNAGOp0BQdp0X+aCrKm+bT7d6rkavNw+SNk3vKIcfdlcF3JE+MgidJ5WYiXBb7e75KPuOnVgbR6KlNPWrvdYXa2RX2HJHs0/N4vVdjVSjtl0Pfd+s7L82xfnXgvIWjWLYlTBowaG3WUc/ChOQidBG6af9ew3LiWkYHh28ufEK8Of9JJ3ab/5FS42vTlgnqw/fKuDdCxke64TX7VdtcVooV/miQ==",
-    "expiration": "2026-05-19T19:05:22.000Z"
+    "access_key_id": "ASIAZV3A2ECZFH76CBFA",
+    "secret_access_key": "Sh+U23nLx0hS/QLQNVoYhGd0RZhj3OEzMobKhRQv",
+    "session_token": "IQoJb3JpZ2luX2VjEEUaCXVzLWVhc3QtMSJHMEUCIQCo3VhsEg9lMCghrXwAYfok7xQ+kkqb57ugBcpyazg2nAIgfKoRffd/NPwZVeuMxf1qAnew+dZckJablbmFQttTvBkq9gMIDRAEGgw2NjUzODYwOTg4NjYiDOTEcvZ5in7ozboEGSrTA2m2A799gyn3ntY3/zrXLCrn44FsBR+xyJM/BnJIy/CUyQLe7LmMmv8qOAK1l/5rtJraPKQ4qyARYVV6+sibVNylPUhgq2WoFdFaa88zmuZ97idLh6OOh94KFi6D9R/WFHiZcvgruASH8aK3r8CRLBDxkPfYrAPQ3lh8Q7wP1PXkkdDe2xLGUVH0k5WKIhHsX5/oKnhWSptQsnXx/88EK7OHOL4CTChpwLo8ka4bRYuiFSJvURagd9QGkP+a2B2WdOfk0RCL5sUapZeJqkkM6gPQKUg/TQopl/FlGnbEb0j+ZC78wiy4bIrB0+ZdAO7+CZWVFuA0/oqurhWQefh3cXx0ACRYr6hhCkfDHrvVP0pP/GW7DIU83xJ/H562UrWZ5wWLaKnrjnn1STA0NTugtxMzVH9K4FGWNq27zltMtw4vFSEWde40f1z9PZHGpNrT8qp1hrK/LCtBt5eNdXmvyH/vid3hQoP3s4mk4LaQOfGzPQXr3Qg0kmSDQ76DGpSECn/B81IpJ5EpQSEEXFRTZRXnPUUvfJlqpC3xPgiryL29T4ARuPtkrnZZwi2KD+3L5qV2guivAJCChglD4+CJbmV/pmipYZMxS7TPUVcnPluB3WeWMLqwx9MGOp0BDTR0js9lpwYRyfcsniM1IalvwscJ2Vm8kvk/wpg6P/NofTvCH9yB2E23epN1cVcC6HHLAbjgFZedgHY03T4gNPV10SLGfhHtOqMmiiVDS9D0PMPFxDWHdHgpJrn9WhCwnFwVWQJgqbNM22NXCN43nbOWYgdNfHHAKAL2G7lxBGGBggj07VaX1fgzuLsHebcr3jGr+5C2t5FqyY9Vog==",
+    "expiration": "2026-08-05T00:16:58.000Z",
+    "backend": "GIT_BACKEND_S3"
   },
   "name": "print-cartel",
   "path": "/home/ubuntu/print-cartel",
