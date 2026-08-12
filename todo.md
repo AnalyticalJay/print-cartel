@@ -2290,3 +2290,5 @@ Future enhancements (Phase 2):
 - [x] Improve interactive garment preview with rotation arrows, reset rotation, and a clearer full-garment 3D-style presentation across desktop and mobile.
 
 - [x] Add visible printable-area boundary boxes and enforce artwork bounds while dragging in the interactive garment preview.
+
+- [x] Display estimated real-time artwork width and height in centimetres while scaling inside the printable boundary.

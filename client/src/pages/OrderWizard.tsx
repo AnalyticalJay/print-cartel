@@ -566,6 +566,7 @@ export default function OrderWizard() {
                     productImageUrl={selectedProduct?.imageUrl}
                     garmentColor={selectedColor?.colorHex}
                     placements={placements}
+                    printOptions={printOptions}
                     printSelections={orderData.printSelections}
                     onPositionChange={handlePreviewPositionChange}
                     onScaleChange={handlePreviewScaleChange}

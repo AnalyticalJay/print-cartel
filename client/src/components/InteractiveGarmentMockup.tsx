@@ -15,10 +15,16 @@ import {
   getPreviewOffsetLimits,
   normalizePreviewRotation,
 } from "@/lib/mockupGeometry";
+import { getArtworkDimensions } from "@/lib/mockupDimensions";
 
 interface Placement {
   id: number;
   placementName: string;
+}
+
+interface PrintOption {
+  id: number;
+  printSize: string;
 }
 
 export interface InteractivePrintSelection {
@@ -37,6 +43,7 @@ interface InteractiveGarmentMockupProps {
   productImageUrl?: string | null;
   garmentColor?: string;
   placements: Placement[];
+  printOptions?: PrintOption[];
   printSelections: InteractivePrintSelection[];
   onPositionChange: (placementId: number, x: number, y: number) => void;
   onScaleChange: (placementId: number, scale: number) => void;
@@ -57,6 +64,7 @@ export function InteractiveGarmentMockup({
   productImageUrl,
   garmentColor = "#d1d5db",
   placements,
+  printOptions = [],
   printSelections,
   onPositionChange,
   onScaleChange,
@@ -75,6 +83,12 @@ export function InteractiveGarmentMockup({
   );
 
   const getSelection = (placementId: number) => selectionByPlacement.get(placementId);
+  const activeSelection = activePlacementId === null ? undefined : getSelection(activePlacementId);
+  const activePrintOption = printOptions.find((option) => option.id === activeSelection?.printSizeId);
+  const activeArtworkDimensions = getArtworkDimensions(
+    activePrintOption?.printSize,
+    activeSelection?.previewScale ?? 1
+  );
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
     const selection = getSelection(placementId);
@@ -383,6 +397,22 @@ export function InteractiveGarmentMockup({
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
+              </div>
+              <div className="mt-4 rounded-lg border border-accent/30 bg-accent/10 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent">Estimated print size</p>
+                    <p className="mt-1 text-lg font-bold text-white">
+                      {activeArtworkDimensions.widthCm} cm × {activeArtworkDimensions.heightCm} cm
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-gray-950/40 px-2 py-1 text-[10px] font-semibold text-gray-200">
+                    {activeArtworkDimensions.label}
+                  </span>
+                </div>
+                <p className="mt-2 text-[11px] leading-relaxed text-gray-300">
+                  Updates as you resize. This is an estimate based on the selected print size and current scale.
+                </p>
               </div>
               <div className="mt-4 border-t border-gray-700 pt-3">
                 <div className="flex items-center justify-between gap-2">

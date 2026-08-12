@@ -6,6 +6,7 @@ import {
   getPreviewOffsetLimits,
   normalizePreviewRotation,
 } from "../client/src/lib/mockupGeometry";
+import { getArtworkDimensions, getPrintSizeDimensions } from "../client/src/lib/mockupDimensions";
 
 describe("interactive garment mockup geometry", () => {
   it("maps common garment placements to useful percentage regions", () => {
@@ -32,6 +33,12 @@ describe("interactive garment mockup geometry", () => {
     expect(getPreviewOffsetLimits(40, 38, 0.6, 0).x).toBeGreaterThan(0);
     expect(getPreviewOffsetLimits(40, 38, 0.6, 45).x).toBeGreaterThanOrEqual(0);
     expect(getPreviewOffsetLimits(40, 38, 0.6, 45).y).toBeGreaterThanOrEqual(0);
+  });
+
+  it("converts standard print sizes to centimetres and applies scale", () => {
+    expect(getPrintSizeDimensions("A4")).toMatchObject({ widthCm: 21, heightCm: 29.7 });
+    expect(getArtworkDimensions("A4", 0.6)).toMatchObject({ widthCm: 12.6, heightCm: 17.8 });
+    expect(getArtworkDimensions("A3", 1).heightCm).toBe(42);
   });
 
   it("normalizes rotation controls to a 0-359 degree range", () => {
