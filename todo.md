@@ -2284,3 +2284,5 @@ Future enhancements (Phase 2):
 - [x] Back button on proof upload view returns to payment method selection (no 404)
 
 - [x] Add optional AI-powered background removal for uploaded artwork, with preview, processing state, keep-original fallback, and transparent output upload.
+
+- [x] Add interactive garment mockup in the order wizard so uploaded artwork can be dragged and positioned within the selected placement, with responsive touch support and saved preview coordinates.

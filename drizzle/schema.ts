@@ -160,6 +160,8 @@ export const orderPrints = mysqlTable("orderPrints", {
   uploadedFileName: varchar("uploadedFileName", { length: 255 }),
   fileSize: int("fileSize"),
   mimeType: varchar("mimeType", { length: 100 }),
+  // Customer's visual mockup transform: percentage offsets and scale.
+  previewPosition: json("previewPosition"),
   // Design approval workflow
   designApprovalStatus: varchar("designApprovalStatus", { length: 50 }).default("pending").notNull(),
   designApprovalNotes: text("designApprovalNotes"),

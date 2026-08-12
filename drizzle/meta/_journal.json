@@ -225,6 +225,13 @@
       "when": 1778583782415,
       "tag": "0033_motionless_lionheart",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "5",
+      "when": 1786529305552,
+      "tag": "0034_silent_christian_walker",
+      "breakpoints": true
     }
   ]
 }

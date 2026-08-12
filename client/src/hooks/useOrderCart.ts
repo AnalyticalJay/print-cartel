@@ -17,6 +17,9 @@ export interface CartLineItem {
     designFileName?: string;
     uploadedFilePath?: string;
     uploadedFileName?: string;
+    previewX?: number;
+    previewY?: number;
+    previewScale?: number;
   }>;
   productName?: string;
   colorName?: string;

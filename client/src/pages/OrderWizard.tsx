@@ -19,6 +19,7 @@ import { OrderCartSummary } from "@/components/OrderCartSummary";
 import { PrintPlacementSelector } from "@/components/PrintPlacementSelector";
 import { FileUploadValidator } from "@/components/FileUploadValidator";
 import { VisualProductSelector } from "@/components/VisualProductSelector";
+import { InteractiveGarmentMockup } from "@/components/InteractiveGarmentMockup";
 
 type Step = 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -29,6 +30,9 @@ interface PrintSelection {
   designFileName?: string;
   uploadedFilePath?: string;
   uploadedFileName?: string;
+  previewX?: number;
+  previewY?: number;
+  previewScale?: number;
 }
 
 interface OrderData {
@@ -161,6 +165,7 @@ export default function OrderWizard() {
   const selectedProduct = productsQuery.data?.find((p) => p.id === orderData.productId);
   const productColors = colorsQuery.data || [];
   const productSizes = sizesQuery.data || [];
+  const selectedColor = productColors.find((color) => color.id === orderData.colorId);
   const placements = placementsQuery.data || [];
   // Filter print options to show only first 4 (without brackets)
   const allPrintOptions = printOptionsQuery.data || [];
@@ -217,6 +222,28 @@ export default function OrderWizard() {
       ...orderData,
       printSelections: updatedSelections,
     });
+  };
+
+  const handlePreviewPositionChange = (placementId: number, x: number, y: number) => {
+    setOrderData((previous) => ({
+      ...previous,
+      printSelections: previous.printSelections.map((selection) =>
+        selection.placementId === placementId
+          ? { ...selection, previewX: x, previewY: y }
+          : selection
+      ),
+    }));
+  };
+
+  const handlePreviewScaleChange = (placementId: number, scale: number) => {
+    setOrderData((previous) => ({
+      ...previous,
+      printSelections: previous.printSelections.map((selection) =>
+        selection.placementId === placementId
+          ? { ...selection, previewScale: scale }
+          : selection
+      ),
+    }));
   };
 
   const handleNextStep = () => {
@@ -304,6 +331,9 @@ export default function OrderWizard() {
         designFileName: p.designFileName,
         uploadedFilePath: p.uploadedFilePath,
         uploadedFileName: p.uploadedFileName,
+        previewX: p.previewX,
+        previewY: p.previewY,
+        previewScale: p.previewScale,
       })),
     });
 
@@ -351,6 +381,9 @@ export default function OrderWizard() {
           uploadedFileName: p.uploadedFileName || p.designFileName || "",
           fileSize: p.designFile?.size,
           mimeType: p.designFile?.type,
+          previewX: p.previewX,
+          previewY: p.previewY,
+          previewScale: p.previewScale,
         })),
         subtotal: item.subtotal || (item.unitPrice * item.quantity),
       }));
@@ -381,6 +414,9 @@ export default function OrderWizard() {
           uploadedFileName: p.uploadedFileName || p.designFileName || "",
           fileSize: p.designFile?.size,
           mimeType: p.designFile?.type,
+          previewX: p.previewX,
+          previewY: p.previewY,
+          previewScale: p.previewScale,
         })),
         totalPriceEstimate: totalPrice,
         customerFirstName: orderData.customerFirstName,
@@ -510,6 +546,15 @@ export default function OrderWizard() {
                   <CardDescription>Upload a design file for each print selection</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <InteractiveGarmentMockup
+                    productName={selectedProduct?.name}
+                    productImageUrl={selectedProduct?.imageUrl}
+                    garmentColor={selectedColor?.colorHex}
+                    placements={placements}
+                    printSelections={orderData.printSelections}
+                    onPositionChange={handlePreviewPositionChange}
+                    onScaleChange={handlePreviewScaleChange}
+                  />
                   {orderData.printSelections.map((selection, index) => {
                     const placement = placements.find((p: any) => p.id === selection.placementId);
                     const option = printOptions.find((o: any) => o.id === selection.printSizeId);
