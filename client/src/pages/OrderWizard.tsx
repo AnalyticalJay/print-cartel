@@ -33,6 +33,7 @@ interface PrintSelection {
   previewX?: number;
   previewY?: number;
   previewScale?: number;
+  previewRotation?: number;
 }
 
 interface OrderData {
@@ -246,6 +247,17 @@ export default function OrderWizard() {
     }));
   };
 
+  const handlePreviewRotationChange = (placementId: number, rotation: number) => {
+    setOrderData((previous) => ({
+      ...previous,
+      printSelections: previous.printSelections.map((selection) =>
+        selection.placementId === placementId
+          ? { ...selection, previewRotation: rotation }
+          : selection
+      ),
+    }));
+  };
+
   const handleNextStep = () => {
     if (currentStep === 1) {
       if (!orderData.productId || !orderData.colorId || !orderData.sizeId) {
@@ -334,6 +346,7 @@ export default function OrderWizard() {
         previewX: p.previewX,
         previewY: p.previewY,
         previewScale: p.previewScale,
+        previewRotation: p.previewRotation,
       })),
     });
 
@@ -384,6 +397,7 @@ export default function OrderWizard() {
           previewX: p.previewX,
           previewY: p.previewY,
           previewScale: p.previewScale,
+          previewRotation: p.previewRotation,
         })),
         subtotal: item.subtotal || (item.unitPrice * item.quantity),
       }));
@@ -417,6 +431,7 @@ export default function OrderWizard() {
           previewX: p.previewX,
           previewY: p.previewY,
           previewScale: p.previewScale,
+          previewRotation: p.previewRotation,
         })),
         totalPriceEstimate: totalPrice,
         customerFirstName: orderData.customerFirstName,
@@ -554,6 +569,7 @@ export default function OrderWizard() {
                     printSelections={orderData.printSelections}
                     onPositionChange={handlePreviewPositionChange}
                     onScaleChange={handlePreviewScaleChange}
+                    onRotationChange={handlePreviewRotationChange}
                   />
                   {orderData.printSelections.map((selection, index) => {
                     const placement = placements.find((p: any) => p.id === selection.placementId);

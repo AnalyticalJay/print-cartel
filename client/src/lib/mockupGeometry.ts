@@ -36,3 +36,7 @@ export function clampPreviewPosition(value: number, limit = 24): number {
 export function clampPreviewScale(value: number): number {
   return Math.max(0.6, Math.min(1.5, value));
 }
+
+export function normalizePreviewRotation(value: number): number {
+  return ((value % 360) + 360) % 360;
+}

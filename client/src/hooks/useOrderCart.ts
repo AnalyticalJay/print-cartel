@@ -20,6 +20,7 @@ export interface CartLineItem {
     previewX?: number;
     previewY?: number;
     previewScale?: number;
+    previewRotation?: number;
   }>;
   productName?: string;
   colorName?: string;

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { clampPreviewPosition, clampPreviewScale, getPlacementRegion } from "../client/src/lib/mockupGeometry";
+import {
+  clampPreviewPosition,
+  clampPreviewScale,
+  getPlacementRegion,
+  normalizePreviewRotation,
+} from "../client/src/lib/mockupGeometry";
 
 describe("interactive garment mockup geometry", () => {
   it("maps common garment placements to useful percentage regions", () => {
@@ -19,5 +24,11 @@ describe("interactive garment mockup geometry", () => {
     expect(clampPreviewScale(0.1)).toBe(0.6);
     expect(clampPreviewScale(3)).toBe(1.5);
     expect(clampPreviewScale(1.1)).toBe(1.1);
+  });
+
+  it("normalizes rotation controls to a 0-359 degree range", () => {
+    expect(normalizePreviewRotation(-15)).toBe(345);
+    expect(normalizePreviewRotation(360)).toBe(0);
+    expect(normalizePreviewRotation(375)).toBe(15);
   });
 });

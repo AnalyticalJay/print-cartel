@@ -1,6 +1,19 @@
 import { useMemo, useRef, useState } from "react";
-import { CheckCircle2, Image as ImageIcon, Minus, Move, Plus } from "lucide-react";
-import { clampPreviewPosition, clampPreviewScale, getPlacementRegion } from "@/lib/mockupGeometry";
+import {
+  CheckCircle2,
+  Image as ImageIcon,
+  Minus,
+  Move,
+  Plus,
+  RotateCcw,
+  RotateCw,
+} from "lucide-react";
+import {
+  clampPreviewPosition,
+  clampPreviewScale,
+  getPlacementRegion,
+  normalizePreviewRotation,
+} from "@/lib/mockupGeometry";
 
 interface Placement {
   id: number;
@@ -15,6 +28,7 @@ export interface InteractivePrintSelection {
   previewX?: number;
   previewY?: number;
   previewScale?: number;
+  previewRotation?: number;
 }
 
 interface InteractiveGarmentMockupProps {
@@ -25,6 +39,7 @@ interface InteractiveGarmentMockupProps {
   printSelections: InteractivePrintSelection[];
   onPositionChange: (placementId: number, x: number, y: number) => void;
   onScaleChange: (placementId: number, scale: number) => void;
+  onRotationChange: (placementId: number, rotation: number) => void;
 }
 
 interface DragState {
@@ -44,6 +59,7 @@ export function InteractiveGarmentMockup({
   printSelections,
   onPositionChange,
   onScaleChange,
+  onRotationChange,
 }: InteractiveGarmentMockupProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -129,31 +145,59 @@ export function InteractiveGarmentMockup({
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
         <div
           ref={stageRef}
-          className={`relative mx-auto aspect-[4/5] w-full max-w-[440px] overflow-hidden rounded-2xl border-2 bg-white shadow-2xl select-none ${
+          className={`relative mx-auto aspect-[3/4] w-full max-w-[480px] overflow-hidden rounded-2xl border-2 bg-gradient-to-br from-white via-slate-50 to-slate-200 shadow-2xl select-none lg:sticky lg:top-6 ${
             isDragging ? "cursor-grabbing border-accent" : "border-gray-300"
           }`}
           style={{ touchAction: "none" }}
         >
+          <div className="pointer-events-none absolute left-3 top-3 z-30 rounded-full border border-white/80 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-700 shadow-sm backdrop-blur-sm">
+            3D garment view
+          </div>
+
           {productImageUrl ? (
             <img
               src={productImageUrl}
-              alt={`${productName} mockup`}
-              className="absolute inset-0 h-full w-full object-contain p-2"
+              alt={`${productName} full garment mockup`}
+              className="absolute inset-0 h-full w-full object-contain p-3 md:p-5"
+              style={{
+                filter: "drop-shadow(0 22px 18px rgba(15, 23, 42, 0.2))",
+                transform: "perspective(1200px) rotateX(2deg)",
+              }}
               draggable={false}
             />
           ) : (
-            <svg viewBox="0 0 100 125" className="absolute inset-0 h-full w-full" aria-label="Garment silhouette">
+            <svg viewBox="0 0 100 125" className="absolute inset-0 h-full w-full p-3 md:p-5" aria-label="3D garment silhouette">
+              <defs>
+                <linearGradient id="garmentBodyGradient" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0" stopColor={garmentColor} />
+                  <stop offset="0.52" stopColor="#ffffff" stopOpacity="0.5" />
+                  <stop offset="1" stopColor="#64748b" stopOpacity="0.38" />
+                </linearGradient>
+                <linearGradient id="garmentSleeveGradient" x1="0" x2="1">
+                  <stop offset="0" stopColor="#64748b" stopOpacity="0.35" />
+                  <stop offset="0.45" stopColor={garmentColor} />
+                  <stop offset="1" stopColor="#ffffff" stopOpacity="0.35" />
+                </linearGradient>
+                <filter id="garmentShadow" x="-30%" y="-30%" width="160%" height="170%">
+                  <feDropShadow dx="0" dy="5" stdDeviation="4" floodColor="#0f172a" floodOpacity="0.25" />
+                </filter>
+              </defs>
               <path
                 d="M33 16 18 24 8 43l15 9 7-11v66h40V41l7 11 15-9-10-19-15-8c-2 7-7 11-15 11s-13-4-15-11Z"
-                fill={garmentColor}
-                stroke="#6b7280"
-                strokeWidth="1"
+                fill="url(#garmentBodyGradient)"
+                stroke="#64748b"
+                strokeWidth="0.8"
+                filter="url(#garmentShadow)"
               />
-              <path d="M39 17c1 7 5 11 11 11s10-4 11-11" fill="none" stroke="#6b7280" strokeWidth="1" />
+              <path d="M8 43 23 52l7-11v66" fill="none" stroke="url(#garmentSleeveGradient)" strokeWidth="2" opacity="0.8" />
+              <path d="M92 43 77 52l-7-11v66" fill="none" stroke="#475569" strokeWidth="1.3" opacity="0.55" />
+              <path d="M39 17c1 7 5 11 11 11s10-4 11-11" fill="none" stroke="#475569" strokeWidth="1" />
+              <path d="M31 41v66M69 41v66" stroke="#64748b" strokeWidth="0.55" opacity="0.45" />
+              <path d="M33 101h34" stroke="#475569" strokeWidth="0.8" opacity="0.5" />
             </svg>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/10" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_35%_18%,rgba(255,255,255,0.62),transparent_32%),linear-gradient(145deg,rgba(255,255,255,0.15),transparent_48%,rgba(15,23,42,0.1))]" />
 
           {placements.map((placement) => {
             const region = getPlacementRegion(placement.placementName);
@@ -205,6 +249,7 @@ export function InteractiveGarmentMockup({
             const scale = selection.previewScale ?? 1;
             const previewX = selection.previewX ?? 0;
             const previewY = selection.previewY ?? 0;
+            const rotation = selection.previewRotation ?? 0;
 
             return (
               <div
@@ -217,7 +262,7 @@ export function InteractiveGarmentMockup({
                   top: `${region.top + region.height / 2 + previewY}%`,
                   width: `${region.width * scale}%`,
                   height: `${region.height * scale}%`,
-                  transform: "translate(-50%, -50%)",
+                  transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
                   touchAction: "none",
                 }}
                 onPointerDown={(event) => handlePointerDown(event, placement.id)}
@@ -322,8 +367,56 @@ export function InteractiveGarmentMockup({
                   </button>
                 </div>
               </div>
+              <div className="mt-4 border-t border-gray-700 pt-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-gray-300">Rotate</span>
+                  <span className="text-xs font-semibold text-white">
+                    {Math.round(getSelection(activePlacementId)?.previewRotation ?? 0)}°
+                  </span>
+                </div>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const selection = getSelection(activePlacementId);
+                      onRotationChange(
+                        activePlacementId,
+                        normalizePreviewRotation((selection?.previewRotation ?? 0) - 15)
+                      );
+                    }}
+                    className="inline-flex min-h-10 items-center justify-center gap-1 rounded-md bg-gray-700 px-2 text-xs font-semibold text-gray-100 hover:bg-gray-600 active:scale-95"
+                    aria-label="Rotate artwork left 15 degrees"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Left
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onRotationChange(activePlacementId, 0)}
+                    className="min-h-10 rounded-md border border-gray-600 px-2 text-xs font-semibold text-gray-300 hover:bg-gray-700 active:scale-95"
+                    aria-label="Reset artwork rotation"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const selection = getSelection(activePlacementId);
+                      onRotationChange(
+                        activePlacementId,
+                        normalizePreviewRotation((selection?.previewRotation ?? 0) + 15)
+                      );
+                    }}
+                    className="inline-flex min-h-10 items-center justify-center gap-1 rounded-md bg-gray-700 px-2 text-xs font-semibold text-gray-100 hover:bg-gray-600 active:scale-95"
+                    aria-label="Rotate artwork right 15 degrees"
+                  >
+                    Right
+                    <RotateCw className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
               <p className="mt-3 text-[11px] leading-relaxed text-gray-400">
-                Drag the artwork within the highlighted placement. The position is saved with this order request.
+                Drag the artwork within the highlighted placement. Position, size, and rotation are saved with this order request.
               </p>
             </div>
           )}

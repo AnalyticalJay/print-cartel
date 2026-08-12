@@ -2286,3 +2286,5 @@ Future enhancements (Phase 2):
 - [x] Add optional AI-powered background removal for uploaded artwork, with preview, processing state, keep-original fallback, and transparent output upload.
 
 - [x] Add interactive garment mockup in the order wizard so uploaded artwork can be dragged and positioned within the selected placement, with responsive touch support and saved preview coordinates.
+
+- [x] Improve interactive garment preview with rotation arrows, reset rotation, and a clearer full-garment 3D-style presentation across desktop and mobile.

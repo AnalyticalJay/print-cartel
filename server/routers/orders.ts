@@ -37,6 +37,7 @@ const CreateOrderInput = z.object({
     previewX: z.number().optional(),
     previewY: z.number().optional(),
     previewScale: z.number().optional(),
+    previewRotation: z.number().optional(),
   })),
   totalPriceEstimate: z.number(),
 });
@@ -57,6 +58,7 @@ const CreateMultiItemOrderInput = z.object({
       previewX: z.number().optional(),
       previewY: z.number().optional(),
       previewScale: z.number().optional(),
+      previewRotation: z.number().optional(),
     })),
     subtotal: z.number(),
   })),
@@ -110,11 +112,12 @@ export const ordersRouter = router({
             fileSize: print.fileSize,
             mimeType: print.mimeType,
             previewPosition:
-              print.previewX !== undefined || print.previewY !== undefined || print.previewScale !== undefined
+              print.previewX !== undefined || print.previewY !== undefined || print.previewScale !== undefined || print.previewRotation !== undefined
                 ? {
                     x: print.previewX ?? 0,
                     y: print.previewY ?? 0,
                     scale: print.previewScale ?? 1,
+                    rotation: print.previewRotation ?? 0,
                   }
                 : null,
           });
@@ -243,11 +246,12 @@ export const ordersRouter = router({
               fileSize: printSel.fileSize,
               mimeType: printSel.mimeType,
               previewPosition:
-                printSel.previewX !== undefined || printSel.previewY !== undefined || printSel.previewScale !== undefined
+                printSel.previewX !== undefined || printSel.previewY !== undefined || printSel.previewScale !== undefined || printSel.previewRotation !== undefined
                   ? {
                       x: printSel.previewX ?? 0,
                       y: printSel.previewY ?? 0,
                       scale: printSel.previewScale ?? 1,
+                      rotation: printSel.previewRotation ?? 0,
                     }
                   : null,
             });
