@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
+  Grid3X3,
   Image as ImageIcon,
   Minus,
   Move,
@@ -79,6 +80,7 @@ export function InteractiveGarmentMockup({
   );
   const [isDragging, setIsDragging] = useState(false);
   const [dimensionUnit, setDimensionUnit] = useState<DimensionUnit>("cm");
+  const [showAlignmentGrid, setShowAlignmentGrid] = useState(false);
 
   const selectionByPlacement = useMemo(
     () => new Map(printSelections.map((selection) => [selection.placementId, selection])),
@@ -98,6 +100,12 @@ export function InteractiveGarmentMockup({
         width: convertCentimetresToInches(activeArtworkDimensions.widthCm),
         height: convertCentimetresToInches(activeArtworkDimensions.heightCm),
       };
+  const activePlacement = activePlacementId === null
+    ? undefined
+    : placements.find((placement) => placement.id === activePlacementId);
+  const activePlacementRegion = activePlacement
+    ? getPlacementRegion(activePlacement.placementName)
+    : undefined;
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
     const selection = getSelection(placementId);
@@ -273,6 +281,25 @@ export function InteractiveGarmentMockup({
             );
           })}
 
+          {showAlignmentGrid && activePlacementRegion && (
+            <div
+              className="pointer-events-none absolute z-[15] overflow-hidden rounded-md border border-accent/50 bg-accent/[0.04]"
+              style={{
+                left: `${activePlacementRegion.left}%`,
+                top: `${activePlacementRegion.top}%`,
+                width: `${activePlacementRegion.width}%`,
+                height: `${activePlacementRegion.height}%`,
+                backgroundImage:
+                  "linear-gradient(to right, rgba(15,23,42,0.24) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.24) 1px, transparent 1px)",
+                backgroundSize: "25% 25%",
+              }}
+            >
+              <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-accent/45" />
+              <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-accent/45" />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent/80 bg-accent/80 p-1" />
+            </div>
+          )}
+
           {placements.map((placement) => {
             const region = getPlacementRegion(placement.placementName);
             const selection = getSelection(placement.id);
@@ -377,6 +404,25 @@ export function InteractiveGarmentMockup({
               <p className="mt-1 truncate text-sm font-semibold text-white">
                 {placements.find((placement) => placement.id === activePlacementId)?.placementName}
               </p>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showAlignmentGrid}
+                onClick={() => setShowAlignmentGrid((visible) => !visible)}
+                className={`mt-3 flex min-h-10 w-full items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
+                  showAlignmentGrid
+                    ? "border-accent/60 bg-accent/10 text-white"
+                    : "border-gray-700 bg-gray-900/50 text-gray-300 hover:border-gray-500"
+                }`}
+              >
+                <span className="flex items-center gap-2 text-xs font-semibold">
+                  <Grid3X3 className="h-4 w-4 text-accent" />
+                  Alignment grid
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                  {showAlignmentGrid ? "On" : "Off"}
+                </span>
+              </button>
               <div className="mt-3 flex items-center justify-between gap-2">
                 <span className="text-xs text-gray-300">Size</span>
                 <div className="flex items-center gap-2">

@@ -2294,3 +2294,5 @@ Future enhancements (Phase 2):
 - [x] Display estimated real-time artwork width and height in centimetres while scaling inside the printable boundary.
 
 - [x] Add a centimetres/inches toggle to the live artwork-dimensions readout in the interactive garment preview.
+
+- [x] Add a toggleable alignment grid overlay inside the selected printable boundary for precise design positioning.
