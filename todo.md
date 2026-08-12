@@ -2296,3 +2296,5 @@ Future enhancements (Phase 2):
 - [x] Add a centimetres/inches toggle to the live artwork-dimensions readout in the interactive garment preview.
 
 - [x] Add a toggleable alignment grid overlay inside the selected printable boundary for precise design positioning.
+
+- [x] Automatically adjust alignment-grid contrast based on garment color so grid lines remain clearly visible.

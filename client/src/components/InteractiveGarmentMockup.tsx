@@ -17,6 +17,7 @@ import {
   normalizePreviewRotation,
 } from "@/lib/mockupGeometry";
 import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDimensions";
+import { getGridContrastColors } from "@/lib/gridContrast";
 
 interface Placement {
   id: number;
@@ -106,6 +107,7 @@ export function InteractiveGarmentMockup({
   const activePlacementRegion = activePlacement
     ? getPlacementRegion(activePlacement.placementName)
     : undefined;
+  const gridContrast = getGridContrastColors(garmentColor);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
     const selection = getSelection(placementId);
@@ -283,20 +285,24 @@ export function InteractiveGarmentMockup({
 
           {showAlignmentGrid && activePlacementRegion && (
             <div
-              className="pointer-events-none absolute z-[15] overflow-hidden rounded-md border border-accent/50 bg-accent/[0.04]"
+              className="pointer-events-none absolute z-[15] overflow-hidden rounded-md border"
               style={{
                 left: `${activePlacementRegion.left}%`,
                 top: `${activePlacementRegion.top}%`,
                 width: `${activePlacementRegion.width}%`,
                 height: `${activePlacementRegion.height}%`,
-                backgroundImage:
-                  "linear-gradient(to right, rgba(15,23,42,0.24) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.24) 1px, transparent 1px)",
+                borderColor: gridContrast.axisColor,
+                backgroundColor: gridContrast.washColor,
+                backgroundImage: `linear-gradient(to right, ${gridContrast.lineColor} 1px, transparent 1px), linear-gradient(to bottom, ${gridContrast.lineColor} 1px, transparent 1px)`,
                 backgroundSize: "25% 25%",
               }}
             >
-              <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-accent/45" />
-              <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-accent/45" />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent/80 bg-accent/80 p-1" />
+              <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2" style={{ backgroundColor: gridContrast.axisColor }} />
+              <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2" style={{ backgroundColor: gridContrast.axisColor }} />
+              <span
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border p-1"
+                style={{ borderColor: gridContrast.axisColor, backgroundColor: gridContrast.markerColor }}
+              />
             </div>
           )}
 
@@ -453,6 +459,9 @@ export function InteractiveGarmentMockup({
                   </button>
                 </div>
               </div>
+              <p className="mt-3 text-[10px] text-gray-400">
+                Grid contrast: {gridContrast.mode === "light" ? "dark lines" : "light lines"} for this garment colour.
+              </p>
               <div className="mt-4 rounded-lg border border-accent/30 bg-accent/10 p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>

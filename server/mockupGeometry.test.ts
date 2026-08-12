@@ -11,6 +11,7 @@ import {
   getArtworkDimensions,
   getPrintSizeDimensions,
 } from "../client/src/lib/mockupDimensions";
+import { getGridContrastColors } from "../client/src/lib/gridContrast";
 
 describe("interactive garment mockup geometry", () => {
   it("maps common garment placements to useful percentage regions", () => {
@@ -45,6 +46,13 @@ describe("interactive garment mockup geometry", () => {
     expect(getArtworkDimensions("A3", 1).heightCm).toBe(42);
     expect(convertCentimetresToInches(2.54)).toBe(1);
     expect(convertCentimetresToInches(21)).toBe(8.27);
+  });
+
+  it("chooses dark lines for light garments and light lines for dark garments", () => {
+    expect(getGridContrastColors("#ffffff").mode).toBe("light");
+    expect(getGridContrastColors("#ffffff").lineColor).toContain("15, 23, 42");
+    expect(getGridContrastColors("#111111").mode).toBe("dark");
+    expect(getGridContrastColors("#111111").lineColor).toContain("255, 255, 255");
   });
 
   it("normalizes rotation controls to a 0-359 degree range", () => {
