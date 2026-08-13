@@ -22,7 +22,8 @@ import {
 } from "@/lib/mockupGeometry";
 import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDimensions";
 import { getGridContrastColors } from "@/lib/gridContrast";
-import { getMockupPreviewVisibility, isMockupAutoRotateActive } from "@/lib/mockupPreview";
+import { getMockupPreviewVisibility, getSelectedMockupGarmentColor, isMockupAutoRotateActive } from "@/lib/mockupPreview";
+import { ColorSelector } from "@/components/ColorSelector";
 
 interface Placement {
   id: number;
@@ -32,6 +33,13 @@ interface Placement {
 interface PrintOption {
   id: number;
   printSize: string;
+}
+
+interface GarmentColorOption {
+  id: number;
+  productId: number;
+  colorName: string;
+  colorHex: string;
 }
 
 type DimensionUnit = "cm" | "in";
@@ -51,12 +59,15 @@ interface InteractiveGarmentMockupProps {
   productName?: string;
   productImageUrl?: string | null;
   garmentColor?: string;
+  colorOptions?: GarmentColorOption[];
+  selectedColorId?: number | null;
   placements: Placement[];
   printOptions?: PrintOption[];
   printSelections: InteractivePrintSelection[];
   onPositionChange: (placementId: number, x: number, y: number) => void;
   onScaleChange: (placementId: number, scale: number) => void;
   onRotationChange: (placementId: number, rotation: number) => void;
+  onGarmentColorChange?: (colorId: number) => void;
 }
 
 interface DragState {
@@ -72,12 +83,15 @@ export function InteractiveGarmentMockup({
   productName = "Selected garment",
   productImageUrl,
   garmentColor = "#d1d5db",
+  colorOptions = [],
+  selectedColorId = null,
   placements,
   printOptions = [],
   printSelections,
   onPositionChange,
   onScaleChange,
   onRotationChange,
+  onGarmentColorChange,
 }: InteractiveGarmentMockupProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -115,7 +129,8 @@ export function InteractiveGarmentMockup({
   const activePlacementRegion = activePlacement
     ? getPlacementRegion(activePlacement.placementName)
     : undefined;
-  const gridContrast = getGridContrastColors(garmentColor);
+  const previewGarmentColor = getSelectedMockupGarmentColor(colorOptions, selectedColorId, garmentColor);
+  const gridContrast = getGridContrastColors(previewGarmentColor);
   const previewVisibility = getMockupPreviewVisibility(isMockupPreview, showAlignmentGrid);
   const autoRotateActive = isMockupAutoRotateActive(isMockupPreview, isAutoRotating);
 
@@ -268,13 +283,13 @@ export function InteractiveGarmentMockup({
             <svg viewBox="0 0 100 125" className="absolute inset-0 h-full w-full p-3 md:p-5" aria-label="3D garment silhouette">
               <defs>
                 <linearGradient id="garmentBodyGradient" x1="0" x2="1" y1="0" y2="1">
-                  <stop offset="0" stopColor={garmentColor} />
+                  <stop offset="0" stopColor={previewGarmentColor} />
                   <stop offset="0.52" stopColor="#ffffff" stopOpacity="0.5" />
                   <stop offset="1" stopColor="#64748b" stopOpacity="0.38" />
                 </linearGradient>
                 <linearGradient id="garmentSleeveGradient" x1="0" x2="1">
                   <stop offset="0" stopColor="#64748b" stopOpacity="0.35" />
-                  <stop offset="0.45" stopColor={garmentColor} />
+                  <stop offset="0.45" stopColor={previewGarmentColor} />
                   <stop offset="1" stopColor="#ffffff" stopOpacity="0.35" />
                 </linearGradient>
                 <filter id="garmentShadow" x="-30%" y="-30%" width="160%" height="170%">
@@ -294,6 +309,14 @@ export function InteractiveGarmentMockup({
               <path d="M31 41v66M69 41v66" stroke="#64748b" strokeWidth="0.55" opacity="0.45" />
               <path d="M33 101h34" stroke="#475569" strokeWidth="0.8" opacity="0.5" />
             </svg>
+          )}
+
+          {productImageUrl && (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ backgroundColor: previewGarmentColor, mixBlendMode: "multiply", opacity: 0.26 }}
+              aria-hidden="true"
+            />
           )}
 
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_35%_18%,rgba(255,255,255,0.62),transparent_32%),linear-gradient(145deg,rgba(255,255,255,0.15),transparent_48%,rgba(15,23,42,0.1))]" />
@@ -440,6 +463,19 @@ export function InteractiveGarmentMockup({
         </div>
 
         {!isMockupPreview && <div className="space-y-3">
+          {colorOptions.length > 0 && onGarmentColorChange && (
+            <div className="rounded-xl border border-gray-700 bg-gray-800/80 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Garment colour</p>
+              <ColorSelector
+                colors={colorOptions}
+                selectedColorId={selectedColorId}
+                onColorSelect={onGarmentColorChange}
+              />
+              <p className="mt-3 text-[11px] leading-relaxed text-gray-400">
+                Select from the colours available for this garment. The preview and your order update together.
+              </p>
+            </div>
+          )}
           <div className="rounded-xl border border-gray-700 bg-gray-800/80 p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Placements</p>
             <div className="space-y-2">

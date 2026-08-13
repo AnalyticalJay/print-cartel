@@ -21,3 +21,16 @@ export function isMockupAutoRotateActive(
 ): boolean {
   return isPreviewMode && autoRotateEnabled;
 }
+
+export interface MockupGarmentColor {
+  id: number;
+  colorHex: string;
+}
+
+export function getSelectedMockupGarmentColor(
+  colors: MockupGarmentColor[],
+  selectedColorId: number | null | undefined,
+  fallbackColor: string
+): string {
+  return colors.find((color) => color.id === selectedColorId)?.colorHex || fallbackColor;
+}

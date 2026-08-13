@@ -565,12 +565,15 @@ export default function OrderWizard() {
                     productName={selectedProduct?.name}
                     productImageUrl={selectedProduct?.imageUrl}
                     garmentColor={selectedColor?.colorHex}
+                    colorOptions={productColors}
+                    selectedColorId={orderData.colorId}
                     placements={placements}
                     printOptions={printOptions}
                     printSelections={orderData.printSelections}
                     onPositionChange={handlePreviewPositionChange}
                     onScaleChange={handlePreviewScaleChange}
                     onRotationChange={handlePreviewRotationChange}
+                    onGarmentColorChange={(colorId) => setOrderData((previous) => ({ ...previous, colorId }))}
                   />
                   {orderData.printSelections.map((selection, index) => {
                     const placement = placements.find((p: any) => p.id === selection.placementId);

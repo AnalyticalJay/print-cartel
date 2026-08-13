@@ -2307,4 +2307,6 @@ Future enhancements (Phase 2):
 
 - [x] Add a preview-only auto-rotate toggle for a smooth 3D-style garment spin, with reduced-motion support.
 
+- [x] Add an accessible garment base-colour picker that updates the 3D preview and stays consistent with the selected order colour.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.
