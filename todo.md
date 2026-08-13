@@ -2317,4 +2317,6 @@ Future enhancements (Phase 2):
 
 - [x] Add a layer management panel for multiple uploaded artworks with selection, duplication, deletion, and visual reordering.
 
+- [x] Add a button to export a clean high-quality PNG image of the customized garment mockup.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

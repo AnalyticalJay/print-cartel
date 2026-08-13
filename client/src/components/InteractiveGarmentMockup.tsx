@@ -16,6 +16,7 @@ import {
   RotateCw,
   Trash2,
   Crosshair,
+  Download,
   Upload,
 } from "lucide-react";
 import {
@@ -39,6 +40,8 @@ import { ColorSelector } from "@/components/ColorSelector";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { orderArtworkLayers } from "@/lib/mockupLayers";
+import { getMockupExportFilename } from "@/lib/mockupExport";
+import { toPng } from "html-to-image";
 
 interface Placement {
   id: number;
@@ -130,6 +133,7 @@ export function InteractiveGarmentMockup({
   const [isMockupPreview, setIsMockupPreview] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [isDirectUploading, setIsDirectUploading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [uploadLayerId, setUploadLayerId] = useState<string | null>(null);
   const directUploadMutation = trpc.files.upload.useMutation();
 
@@ -300,6 +304,40 @@ export function InteractiveGarmentMockup({
     }
   };
 
+  const handleExportMockup = async () => {
+    if (!stageRef.current || isExporting) return;
+    const wasPreviewing = isMockupPreview;
+    const wasAutoRotating = isAutoRotating;
+    setIsExporting(true);
+    setIsAutoRotating(false);
+    setIsMockupPreview(true);
+
+    try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const dataUrl = await toPng(stageRef.current, {
+        cacheBust: true,
+        pixelRatio: 3,
+        canvasWidth: 1800,
+        canvasHeight: 2400,
+        backgroundColor: "#f8fafc",
+      });
+      const link = document.createElement("a");
+      link.download = getMockupExportFilename(productName);
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("High-quality mockup downloaded.");
+    } catch (error) {
+      console.error("Mockup export failed:", error);
+      toast.error("Could not export this mockup. Please try again.");
+    } finally {
+      setIsMockupPreview(wasPreviewing);
+      setIsAutoRotating(wasAutoRotating);
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="rounded-2xl border border-accent/30 bg-gray-900/80 p-4 md:p-6 shadow-xl">
       <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -328,6 +366,15 @@ export function InteractiveGarmentMockup({
           >
             {isMockupPreview ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             {isMockupPreview ? "Back to editing" : "Preview mockup"}
+          </button>
+          <button
+            type="button"
+            disabled={isExporting || printSelections.every((selection) => !selection.uploadedFilePath)}
+            onClick={handleExportMockup}
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-100 transition-colors hover:border-accent/60 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 text-accent" />}
+            {isExporting ? "Exporting…" : "Export PNG"}
           </button>
           {isMockupPreview && (
             <button
