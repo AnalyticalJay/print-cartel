@@ -2319,4 +2319,6 @@ Future enhancements (Phase 2):
 
 - [x] Add a button to export a clean high-quality PNG image of the customized garment mockup.
 
+- [x] Add an explicit 360-degree auto-rotate control to preview the customized garment before export.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

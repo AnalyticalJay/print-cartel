@@ -32,6 +32,7 @@ import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDi
 import { getGridContrastColors } from "@/lib/gridContrast";
 import {
   getMockupPreviewVisibility,
+  getMockupSpinControlLabel,
   getMockupUploadButtonState,
   getSelectedMockupGarmentColor,
   isMockupAutoRotateActive,
@@ -173,6 +174,15 @@ export function InteractiveGarmentMockup({
   const toggleMockupPreview = () => {
     if (isMockupPreview) setIsAutoRotating(false);
     setIsMockupPreview((preview) => !preview);
+  };
+
+  const toggle360Preview = () => {
+    if (!isMockupPreview) {
+      setIsMockupPreview(true);
+      setIsAutoRotating(true);
+      return;
+    }
+    setIsAutoRotating((rotating) => !rotating);
   };
 
   const openArtworkPicker = (layerId: string) => {
@@ -376,22 +386,22 @@ export function InteractiveGarmentMockup({
             {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 text-accent" />}
             {isExporting ? "Exporting…" : "Export PNG"}
           </button>
-          {isMockupPreview && (
-            <button
-              type="button"
-              aria-pressed={isAutoRotating}
-              onClick={() => setIsAutoRotating((rotating) => !rotating)}
-              className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
-                isAutoRotating
-                  ? "border-accent bg-accent/15 text-accent"
-                  : "border-gray-600 bg-gray-800 text-gray-200 hover:border-accent/60 hover:text-white"
-              }`}
-            >
-              <RotateCw className={`h-4 w-4 ${isAutoRotating ? "animate-spin" : ""}`} />
-              Auto-rotate
-              <span className="text-[10px] font-bold uppercase tracking-wide">{isAutoRotating ? "On" : "Off"}</span>
-            </button>
-          )}
+          <button
+            type="button"
+            aria-pressed={isMockupPreview && isAutoRotating}
+            onClick={toggle360Preview}
+            className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+              isMockupPreview && isAutoRotating
+                ? "border-accent bg-accent/15 text-accent"
+                : "border-gray-600 bg-gray-800 text-gray-200 hover:border-accent/60 hover:text-white"
+            }`}
+            title="Spin the clean garment preview through 360 degrees before exporting"
+          >
+            <RotateCw className={`h-4 w-4 ${isMockupPreview && isAutoRotating ? "animate-spin" : ""}`} />
+            360° spin
+            <span className="text-[10px] font-bold uppercase tracking-wide">{isMockupPreview && isAutoRotating ? "On" : "Off"}</span>
+            <span className="sr-only">{getMockupSpinControlLabel(isMockupPreview, isAutoRotating)}</span>
+          </button>
         </div>
       </div>
 

@@ -16,6 +16,7 @@ import {
 import { getGridContrastColors } from "../client/src/lib/gridContrast";
 import {
   getMockupPreviewVisibility,
+  getMockupSpinControlLabel,
   getMockupUploadButtonState,
   getSelectedMockupGarmentColor,
   isMockupAutoRotateActive,
@@ -90,6 +91,12 @@ describe("interactive garment mockup geometry", () => {
     expect(isMockupAutoRotateActive(false, true)).toBe(false);
     expect(isMockupAutoRotateActive(true, false)).toBe(false);
     expect(isMockupAutoRotateActive(true, true)).toBe(true);
+  });
+
+  it("labels the 360-degree preview control according to preview and spin state", () => {
+    expect(getMockupSpinControlLabel(false, false)).toBe("Preview in 360°");
+    expect(getMockupSpinControlLabel(true, false)).toBe("Start 360° spin");
+    expect(getMockupSpinControlLabel(true, true)).toBe("Stop 360° spin");
   });
 
   it("uses the selected available garment colour and falls back safely", () => {

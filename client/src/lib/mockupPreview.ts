@@ -15,11 +15,13 @@ export function getMockupPreviewVisibility(
   };
 }
 
-export function isMockupAutoRotateActive(
-  isPreviewMode: boolean,
-  autoRotateEnabled: boolean
-): boolean {
-  return isPreviewMode && autoRotateEnabled;
+export function isMockupAutoRotateActive(isMockupPreview: boolean, isAutoRotating: boolean): boolean {
+  return isMockupPreview && isAutoRotating;
+}
+
+export function getMockupSpinControlLabel(isMockupPreview: boolean, isAutoRotating: boolean): string {
+  if (!isMockupPreview) return "Preview in 360°";
+  return isAutoRotating ? "Stop 360° spin" : "Start 360° spin";
 }
 
 export interface MockupGarmentColor {
