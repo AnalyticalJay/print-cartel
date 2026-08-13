@@ -1,6 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Copy,
   Eye,
   Grid3X3,
   Image as ImageIcon,
@@ -11,6 +14,7 @@ import {
   Plus,
   RotateCcw,
   RotateCw,
+  Trash2,
   Crosshair,
   Upload,
 } from "lucide-react";
@@ -34,6 +38,7 @@ import {
 import { ColorSelector } from "@/components/ColorSelector";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { orderArtworkLayers } from "@/lib/mockupLayers";
 
 interface Placement {
   id: number;
@@ -55,6 +60,7 @@ interface GarmentColorOption {
 type DimensionUnit = "cm" | "in";
 
 export interface InteractivePrintSelection {
+  layerId: string;
   placementId: number;
   printSizeId: number;
   uploadedFilePath?: string;
@@ -63,6 +69,7 @@ export interface InteractivePrintSelection {
   previewY?: number;
   previewScale?: number;
   previewRotation?: number;
+  previewLayerOrder?: number;
 }
 
 interface InteractiveGarmentMockupProps {
@@ -74,15 +81,18 @@ interface InteractiveGarmentMockupProps {
   placements: Placement[];
   printOptions?: PrintOption[];
   printSelections: InteractivePrintSelection[];
-  onPositionChange: (placementId: number, x: number, y: number) => void;
-  onScaleChange: (placementId: number, scale: number) => void;
-  onRotationChange: (placementId: number, rotation: number) => void;
+  onPositionChange: (layerId: string, x: number, y: number) => void;
+  onScaleChange: (layerId: string, scale: number) => void;
+  onRotationChange: (layerId: string, rotation: number) => void;
   onGarmentColorChange?: (colorId: number) => void;
-  onArtworkUpload?: (placementId: number, file: File, s3Url: string) => void;
+  onArtworkUpload?: (layerId: string, file: File, s3Url: string) => void;
+  onDuplicateLayer?: (layerId: string) => void;
+  onDeleteLayer?: (layerId: string) => void;
+  onMoveLayer?: (layerId: string, direction: "forward" | "backward") => void;
 }
 
 interface DragState {
-  placementId: number;
+  layerId: string;
   pointerId: number;
   startClientX: number;
   startClientY: number;
@@ -103,12 +113,15 @@ export function InteractiveGarmentMockup({
   onRotationChange,
   onGarmentColorChange,
   onArtworkUpload,
+  onDuplicateLayer,
+  onDeleteLayer,
+  onMoveLayer,
 }: InteractiveGarmentMockupProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const directUploadInputRef = useRef<HTMLInputElement>(null);
-  const [activePlacementId, setActivePlacementId] = useState<number | null>(
-    printSelections[0]?.placementId ?? placements[0]?.id ?? null
+  const [activeLayerId, setActiveLayerId] = useState<string | null>(
+    printSelections[0]?.layerId ?? null
   );
   const [isDragging, setIsDragging] = useState(false);
   const [dimensionUnit, setDimensionUnit] = useState<DimensionUnit>("cm");
@@ -117,16 +130,20 @@ export function InteractiveGarmentMockup({
   const [isMockupPreview, setIsMockupPreview] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [isDirectUploading, setIsDirectUploading] = useState(false);
-  const [uploadPlacementId, setUploadPlacementId] = useState<number | null>(null);
+  const [uploadLayerId, setUploadLayerId] = useState<string | null>(null);
   const directUploadMutation = trpc.files.upload.useMutation();
 
-  const selectionByPlacement = useMemo(
-    () => new Map(printSelections.map((selection) => [selection.placementId, selection])),
+  const orderedSelections = useMemo(
+    () => orderArtworkLayers(printSelections),
     [printSelections]
   );
 
-  const getSelection = (placementId: number) => selectionByPlacement.get(placementId);
-  const activeSelection = activePlacementId === null ? undefined : getSelection(activePlacementId);
+  const selectionByLayerId = useMemo(
+    () => new Map(printSelections.map((selection) => [selection.layerId, selection])),
+    [printSelections]
+  );
+  const getSelection = (layerId: string) => selectionByLayerId.get(layerId);
+  const activeSelection = activeLayerId === null ? undefined : getSelection(activeLayerId);
   const activePrintOption = printOptions.find((option) => option.id === activeSelection?.printSizeId);
   const activeArtworkDimensions = getArtworkDimensions(
     activePrintOption?.printSize,
@@ -138,9 +155,9 @@ export function InteractiveGarmentMockup({
         width: convertCentimetresToInches(activeArtworkDimensions.widthCm),
         height: convertCentimetresToInches(activeArtworkDimensions.heightCm),
       };
-  const activePlacement = activePlacementId === null
-    ? undefined
-    : placements.find((placement) => placement.id === activePlacementId);
+  const activePlacement = activeSelection
+    ? placements.find((placement) => placement.id === activeSelection.placementId)
+    : undefined;
   const activePlacementRegion = activePlacement
     ? getPlacementRegion(activePlacement.placementName)
     : undefined;
@@ -154,19 +171,19 @@ export function InteractiveGarmentMockup({
     setIsMockupPreview((preview) => !preview);
   };
 
-  const openArtworkPicker = (placementId: number) => {
+  const openArtworkPicker = (layerId: string) => {
     if (!onArtworkUpload || isDirectUploading) return;
-    setActivePlacementId(placementId);
-    setUploadPlacementId(placementId);
+    setActiveLayerId(layerId);
+    setUploadLayerId(layerId);
     directUploadInputRef.current?.click();
   };
 
   const handleDirectArtworkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0];
     event.currentTarget.value = "";
-    const targetPlacementId = uploadPlacementId ?? activePlacementId;
+    const targetLayerId = uploadLayerId ?? activeLayerId;
 
-    if (!file || targetPlacementId === null || !onArtworkUpload) return;
+    if (!file || targetLayerId === null || !onArtworkUpload) return;
     if (!file.type.startsWith("image/")) {
       toast.error("Please choose an image file for the garment preview.");
       return;
@@ -184,21 +201,22 @@ export function InteractiveGarmentMockup({
         fileData,
         mimeType: file.type,
       });
-      onArtworkUpload(targetPlacementId, file, result.url);
-      const targetPlacement = placements.find((placement) => placement.id === targetPlacementId);
+      onArtworkUpload(targetLayerId, file, result.url);
+      const targetLayer = getSelection(targetLayerId);
+      const targetPlacement = placements.find((placement) => placement.id === targetLayer?.placementId);
       toast.success(`Artwork applied to ${targetPlacement?.placementName || "the selected placement"}.`);
     } catch (error) {
       console.error("Direct artwork upload failed:", error);
       toast.error("Artwork upload failed. Please try again.");
     } finally {
       setIsDirectUploading(false);
-      setUploadPlacementId(null);
+      setUploadLayerId(null);
     }
   };
 
-  const nudgeArtworkPosition = (placementId: number, deltaX: number, deltaY: number) => {
-    const selection = getSelection(placementId);
-    const placement = placements.find((item) => item.id === placementId);
+  const nudgeArtworkPosition = (layerId: string, deltaX: number, deltaY: number) => {
+    const selection = getSelection(layerId);
+    const placement = placements.find((item) => item.id === selection?.placementId);
     if (!selection || !placement) return;
 
     const region = getPlacementRegion(placement.placementName);
@@ -215,22 +233,22 @@ export function InteractiveGarmentMockup({
       deltaY,
       limits
     );
-    onPositionChange(placementId, position.x, position.y);
+    onPositionChange(layerId, position.x, position.y);
   };
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
-    const selection = getSelection(placementId);
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, layerId: string) => {
+    const selection = getSelection(layerId);
     if (!selection?.uploadedFilePath || !stageRef.current) {
-      setActivePlacementId(placementId);
+      setActiveLayerId(layerId);
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
-    setActivePlacementId(placementId);
+    setActiveLayerId(layerId);
     const rect = stageRef.current.getBoundingClientRect();
     dragRef.current = {
-      placementId,
+      layerId,
       pointerId: event.pointerId,
       startClientX: event.clientX,
       startClientY: event.clientY,
@@ -250,8 +268,8 @@ export function InteractiveGarmentMockup({
 
     event.preventDefault();
     const rect = stage.getBoundingClientRect();
-    const placement = placements.find((item) => item.id === drag.placementId);
-    const selection = getSelection(drag.placementId);
+    const selection = getSelection(drag.layerId);
+    const placement = placements.find((item) => item.id === selection?.placementId);
     const region = placement ? getPlacementRegion(placement.placementName) : getPlacementRegion("Front");
     const limits = getPreviewOffsetLimits(
       region.width,
@@ -269,7 +287,7 @@ export function InteractiveGarmentMockup({
       : { x: nextX, y: nextY };
 
     onPositionChange(
-      drag.placementId,
+      drag.layerId,
       clampPreviewPosition(snappedPosition.x, limits.x),
       clampPreviewPosition(snappedPosition.y, limits.y)
     );
@@ -390,13 +408,14 @@ export function InteractiveGarmentMockup({
 
           {previewVisibility.showGuides && placements.map((placement) => {
             const region = getPlacementRegion(placement.placementName);
-            const selection = getSelection(placement.id);
-            const isActive = activePlacementId === placement.id;
-            const hasArtwork = Boolean(selection?.uploadedFilePath);
+            const placementLayers = orderedSelections.filter((selection) => selection.placementId === placement.id);
+            const topLayer = placementLayers[placementLayers.length - 1];
+            const isActive = activeSelection?.placementId === placement.id;
+            const hasArtwork = placementLayers.some((selection) => Boolean(selection.uploadedFilePath));
 
             const placementUploadState = getMockupUploadButtonState(
-              placement.id,
-              hasArtwork,
+              topLayer?.layerId ?? null,
+              Boolean(topLayer?.uploadedFilePath),
               isDirectUploading
             );
 
@@ -413,7 +432,9 @@ export function InteractiveGarmentMockup({
               >
                 <button
                   type="button"
-                  onClick={() => setActivePlacementId(placement.id)}
+                  onClick={() => {
+                    if (topLayer) setActiveLayerId(topLayer.layerId);
+                  }}
                   className={`absolute inset-0 w-full rounded-md border-2 border-dashed transition-all ${
                     isActive
                       ? "border-accent bg-accent/10 shadow-[0_0_0_2px_rgba(255,212,0,0.25)]"
@@ -432,6 +453,11 @@ export function InteractiveGarmentMockup({
                       Printable area
                     </span>
                   )}
+                  {placementLayers.length > 1 && (
+                    <span className="pointer-events-none absolute right-1 top-1 rounded-full bg-gray-950/85 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                      {placementLayers.length} layers
+                    </span>
+                  )}
                 </button>
                 {onArtworkUpload && (
                   <button
@@ -439,12 +465,12 @@ export function InteractiveGarmentMockup({
                     disabled={!placementUploadState.canUpload}
                     onClick={(event) => {
                       event.stopPropagation();
-                      openArtworkPicker(placement.id);
+                      if (topLayer) openArtworkPicker(topLayer.layerId);
                     }}
                     className="absolute bottom-1 left-1/2 z-20 inline-flex max-w-[calc(100%-0.5rem)] -translate-x-1/2 items-center justify-center gap-1 rounded bg-gray-950/90 px-1.5 py-1 text-[8px] font-bold text-white shadow-sm transition-colors hover:bg-accent hover:text-gray-950 disabled:cursor-not-allowed disabled:opacity-60"
                     aria-label={`${placementUploadState.label} for ${placement.placementName}`}
                   >
-                    {isDirectUploading && uploadPlacementId === placement.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                    {isDirectUploading && uploadLayerId === topLayer?.layerId ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
                     <span className="truncate">{placementUploadState.label}</span>
                   </button>
                 )}
@@ -475,12 +501,11 @@ export function InteractiveGarmentMockup({
             </div>
           )}
 
-          {placements.map((placement) => {
+          {orderedSelections.map((selection) => {
+            const placement = placements.find((item) => item.id === selection.placementId);
+            if (!placement || !selection.uploadedFilePath) return null;
             const region = getPlacementRegion(placement.placementName);
-            const selection = getSelection(placement.id);
-            if (!selection?.uploadedFilePath) return null;
-
-            const isActive = activePlacementId === placement.id;
+            const isActive = activeLayerId === selection.layerId;
             const scale = selection.previewScale ?? 1;
             const previewX = selection.previewX ?? 0;
             const previewY = selection.previewY ?? 0;
@@ -491,7 +516,7 @@ export function InteractiveGarmentMockup({
 
             return (
               <div
-                key={`artwork-${placement.id}`}
+                key={`artwork-${selection.layerId}`}
                 className={`absolute z-20 flex items-center justify-center overflow-hidden rounded-sm border-2 bg-[linear-gradient(45deg,#d1d5db_25%,transparent_25%),linear-gradient(-45deg,#d1d5db_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#d1d5db_75%),linear-gradient(-45deg,transparent_75%,#d1d5db_75%)] bg-[length:12px_12px] bg-[position:0_0,0_6px,6px_-6px,-6px_0px] shadow-lg transition-[border,box-shadow] ${
                   previewVisibility.showGuides
                     ? isActive ? "border-accent shadow-[0_0_0_3px_rgba(255,212,0,0.3)]" : "border-emerald-500/80"
@@ -505,8 +530,9 @@ export function InteractiveGarmentMockup({
                   transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
                   touchAction: "none",
                   backgroundImage: isMockupPreview ? "none" : undefined,
+                  zIndex: 20 + (selection.previewLayerOrder ?? 0),
                 }}
-                onPointerDown={previewVisibility.allowArtworkEditing ? (event) => handlePointerDown(event, placement.id) : undefined}
+                onPointerDown={previewVisibility.allowArtworkEditing ? (event) => handlePointerDown(event, selection.layerId) : undefined}
                 onPointerMove={previewVisibility.allowArtworkEditing ? handlePointerMove : undefined}
                 onPointerUp={previewVisibility.allowArtworkEditing ? finishDrag : undefined}
                 onPointerCancel={previewVisibility.allowArtworkEditing ? finishDrag : undefined}
@@ -516,7 +542,7 @@ export function InteractiveGarmentMockup({
                 onKeyDown={previewVisibility.allowArtworkEditing ? (event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    setActivePlacementId(placement.id);
+                    setActiveLayerId(selection.layerId);
                   }
                 } : undefined}
               >
@@ -567,13 +593,18 @@ export function InteractiveGarmentMockup({
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Placements</p>
             <div className="space-y-2">
               {placements.map((placement) => {
-                const selection = getSelection(placement.id);
-                const isActive = activePlacementId === placement.id;
+                const placementLayers = orderedSelections.filter((selection) => selection.placementId === placement.id);
+                const selectedLayer = placementLayers[placementLayers.length - 1];
+                const isActive = activeSelection?.placementId === placement.id;
+                const hasArtwork = placementLayers.some((selection) => Boolean(selection.uploadedFilePath));
                 return (
                   <button
                     key={placement.id}
                     type="button"
-                    onClick={() => setActivePlacementId(placement.id)}
+                    onClick={() => {
+                      if (selectedLayer) setActiveLayerId(selectedLayer.layerId);
+                    }}
+                    disabled={!selectedLayer}
                     className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-xs transition-colors ${
                       isActive
                         ? "border-accent bg-accent/15 text-white"
@@ -581,7 +612,12 @@ export function InteractiveGarmentMockup({
                     }`}
                   >
                     <span className="truncate">{placement.placementName}</span>
-                    {selection?.uploadedFilePath ? (
+                    {placementLayers.length > 1 && (
+                      <span className="ml-auto rounded-full bg-gray-700 px-1.5 py-0.5 text-[9px] font-bold text-gray-200">
+                        {placementLayers.length}
+                      </span>
+                    )}
+                    {hasArtwork ? (
                       <CheckCircle2 className="ml-2 h-4 w-4 flex-shrink-0 text-emerald-400" />
                     ) : (
                       <ImageIcon className="ml-2 h-4 w-4 flex-shrink-0 text-gray-500" />
@@ -592,11 +628,55 @@ export function InteractiveGarmentMockup({
             </div>
           </div>
 
-          {activePlacementId !== null && getSelection(activePlacementId)?.uploadedFilePath && (
+          {orderedSelections.filter((selection) => selection.uploadedFilePath).length > 0 && (
+            <div className="rounded-xl border border-gray-700 bg-gray-800/80 p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Artwork layers</p>
+                <span className="text-[10px] font-semibold text-gray-500">Top → bottom</span>
+              </div>
+              <div className="space-y-2">
+                {[...orderedSelections].reverse().filter((selection) => selection.uploadedFilePath).map((selection, reversedIndex, layers) => {
+                  const placement = placements.find((item) => item.id === selection.placementId);
+                  const isActive = activeLayerId === selection.layerId;
+                  const canMoveForward = reversedIndex > 0;
+                  const canMoveBackward = reversedIndex < layers.length - 1;
+                  return (
+                    <div
+                      key={selection.layerId}
+                      className={`rounded-lg border p-2 transition-colors ${
+                        isActive ? "border-accent bg-accent/10" : "border-gray-700 bg-gray-900/50"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setActiveLayerId(selection.layerId)}
+                        className="flex w-full items-center justify-between gap-2 text-left"
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-xs font-semibold text-white">{selection.uploadedFileName || "Artwork layer"}</span>
+                          <span className="block truncate text-[10px] text-gray-400">{placement?.placementName || "Placement"}</span>
+                        </span>
+                        {isActive && <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-accent" />}
+                      </button>
+                      <div className="mt-2 grid grid-cols-4 gap-1">
+                        <button type="button" disabled={!canMoveForward || !onMoveLayer} onClick={() => onMoveLayer?.(selection.layerId, "forward")} className="inline-flex min-h-8 items-center justify-center rounded bg-gray-700 text-gray-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Bring layer forward"><ChevronUp className="h-3.5 w-3.5" /></button>
+                        <button type="button" disabled={!canMoveBackward || !onMoveLayer} onClick={() => onMoveLayer?.(selection.layerId, "backward")} className="inline-flex min-h-8 items-center justify-center rounded bg-gray-700 text-gray-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Send layer backward"><ChevronDown className="h-3.5 w-3.5" /></button>
+                        <button type="button" disabled={!onDuplicateLayer} onClick={() => onDuplicateLayer?.(selection.layerId)} className="inline-flex min-h-8 items-center justify-center rounded bg-gray-700 text-gray-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Duplicate artwork layer"><Copy className="h-3.5 w-3.5" /></button>
+                        <button type="button" disabled={!onDeleteLayer} onClick={() => onDeleteLayer?.(selection.layerId)} className="inline-flex min-h-8 items-center justify-center rounded bg-red-950/60 text-red-300 hover:bg-red-900 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Delete artwork layer"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[10px] leading-relaxed text-gray-400">Duplicate creates an editable copy. Layer order controls which artwork appears above another when they overlap.</p>
+            </div>
+          )}
+
+          {activeLayerId !== null && activeSelection?.uploadedFilePath && (
             <div className="rounded-xl border border-gray-700 bg-gray-800/80 p-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Adjust artwork</p>
               <p className="mt-1 truncate text-sm font-semibold text-white">
-                {placements.find((placement) => placement.id === activePlacementId)?.placementName}
+                {activePlacement?.placementName}
               </p>
               <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <button
@@ -647,7 +727,7 @@ export function InteractiveGarmentMockup({
               </div>
               <button
                 type="button"
-                onClick={() => onPositionChange(activePlacementId, 0, 0)}
+                onClick={() => onPositionChange(activeLayerId, 0, 0)}
                 className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-700 bg-gray-900/50 px-3 py-2 text-xs font-semibold text-gray-200 transition-colors hover:border-accent/60 hover:bg-accent/10 hover:text-white active:scale-[0.99]"
               >
                 <Crosshair className="h-4 w-4 text-accent" />
@@ -657,14 +737,14 @@ export function InteractiveGarmentMockup({
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-gray-300">Position</span>
                   <span className="text-[10px] font-semibold text-gray-400">
-                    X {Math.round(getSelection(activePlacementId)?.previewX ?? 0)} · Y {Math.round(getSelection(activePlacementId)?.previewY ?? 0)}
+                    X {Math.round(activeSelection?.previewX ?? 0)} · Y {Math.round(activeSelection?.previewY ?? 0)}
                   </span>
                 </div>
                 <div className="mx-auto mt-2 grid w-32 grid-cols-3 gap-1.5">
                   <span aria-hidden="true" />
                   <button
                     type="button"
-                    onClick={() => nudgeArtworkPosition(activePlacementId, 0, -1)}
+                    onClick={() => nudgeArtworkPosition(activeLayerId, 0, -1)}
                     className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
                     aria-label="Move artwork up within this placement"
                   >
@@ -673,7 +753,7 @@ export function InteractiveGarmentMockup({
                   <span aria-hidden="true" />
                   <button
                     type="button"
-                    onClick={() => nudgeArtworkPosition(activePlacementId, -1, 0)}
+                    onClick={() => nudgeArtworkPosition(activeLayerId, -1, 0)}
                     className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
                     aria-label="Move artwork left within this placement"
                   >
@@ -681,7 +761,7 @@ export function InteractiveGarmentMockup({
                   </button>
                   <button
                     type="button"
-                    onClick={() => onPositionChange(activePlacementId, 0, 0)}
+                    onClick={() => onPositionChange(activeLayerId, 0, 0)}
                     className="min-h-10 rounded-md border border-accent/60 bg-accent/10 px-2 text-[10px] font-bold text-accent hover:bg-accent hover:text-gray-950 active:scale-95"
                     aria-label="Center artwork within this placement"
                   >
@@ -689,7 +769,7 @@ export function InteractiveGarmentMockup({
                   </button>
                   <button
                     type="button"
-                    onClick={() => nudgeArtworkPosition(activePlacementId, 1, 0)}
+                    onClick={() => nudgeArtworkPosition(activeLayerId, 1, 0)}
                     className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
                     aria-label="Move artwork right within this placement"
                   >
@@ -698,7 +778,7 @@ export function InteractiveGarmentMockup({
                   <span aria-hidden="true" />
                   <button
                     type="button"
-                    onClick={() => nudgeArtworkPosition(activePlacementId, 0, 1)}
+                    onClick={() => nudgeArtworkPosition(activeLayerId, 0, 1)}
                     className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
                     aria-label="Move artwork down within this placement"
                   >
@@ -714,8 +794,7 @@ export function InteractiveGarmentMockup({
                   <button
                     type="button"
                     onClick={() => {
-                      const selection = getSelection(activePlacementId);
-                      onScaleChange(activePlacementId, clampPreviewScale((selection?.previewScale ?? 1) - 0.1));
+                      onScaleChange(activeLayerId, clampPreviewScale((activeSelection?.previewScale ?? 1) - 0.1));
                     }}
                     className="rounded-md bg-gray-700 p-2 text-gray-200 hover:bg-gray-600 active:scale-95"
                     aria-label="Make artwork smaller"
@@ -723,13 +802,12 @@ export function InteractiveGarmentMockup({
                     <Minus className="h-4 w-4" />
                   </button>
                   <span className="w-12 text-center text-xs font-semibold text-white">
-                    {Math.round((getSelection(activePlacementId)?.previewScale ?? 1) * 100)}%
+                    {Math.round((activeSelection?.previewScale ?? 1) * 100)}%
                   </span>
                   <button
                     type="button"
                     onClick={() => {
-                      const selection = getSelection(activePlacementId);
-                      onScaleChange(activePlacementId, clampPreviewScale((selection?.previewScale ?? 1) + 0.1));
+                      onScaleChange(activeLayerId, clampPreviewScale((activeSelection?.previewScale ?? 1) + 0.1));
                     }}
                     className="rounded-md bg-gray-700 p-2 text-gray-200 hover:bg-gray-600 active:scale-95"
                     aria-label="Make artwork larger"
@@ -773,17 +851,16 @@ export function InteractiveGarmentMockup({
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-gray-300">Rotate</span>
                   <span className="text-xs font-semibold text-white">
-                    {Math.round(getSelection(activePlacementId)?.previewRotation ?? 0)}°
+                    {Math.round(activeSelection?.previewRotation ?? 0)}°
                   </span>
                 </div>
                 <div className="mt-2 grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => {
-                      const selection = getSelection(activePlacementId);
                       onRotationChange(
-                        activePlacementId,
-                        normalizePreviewRotation((selection?.previewRotation ?? 0) - 15)
+                        activeLayerId,
+                        normalizePreviewRotation((activeSelection?.previewRotation ?? 0) - 15)
                       );
                     }}
                     className="inline-flex min-h-10 items-center justify-center gap-1 rounded-md bg-gray-700 px-2 text-xs font-semibold text-gray-100 hover:bg-gray-600 active:scale-95"
@@ -794,7 +871,7 @@ export function InteractiveGarmentMockup({
                   </button>
                   <button
                     type="button"
-                    onClick={() => onRotationChange(activePlacementId, 0)}
+                    onClick={() => onRotationChange(activeLayerId, 0)}
                     className="min-h-10 rounded-md border border-gray-600 px-2 text-xs font-semibold text-gray-300 hover:bg-gray-700 active:scale-95"
                     aria-label="Reset artwork rotation"
                   >
@@ -803,10 +880,9 @@ export function InteractiveGarmentMockup({
                   <button
                     type="button"
                     onClick={() => {
-                      const selection = getSelection(activePlacementId);
                       onRotationChange(
-                        activePlacementId,
-                        normalizePreviewRotation((selection?.previewRotation ?? 0) + 15)
+                        activeLayerId,
+                        normalizePreviewRotation((activeSelection?.previewRotation ?? 0) + 15)
                       );
                     }}
                     className="inline-flex min-h-10 items-center justify-center gap-1 rounded-md bg-gray-700 px-2 text-xs font-semibold text-gray-100 hover:bg-gray-600 active:scale-95"

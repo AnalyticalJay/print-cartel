@@ -20,10 +20,17 @@ import { PrintPlacementSelector } from "@/components/PrintPlacementSelector";
 import { FileUploadValidator } from "@/components/FileUploadValidator";
 import { VisualProductSelector } from "@/components/VisualProductSelector";
 import { InteractiveGarmentMockup } from "@/components/InteractiveGarmentMockup";
+import {
+  createArtworkLayerId,
+  deleteArtworkLayer,
+  duplicateArtworkLayer,
+  moveArtworkLayer,
+} from "@/lib/mockupLayers";
 
 type Step = 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 7;
 
 interface PrintSelection {
+  layerId: string;
   placementId: number;
   printSizeId: number;
   designFile?: File;
@@ -34,6 +41,7 @@ interface PrintSelection {
   previewY?: number;
   previewScale?: number;
   previewRotation?: number;
+  previewLayerOrder?: number;
 }
 
 interface OrderData {
@@ -198,7 +206,15 @@ export default function OrderWizard() {
     if (!exists) {
       setOrderData({
         ...orderData,
-        printSelections: [...orderData.printSelections, { placementId, printSizeId }],
+        printSelections: [
+          ...orderData.printSelections,
+          {
+            layerId: createArtworkLayerId(),
+            placementId,
+            printSizeId,
+            previewLayerOrder: orderData.printSelections.length,
+          },
+        ],
       });
     }
   };
@@ -225,36 +241,74 @@ export default function OrderWizard() {
     });
   };
 
-  const handlePreviewPositionChange = (placementId: number, x: number, y: number) => {
+  const handlePreviewPositionChange = (layerId: string, x: number, y: number) => {
     setOrderData((previous) => ({
       ...previous,
       printSelections: previous.printSelections.map((selection) =>
-        selection.placementId === placementId
+        selection.layerId === layerId
           ? { ...selection, previewX: x, previewY: y }
           : selection
       ),
     }));
   };
 
-  const handlePreviewScaleChange = (placementId: number, scale: number) => {
+  const handlePreviewScaleChange = (layerId: string, scale: number) => {
     setOrderData((previous) => ({
       ...previous,
       printSelections: previous.printSelections.map((selection) =>
-        selection.placementId === placementId
+        selection.layerId === layerId
           ? { ...selection, previewScale: scale }
           : selection
       ),
     }));
   };
 
-  const handlePreviewRotationChange = (placementId: number, rotation: number) => {
+  const handlePreviewRotationChange = (layerId: string, rotation: number) => {
     setOrderData((previous) => ({
       ...previous,
       printSelections: previous.printSelections.map((selection) =>
-        selection.placementId === placementId
+        selection.layerId === layerId
           ? { ...selection, previewRotation: rotation }
           : selection
       ),
+    }));
+  };
+
+  const handleMockupArtworkUpload = (layerId: string, file: File, s3Url: string) => {
+    setOrderData((previous) => ({
+      ...previous,
+      printSelections: previous.printSelections.map((selection) =>
+        selection.layerId === layerId
+          ? {
+              ...selection,
+              designFile: file,
+              designFileName: file.name,
+              uploadedFilePath: s3Url,
+              uploadedFileName: file.name,
+            }
+          : selection
+      ),
+    }));
+  };
+
+  const handleDuplicateArtworkLayer = (layerId: string) => {
+    setOrderData((previous) => ({
+      ...previous,
+      printSelections: duplicateArtworkLayer(previous.printSelections, layerId, createArtworkLayerId()),
+    }));
+  };
+
+  const handleDeleteArtworkLayer = (layerId: string) => {
+    setOrderData((previous) => ({
+      ...previous,
+      printSelections: deleteArtworkLayer(previous.printSelections, layerId),
+    }));
+  };
+
+  const handleMoveArtworkLayer = (layerId: string, direction: "forward" | "backward") => {
+    setOrderData((previous) => ({
+      ...previous,
+      printSelections: moveArtworkLayer(previous.printSelections, layerId, direction),
     }));
   };
 
@@ -337,6 +391,7 @@ export default function OrderWizard() {
       printSizeName: selectedPrintSize?.printSize,
       // Store all print selections so submission can use the real DB IDs
       printSelections: orderData.printSelections.map((p) => ({
+        layerId: p.layerId,
         placementId: p.placementId,
         printSizeId: p.printSizeId,
         designFile: p.designFile,
@@ -347,6 +402,7 @@ export default function OrderWizard() {
         previewY: p.previewY,
         previewScale: p.previewScale,
         previewRotation: p.previewRotation,
+        previewLayerOrder: p.previewLayerOrder,
       })),
     });
 
@@ -388,6 +444,7 @@ export default function OrderWizard() {
         sizeId: item.sizeId,
         quantity: item.quantity,
         printSelections: (item.printSelections || []).map((p: any) => ({
+          layerId: p.layerId,
           placementId: p.placementId,
           printSizeId: p.printSizeId,
           uploadedFilePath: p.uploadedFilePath,
@@ -398,6 +455,7 @@ export default function OrderWizard() {
           previewY: p.previewY,
           previewScale: p.previewScale,
           previewRotation: p.previewRotation,
+          previewLayerOrder: p.previewLayerOrder,
         })),
         subtotal: item.subtotal || (item.unitPrice * item.quantity),
       }));
@@ -422,6 +480,7 @@ export default function OrderWizard() {
         sizeId: orderData.sizeId,
         quantity: orderData.quantity || 1,
         prints: orderData.printSelections.map((p) => ({
+          layerId: p.layerId,
           placementId: p.placementId,
           printSizeId: p.printSizeId,
           uploadedFilePath: p.uploadedFilePath,
@@ -432,6 +491,7 @@ export default function OrderWizard() {
           previewY: p.previewY,
           previewScale: p.previewScale,
           previewRotation: p.previewRotation,
+          previewLayerOrder: p.previewLayerOrder,
         })),
         totalPriceEstimate: totalPrice,
         customerFirstName: orderData.customerFirstName,
@@ -574,22 +634,10 @@ export default function OrderWizard() {
                     onScaleChange={handlePreviewScaleChange}
                     onRotationChange={handlePreviewRotationChange}
                     onGarmentColorChange={(colorId) => setOrderData((previous) => ({ ...previous, colorId }))}
-                    onArtworkUpload={(placementId, file, s3Url) => {
-                      setOrderData((previous) => ({
-                        ...previous,
-                        printSelections: previous.printSelections.map((selection) =>
-                          selection.placementId === placementId
-                            ? {
-                                ...selection,
-                                designFile: file,
-                                designFileName: file.name,
-                                uploadedFilePath: s3Url,
-                                uploadedFileName: file.name,
-                              }
-                            : selection
-                        ),
-                      }));
-                    }}
+                    onArtworkUpload={handleMockupArtworkUpload}
+                    onDuplicateLayer={handleDuplicateArtworkLayer}
+                    onDeleteLayer={handleDeleteArtworkLayer}
+                    onMoveLayer={handleMoveArtworkLayer}
                   />
                   {orderData.printSelections.map((selection, index) => {
                     const placement = placements.find((p: any) => p.id === selection.placementId);

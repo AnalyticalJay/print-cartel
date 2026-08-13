@@ -2315,4 +2315,6 @@ Future enhancements (Phase 2):
 
 - [x] Add explicit independent scale, rotation, and reposition controls for the artwork in each garment placement area.
 
+- [x] Add a layer management panel for multiple uploaded artworks with selection, duplication, deletion, and visual reordering.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

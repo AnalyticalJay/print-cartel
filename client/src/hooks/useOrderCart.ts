@@ -11,6 +11,7 @@ export interface CartLineItem {
   unitPrice: number;
   subtotal?: number;
   printSelections?: Array<{
+    layerId: string;
     placementId: number;
     printSizeId: number;
     designFile?: File;
@@ -21,6 +22,7 @@ export interface CartLineItem {
     previewY?: number;
     previewScale?: number;
     previewRotation?: number;
+    previewLayerOrder?: number;
   }>;
   productName?: string;
   colorName?: string;
