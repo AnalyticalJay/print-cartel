@@ -2302,3 +2302,7 @@ Future enhancements (Phase 2):
 - [x] Add snap-to-grid and snap-to-center alignment controls to the interactive garment preview.
 
 - [x] Verify and consolidate alignment grid, Snap to grid, and Snap to center as one cohesive garment-preview workflow.
+
+- [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.
+
+- [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

@@ -1,10 +1,12 @@
 import { useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
+  Eye,
   Grid3X3,
   Image as ImageIcon,
   Minus,
   Move,
+  Pencil,
   Plus,
   RotateCcw,
   RotateCw,
@@ -20,6 +22,7 @@ import {
 } from "@/lib/mockupGeometry";
 import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDimensions";
 import { getGridContrastColors } from "@/lib/gridContrast";
+import { getMockupPreviewVisibility } from "@/lib/mockupPreview";
 
 interface Placement {
   id: number;
@@ -85,6 +88,7 @@ export function InteractiveGarmentMockup({
   const [dimensionUnit, setDimensionUnit] = useState<DimensionUnit>("cm");
   const [showAlignmentGrid, setShowAlignmentGrid] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
+  const [isMockupPreview, setIsMockupPreview] = useState(false);
 
   const selectionByPlacement = useMemo(
     () => new Map(printSelections.map((selection) => [selection.placementId, selection])),
@@ -111,6 +115,7 @@ export function InteractiveGarmentMockup({
     ? getPlacementRegion(activePlacement.placementName)
     : undefined;
   const gridContrast = getGridContrastColors(garmentColor);
+  const previewVisibility = getMockupPreviewVisibility(isMockupPreview, showAlignmentGrid);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
     const selection = getSelection(placementId);
@@ -185,23 +190,44 @@ export function InteractiveGarmentMockup({
             Tap a placement, then drag your artwork to position it. This preview is a placement guide, not a colour-proof.
           </p>
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-accent">
-          <Move className="h-4 w-4" />
-          <span>Drag to position</span>
+        <div className="flex items-center gap-2">
+          {!isMockupPreview && (
+            <div className="flex items-center gap-1.5 text-xs text-accent">
+              <Move className="h-4 w-4" />
+              <span>Drag to position</span>
+            </div>
+          )}
+          <button
+            type="button"
+            aria-pressed={isMockupPreview}
+            onClick={() => setIsMockupPreview((preview) => !preview)}
+            className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+              isMockupPreview
+                ? "border-accent bg-accent text-gray-950"
+                : "border-accent/60 bg-accent/10 text-accent hover:bg-accent/20"
+            }`}
+          >
+            {isMockupPreview ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {isMockupPreview ? "Back to editing" : "Preview mockup"}
+          </button>
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
+      <div className={isMockupPreview ? "block" : "grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start"}>
         <div
           ref={stageRef}
-          className={`relative mx-auto aspect-[3/4] w-full max-w-[480px] overflow-hidden rounded-2xl border-2 bg-gradient-to-br from-white via-slate-50 to-slate-200 shadow-2xl select-none lg:sticky lg:top-6 ${
-            isDragging ? "cursor-grabbing border-accent" : "border-gray-300"
+          className={`relative mx-auto aspect-[3/4] w-full overflow-hidden rounded-2xl border-2 bg-gradient-to-br from-white via-slate-50 to-slate-200 shadow-2xl select-none ${
+            isMockupPreview ? "max-w-[560px] border-transparent" : "max-w-[480px] lg:sticky lg:top-6"
+          } ${
+            isDragging && !isMockupPreview ? "cursor-grabbing border-accent" : "border-gray-300"
           }`}
           style={{ touchAction: "none" }}
         >
-          <div className="pointer-events-none absolute left-3 top-3 z-30 rounded-full border border-white/80 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-700 shadow-sm backdrop-blur-sm">
-            3D garment view
-          </div>
+          {!isMockupPreview && (
+            <div className="pointer-events-none absolute left-3 top-3 z-30 rounded-full border border-white/80 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-700 shadow-sm backdrop-blur-sm">
+              3D garment view
+            </div>
+          )}
 
           {productImageUrl ? (
             <img
@@ -248,7 +274,7 @@ export function InteractiveGarmentMockup({
 
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_35%_18%,rgba(255,255,255,0.62),transparent_32%),linear-gradient(145deg,rgba(255,255,255,0.15),transparent_48%,rgba(15,23,42,0.1))]" />
 
-          {placements.map((placement) => {
+          {previewVisibility.showGuides && placements.map((placement) => {
             const region = getPlacementRegion(placement.placementName);
             const selection = getSelection(placement.id);
             const isActive = activePlacementId === placement.id;
@@ -292,7 +318,7 @@ export function InteractiveGarmentMockup({
             );
           })}
 
-          {showAlignmentGrid && activePlacementRegion && (
+          {previewVisibility.showAlignmentGrid && activePlacementRegion && (
             <div
               className="pointer-events-none absolute z-[15] overflow-hidden rounded-md border"
               style={{
@@ -333,8 +359,10 @@ export function InteractiveGarmentMockup({
               <div
                 key={`artwork-${placement.id}`}
                 className={`absolute z-20 flex items-center justify-center overflow-hidden rounded-sm border-2 bg-[linear-gradient(45deg,#d1d5db_25%,transparent_25%),linear-gradient(-45deg,#d1d5db_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#d1d5db_75%),linear-gradient(-45deg,transparent_75%,#d1d5db_75%)] bg-[length:12px_12px] bg-[position:0_0,0_6px,6px_-6px,-6px_0px] shadow-lg transition-[border,box-shadow] ${
-                  isActive ? "border-accent shadow-[0_0_0_3px_rgba(255,212,0,0.3)]" : "border-emerald-500/80"
-                } ${isDragging && isActive ? "cursor-grabbing" : "cursor-grab"}`}
+                  previewVisibility.showGuides
+                    ? isActive ? "border-accent shadow-[0_0_0_3px_rgba(255,212,0,0.3)]" : "border-emerald-500/80"
+                    : "border-transparent bg-transparent shadow-none"
+                } ${isDragging && isActive && previewVisibility.allowArtworkEditing ? "cursor-grabbing" : previewVisibility.allowArtworkEditing ? "cursor-grab" : "cursor-default"}`}
                 style={{
                   left: `${region.left + region.width / 2 + safePreviewX}%`,
                   top: `${region.top + region.height / 2 + safePreviewY}%`,
@@ -342,20 +370,21 @@ export function InteractiveGarmentMockup({
                   height: `${region.height * scale}%`,
                   transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
                   touchAction: "none",
+                  backgroundImage: isMockupPreview ? "none" : undefined,
                 }}
-                onPointerDown={(event) => handlePointerDown(event, placement.id)}
-                onPointerMove={handlePointerMove}
-                onPointerUp={finishDrag}
-                onPointerCancel={finishDrag}
-                role="button"
-                tabIndex={0}
-                aria-label={`Drag ${placement.placementName} artwork to reposition`}
-                onKeyDown={(event) => {
+                onPointerDown={previewVisibility.allowArtworkEditing ? (event) => handlePointerDown(event, placement.id) : undefined}
+                onPointerMove={previewVisibility.allowArtworkEditing ? handlePointerMove : undefined}
+                onPointerUp={previewVisibility.allowArtworkEditing ? finishDrag : undefined}
+                onPointerCancel={previewVisibility.allowArtworkEditing ? finishDrag : undefined}
+                role={previewVisibility.allowArtworkEditing ? "button" : undefined}
+                tabIndex={previewVisibility.allowArtworkEditing ? 0 : -1}
+                aria-label={previewVisibility.allowArtworkEditing ? `Drag ${placement.placementName} artwork to reposition` : `${placement.placementName} artwork preview`}
+                onKeyDown={previewVisibility.allowArtworkEditing ? (event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
                     setActivePlacementId(placement.id);
                   }
-                }}
+                } : undefined}
               >
                 <img
                   src={selection.uploadedFilePath}
@@ -363,7 +392,7 @@ export function InteractiveGarmentMockup({
                   className="pointer-events-none h-full w-full object-contain p-1"
                   draggable={false}
                 />
-                {isActive && (
+                {isActive && previewVisibility.showGuides && (
                   <span className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 rounded-t bg-black/70 px-1.5 py-0.5 text-[9px] font-semibold text-white">
                     Drag
                   </span>
@@ -372,18 +401,20 @@ export function InteractiveGarmentMockup({
             );
           })}
 
-          {printSelections.length === 0 && (
+          {printSelections.length === 0 && !isMockupPreview && (
             <div className="absolute inset-x-4 bottom-4 rounded-lg bg-black/70 px-3 py-2 text-center text-xs text-white">
               Select a placement above to begin your design preview.
             </div>
           )}
 
-          <div className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/70 bg-gray-950/75 px-3 py-1 text-[10px] font-semibold text-white shadow-sm backdrop-blur-sm">
-            Dashed box = printable area · artwork stays inside
-          </div>
+          {previewVisibility.showGuides && (
+            <div className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/70 bg-gray-950/75 px-3 py-1 text-[10px] font-semibold text-white shadow-sm backdrop-blur-sm">
+              Dashed box = printable area · artwork stays inside
+            </div>
+          )}
         </div>
 
-        <div className="space-y-3">
+        {!isMockupPreview && <div className="space-y-3">
           <div className="rounded-xl border border-gray-700 bg-gray-800/80 p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Placements</p>
             <div className="space-y-2">
@@ -588,7 +619,7 @@ export function InteractiveGarmentMockup({
               </p>
             </div>
           )}
-        </div>
+        </div>}
       </div>
     </div>
   );

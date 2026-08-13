@@ -13,6 +13,7 @@ import {
   getPrintSizeDimensions,
 } from "../client/src/lib/mockupDimensions";
 import { getGridContrastColors } from "../client/src/lib/gridContrast";
+import { getMockupPreviewVisibility } from "../client/src/lib/mockupPreview";
 
 describe("interactive garment mockup geometry", () => {
   it("maps common garment placements to useful percentage regions", () => {
@@ -59,6 +60,19 @@ describe("interactive garment mockup geometry", () => {
     expect(getGridContrastColors("#ffffff").lineColor).toContain("15, 23, 42");
     expect(getGridContrastColors("#111111").mode).toBe("dark");
     expect(getGridContrastColors("#111111").lineColor).toContain("255, 255, 255");
+  });
+
+  it("hides editing guides and disables artwork editing in clean preview mode", () => {
+    expect(getMockupPreviewVisibility(false, true)).toEqual({
+      showGuides: true,
+      showAlignmentGrid: true,
+      allowArtworkEditing: true,
+    });
+    expect(getMockupPreviewVisibility(true, true)).toEqual({
+      showGuides: false,
+      showAlignmentGrid: false,
+      allowArtworkEditing: false,
+    });
   });
 
   it("normalizes rotation controls to a 0-359 degree range", () => {
