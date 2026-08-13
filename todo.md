@@ -2321,4 +2321,6 @@ Future enhancements (Phase 2):
 
 - [x] Add an explicit 360-degree auto-rotate control to preview the customized garment before export.
 
+- [x] Fix newly submitted orders not appearing in the customer dashboard/order overview and ensure payment options are displayed.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

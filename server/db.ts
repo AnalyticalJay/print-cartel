@@ -175,6 +175,35 @@ export async function getOrdersByCustomerEmail(email: string) {
   return ordersWithPrints;
 }
 
+export async function getOrdersForCustomerAccount(userId: number, email?: string | null) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [eq(orders.userId, userId)];
+  if (email) conditions.push(eq(orders.customerEmail, email));
+  const orderRows = await db.select().from(orders).where(or(...conditions)).orderBy(desc(orders.id));
+  const ordersWithPrints = await Promise.all(
+    orderRows.map(async (order) => {
+      const prints = await db
+        .select({
+          id: orderPrints.id,
+          orderId: orderPrints.orderId,
+          printSizeId: orderPrints.printSizeId,
+          placementId: orderPrints.placementId,
+          uploadedFilePath: orderPrints.uploadedFilePath,
+          uploadedFileName: orderPrints.uploadedFileName,
+          fileSize: orderPrints.fileSize,
+          mimeType: orderPrints.mimeType,
+          designApprovalStatus: orderPrints.designApprovalStatus,
+          designApprovalNotes: orderPrints.designApprovalNotes,
+        })
+        .from(orderPrints)
+        .where(eq(orderPrints.orderId, order.id));
+      return { ...order, prints };
+    })
+  );
+  return ordersWithPrints;
+}
+
 export async function getConversationByOrderId(orderId: number) {
   const db = await getDb();
   if (!db) return undefined;

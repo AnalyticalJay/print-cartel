@@ -7,6 +7,7 @@ import { buildPayFastPaymentUrl, verifyPayFastSignature } from "../payfast-servi
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 import { sendPaymentReceiptEmailWithRetry } from "../send-payment-receipt";
 import { checkAndProgressOrder } from "../auto-progression";
+import { isCustomerOrderOwner } from "../customer-order-access";
 
 
 
@@ -41,7 +42,7 @@ export const paymentRouter = router({
         const order = orderResult[0];
 
         // Verify order belongs to current user
-        if (order.customerEmail !== ctx.user?.email) {
+        if (!isCustomerOrderOwner(order, ctx.user)) {
           throw new Error("Unauthorized: Order does not belong to this user");
         }
 

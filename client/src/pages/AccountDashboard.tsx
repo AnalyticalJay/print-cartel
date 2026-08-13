@@ -25,10 +25,7 @@ export default function AccountDashboard() {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   // Fetch orders for authenticated user
-  const ordersQuery = trpc.orders.getByEmail.useQuery(
-    { email: user?.email || "" },
-    { enabled: !!user?.email }
-  );
+  const ordersQuery = trpc.orders.getMine.useQuery(undefined, { enabled: !!user?.id });
 
   const handleLogout = async () => {
     await logout();

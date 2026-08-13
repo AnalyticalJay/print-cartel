@@ -4,7 +4,8 @@ import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { orders, paymentRecords, products, productColors, productSizes, orderPrints, printPlacements, printOptions, orderLineItems } from "../../drizzle/schema";
-import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
+import { createOrder, getOrderById, getAllOrders, updateOrderStatus, createOrderPrint, getOrderPrints, getOrdersByCustomerEmail, getOrdersForCustomerAccount, getConversationByOrderId, createOrderStatusUpdateMessage, createOrderLineItem, getOrderLineItems, getOrderStatusHistory } from "../db";
+import { isCustomerOrderOwner } from "../customer-order-access";
 import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail, sendNewOrderNotificationEmail, sendOrderMilestoneEmail, sendOrderReadyForCollectionEmail } from "../\_core/email";
 import { sendArtworkReUploadedEmail } from "../email";
 import { notifyOwner } from "../\_core/notification";
@@ -80,9 +81,10 @@ const CreateMultiItemOrderInput = z.object({
 export const ordersRouter = router({
   create: publicProcedure
     .input(CreateOrderInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         const orderId = await createOrder({
+          userId: ctx.user?.id ?? null,
           productId: input.productId,
           colorId: input.colorId,
           sizeId: input.sizeId,
@@ -199,9 +201,10 @@ export const ordersRouter = router({
 
   createMultiItem: publicProcedure
     .input(CreateMultiItemOrderInput)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         const orderId = await createOrder({
+          userId: ctx.user?.id ?? null,
           productId: 0,
           colorId: 0,
           sizeId: 0,
@@ -351,6 +354,12 @@ export const ordersRouter = router({
       throw error;
     }
   }),
+
+  getMine: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (!ctx.user?.id) throw new Error("User account not found");
+      return getOrdersForCustomerAccount(ctx.user.id, ctx.user.email);
+    }),
 
   updateStatus: protectedProcedure
     .input(z.object({ orderId: z.number(), status: z.enum(["pending", "approved", "in-production", "completed", "shipped", "cancelled"]), adminNotes: z.string().optional() }))
@@ -859,7 +868,7 @@ export const ordersRouter = router({
       const order = orderResult[0];
 
       // Security: only the order owner can view it
-      if (order.customerEmail !== ctx.user?.email) {
+      if (!isCustomerOrderOwner(order, ctx.user)) {
         throw new Error("Unauthorized: Order does not belong to this user");
       }
 
