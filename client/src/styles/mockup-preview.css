@@ -1,0 +1,32 @@
+@keyframes mockup-garment-auto-rotate {
+  0%,
+  100% {
+    transform: perspective(1100px) rotateX(1deg) rotateY(0deg);
+  }
+
+  25% {
+    transform: perspective(1100px) rotateX(1deg) rotateY(-34deg);
+  }
+
+  50% {
+    transform: perspective(1100px) rotateX(1deg) rotateY(0deg);
+  }
+
+  75% {
+    transform: perspective(1100px) rotateX(1deg) rotateY(34deg);
+  }
+}
+
+.mockup-auto-rotate {
+  animation: mockup-garment-auto-rotate 10s ease-in-out infinite;
+  transform-origin: center;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mockup-auto-rotate {
+    animation: none;
+    transform: none;
+  }
+}

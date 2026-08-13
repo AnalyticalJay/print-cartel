@@ -13,7 +13,7 @@ import {
   getPrintSizeDimensions,
 } from "../client/src/lib/mockupDimensions";
 import { getGridContrastColors } from "../client/src/lib/gridContrast";
-import { getMockupPreviewVisibility } from "../client/src/lib/mockupPreview";
+import { getMockupPreviewVisibility, isMockupAutoRotateActive } from "../client/src/lib/mockupPreview";
 
 describe("interactive garment mockup geometry", () => {
   it("maps common garment placements to useful percentage regions", () => {
@@ -73,6 +73,12 @@ describe("interactive garment mockup geometry", () => {
       showAlignmentGrid: false,
       allowArtworkEditing: false,
     });
+  });
+
+  it("only runs auto-rotate while clean preview mode is active", () => {
+    expect(isMockupAutoRotateActive(false, true)).toBe(false);
+    expect(isMockupAutoRotateActive(true, false)).toBe(false);
+    expect(isMockupAutoRotateActive(true, true)).toBe(true);
   });
 
   it("normalizes rotation controls to a 0-359 degree range", () => {

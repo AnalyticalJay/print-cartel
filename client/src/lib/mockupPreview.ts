@@ -14,3 +14,10 @@ export function getMockupPreviewVisibility(
     allowArtworkEditing: !isPreviewMode,
   };
 }
+
+export function isMockupAutoRotateActive(
+  isPreviewMode: boolean,
+  autoRotateEnabled: boolean
+): boolean {
+  return isPreviewMode && autoRotateEnabled;
+}

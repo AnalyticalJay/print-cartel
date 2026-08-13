@@ -2305,4 +2305,6 @@ Future enhancements (Phase 2):
 
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.
 
+- [x] Add a preview-only auto-rotate toggle for a smooth 3D-style garment spin, with reduced-motion support.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

@@ -22,7 +22,7 @@ import {
 } from "@/lib/mockupGeometry";
 import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDimensions";
 import { getGridContrastColors } from "@/lib/gridContrast";
-import { getMockupPreviewVisibility } from "@/lib/mockupPreview";
+import { getMockupPreviewVisibility, isMockupAutoRotateActive } from "@/lib/mockupPreview";
 
 interface Placement {
   id: number;
@@ -89,6 +89,7 @@ export function InteractiveGarmentMockup({
   const [showAlignmentGrid, setShowAlignmentGrid] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [isMockupPreview, setIsMockupPreview] = useState(false);
+  const [isAutoRotating, setIsAutoRotating] = useState(false);
 
   const selectionByPlacement = useMemo(
     () => new Map(printSelections.map((selection) => [selection.placementId, selection])),
@@ -116,6 +117,12 @@ export function InteractiveGarmentMockup({
     : undefined;
   const gridContrast = getGridContrastColors(garmentColor);
   const previewVisibility = getMockupPreviewVisibility(isMockupPreview, showAlignmentGrid);
+  const autoRotateActive = isMockupAutoRotateActive(isMockupPreview, isAutoRotating);
+
+  const toggleMockupPreview = () => {
+    if (isMockupPreview) setIsAutoRotating(false);
+    setIsMockupPreview((preview) => !preview);
+  };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
     const selection = getSelection(placementId);
@@ -200,7 +207,7 @@ export function InteractiveGarmentMockup({
           <button
             type="button"
             aria-pressed={isMockupPreview}
-            onClick={() => setIsMockupPreview((preview) => !preview)}
+            onClick={toggleMockupPreview}
             className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
               isMockupPreview
                 ? "border-accent bg-accent text-gray-950"
@@ -210,6 +217,22 @@ export function InteractiveGarmentMockup({
             {isMockupPreview ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             {isMockupPreview ? "Back to editing" : "Preview mockup"}
           </button>
+          {isMockupPreview && (
+            <button
+              type="button"
+              aria-pressed={isAutoRotating}
+              onClick={() => setIsAutoRotating((rotating) => !rotating)}
+              className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                isAutoRotating
+                  ? "border-accent bg-accent/15 text-accent"
+                  : "border-gray-600 bg-gray-800 text-gray-200 hover:border-accent/60 hover:text-white"
+              }`}
+            >
+              <RotateCw className={`h-4 w-4 ${isAutoRotating ? "animate-spin" : ""}`} />
+              Auto-rotate
+              <span className="text-[10px] font-bold uppercase tracking-wide">{isAutoRotating ? "On" : "Off"}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -229,6 +252,7 @@ export function InteractiveGarmentMockup({
             </div>
           )}
 
+          <div className={`absolute inset-0 ${autoRotateActive ? "mockup-auto-rotate" : ""}`}>
           {productImageUrl ? (
             <img
               src={productImageUrl}
@@ -412,6 +436,7 @@ export function InteractiveGarmentMockup({
               Dashed box = printable area · artwork stays inside
             </div>
           )}
+          </div>
         </div>
 
         {!isMockupPreview && <div className="space-y-3">
