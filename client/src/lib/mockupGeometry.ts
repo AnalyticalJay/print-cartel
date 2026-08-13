@@ -88,3 +88,16 @@ export function getPreviewOffsetLimits(
     y: Math.max(0, (regionHeight - rotatedHeight) / 2),
   };
 }
+
+export function nudgePreviewPosition(
+  x: number,
+  y: number,
+  deltaX: number,
+  deltaY: number,
+  limits: { x: number; y: number }
+): { x: number; y: number } {
+  return {
+    x: clampPreviewPosition(x + deltaX, limits.x),
+    y: clampPreviewPosition(y + deltaY, limits.y),
+  };
+}

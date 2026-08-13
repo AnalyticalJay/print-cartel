@@ -2313,4 +2313,6 @@ Future enhancements (Phase 2):
 
 - [x] Add upload controls directly within each printable placement area and standardize the fallback mockup as a unisex classic-fit T-shirt.
 
+- [x] Add explicit independent scale, rotation, and reposition controls for the artwork in each garment placement area.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

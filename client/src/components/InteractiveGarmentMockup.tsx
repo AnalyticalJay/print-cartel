@@ -19,6 +19,7 @@ import {
   clampPreviewScale,
   getPlacementRegion,
   getPreviewOffsetLimits,
+  nudgePreviewPosition,
   normalizePreviewRotation,
   snapPreviewPosition,
 } from "@/lib/mockupGeometry";
@@ -193,6 +194,28 @@ export function InteractiveGarmentMockup({
       setIsDirectUploading(false);
       setUploadPlacementId(null);
     }
+  };
+
+  const nudgeArtworkPosition = (placementId: number, deltaX: number, deltaY: number) => {
+    const selection = getSelection(placementId);
+    const placement = placements.find((item) => item.id === placementId);
+    if (!selection || !placement) return;
+
+    const region = getPlacementRegion(placement.placementName);
+    const limits = getPreviewOffsetLimits(
+      region.width,
+      region.height,
+      selection.previewScale ?? 1,
+      selection.previewRotation ?? 0
+    );
+    const position = nudgePreviewPosition(
+      selection.previewX ?? 0,
+      selection.previewY ?? 0,
+      deltaX,
+      deltaY,
+      limits
+    );
+    onPositionChange(placementId, position.x, position.y);
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
@@ -628,8 +651,63 @@ export function InteractiveGarmentMockup({
                 className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-700 bg-gray-900/50 px-3 py-2 text-xs font-semibold text-gray-200 transition-colors hover:border-accent/60 hover:bg-accent/10 hover:text-white active:scale-[0.99]"
               >
                 <Crosshair className="h-4 w-4 text-accent" />
-                Snap to center
+                Center in area
               </button>
+              <div className="mt-3 border-t border-gray-700 pt-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-gray-300">Position</span>
+                  <span className="text-[10px] font-semibold text-gray-400">
+                    X {Math.round(getSelection(activePlacementId)?.previewX ?? 0)} · Y {Math.round(getSelection(activePlacementId)?.previewY ?? 0)}
+                  </span>
+                </div>
+                <div className="mx-auto mt-2 grid w-32 grid-cols-3 gap-1.5">
+                  <span aria-hidden="true" />
+                  <button
+                    type="button"
+                    onClick={() => nudgeArtworkPosition(activePlacementId, 0, -1)}
+                    className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
+                    aria-label="Move artwork up within this placement"
+                  >
+                    ↑
+                  </button>
+                  <span aria-hidden="true" />
+                  <button
+                    type="button"
+                    onClick={() => nudgeArtworkPosition(activePlacementId, -1, 0)}
+                    className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
+                    aria-label="Move artwork left within this placement"
+                  >
+                    ←
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onPositionChange(activePlacementId, 0, 0)}
+                    className="min-h-10 rounded-md border border-accent/60 bg-accent/10 px-2 text-[10px] font-bold text-accent hover:bg-accent hover:text-gray-950 active:scale-95"
+                    aria-label="Center artwork within this placement"
+                  >
+                    Center
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => nudgeArtworkPosition(activePlacementId, 1, 0)}
+                    className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
+                    aria-label="Move artwork right within this placement"
+                  >
+                    →
+                  </button>
+                  <span aria-hidden="true" />
+                  <button
+                    type="button"
+                    onClick={() => nudgeArtworkPosition(activePlacementId, 0, 1)}
+                    className="min-h-10 rounded-md bg-gray-700 px-2 text-sm font-bold text-gray-100 hover:bg-gray-600 active:scale-95"
+                    aria-label="Move artwork down within this placement"
+                  >
+                    ↓
+                  </button>
+                  <span aria-hidden="true" />
+                </div>
+                <p className="mt-2 text-[10px] leading-relaxed text-gray-400">Use arrows for precise 1% nudges inside the active printable area.</p>
+              </div>
               <div className="mt-3 flex items-center justify-between gap-2">
                 <span className="text-xs text-gray-300">Size</span>
                 <div className="flex items-center gap-2">

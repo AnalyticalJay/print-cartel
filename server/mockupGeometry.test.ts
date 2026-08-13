@@ -4,6 +4,7 @@ import {
   clampPreviewScale,
   getPlacementRegion,
   getPreviewOffsetLimits,
+  nudgePreviewPosition,
   normalizePreviewRotation,
   snapPreviewPosition,
 } from "../client/src/lib/mockupGeometry";
@@ -45,6 +46,11 @@ describe("interactive garment mockup geometry", () => {
     expect(getPreviewOffsetLimits(40, 38, 0.6, 0).x).toBeGreaterThan(0);
     expect(getPreviewOffsetLimits(40, 38, 0.6, 45).x).toBeGreaterThanOrEqual(0);
     expect(getPreviewOffsetLimits(40, 38, 0.6, 45).y).toBeGreaterThanOrEqual(0);
+  });
+
+  it("nudges artwork independently while keeping it inside the active placement bounds", () => {
+    expect(nudgePreviewPosition(4, -3, 2, 1, { x: 6, y: 4 })).toEqual({ x: 6, y: -2 });
+    expect(nudgePreviewPosition(6, 4, 1, 1, { x: 6, y: 4 })).toEqual({ x: 6, y: 4 });
   });
 
   it("converts standard print sizes to centimetres and applies scale", () => {
