@@ -91,7 +91,6 @@ interface DragState {
 
 export function InteractiveGarmentMockup({
   productName = "Selected garment",
-  productImageUrl,
   garmentColor = "#d1d5db",
   colorOptions = [],
   selectedColorId = null,
@@ -117,6 +116,7 @@ export function InteractiveGarmentMockup({
   const [isMockupPreview, setIsMockupPreview] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [isDirectUploading, setIsDirectUploading] = useState(false);
+  const [uploadPlacementId, setUploadPlacementId] = useState<number | null>(null);
   const directUploadMutation = trpc.files.upload.useMutation();
 
   const selectionByPlacement = useMemo(
@@ -147,22 +147,25 @@ export function InteractiveGarmentMockup({
   const gridContrast = getGridContrastColors(previewGarmentColor);
   const previewVisibility = getMockupPreviewVisibility(isMockupPreview, showAlignmentGrid);
   const autoRotateActive = isMockupAutoRotateActive(isMockupPreview, isAutoRotating);
-  const directUploadState = getMockupUploadButtonState(
-    activePlacementId,
-    Boolean(activeSelection?.uploadedFilePath),
-    isDirectUploading
-  );
 
   const toggleMockupPreview = () => {
     if (isMockupPreview) setIsAutoRotating(false);
     setIsMockupPreview((preview) => !preview);
   };
 
+  const openArtworkPicker = (placementId: number) => {
+    if (!onArtworkUpload || isDirectUploading) return;
+    setActivePlacementId(placementId);
+    setUploadPlacementId(placementId);
+    directUploadInputRef.current?.click();
+  };
+
   const handleDirectArtworkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0];
     event.currentTarget.value = "";
+    const targetPlacementId = uploadPlacementId ?? activePlacementId;
 
-    if (!file || activePlacementId === null || !onArtworkUpload) return;
+    if (!file || targetPlacementId === null || !onArtworkUpload) return;
     if (!file.type.startsWith("image/")) {
       toast.error("Please choose an image file for the garment preview.");
       return;
@@ -180,13 +183,15 @@ export function InteractiveGarmentMockup({
         fileData,
         mimeType: file.type,
       });
-      onArtworkUpload(activePlacementId, file, result.url);
-      toast.success(`Artwork applied to ${activePlacement?.placementName || "the selected placement"}.`);
+      onArtworkUpload(targetPlacementId, file, result.url);
+      const targetPlacement = placements.find((placement) => placement.id === targetPlacementId);
+      toast.success(`Artwork applied to ${targetPlacement?.placementName || "the selected placement"}.`);
     } catch (error) {
       console.error("Direct artwork upload failed:", error);
       toast.error("Artwork upload failed. Please try again.");
     } finally {
       setIsDirectUploading(false);
+      setUploadPlacementId(null);
     }
   };
 
@@ -314,44 +319,21 @@ export function InteractiveGarmentMockup({
         >
           {!isMockupPreview && (
             <div className="pointer-events-none absolute left-3 top-3 z-30 rounded-full border border-white/80 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-700 shadow-sm backdrop-blur-sm">
-              3D garment view
+              Unisex classic-fit T-shirt
             </div>
           )}
           {!isMockupPreview && onArtworkUpload && (
-            <>
-              <input
-                ref={directUploadInputRef}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={handleDirectArtworkUpload}
-              />
-              <button
-                type="button"
-                disabled={!directUploadState.canUpload}
-                onClick={() => directUploadInputRef.current?.click()}
-                className="absolute right-3 top-3 z-40 inline-flex min-h-10 items-center gap-2 rounded-lg border border-accent/70 bg-gray-950/85 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-accent hover:text-gray-950 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isDirectUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 text-accent" />}
-                {directUploadState.label}
-              </button>
-            </>
+            <input
+              ref={directUploadInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={handleDirectArtworkUpload}
+            />
           )}
 
           <div className={`absolute inset-0 ${autoRotateActive ? "mockup-auto-rotate" : ""}`}>
-          {productImageUrl ? (
-            <img
-              src={productImageUrl}
-              alt={`${productName} full garment mockup`}
-              className="absolute inset-0 h-full w-full object-contain p-3 md:p-5"
-              style={{
-                filter: "drop-shadow(0 22px 18px rgba(15, 23, 42, 0.2))",
-                transform: "perspective(1200px) rotateX(2deg)",
-              }}
-              draggable={false}
-            />
-          ) : (
-            <svg viewBox="0 0 100 125" className="absolute inset-0 h-full w-full p-3 md:p-5" aria-label="3D garment silhouette">
+          <svg viewBox="0 0 100 125" className="absolute inset-0 h-full w-full p-3 md:p-5" aria-label="Standard unisex classic-fit T-shirt mockup">
               <defs>
                 <linearGradient id="garmentBodyGradient" x1="0" x2="1" y1="0" y2="1">
                   <stop offset="0" stopColor={previewGarmentColor} />
@@ -368,27 +350,18 @@ export function InteractiveGarmentMockup({
                 </filter>
               </defs>
               <path
-                d="M33 16 18 24 8 43l15 9 7-11v66h40V41l7 11 15-9-10-19-15-8c-2 7-7 11-15 11s-13-4-15-11Z"
+                d="M34 15 23 20 8 38l15 10 9-11v72h36V37l9 11 15-10-15-18-11-5c-2 8-8 12-16 12s-14-4-16-12Z"
                 fill="url(#garmentBodyGradient)"
                 stroke="#64748b"
                 strokeWidth="0.8"
                 filter="url(#garmentShadow)"
               />
-              <path d="M8 43 23 52l7-11v66" fill="none" stroke="url(#garmentSleeveGradient)" strokeWidth="2" opacity="0.8" />
-              <path d="M92 43 77 52l-7-11v66" fill="none" stroke="#475569" strokeWidth="1.3" opacity="0.55" />
-              <path d="M39 17c1 7 5 11 11 11s10-4 11-11" fill="none" stroke="#475569" strokeWidth="1" />
-              <path d="M31 41v66M69 41v66" stroke="#64748b" strokeWidth="0.55" opacity="0.45" />
-              <path d="M33 101h34" stroke="#475569" strokeWidth="0.8" opacity="0.5" />
+              <path d="M8 38 23 48l9-11v72" fill="none" stroke="url(#garmentSleeveGradient)" strokeWidth="2" opacity="0.8" />
+              <path d="M92 38 77 48l-9-11v72" fill="none" stroke="#475569" strokeWidth="1.3" opacity="0.55" />
+              <path d="M39 16c1 7 5 11 11 11s10-4 11-11" fill="none" stroke="#475569" strokeWidth="1" />
+              <path d="M32 37v72M68 37v72" stroke="#64748b" strokeWidth="0.55" opacity="0.45" />
+              <path d="M34 103h32" stroke="#475569" strokeWidth="0.8" opacity="0.5" />
             </svg>
-          )}
-
-          {productImageUrl && (
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{ backgroundColor: previewGarmentColor, mixBlendMode: "multiply", opacity: 0.26 }}
-              aria-hidden="true"
-            />
-          )}
 
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_35%_18%,rgba(255,255,255,0.62),transparent_32%),linear-gradient(145deg,rgba(255,255,255,0.15),transparent_48%,rgba(15,23,42,0.1))]" />
 
@@ -398,41 +371,61 @@ export function InteractiveGarmentMockup({
             const isActive = activePlacementId === placement.id;
             const hasArtwork = Boolean(selection?.uploadedFilePath);
 
+            const placementUploadState = getMockupUploadButtonState(
+              placement.id,
+              hasArtwork,
+              isDirectUploading
+            );
+
             return (
-              <button
+              <div
                 key={`region-${placement.id}`}
-                type="button"
-                onClick={() => setActivePlacementId(placement.id)}
-                className={`absolute z-10 rounded-md border-2 border-dashed transition-all ${
-                  isActive
-                    ? "border-accent bg-accent/10 shadow-[0_0_0_2px_rgba(255,212,0,0.25)]"
-                    : hasArtwork
-                      ? "border-emerald-400/70 bg-emerald-400/5"
-                      : "border-gray-500/70 bg-gray-500/5 hover:border-accent/80"
-                }`}
+                className="absolute z-10"
                 style={{
                   left: `${region.left}%`,
                   top: `${region.top}%`,
                   width: `${region.width}%`,
                   height: `${region.height}%`,
                 }}
-                aria-label={`Printable area for ${placement.placementName}`}
-                title={`${placement.placementName} printable area`}
               >
-                <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-950/85 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                  {placement.placementName}
-                </span>
-                {isActive && (
-                  <span className="pointer-events-none absolute inset-x-1/2 top-1/2 w-max -translate-x-1/2 -translate-y-1/2 rounded bg-accent/90 px-2 py-1 text-[10px] font-bold text-gray-950 shadow-sm">
-                    Printable area
+                <button
+                  type="button"
+                  onClick={() => setActivePlacementId(placement.id)}
+                  className={`absolute inset-0 w-full rounded-md border-2 border-dashed transition-all ${
+                    isActive
+                      ? "border-accent bg-accent/10 shadow-[0_0_0_2px_rgba(255,212,0,0.25)]"
+                      : hasArtwork
+                        ? "border-emerald-400/70 bg-emerald-400/5"
+                        : "border-gray-500/70 bg-gray-500/5 hover:border-accent/80"
+                  }`}
+                  aria-label={`Select ${placement.placementName} printable area`}
+                  title={`${placement.placementName} printable area`}
+                >
+                  <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-950/85 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    {placement.placementName}
                   </span>
+                  {isActive && (
+                    <span className="pointer-events-none absolute inset-x-1/2 top-1/2 w-max -translate-x-1/2 -translate-y-1/2 rounded bg-accent/90 px-2 py-1 text-[10px] font-bold text-gray-950 shadow-sm">
+                      Printable area
+                    </span>
+                  )}
+                </button>
+                {onArtworkUpload && (
+                  <button
+                    type="button"
+                    disabled={!placementUploadState.canUpload}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      openArtworkPicker(placement.id);
+                    }}
+                    className="absolute bottom-1 left-1/2 z-20 inline-flex max-w-[calc(100%-0.5rem)] -translate-x-1/2 items-center justify-center gap-1 rounded bg-gray-950/90 px-1.5 py-1 text-[8px] font-bold text-white shadow-sm transition-colors hover:bg-accent hover:text-gray-950 disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-label={`${placementUploadState.label} for ${placement.placementName}`}
+                  >
+                    {isDirectUploading && uploadPlacementId === placement.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                    <span className="truncate">{placementUploadState.label}</span>
+                  </button>
                 )}
-                {!hasArtwork && isActive && (
-                  <span className="pointer-events-none flex h-full items-center justify-center px-1 text-center text-[10px] font-medium text-gray-700">
-                    Upload artwork
-                  </span>
-                )}
-              </button>
+              </div>
             );
           })}
 

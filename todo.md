@@ -2311,4 +2311,6 @@ Future enhancements (Phase 2):
 
 - [x] Add a direct Upload artwork button on the interactive 3D garment preview that applies an image to the active placement.
 
+- [x] Add upload controls directly within each printable placement area and standardize the fallback mockup as a unisex classic-fit T-shirt.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.
