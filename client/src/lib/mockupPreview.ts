@@ -34,3 +34,13 @@ export function getSelectedMockupGarmentColor(
 ): string {
   return colors.find((color) => color.id === selectedColorId)?.colorHex || fallbackColor;
 }
+
+export function getMockupUploadButtonState(
+  activePlacementId: number | null,
+  hasArtwork: boolean,
+  isUploading: boolean
+): { canUpload: boolean; label: string } {
+  if (isUploading) return { canUpload: false, label: "Uploading…" };
+  if (activePlacementId === null) return { canUpload: false, label: "Choose placement" };
+  return { canUpload: true, label: hasArtwork ? "Replace artwork" : "Upload artwork" };
+}

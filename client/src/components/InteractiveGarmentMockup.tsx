@@ -4,6 +4,7 @@ import {
   Eye,
   Grid3X3,
   Image as ImageIcon,
+  Loader2,
   Minus,
   Move,
   Pencil,
@@ -11,6 +12,7 @@ import {
   RotateCcw,
   RotateCw,
   Crosshair,
+  Upload,
 } from "lucide-react";
 import {
   clampPreviewPosition,
@@ -22,8 +24,15 @@ import {
 } from "@/lib/mockupGeometry";
 import { convertCentimetresToInches, getArtworkDimensions } from "@/lib/mockupDimensions";
 import { getGridContrastColors } from "@/lib/gridContrast";
-import { getMockupPreviewVisibility, getSelectedMockupGarmentColor, isMockupAutoRotateActive } from "@/lib/mockupPreview";
+import {
+  getMockupPreviewVisibility,
+  getMockupUploadButtonState,
+  getSelectedMockupGarmentColor,
+  isMockupAutoRotateActive,
+} from "@/lib/mockupPreview";
 import { ColorSelector } from "@/components/ColorSelector";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 interface Placement {
   id: number;
@@ -68,6 +77,7 @@ interface InteractiveGarmentMockupProps {
   onScaleChange: (placementId: number, scale: number) => void;
   onRotationChange: (placementId: number, rotation: number) => void;
   onGarmentColorChange?: (colorId: number) => void;
+  onArtworkUpload?: (placementId: number, file: File, s3Url: string) => void;
 }
 
 interface DragState {
@@ -92,9 +102,11 @@ export function InteractiveGarmentMockup({
   onScaleChange,
   onRotationChange,
   onGarmentColorChange,
+  onArtworkUpload,
 }: InteractiveGarmentMockupProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
+  const directUploadInputRef = useRef<HTMLInputElement>(null);
   const [activePlacementId, setActivePlacementId] = useState<number | null>(
     printSelections[0]?.placementId ?? placements[0]?.id ?? null
   );
@@ -104,6 +116,8 @@ export function InteractiveGarmentMockup({
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [isMockupPreview, setIsMockupPreview] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(false);
+  const [isDirectUploading, setIsDirectUploading] = useState(false);
+  const directUploadMutation = trpc.files.upload.useMutation();
 
   const selectionByPlacement = useMemo(
     () => new Map(printSelections.map((selection) => [selection.placementId, selection])),
@@ -133,10 +147,47 @@ export function InteractiveGarmentMockup({
   const gridContrast = getGridContrastColors(previewGarmentColor);
   const previewVisibility = getMockupPreviewVisibility(isMockupPreview, showAlignmentGrid);
   const autoRotateActive = isMockupAutoRotateActive(isMockupPreview, isAutoRotating);
+  const directUploadState = getMockupUploadButtonState(
+    activePlacementId,
+    Boolean(activeSelection?.uploadedFilePath),
+    isDirectUploading
+  );
 
   const toggleMockupPreview = () => {
     if (isMockupPreview) setIsAutoRotating(false);
     setIsMockupPreview((preview) => !preview);
+  };
+
+  const handleDirectArtworkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+
+    if (!file || activePlacementId === null || !onArtworkUpload) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file for the garment preview.");
+      return;
+    }
+    if (file.size === 0 || file.size > 50 * 1024 * 1024) {
+      toast.error("Please choose an image between 1 byte and 50MB.");
+      return;
+    }
+
+    setIsDirectUploading(true);
+    try {
+      const fileData = new Uint8Array(await file.arrayBuffer());
+      const result = await directUploadMutation.mutateAsync({
+        fileName: file.name,
+        fileData,
+        mimeType: file.type,
+      });
+      onArtworkUpload(activePlacementId, file, result.url);
+      toast.success(`Artwork applied to ${activePlacement?.placementName || "the selected placement"}.`);
+    } catch (error) {
+      console.error("Direct artwork upload failed:", error);
+      toast.error("Artwork upload failed. Please try again.");
+    } finally {
+      setIsDirectUploading(false);
+    }
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>, placementId: number) => {
@@ -265,6 +316,26 @@ export function InteractiveGarmentMockup({
             <div className="pointer-events-none absolute left-3 top-3 z-30 rounded-full border border-white/80 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-700 shadow-sm backdrop-blur-sm">
               3D garment view
             </div>
+          )}
+          {!isMockupPreview && onArtworkUpload && (
+            <>
+              <input
+                ref={directUploadInputRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={handleDirectArtworkUpload}
+              />
+              <button
+                type="button"
+                disabled={!directUploadState.canUpload}
+                onClick={() => directUploadInputRef.current?.click()}
+                className="absolute right-3 top-3 z-40 inline-flex min-h-10 items-center gap-2 rounded-lg border border-accent/70 bg-gray-950/85 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-accent hover:text-gray-950 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDirectUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 text-accent" />}
+                {directUploadState.label}
+              </button>
+            </>
           )}
 
           <div className={`absolute inset-0 ${autoRotateActive ? "mockup-auto-rotate" : ""}`}>

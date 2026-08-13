@@ -15,6 +15,7 @@ import {
 import { getGridContrastColors } from "../client/src/lib/gridContrast";
 import {
   getMockupPreviewVisibility,
+  getMockupUploadButtonState,
   getSelectedMockupGarmentColor,
   isMockupAutoRotateActive,
 } from "../client/src/lib/mockupPreview";
@@ -93,6 +94,25 @@ describe("interactive garment mockup geometry", () => {
 
     expect(getSelectedMockupGarmentColor(colors, 12, "#d1d5db")).toBe("#f5f5f5");
     expect(getSelectedMockupGarmentColor(colors, 99, "#d1d5db")).toBe("#d1d5db");
+  });
+
+  it("shows an upload or replace action only when a placement is active", () => {
+    expect(getMockupUploadButtonState(null, false, false)).toEqual({
+      canUpload: false,
+      label: "Choose placement",
+    });
+    expect(getMockupUploadButtonState(1, false, false)).toEqual({
+      canUpload: true,
+      label: "Upload artwork",
+    });
+    expect(getMockupUploadButtonState(1, true, false)).toEqual({
+      canUpload: true,
+      label: "Replace artwork",
+    });
+    expect(getMockupUploadButtonState(1, true, true)).toEqual({
+      canUpload: false,
+      label: "Uploading…",
+    });
   });
 
   it("normalizes rotation controls to a 0-359 degree range", () => {

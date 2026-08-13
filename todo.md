@@ -2309,4 +2309,6 @@ Future enhancements (Phase 2):
 
 - [x] Add an accessible garment base-colour picker that updates the 3D preview and stays consistent with the selected order colour.
 
+- [x] Add a direct Upload artwork button on the interactive 3D garment preview that applies an image to the active placement.
+
 - [x] Add a clean preview-mockup mode that temporarily hides garment boundaries, grids, and editing overlays.

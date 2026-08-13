@@ -574,6 +574,22 @@ export default function OrderWizard() {
                     onScaleChange={handlePreviewScaleChange}
                     onRotationChange={handlePreviewRotationChange}
                     onGarmentColorChange={(colorId) => setOrderData((previous) => ({ ...previous, colorId }))}
+                    onArtworkUpload={(placementId, file, s3Url) => {
+                      setOrderData((previous) => ({
+                        ...previous,
+                        printSelections: previous.printSelections.map((selection) =>
+                          selection.placementId === placementId
+                            ? {
+                                ...selection,
+                                designFile: file,
+                                designFileName: file.name,
+                                uploadedFilePath: s3Url,
+                                uploadedFileName: file.name,
+                              }
+                            : selection
+                        ),
+                      }));
+                    }}
                   />
                   {orderData.printSelections.map((selection, index) => {
                     const placement = placements.find((p: any) => p.id === selection.placementId);
