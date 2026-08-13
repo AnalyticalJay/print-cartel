@@ -443,7 +443,13 @@ export function InteractiveGarmentMockup({
                   type="button"
                   role="switch"
                   aria-checked={snapToGrid}
-                  onClick={() => setSnapToGrid((enabled) => !enabled)}
+                  onClick={() => {
+                    setSnapToGrid((enabled) => {
+                      const nextEnabled = !enabled;
+                      if (nextEnabled) setShowAlignmentGrid(true);
+                      return nextEnabled;
+                    });
+                  }}
                   className={`flex min-h-10 items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${
                     snapToGrid
                       ? "border-accent/60 bg-accent/10 text-white"
@@ -454,6 +460,7 @@ export function InteractiveGarmentMockup({
                     <Grid3X3 className="h-4 w-4 text-accent" />
                     Snap to grid
                   </span>
+                  <span className="sr-only">Enabling this also shows the alignment grid</span>
                   <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
                     {snapToGrid ? "On" : "Off"}
                   </span>
