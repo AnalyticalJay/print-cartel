@@ -30,7 +30,9 @@ export function OrderCartSummary({ onEditItem }: OrderCartSummaryProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {items.map((item) => (
+        {items.map((item) => {
+          const lineTotal = item.subtotal ?? item.unitPrice * item.quantity;
+          return (
           <div key={item.id} className="flex items-start justify-between rounded-lg border p-4">
             <div className="flex-1">
               <h4 className="font-semibold">{item.productName}</h4>
@@ -41,7 +43,7 @@ export function OrderCartSummary({ onEditItem }: OrderCartSummaryProps) {
                 Placement: {item.placementName} • Print: {item.printSizeName}
               </p>
               <p className="mt-2 text-sm font-medium">
-                Qty: {item.quantity} × {formatCurrency(item.unitPrice)} = {formatCurrency(item.quantity * item.unitPrice)}
+                Qty: {item.quantity} × {formatCurrency(item.unitPrice)} = {formatCurrency(lineTotal)}
               </p>
             </div>
             <div className="flex gap-2">
@@ -65,7 +67,8 @@ export function OrderCartSummary({ onEditItem }: OrderCartSummaryProps) {
               </Button>
             </div>
           </div>
-        ))}
+          );
+        })}
 
         <div className="border-t pt-4">
           <div className="flex justify-between text-lg font-bold">

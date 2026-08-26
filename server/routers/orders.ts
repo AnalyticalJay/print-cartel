@@ -14,6 +14,7 @@ import { sendInvoiceEmail, sendInvoiceNotificationToAdmin } from "../invoice-ema
 
 import { sendInvoiceReceivedEmail } from "../invoice-received-email";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
+import { calculateDtfOrderEstimate } from "../pricing";
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -42,7 +43,7 @@ const CreateOrderInput = z.object({
     layerId: z.string().optional(),
     previewLayerOrder: z.number().int().min(0).optional(),
   })),
-  totalPriceEstimate: z.number(),
+  totalPriceEstimate: z.number().optional(),
 });
 
 const CreateMultiItemOrderInput = z.object({
@@ -62,10 +63,10 @@ const CreateMultiItemOrderInput = z.object({
       previewY: z.number().optional(),
       previewScale: z.number().optional(),
       previewRotation: z.number().optional(),
-      layerId: z.string().optional(),
-      previewLayerOrder: z.number().int().min(0).optional(),
-    })),
-    subtotal: z.number(),
+    layerId: z.string().optional(),
+    previewLayerOrder: z.number().int().min(0).optional(),
+  })),
+    subtotal: z.number().optional(),
   })),
   customerFirstName: z.string().min(1),
   customerLastName: z.string().min(1),
@@ -75,7 +76,7 @@ const CreateMultiItemOrderInput = z.object({
   deliveryMethod: z.enum(["collection", "delivery"]),
   deliveryAddress: z.string().optional(),
   additionalNotes: z.string().optional(),
-  totalPriceEstimate: z.number(),
+  totalPriceEstimate: z.number().optional(),
 });
 
 export const ordersRouter = router({
@@ -83,6 +84,15 @@ export const ordersRouter = router({
     .input(CreateOrderInput)
     .mutation(async ({ input, ctx }) => {
       try {
+        const pricing = await calculateDtfOrderEstimate({
+          productId: input.productId,
+          quantity: input.quantity,
+          printPlacements: input.prints.map((print) => ({
+            printSizeId: print.printSizeId,
+            previewScale: print.previewScale,
+          })),
+        });
+        input.totalPriceEstimate = pricing.total;
         const orderId = await createOrder({
           userId: ctx.user?.id ?? null,
           productId: input.productId,
@@ -203,6 +213,19 @@ export const ordersRouter = router({
     .input(CreateMultiItemOrderInput)
     .mutation(async ({ input, ctx }) => {
       try {
+        const cartItemPricing = await Promise.all(input.cartItems.map((cartItem) => calculateDtfOrderEstimate({
+          productId: cartItem.productId,
+          quantity: cartItem.quantity,
+          printPlacements: cartItem.printSelections.map((print) => ({
+            printSizeId: print.printSizeId,
+            previewScale: print.previewScale,
+          })),
+        })));
+        input.cartItems = input.cartItems.map((cartItem, index) => ({
+          ...cartItem,
+          subtotal: cartItemPricing[index].total,
+        }));
+        input.totalPriceEstimate = cartItemPricing.reduce((sum, pricing) => sum + pricing.total, 0);
         const orderId = await createOrder({
           userId: ctx.user?.id ?? null,
           productId: 0,
@@ -222,8 +245,12 @@ export const ordersRouter = router({
         });
 
         // Create line items and prints for each cart item
-        for (const cartItem of input.cartItems) {
-          const subtotalNum = typeof cartItem.subtotal === 'string' ? parseFloat(cartItem.subtotal) : cartItem.subtotal;
+        for (const [index, cartItem] of input.cartItems.entries()) {
+          const itemPricing = cartItemPricing[index];
+          if (!itemPricing) {
+            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to calculate the cart item estimate." });
+          }
+          const subtotalNum = itemPricing.total;
           const unitPrice = (subtotalNum / cartItem.quantity).toString();
           const subtotal = subtotalNum.toString();
           await createOrderLineItem({

@@ -20,6 +20,7 @@ import { PrintPlacementSelector } from "@/components/PrintPlacementSelector";
 import { FileUploadValidator } from "@/components/FileUploadValidator";
 import { VisualProductSelector } from "@/components/VisualProductSelector";
 import { InteractiveGarmentMockup } from "@/components/InteractiveGarmentMockup";
+import { calculateDtfEstimate, DTF_TRANSFER_RATE_PER_SQUARE_METER, formatZar } from "@shared/dtfPricing";
 import {
   createArtworkLayerId,
   deleteArtworkLayer,
@@ -60,19 +61,12 @@ interface OrderData {
   additionalNotes?: string;
 }
 
-// Calculate bulk discount percentage
-const calculateBulkDiscount = (quantity: number): number => {
-  if (quantity >= 500) return 0; // Custom pricing
-  if (quantity >= 100) return 0.1; // 10% discount
-  if (quantity >= 50) return 0.05; // 5% discount
-  return 0; // No discount
-};
-
 // Get bulk pricing label
 const getBulkPricingLabel = (quantity: number): string => {
   if (quantity >= 500) return "Custom pricing available - Contact sales";
-  if (quantity >= 100) return "10% Reseller Discount Applied";
-  if (quantity >= 50) return "5% Reseller Discount Applied";
+  if (quantity >= 100) return "30% Volume Discount Applied";
+  if (quantity >= 50) return "20% Volume Discount Applied";
+  if (quantity >= 10) return "10% Volume Discount Applied";
   return "Standard Pricing";
 };
 
@@ -125,26 +119,20 @@ export default function OrderWizard() {
   const printOptionsQuery = trpc.products.getPrintOptions.useQuery();
 
   const createOrderMutation = trpc.orders.create.useMutation({
-    onSuccess: () => {
-      toast.success('Order placed successfully!');
+    onSuccess: (result) => {
+      toast.success('Order created. Continue to payment to complete checkout.');
       setCurrentStep(7);
       if (typeof window !== 'undefined' && (window as any).gtag) {
         const orderValue = parseFloat(totalPrice.toFixed(2));
-        // GA4 purchase event
-        (window as any).gtag('event', 'purchase', {
+        // The order advances to payment, so do not record a purchase before funds are confirmed.
+        (window as any).gtag('event', 'begin_checkout', {
           event_category: 'ecommerce',
-          event_label: 'Order Submitted',
-          value: orderValue,
-          currency: 'ZAR',
-        });
-        // Google Ads conversion event
-        (window as any).gtag('event', 'conversion', {
-          send_to: 'AW-11093603908/purchase',
+          event_label: 'Order Created',
           value: orderValue,
           currency: 'ZAR',
         });
       }
-      setTimeout(() => setLocation('/dashboard'), 2000);
+      setTimeout(() => setLocation(`/payment?orderId=${result.orderId}`), 900);
     },
     onError: (error) => {
       console.error('Order creation error:', error);
@@ -152,26 +140,20 @@ export default function OrderWizard() {
     },
   });
   const createMultiItemMutation = trpc.orders.createMultiItem.useMutation({
-    onSuccess: () => {
-      toast.success('Order placed successfully!');
+    onSuccess: (result) => {
+      toast.success('Order created. Continue to payment to complete checkout.');
       setCurrentStep(7);
       if (typeof window !== 'undefined' && (window as any).gtag) {
         const orderValue = parseFloat((cartItems.length > 0 ? getTotal() : totalPrice).toFixed(2));
-        // GA4 purchase event
-        (window as any).gtag('event', 'purchase', {
+        // The order advances to payment, so do not record a purchase before funds are confirmed.
+        (window as any).gtag('event', 'begin_checkout', {
           event_category: 'ecommerce',
-          event_label: 'Order Submitted',
-          value: orderValue,
-          currency: 'ZAR',
-        });
-        // Google Ads conversion event
-        (window as any).gtag('event', 'conversion', {
-          send_to: 'AW-11093603908/purchase',
+          event_label: 'Order Created',
           value: orderValue,
           currency: 'ZAR',
         });
       }
-      setTimeout(() => setLocation('/dashboard'), 2000);
+      setTimeout(() => setLocation(`/payment?orderId=${result.orderId}`), 900);
     },
     onError: (error) => {
       console.error('Multi-item order creation error:', error);
@@ -391,7 +373,8 @@ export default function OrderWizard() {
       quantity: orderData.quantity,
       placementId: firstSelection.placementId,
       printSizeId: firstSelection.printSizeId,
-      unitPrice: basePrice,
+      unitPrice: dtfEstimate.totalPerGarment,
+      subtotal: dtfEstimate.total,
       productName: selectedProduct?.name,
       colorName: selectedColor?.colorName,
       sizeName: selectedSize?.sizeName,
@@ -514,16 +497,21 @@ export default function OrderWizard() {
     }
   };
 
-  // Calculate pricing
+  // The order mutations derive the same estimate from persisted product and print-option data.
   const basePrice = selectedProduct ? parseFloat(selectedProduct.basePrice as string) : 0;
-  const printSizePrice = orderData.printSelections.reduce((total, selection) => {
-    const printOption = printOptions.find((p) => p.id === selection.printSizeId);
-    return total + (printOption ? (typeof printOption.additionalPrice === 'string' ? parseFloat(printOption.additionalPrice) : printOption.additionalPrice) : 0);
-  }, 0);
-  const bulkDiscount = calculateBulkDiscount(orderData.quantity);
-  const subtotal = (basePrice + printSizePrice) * orderData.quantity;
-  const discountAmount = subtotal * bulkDiscount;
-  const totalPrice = subtotal - discountAmount;
+  const dtfEstimate = calculateDtfEstimate({
+    basePrice,
+    quantity: orderData.quantity,
+    printSelections: orderData.printSelections.map((selection) => ({
+      printSize: allPrintOptions.find((option) => option.id === selection.printSizeId)?.printSize ?? "Custom",
+      previewScale: selection.previewScale,
+    })),
+  });
+  const printSizePrice = dtfEstimate.transferSubtotal;
+  const bulkDiscount = dtfEstimate.bulkDiscountPercentage / 100;
+  const subtotal = dtfEstimate.totalBeforeDiscount;
+  const discountAmount = dtfEstimate.bulkDiscount;
+  const totalPrice = dtfEstimate.total;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-6 md:py-12 px-3 md:px-4">
@@ -871,19 +859,27 @@ export default function OrderWizard() {
                         <span className="text-gray-200">Print Options:</span>
                         <span className="text-white">{orderData.printSelections.length}</span>
                       </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-200">Garments:</span>
+                        <span className="text-white">{formatZar(dtfEstimate.garmentSubtotal)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-200">DTF transfer area:</span>
+                        <span className="text-white">{formatZar(dtfEstimate.transferSubtotal)}</span>
+                      </div>
                       <div className="border-t border-gray-600 pt-2 mt-2 flex justify-between">
-                        <span className="text-gray-200">Subtotal:</span>
-                        <span className="text-white">R{subtotal.toFixed(2)}</span>
+                        <span className="text-gray-200">Estimate before discount:</span>
+                        <span className="text-white">{formatZar(subtotal)}</span>
                       </div>
                       {bulkDiscount > 0 && (
                         <div className="flex justify-between text-accent">
                           <span>Bulk Discount ({(bulkDiscount * 100).toFixed(0)}%):</span>
-                          <span>-R{discountAmount.toFixed(2)}</span>
+                          <span>-{formatZar(discountAmount)}</span>
                         </div>
                       )}
                       <div className="border-t border-gray-600 pt-2 mt-2 flex justify-between font-bold">
                         <span className="text-white">Total:</span>
-                        <span className="text-accent text-lg">R{totalPrice.toFixed(2)}</span>
+                        <span className="text-accent text-lg">{formatZar(totalPrice)}</span>
                       </div>
                     </div>
                   </div>
@@ -1066,18 +1062,18 @@ export default function OrderWizard() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-300">Base Price:</span>
-                        <span className="text-white">R{basePrice.toFixed(2)}</span>
+                        <span className="text-white">{formatZar(dtfEstimate.garmentSubtotal)}</span>
                       </div>
 
                       {orderData.printSelections.length > 0 && (
                         <>
                           <div className="flex justify-between">
-                            <span className="text-gray-300">Print Surcharge:</span>
-                            <span className="text-white">+R{printSizePrice.toFixed(2)}</span>
+                            <span className="text-gray-300">DTF transfer area:</span>
+                            <span className="text-white">{formatZar(printSizePrice)}</span>
                           </div>
                           <div className="flex justify-between font-medium text-gray-200">
-                            <span>Subtotal:</span>
-                            <span>R{subtotal.toFixed(2)}</span>
+                            <span>{dtfEstimate.transferAreaSquareMetres.toFixed(3)} m² at {formatZar(DTF_TRANSFER_RATE_PER_SQUARE_METER)}/m²</span>
+                            <span>{dtfEstimate.selections.length} placement{dtfEstimate.selections.length === 1 ? "" : "s"}</span>
                           </div>
                         </>
                       )}
@@ -1089,7 +1085,7 @@ export default function OrderWizard() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-accent">Discount:</span>
-                            <span className="text-accent font-bold">-R{discountAmount.toFixed(2)}</span>
+                            <span className="text-accent font-bold">-{formatZar(discountAmount)}</span>
                           </div>
                         </div>
                       )}
@@ -1100,15 +1096,15 @@ export default function OrderWizard() {
                       <div className="flex justify-between items-center">
                         <span className="text-white font-semibold">Total:</span>
                         <div className="text-right">
-                          <span className="text-accent text-2xl font-bold">R{totalPrice.toFixed(2)}</span>
-                          <p className="text-xs text-gray-400 mt-0.5">Excl. delivery</p>
+                          <span className="text-accent text-2xl font-bold">{formatZar(totalPrice)}</span>
+                          <p className="text-xs text-gray-400 mt-0.5">Estimate · excl. VAT and delivery</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Status Badge */}
                     <div className="bg-blue-900/30 border border-blue-700/50 rounded p-2 text-xs text-blue-200 text-center">
-                      ✓ Ready to proceed to next step
+                      ✓ Estimate updates with print size, artwork scale, placement, and quantity
                     </div>
                   </>
                 )}

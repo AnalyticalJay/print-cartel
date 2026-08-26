@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { products, printOptions } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { calculateDtfEstimate, type DtfEstimate, type DtfPricingSelection } from "../shared/dtfPricing";
 
 /**
  * Pricing structure:
@@ -18,6 +19,15 @@ export interface PricingInput {
   quantity: number;
   printPlacements: Array<{
     printSizeId: number;
+  }>;
+}
+
+export interface DtfOrderEstimateInput {
+  productId: number;
+  quantity: number;
+  printPlacements: Array<{
+    printSizeId: number;
+    previewScale?: number;
   }>;
 }
 
@@ -41,6 +51,38 @@ export interface PricingBreakdown {
 }
 
 const PLACEMENT_COST_PER_UNIT = 50; // R50 per placement
+
+/**
+ * Calculates the checkout estimate from the persisted product price and the same physical print-size
+ * dimensions shown in the garment preview. Order mutations call this instead of trusting client totals.
+ */
+export async function calculateDtfOrderEstimate(input: DtfOrderEstimateInput): Promise<DtfEstimate> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const productData = await db.select().from(products).where(eq(products.id, input.productId)).limit(1);
+  const product = productData[0];
+  if (!product) {
+    throw new Error(`Product with ID ${input.productId} not found`);
+  }
+
+  const selections = await Promise.all(input.printPlacements.map(async (placement): Promise<DtfPricingSelection> => {
+    const printOptionData = await db.select().from(printOptions).where(eq(printOptions.id, placement.printSizeId)).limit(1);
+    const printOption = printOptionData[0];
+    if (!printOption) {
+      throw new Error(`Print option with ID ${placement.printSizeId} not found`);
+    }
+    return { printSize: printOption.printSize, previewScale: placement.previewScale };
+  }));
+
+  return calculateDtfEstimate({
+    basePrice: parseFloat(product.basePrice as any),
+    quantity: input.quantity,
+    printSelections: selections,
+  });
+}
 
 // Bulk discount tiers
 function getBulkDiscountPercentage(quantity: number): number {

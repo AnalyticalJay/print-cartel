@@ -71,7 +71,7 @@ export const useOrderCart = create<OrderCartStore>((set: any, get: any) => ({
 
   getTotal: (): number => {
     const state = get() as OrderCartStore;
-    return state.items.reduce((total: number, item: CartLineItem) => total + item.unitPrice * item.quantity, 0);
+    return state.items.reduce((total: number, item: CartLineItem) => total + (item.subtotal ?? item.unitPrice * item.quantity), 0);
   },
 
   getItemCount: (): number => {
