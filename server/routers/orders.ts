@@ -251,7 +251,7 @@ export const ordersRouter = router({
             throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to calculate the cart item estimate." });
           }
           const subtotalNum = itemPricing.total;
-          const unitPrice = (subtotalNum / cartItem.quantity).toString();
+          const unitPrice = (Math.round(((subtotalNum / cartItem.quantity) + Number.EPSILON) * 100) / 100).toString();
           const subtotal = subtotalNum.toString();
           await createOrderLineItem({
             orderId,
