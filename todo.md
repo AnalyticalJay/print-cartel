@@ -2331,4 +2331,4 @@ Future enhancements (Phase 2):
 - [x] Add mutation-level tests that assert stored order and line-item totals match the shared DTF calculator.
 - [x] Confirm the tests do not invoke payment generation, payment recording, or external payment services.
 - [x] Run the focused suite and complete type/build validation.
-- [ ] Commit the automated checkout-price verification coverage.
+- [x] Commit the automated checkout-price verification coverage.
