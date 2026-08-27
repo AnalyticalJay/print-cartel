@@ -11,6 +11,7 @@ The pricing suite has two layers. The pure calculator tests validate physical pr
 | Calculator unit tests | `server/dtfPricing.test.ts` | 5 | A4 physical area, reduced scale, the 10-unit discount threshold, Pocket/A6 aliasing, and unknown-size rejection are calculated correctly. |
 | Checkout mutation tests | `server/order-pricing-e2e.test.ts` | 3 | Single-item and cart mutations replace a spoofed browser total with the server-calculated estimate and persist that value; unsupported sizes return a safe validation error without creating an order. |
 | Payment callback tests | `server/payfast-callback-persistence.test.ts` | 2 | Matching payments mark the order paid without overwriting its checkout estimate; mismatches are flagged for manual review. |
+| Isolated load simulation | `server/checkout-load-simulation.test.ts` | 2 | 200 concurrent checkout mutations and 400 concurrent payment callbacks retain pricing and estimate integrity with mocked side effects. |
 | Legacy pricing-service tests | `server/pricing.test.ts` | 14 | The earlier database-backed fixed-tier price service, its product lookup, and discount thresholds are covered independently. |
 
 ## Verified DTF price behavior
@@ -49,7 +50,7 @@ The following items are intentionally visible rather than hidden behind a generi
 
 ## Continuous integration boundary
 
-The accompanying GitHub Actions workflow runs the **deterministic** DTF calculator, checkout-mutation, and payment-callback persistence suites, TypeScript validation, and the production build on `push` and `pull_request`. It does not run the full repository test suite because several older tests depend on an external database and would require a separately configured disposable test database. The workflow contains no payment credentials and never starts the application’s payment path.
+The accompanying GitHub Actions workflow runs the **deterministic** DTF calculator, checkout-mutation, payment-callback persistence, and isolated concurrency suites, TypeScript validation, and the production build on `push` and `pull_request`. It does not run the full repository test suite because several older tests depend on an external database and would require a separately configured disposable test database. The workflow contains no payment credentials and never starts the application’s payment path.
 
 The first hosted run exposed a duplicate pnpm-version declaration between the workflow and `package.json`; the workflow was corrected to use the repository’s pinned package-manager declaration. The corrected hosted run completed successfully in 42 seconds: [GitHub Actions run 33045619117](https://github.com/AnalyticalJay/print-cartel/actions/runs/33045619117).
 

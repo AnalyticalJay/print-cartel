@@ -2347,3 +2347,11 @@ Future enhancements (Phase 2):
 - [x] Add payment-callback and unknown-print-size regression tests.
 - [x] Run CI-equivalent validation: 10 focused safeguards passed alongside TypeScript and production build checks.
 - [ ] Push the safeguards and confirm the hosted workflow passes.
+
+## Current Task - Isolated Checkout Load Simulation
+- [x] Define a deterministic, payment-free high-concurrency profile for checkout and PayFast callback simulations.
+- [x] Add isolated concurrent test harnesses that mock persistence and outbound dependencies.
+- [x] Run the high-concurrency simulation and collect latency, completion, and integrity metrics.
+- [x] Document load-test limits and findings and include the load test in CI.
+- [x] Run all checkout pricing safeguards, the load simulation, TypeScript validation, and the production build.
+- [ ] Commit and push the isolated load-simulation coverage, then verify the hosted CI run.
