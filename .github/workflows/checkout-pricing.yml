@@ -1,0 +1,46 @@
+name: Checkout pricing
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkout-pricing-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-checkout-pricing:
+    name: Verify checkout pricing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run DTF price and checkout mutation tests
+        run: pnpm vitest run server/dtfPricing.test.ts server/order-pricing-e2e.test.ts
+
+      - name: Validate TypeScript
+        run: pnpm check
+
+      - name: Build the application
+        run: pnpm build

@@ -2332,3 +2332,10 @@ Future enhancements (Phase 2):
 - [x] Confirm the tests do not invoke payment generation, payment recording, or external payment services.
 - [x] Run the focused suite and complete type/build validation.
 - [x] Commit the automated checkout-price verification coverage.
+
+## Current Task - Checkout Pricing Coverage Report and CI
+- [x] Audit the shared DTF pricing rules, mutation tests, and existing GitHub Actions configuration.
+- [x] Document the current coverage and prioritised outstanding pricing edge cases.
+- [x] Add a GitHub Actions workflow to run DTF pricing and checkout-mutation tests on pushes and pull requests.
+- [x] Validate the CI workflow locally: locked install, focused tests, TypeScript check, and production build.
+- [ ] Commit and push the report and automation changes.
