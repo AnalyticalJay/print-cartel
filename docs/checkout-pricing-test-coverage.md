@@ -50,6 +50,8 @@ The following items are intentionally visible rather than hidden behind a generi
 
 The accompanying GitHub Actions workflow runs the **deterministic** DTF calculator and checkout-mutation suites, TypeScript validation, and the production build on `push` and `pull_request`. It does not run the full repository test suite because several older tests depend on an external database and would require a separately configured disposable test database. The workflow contains no payment credentials and never starts the application’s payment path.
 
+The first hosted run exposed a duplicate pnpm-version declaration between the workflow and `package.json`; the workflow was corrected to use the repository’s pinned package-manager declaration. The corrected hosted run completed successfully in 42 seconds: [GitHub Actions run 33045619117](https://github.com/AnalyticalJay/print-cartel/actions/runs/33045619117).
+
 ## Recommended next coverage increment
 
 The highest-value next change is to protect the original estimate from payment-callback overwrites, then add explicit threshold, normalization, unknown-print-size, and aggregate-cart-discount tests. A disposable MySQL test database should be introduced only after these deterministic contract tests are stable, so that database lookup and migration behavior can be tested without connecting CI to production data.

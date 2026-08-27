@@ -2338,4 +2338,4 @@ Future enhancements (Phase 2):
 - [x] Document the current coverage and prioritised outstanding pricing edge cases.
 - [x] Add a GitHub Actions workflow to run DTF pricing and checkout-mutation tests on pushes and pull requests.
 - [x] Validate the CI workflow locally: locked install, focused tests, TypeScript check, and production build.
-- [ ] Commit and push the report and automation changes.
+- [x] Commit and push the report and automation changes; hosted GitHub Actions verification passed.
