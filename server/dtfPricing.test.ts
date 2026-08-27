@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateDtfEstimate } from "../shared/dtfPricing";
+import { calculateDtfEstimate, getPrintSizeDimensions, UnsupportedPrintSizeError } from "../shared/dtfPricing";
 
 describe("calculateDtfEstimate", () => {
   it("prices an A4 transfer by its physical proof area and quantity", () => {
@@ -29,5 +29,17 @@ describe("calculateDtfEstimate", () => {
 
     expect(estimate.bulkDiscountPercentage).toBe(10);
     expect(estimate.total).toBe(1080);
+  });
+
+  it("normalises the approved Pocket label to the A6 printable dimensions", () => {
+    expect(getPrintSizeDimensions("Pocket Size")).toEqual({ label: "A6", widthCm: 10.5, heightCm: 14.8 });
+  });
+
+  it("rejects unapproved print sizes rather than silently applying a generic square area", () => {
+    expect(() => calculateDtfEstimate({
+      basePrice: 120,
+      quantity: 1,
+      printSelections: [{ printSize: "Oversized custom 45 cm", previewScale: 1 }],
+    })).toThrow(UnsupportedPrintSizeError);
   });
 });

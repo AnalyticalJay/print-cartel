@@ -44,15 +44,31 @@ const PRINT_SIZE_DIMENSIONS: Record<string, PrintSizeDimensions> = {
   a3: { label: "A3", widthCm: 29.7, heightCm: 42 },
 };
 
+const PRINT_SIZE_ALIASES: Record<string, readonly string[]> = {
+  a6: ["a6", "pocket"],
+  a5: ["a5"],
+  a4: ["a4"],
+  a3: ["a3"],
+};
+
+export class UnsupportedPrintSizeError extends Error {
+  constructor(printSize?: string) {
+    super(`Unsupported print size${printSize ? `: ${printSize}` : ""}. Select an approved Pocket/A6, A5, A4, or A3 print size.`);
+    this.name = "UnsupportedPrintSizeError";
+  }
+}
+
 const roundCurrency = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
 
 export function getPrintSizeDimensions(printSize?: string): PrintSizeDimensions {
   const normalized = printSize?.trim().toLowerCase() ?? "";
-  const matchedKey = Object.keys(PRINT_SIZE_DIMENSIONS).find((key) => normalized.includes(key));
+  const matchedKey = Object.entries(PRINT_SIZE_ALIASES).find(([, aliases]) => aliases.some((alias) => normalized.includes(alias)))?.[0];
 
-  return matchedKey
-    ? PRINT_SIZE_DIMENSIONS[matchedKey]
-    : { label: printSize || "Custom", widthCm: 20, heightCm: 20 };
+  if (!matchedKey) {
+    throw new UnsupportedPrintSizeError(printSize);
+  }
+
+  return PRINT_SIZE_DIMENSIONS[matchedKey];
 }
 
 export function getArtworkDimensions(printSize: string | undefined, scale: number): PrintSizeDimensions {

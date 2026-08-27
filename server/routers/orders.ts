@@ -15,6 +15,18 @@ import { sendInvoiceEmail, sendInvoiceNotificationToAdmin } from "../invoice-ema
 import { sendInvoiceReceivedEmail } from "../invoice-received-email";
 import { sendPaymentConfirmationEmail } from "../payment-confirmation-email";
 import { calculateDtfOrderEstimate } from "../pricing";
+import { UnsupportedPrintSizeError } from "../../shared/dtfPricing";
+
+async function calculateValidatedDtfOrderEstimate(input: Parameters<typeof calculateDtfOrderEstimate>[0]) {
+  try {
+    return await calculateDtfOrderEstimate(input);
+  } catch (error) {
+    if (error instanceof UnsupportedPrintSizeError) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+    }
+    throw error;
+  }
+}
 
 const CreateOrderInput = z.object({
   productId: z.number(),
@@ -84,7 +96,7 @@ export const ordersRouter = router({
     .input(CreateOrderInput)
     .mutation(async ({ input, ctx }) => {
       try {
-        const pricing = await calculateDtfOrderEstimate({
+        const pricing = await calculateValidatedDtfOrderEstimate({
           productId: input.productId,
           quantity: input.quantity,
           printPlacements: input.prints.map((print) => ({
@@ -204,6 +216,9 @@ export const ordersRouter = router({
 
         return { orderId, status: "pending" };
       } catch (error) {
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw error;
+        }
         console.error("Failed to create order:", error);
         throw error;
       }
@@ -213,7 +228,7 @@ export const ordersRouter = router({
     .input(CreateMultiItemOrderInput)
     .mutation(async ({ input, ctx }) => {
       try {
-        const cartItemPricing = await Promise.all(input.cartItems.map((cartItem) => calculateDtfOrderEstimate({
+        const cartItemPricing = await Promise.all(input.cartItems.map((cartItem) => calculateValidatedDtfOrderEstimate({
           productId: cartItem.productId,
           quantity: cartItem.quantity,
           printPlacements: cartItem.printSelections.map((print) => ({
@@ -343,6 +358,9 @@ export const ordersRouter = router({
 
         return { orderId, status: "pending" };
       } catch (error) {
+        if (error instanceof TRPCError && error.code === "BAD_REQUEST") {
+          throw error;
+        }
         console.error("Failed to create multi-item order:", error);
         throw error;
       }

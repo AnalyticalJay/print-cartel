@@ -2339,3 +2339,11 @@ Future enhancements (Phase 2):
 - [x] Add a GitHub Actions workflow to run DTF pricing and checkout-mutation tests on pushes and pull requests.
 - [x] Validate the CI workflow locally: locked install, focused tests, TypeScript check, and production build.
 - [x] Commit and push the report and automation changes; hosted GitHub Actions verification passed.
+
+## Current Task - Estimate Preservation and Print-Size Validation
+- [x] Inspect the PayFast callback, invoice amount dependencies, and DTF print-size resolver.
+- [x] Define the immutable checkout-estimate and provider-payment amount contract.
+- [x] Reject unknown print sizes at server calculation and order-mutation boundaries.
+- [x] Add payment-callback and unknown-print-size regression tests.
+- [x] Run CI-equivalent validation: 10 focused safeguards passed alongside TypeScript and production build checks.
+- [ ] Push the safeguards and confirm the hosted workflow passes.

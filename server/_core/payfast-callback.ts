@@ -64,18 +64,57 @@ export async function handlePayFastCallback(req: Request, res: Response) {
 
     // Check if payment is successful
     if (isPaymentSuccessful(data.payment_status)) {
-      // Update order status to approved
       const db = await getDb();
-      if (db) {
+      if (!db) {
+        throw new Error("Database not available");
+      }
+
+      const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+      if (!order) {
+        res.status(404).json({ error: "Order not found" });
+        return;
+      }
+
+      const providerAmount = Number.parseFloat(String(data.amount_gross));
+      const checkoutEstimate = Number.parseFloat(String(order.totalPriceEstimate));
+      if (!Number.isFinite(providerAmount) || providerAmount < 0) {
+        res.status(400).json({ error: "Invalid payment amount" });
+        return;
+      }
+
+      // The order total is the checkout snapshot used by invoices and remaining-balance logic.
+      // Never overwrite it with callback data; flag any amount mismatch for manual review instead.
+      if (!Number.isFinite(checkoutEstimate) || Math.abs(providerAmount - checkoutEstimate) > 0.01) {
         await db
           .update(orders)
           .set({
-            status: "approved",
-            totalPriceEstimate: data.amount_gross,
+            paymentVerificationStatus: "pending",
+            paymentVerificationNotes: `PayFast amount ${providerAmount.toFixed(2)} does not match checkout estimate ${Number.isFinite(checkoutEstimate) ? checkoutEstimate.toFixed(2) : "unavailable"}. Manual review required.`,
             updatedAt: new Date(),
           })
           .where(eq(orders.id, orderId));
+        console.error(`PayFast amount mismatch for order ${orderId}`);
+        res.status(200).json({ success: false, message: "Payment amount requires review" });
+        return;
       }
+
+      if (order.paymentStatus === "paid" && Math.abs(Number.parseFloat(String(order.amountPaid ?? 0)) - providerAmount) <= 0.01) {
+        res.status(200).json({ success: true, message: "Payment already processed" });
+        return;
+      }
+
+      await db
+        .update(orders)
+        .set({
+          status: "approved",
+          paymentStatus: "paid",
+          amountPaid: providerAmount.toFixed(2),
+          paymentVerificationStatus: "verified",
+          paymentVerifiedAt: new Date(),
+          paymentVerificationNotes: "PayFast amount matched the checkout estimate.",
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.id, orderId));
 
       console.log(`Payment successful for order ${orderId}`);
       res.status(200).json({ success: true, message: "Payment processed" });

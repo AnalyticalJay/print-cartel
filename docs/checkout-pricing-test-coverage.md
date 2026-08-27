@@ -8,8 +8,9 @@ The pricing suite has two layers. The pure calculator tests validate physical pr
 
 | Test layer | Test file | Executed scenarios | Primary assertion |
 |---|---|---:|---|
-| Calculator unit tests | `server/dtfPricing.test.ts` | 3 | A4 physical area, reduced scale, and the 10-unit discount threshold are calculated correctly. |
-| Checkout mutation tests | `server/order-pricing-e2e.test.ts` | 2 | Single-item and cart mutations replace a spoofed browser total with the server-calculated estimate and persist that value. |
+| Calculator unit tests | `server/dtfPricing.test.ts` | 5 | A4 physical area, reduced scale, the 10-unit discount threshold, Pocket/A6 aliasing, and unknown-size rejection are calculated correctly. |
+| Checkout mutation tests | `server/order-pricing-e2e.test.ts` | 3 | Single-item and cart mutations replace a spoofed browser total with the server-calculated estimate and persist that value; unsupported sizes return a safe validation error without creating an order. |
+| Payment callback tests | `server/payfast-callback-persistence.test.ts` | 2 | Matching payments mark the order paid without overwriting its checkout estimate; mismatches are flagged for manual review. |
 | Legacy pricing-service tests | `server/pricing.test.ts` | 14 | The earlier database-backed fixed-tier price service, its product lookup, and discount thresholds are covered independently. |
 
 ## Verified DTF price behavior
@@ -34,8 +35,8 @@ The following items are intentionally visible rather than hidden behind a generi
 
 | Priority | Edge case | Current behavior or risk | Recommended next automated test / control |
 |---|---|---|---|
-| P0 | Payment callback replaces `totalPriceEstimate` with a provider-supplied gross amount | The payment callback writes `amount_gross` back to the field used by invoices and payment tracking. This can remove the original checkout estimate or create an unexplained mismatch after pricing changes.[3] | Preserve the checkout estimate and store provider payment amount separately; add callback tests for matching, overpayment, and underpayment. |
-| P0 | Unknown print-size labels receive a fallback 20 × 20 cm physical area | The calculator protects itself with a generic custom-size fallback, but an unapproved label could be silently priced as a square custom transfer.[1] | Reject unknown labels at the server boundary or require approved custom dimensions; add a rejection test. |
+| Resolved | Payment callback replaces `totalPriceEstimate` with a provider-supplied gross amount | Successful callbacks now leave the checkout estimate unchanged. Matching totals set payment verification to verified; mismatches remain pending for manual review. | Add a production integration test with a disposable database before changing payment-provider logic further. |
+| Resolved | Unknown print-size labels receive a fallback 20 × 20 cm physical area | Approved Pocket/A6, A5, A4, and A3 labels are normalised; unknown labels are rejected in the shared calculator and returned as a `BAD_REQUEST` order validation error. | Define a separate reviewed custom-size workflow if custom dimensions are offered commercially. |
 | P1 | Discount qualification in a mixed cart | `createMultiItem` calculates quantity discounts per line item. The commercial policy may instead require discounting based on the aggregate number of garments in the cart. | Confirm the intended policy and add a cart-level 9 + 1, 49 + 1, and 99 + 1 boundary suite. |
 | P1 | Discount thresholds at 50 and 100 | The shared calculator contains 20% and 30% tiers, but the new DTF tests exercise only the 10-unit threshold. | Add exact-boundary tests for 9/10, 49/50, and 99/100 across unit and mutation paths. |
 | P1 | Scale and quantity normalization | The calculator clamps artwork scale to `[0,1]` and converts quantity to a positive integer, but the behavior is not currently specified in tests. | Add table-driven tests for `undefined`, negative, zero, fractional, `NaN`, and values above one. |
@@ -48,13 +49,13 @@ The following items are intentionally visible rather than hidden behind a generi
 
 ## Continuous integration boundary
 
-The accompanying GitHub Actions workflow runs the **deterministic** DTF calculator and checkout-mutation suites, TypeScript validation, and the production build on `push` and `pull_request`. It does not run the full repository test suite because several older tests depend on an external database and would require a separately configured disposable test database. The workflow contains no payment credentials and never starts the application’s payment path.
+The accompanying GitHub Actions workflow runs the **deterministic** DTF calculator, checkout-mutation, and payment-callback persistence suites, TypeScript validation, and the production build on `push` and `pull_request`. It does not run the full repository test suite because several older tests depend on an external database and would require a separately configured disposable test database. The workflow contains no payment credentials and never starts the application’s payment path.
 
 The first hosted run exposed a duplicate pnpm-version declaration between the workflow and `package.json`; the workflow was corrected to use the repository’s pinned package-manager declaration. The corrected hosted run completed successfully in 42 seconds: [GitHub Actions run 33045619117](https://github.com/AnalyticalJay/print-cartel/actions/runs/33045619117).
 
 ## Recommended next coverage increment
 
-The highest-value next change is to protect the original estimate from payment-callback overwrites, then add explicit threshold, normalization, unknown-print-size, and aggregate-cart-discount tests. A disposable MySQL test database should be introduced only after these deterministic contract tests are stable, so that database lookup and migration behavior can be tested without connecting CI to production data.
+The next highest-value coverage increment is exact 50/100 discount thresholds, scale and quantity normalisation, aggregate-cart discount policy, and duplicate-layer handling. A disposable MySQL test database should be introduced only after these deterministic contract tests are stable, so that database lookup and migration behavior can be tested without connecting CI to production data.
 
 ## References
 

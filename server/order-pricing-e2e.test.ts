@@ -63,13 +63,15 @@ vi.mock("./db", () => ({
   getOrderStatusHistory: vi.fn(),
 }));
 
+const pricingService = vi.hoisted(() => ({ calculateDtfOrderEstimate: vi.fn() }));
+
 vi.mock("./pricing", async () => {
   const { calculateDtfEstimate } = await import("../shared/dtfPricing");
   const productPrices: Record<number, number> = { 101: 120, 202: 200 };
   const printSizes: Record<number, string> = { 11: "A4", 22: "A5" };
 
   return {
-    calculateDtfOrderEstimate: vi.fn(async (input: {
+    calculateDtfOrderEstimate: pricingService.calculateDtfOrderEstimate.mockImplementation(async (input: {
       productId: number;
       quantity: number;
       printPlacements: Array<{ printSizeId: number; previewScale?: number }>;
@@ -98,7 +100,7 @@ vi.mock("./invoice-email", () => ({ sendInvoiceEmail: vi.fn().mockResolvedValue(
 vi.mock("./invoice-received-email", () => ({ sendInvoiceReceivedEmail: vi.fn().mockResolvedValue(undefined) }));
 vi.mock("./payment-confirmation-email", () => ({ sendPaymentConfirmationEmail: vi.fn().mockResolvedValue(undefined) }));
 
-import { calculateDtfEstimate } from "../shared/dtfPricing";
+import { calculateDtfEstimate, UnsupportedPrintSizeError } from "../shared/dtfPricing";
 import type { TrpcContext } from "./_core/context";
 import { ordersRouter } from "./routers/orders";
 
@@ -242,5 +244,31 @@ describe("checkout price verification", () => {
     expect(checkoutStore.state.prints).toHaveLength(3);
     expect(checkoutStore.state.paymentRecords).toHaveLength(0);
     expect(outbound.sendOrderConfirmationEmail).toHaveBeenCalledOnce();
+  });
+
+  it("returns a customer-safe validation error and creates no order for an unsupported print size", async () => {
+    pricingService.calculateDtfOrderEstimate.mockRejectedValueOnce(new UnsupportedPrintSizeError("Oversized custom 45 cm"));
+
+    await expect(caller.create({
+      productId: 101,
+      colorId: 1,
+      sizeId: 1,
+      quantity: 1,
+      customerFirstName: "E2E",
+      customerLastName: "Invalid size",
+      customerEmail: "e2e-invalid-size@example.com",
+      customerPhone: "0100000003",
+      deliveryMethod: "collection",
+      prints: [{
+        placementId: 1,
+        printSizeId: 999,
+        uploadedFilePath: "https://example.test/e2e-invalid-size.png",
+        uploadedFileName: "e2e-invalid-size.png",
+      }],
+    })).rejects.toMatchObject({ code: "BAD_REQUEST", message: expect.stringContaining("Unsupported print size") });
+
+    expect(checkoutStore.state.orders).toHaveLength(0);
+    expect(checkoutStore.state.prints).toHaveLength(0);
+    expect(checkoutStore.state.paymentRecords).toHaveLength(0);
   });
 });
